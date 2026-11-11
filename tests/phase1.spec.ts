@@ -88,6 +88,9 @@ test('every answer has a report link that opens a prefilled issue', async ({ pag
   expect(body).toContain(a.v ? 'true positive' : 'benign');
   expect(body).toContain('My call: ' + (a.v ? 'escalate' : 'close') + ' (sure)');
   expect(body).toMatch(/App \S+ \| content v2/);
+  const mail = page.locator('.rep a[href^="mailto:"]');
+  await expect(mail, 'e-mail fallback for people without GitHub').toHaveAttribute('href', /^mailto:jrsjordans@gmail\.com\?subject=/);
+  await expect(page.locator('.rep')).toContainText('jrsjordans@gmail.com');
   await expect(link).toHaveAttribute('target', '_blank');
   await expect(link).toHaveAttribute('rel', /noopener/);
 });

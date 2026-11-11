@@ -8,7 +8,7 @@ attack_version: '20.1'
 # The daily shift and the weekly boss draw ONLY from alerts whose drop <= daily_pool_drop, so a content drop does not
 # silently change today's daily or this week's boss for people on different versions. Personal shifts use every alert.
 # Bump daily_pool_drop deliberately (and tell the group) when a new drop should enter the shared pool.
-daily_pool_drop: 1
+daily_pool_drop: 2
 
 # Which drop each alerts file shipped in (files not listed are drop 1).
 drops:
