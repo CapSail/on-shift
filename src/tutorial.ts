@@ -13,7 +13,7 @@ export function tutorial(): void {
   app.innerHTML = `<div class="scr center" style="padding-top:8vh"><div class="logo px" style="font-size:22px">ON<b>·</b>SHIFT</div>
  <div class="dale" style="margin-top:28px"><div class="av">☕</div><div><b>DALE · NIGHT SHIFT SOC MANAGER</b><p>${esc(DALE.first[0])}</p></div></div>
  <div class="intro" style="text-align:left;margin-top:12px"><p style="margin:0">Alerts come in. You make the call:</p>
- <p>👉 <b style="color:var(--red)">Escalate</b> (swipe right) if it's a real attack.<br>👈 <b style="color:var(--grn)">Close</b> (swipe left) if it's benign.<br>🎯 Swipe <b>far</b> or use the outer buttons if you're <b>sure</b>. Sure + right pays big; sure + wrong hurts.</p>
+ <p>👉 <b style="color:var(--red)">Escalate</b> (swipe right) if it's a real attack.<br>👈 <b style="color:var(--grn)">Close</b> (swipe left) if it's benign.<br>⚡ Tap <b>SURE</b> before you swipe when you're certain: +15 if right, −10 if wrong. Otherwise it's a lean: +8 / −2.</p>
  <p>Then point at the line that gave it away. That's the skill.</p></div>
  <button class="next" id="t">Start training (3 alerts)</button></div>`;
   $('#t').onclick = () => go(() => {

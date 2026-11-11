@@ -138,7 +138,7 @@ Known iOS gotchas to handle up front:
 
 ## 5. Gameplay spec (current behavior to preserve)
 
-- **Call:** 4 buttons (close sure / close lean / escalate lean / escalate sure) or swipe (≥80px lean, ≥170px sure). Keyboard: ←/→ lean, Shift+←/→ sure, 1–9 pick line, `h` host line, Enter next.
+- **Call:** swipe the card dating-app style (follows the finger, tilts, tints; commits past max(70px, 28% of card width) or on a fast flick, otherwise springs back) or tap Close / Escalate. **SURE is a separate ⚡ toggle** armed before answering (+15 right / −10 wrong instead of +8 / −2), reset after every card; it is never part of the swipe. Keyboard: ←/→ answer, `S` toggles SURE, 1–9 pick line, `h` host line, Enter next.
 - **Evidence pick:** after a *correct* call, tap the deciding line. Right line = 🎯 sharp eye (+5), wrong line = 🍀 lucky (half XP, grade capped so it comes back soon), skip = no bonus.
 - **Grading → SRS:** grade 3 = sure+right+eye, 2 = lean+right, 1 = lucky or lean+wrong, 0 = sure+wrong. Concept boxes with gaps `[1,3,7,16,35,90]` days. New concept: g3 → box 2, g2 → box 1, else box 0. Wrong → box 0 + lapse. Callbacks serve a *different* alert for the same concept (least seen first).
 - **Shift builder:** up to 5 due concepts (most overdue first), then fresh alerts near the player's rolling difficulty tier. 2–6 true positives per shift (randomized). Guarantee one `scary` benign and one `bland` malicious when available. No same concept twice. Interleave domains.

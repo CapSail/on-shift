@@ -19,7 +19,9 @@ const rate = (list: LogEvent[]) => (list.length ? list.filter((e) => e.ok).lengt
 
 export function skill(): void {
   const { L, tp, fp, cr, cc } = catchStats();
-  const sure = L.filter((e) => e.conf), lean = L.filter((e) => !e.conf);
+  // calibration compares deliberate sure vs lean calls: ride (audio, no toggle) and training are excluded
+  const C = L.filter((e) => e.mode !== 'ride' && e.mode !== 'tut');
+  const sure = C.filter((e) => e.conf), lean = C.filter((e) => !e.conf);
   const sa = rate(sure), la = rate(lean);
   const ev = L.filter((e) => e.ok && e.eye !== undefined && e.eye !== null);
   const eyeR = ev.length ? ev.filter((e) => e.eye).length / ev.length : 0;
@@ -34,8 +36,9 @@ export function skill(): void {
     else bias = "Balanced. You're not leaning one way.";
   }
   let cal = '';
-  if (sure.length >= 5 && lean.length >= 5) {
-    cal = sa - la < 0.1 ? 'Your "sure" isn\'t more accurate than your "lean" yet. Only go sure when you can point at the line.' : sa < 0.85 ? 'Sure calls under 85%. Overconfident: the swipe-far costs you.' : "Well calibrated. When you're sure, you're right.";
+  if (sure.length >= 20 && lean.length < 5) cal = 'You go SURE on nearly everything. Calibration needs honest leans: lean when you cannot point at the line.';
+  else if (sure.length >= 5 && lean.length >= 5) {
+    cal = sa - la < 0.1 ? 'Your "sure" isn\'t more accurate than your "lean" yet. Only go sure when you can point at the line.' : sa < 0.85 ? 'Sure calls under 85%. Overconfident: the SURE toggle costs you.' : "Well calibrated. When you're sure, you're right.";
   }
   const doms: Record<string, [number, number]> = {};
   L.forEach((e) => { const d = (doms[e.d!] = doms[e.d!] || [0, 0]); d[0]++; if (e.ok) d[1]++; });
