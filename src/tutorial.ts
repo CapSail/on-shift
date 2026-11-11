@@ -8,6 +8,7 @@ import { app, confetti, go, routes, stopDock } from './ui';
 import { runAlerts } from './runner';
 import type { QueueAlert } from './types';
 import { $, esc } from './util';
+import { requestPersist } from './pwa';
 
 export function tutorial(): void {
   app.innerHTML = `<div class="scr center" style="padding-top:8vh"><div class="logo px" style="font-size:22px">ON<b>·</b>SHIFT</div>
@@ -25,6 +26,7 @@ export function tutorial(): void {
 function tutEnd(): void {
   stopDock();
   S.onb = true;
+  requestPersist();
   const rare = D.crews.filter((c) => c.r === 1);
   const c = rare[Math.floor(Math.random() * rare.length)];
   capture(c.id, 'training');

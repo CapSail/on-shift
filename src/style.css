@@ -232,3 +232,11 @@ a{color:inherit}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 .share{white-space:pre-wrap;word-break:break-all;font-family:var(--mono);font-size:14px;line-height:1.5;background:var(--p1);border:1px solid var(--ln);border-radius:14px;padding:12px;text-align:left;margin-top:12px}
 @media (pointer:coarse){.kbd{display:none}}
+
+/* phase 1: report link, update banner, small link buttons, mono notes */
+.rep{margin-top:10px;font-size:12px;color:var(--dim);line-height:1.6}
+.rep a{color:var(--dim)}
+.linkbtn{color:var(--dim);text-decoration:underline;font-size:12px}
+.upd{position:fixed;left:12px;right:12px;top:calc(var(--top) + 10px);z-index:80;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--yl);color:#000;font-weight:700;font-size:14px;padding:10px 12px;border-radius:14px}
+.upd button{background:#000;color:var(--yl);border-radius:10px;padding:8px 12px;font-weight:700}
+.note.mono{font-family:var(--mono);font-size:12px;color:var(--dim)}

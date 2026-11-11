@@ -3,6 +3,7 @@ import type { LogEvent, SaveData } from './types';
 import { today } from './time';
 
 export const KEY = 'onshift.v2';
+export const SAVE_VERSION = 2;
 
 /** [xp needed, title, flavour] */
 export const RANKS: [number, string, string][] = [
@@ -19,7 +20,7 @@ export const RANKS: [number, string, string][] = [
 ];
 
 const DEFAULTS: SaveData = {
-  xp: 0, streak: 0, lastPlay: null, freeze: 0, cs: {}, seen: {}, log: [], dex: {}, intel: {}, inc: {}, boss: {},
+  ver: SAVE_VERSION, xp: 0, streak: 0, lastPlay: null, freeze: 0, cs: {}, seen: {}, log: [], dex: {}, intel: {}, inc: {}, boss: {},
   daily: {}, onb: false, sound: true, rolling: { 1: [], 2: [], 3: [] }, shifts: 0, dayGoal: {},
 };
 
@@ -33,7 +34,10 @@ function load(): SaveData {
       if (o) saved = { xp: o.xp || 0, dex: o.dex || {}, sound: o.sound !== false };
     } catch { /* ignore */ }
   }
-  return Object.assign({}, DEFAULTS, saved ?? {});
+  const s = Object.assign({}, DEFAULTS, saved ?? {});
+  // migrations go here, keyed on s.ver, e.g. if (s.ver < 3) { ...reshape...; }
+  s.ver = SAVE_VERSION;
+  return s;
 }
 
 export const S: SaveData = load();

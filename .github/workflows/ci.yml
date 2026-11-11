@@ -1,0 +1,57 @@
+name: CI and deploy
+
+# Every push and pull request is validated and tested. Pushes to main also deploy to GitHub Pages.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # the pinned ATT&CK release is downloaded once and cached
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: attack-${{ hashFiles('content/meta.yaml') }}
+
+      - run: npm ci
+
+      # content validation + typecheck + production build (fails on any content error)
+      - run: npm run build
+
+      - run: node ./node_modules/@playwright/test/cli.js install --with-deps chromium
+      - run: node ./node_modules/@playwright/test/cli.js test
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

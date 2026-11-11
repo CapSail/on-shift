@@ -39,3 +39,12 @@ Edit YAML, run `npm run validate`, push. The build **fails** on: invalid YAML, m
 It **warns** on: cue leaks (a host/user token that predicts the verdict), names in tells/says/questions that are not in the alert, profile paths that do not match the host-line user, tells that describe a different line than `k`, say text over 25 words, and prints ticket-shortcut and one-sided-concept stats. Fixing an alert must keep its `id`.
 
 Bump `content_version` in `content/meta.yaml` on every content drop. The shared daily shift and weekly boss only draw from alerts up to `daily_pool_drop` (same file), so a drop never changes them until you raise it; see `docs/content-drop-2.md`. Days are calendar days in America/Chicago (`src/time.ts`), not the device's.
+
+## Install, offline and hosting
+
+- **Installable PWA.** `public/manifest.webmanifest`, icons in `public/icons/` (regenerate with `npm run icons`), and a generated service worker (`scripts/sw-template.js` -> `dist/sw.js`) that precaches the whole app, content and fonts, so a full shift plays in airplane mode. A new build gets a new cache; the player sees "New version ready, tap to reload" and nothing swaps mid-shift.
+- **Hosting.** `.github/workflows/ci.yml` validates, builds and tests every push and pull request; pushes to `main` also deploy `dist/` to GitHub Pages. The build uses relative paths, so it works under `/on-shift/`.
+- **Report link.** Every answer shows "Report this answer", a prefilled GitHub issue (`.github/ISSUE_TEMPLATE/report.md`). To add an e-mail fallback for people without GitHub, set `REPORT_EMAIL` in `src/config.ts` (it is public once set).
+- **Credits.** The About screen carries the MITRE ATT&CK attribution and trademark note, the "fictional, not affiliated with any employer or client" disclaimer and the font licences.
+- **Days and the daily.** Calendar days are America/Chicago for everyone; the shared daily and weekly boss use only the alerts up to `daily_pool_drop`.
+- **iPhone.** Safari can erase a site's saved data after 7 days unused, so the home screen shows an "Add to Home Screen" prompt on iOS when the app is not installed, and the app asks the browser for persistent storage.

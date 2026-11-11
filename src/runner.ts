@@ -10,6 +10,7 @@ import { DALE, TAUNT, line, type RoastKind } from './voice';
 import { addXP } from './progress';
 import { app, buzz, dock, setLeaving, sfx, stopDock, toast } from './ui';
 import { $, $$, $o, esc, rnd, shuffle } from './util';
+import { reportHtml } from './report';
 
 export type Mode = 'shift' | 'daily' | 'drill' | 'tut' | 'inc' | 'boss';
 
@@ -333,6 +334,7 @@ export function runAlerts(cfg: RunCfg): void {
    ${!ok && conf ? `<div class="sub">Big miss: you were sure. That's the most valuable kind of mistake.${retryQueued ? ' It comes back at the end of this shift.' : isTut ? '' : ' It comes back as a callback next shift.'}</div>` : ''}</div>
    ${rule ? `<div class="rule"><b>RULE</b><p>${esc(rule)}</p></div>` : ''}
    <div class="tell">${esc(a.tell)}</div>
+   ${reportHtml({ alert: a, call: call!, sure: !!conf, ok, mode: cfg.mode })}
    ${!ok && tk && twin ? `<div class="cmp"><b>THE TWIN · ${twin.v ? 'ESCALATE' : 'CLOSE'}</b>Same title, other verdict. Its deciding detail:<span class="mono">${esc(tk)}</span></div>` : ''}
    <div class="roast">${esc(line(kind, a))}</div>
    ${intel ? `<div class="intel">🕵 Intel on ${esc(intel.c.n)} +1 (${intel.n}/3)${intel.cap ? ' · <b>CAPTURED!</b>' : ''}</div>` : ''}
