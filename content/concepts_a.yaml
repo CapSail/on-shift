@@ -1,0 +1,245 @@
+# ON SHIFT concept registry (alerts1-3) — transferable triage rules
+- id: anonymous-ip-context
+  rule: Anonymous-IP alerts clear when the device is compliant and strong MFA passed.
+  tac: Initial Access
+  d: identity
+- id: bits-download
+  rule: BITS pulling scripts from raw IPs into public folders is stealthy delivery, not an update.
+  tac: Stealth
+  d: endpoint
+- id: browser-cred-theft
+  rule: Browser login-data reads are stealers unless a signed app and user import explain it.
+  tac: Credential Access
+  d: endpoint
+- id: cloud-principal-abuse
+  rule: A service principal acting outside its pipeline or region means its secret leaked.
+  tac: Execution
+  d: cloud
+- id: comsvcs-minidump-lsass
+  rule: rundll32 calling comsvcs MiniDump on a system-range PID is LSASS dumping with a built-in DLL.
+  tac: Credential Access
+  d: endpoint
+- id: container-escape
+  rule: Privileged pod plus hostPath root equals owning the node.
+  tac: Privilege Escalation
+  d: linux
+- id: covert-tunnel-egress
+  rule: Internal hosts running Tor or reverse tunnels have no business reaching out that way.
+  tac: Command and Control
+  d: network
+- id: cron-persist
+  rule: A cron change is benign when config management owns it, malicious when nobody does.
+  tac: Persistence
+  d: linux
+- id: cryptomining
+  rule: A hidden high-CPU binary talking to a mining pool is cryptojacking.
+  tac: Impact
+  d: linux
+- id: data-exfil-upload
+  rule: Bulk uploads are exfil by destination, timing, and tool, not size alone.
+  tac: Exfiltration
+  d: network
+- id: dcsync
+  rule: Replication rights from a non-DC account is DCSync; only DCs and sync servers replicate.
+  tac: Credential Access
+  d: identity
+- id: disable-security-control
+  rule: Disabling security controls is benign only with scoped change or baseline, never from a macro.
+  tac: Defense Impairment
+  d: endpoint
+- id: discovery-burst
+  rule: A rapid burst of recon commands is enumeration unless a support ticket explains it.
+  tac: Discovery
+  d: endpoint
+- id: dll-sideload-signer
+  rule: Sideload risk lives in writable paths and rare hashes, not missing signatures.
+  tac: Persistence
+  d: endpoint
+- id: dns-txt-volume
+  rule: High-volume TXT queries with long encoded labels to a new domain is DNS tunneling.
+  tac: Command and Control
+  d: network
+- id: encoded-ps-decode
+  rule: Decode before you judge; a cradle downloads code, a management agent reads counters.
+  tac: Execution
+  d: endpoint
+- id: external-forward
+  rule: External forwarding needs an approval, a vetted recipient and an expiry.
+  tac: Collection
+  d: cloud
+- id: federation-change
+  rule: A new federated domain or issuer lets an attacker mint tokens for anyone.
+  tac: Privilege Escalation
+  d: identity
+- id: helpdesk-mfa-reset
+  rule: A privileged or MFA change right after a help-desk phone reset is account takeover.
+  tac: Persistence
+  d: identity
+- id: html-smuggling
+  rule: An HTML attachment that assembles an archive in the browser is smuggling past the gateway.
+  tac: Stealth
+  d: email
+- id: impacket-remote-exec
+  rule: Remote exec via WMI or services is Impacket unless the parent and source are sanctioned.
+  tac: Execution
+  d: endpoint
+- id: impossible-travel
+  rule: Impossible travel is a proxy when device and MFA match; stolen cookies skip the prompt.
+  tac: Initial Access
+  d: identity
+- id: internal-mass-mail
+  rule: Mass internal mail from a relay is routine; from a user mailbox it is spearphishing.
+  tac: Lateral Movement
+  d: email
+- id: internal-scan
+  rule: Subnet sweeps from registered scanners are baseline; from workstations, recon.
+  tac: Discovery
+  d: network
+- id: internet-bg-noise
+  rule: Blocked attempts and failed logins with no success are internet noise; escalate on success.
+  tac: Initial Access
+  d: network
+- id: iwr-iex-context
+  rule: Download-and-run is defined by the domain; official installers on dev boxes are fine.
+  tac: Execution
+  d: edr
+- id: kerberoast-source
+  rule: RC4 ticket bursts are kerberoasting unless an approved scanner or engagement owns them.
+  tac: Credential Access
+  d: identity
+- id: keyvault-secret-access
+  rule: Bulk secret reads are normal from your workload identity, suspicious from humans or new IPs.
+  tac: Credential Access
+  d: cloud
+- id: lockout-spike
+  rule: A lockout spike after a policy change is stale cached credentials, not brute force.
+  tac: Credential Access
+  d: identity
+- id: log-clearing
+  rule: Clearing logs, history, or trails is defense evasion unless automation and context explain it.
+  tac: Defense Impairment
+  d: endpoint
+- id: lolbin-remote-script
+  rule: Signed system binaries fetching remote scriptlets or HTAs is proxy execution, not their job.
+  tac: Stealth
+  d: endpoint
+- id: lookalike-domain-phish
+  rule: Verify who owns the domain; a weird name can be the vendor or an impostor.
+  tac: Initial Access
+  d: email
+- id: lsass-access
+  rule: LSASS access is judged by source path and signer together, never by the access mask.
+  tac: Credential Access
+  d: endpoint
+- id: mailbox-hide-rule
+  rule: Inbox rules that bury money keywords in obscure folders are BEC; ordinary filing is housekeeping.
+  tac: Stealth
+  d: cloud
+- id: mass-file-download
+  rule: Bulk cloud downloads are judged by client, device, and destination, not count.
+  tac: Collection
+  d: cloud
+- id: mass-file-rename
+  rule: Mass renames are encryption when every file gets a new extension and a ransom note.
+  tac: Impact
+  d: endpoint
+- id: mfa-fatigue
+  rule: Many denials then one approval from an outside address is MFA bombing, not a glitch.
+  tac: Credential Access
+  d: identity
+- id: mimikatz-present
+  rule: A known credential tool on disk or in memory demands a who and a why.
+  tac: Credential Access
+  d: edr
+- id: new-service-signer
+  rule: New services are judged by binary path and signer, not by the alert itself.
+  tac: Persistence
+  d: endpoint
+- id: ntdsutil-ifm-dump
+  rule: IFM media creation dumps the whole domain database; no admin does it casually.
+  tac: Credential Access
+  d: endpoint
+- id: oauth-app-abuse
+  rule: Judge OAuth apps by publisher, scopes, and consent trail, not their friendly name.
+  tac: Persistence
+  d: identity
+- id: office-child-process
+  rule: Office apps should not spawn shells or download tools; check the child and the source.
+  tac: Execution
+  d: endpoint
+- id: pass-the-hash
+  rule: Built-in admin over NTLM with key length zero from a workstation is pass-the-hash.
+  tac: Lateral Movement
+  d: identity
+- id: password-spray-brute
+  rule: Many accounts with one password, or a distributed brute, hunts for the weak unprotected login.
+  tac: Credential Access
+  d: identity
+- id: periodic-beacon
+  rule: Beaconing is judged by destination and process, not by its regular interval alone.
+  tac: Command and Control
+  d: network
+- id: powershell-bypass-parent
+  rule: An execution-policy bypass is only as scary as its parent process.
+  tac: Execution
+  d: endpoint
+- id: privileged-role-grant
+  rule: Privileged grants need PIM, ticket and approver; direct grants to dead accounts do not.
+  tac: Privilege Escalation
+  d: identity
+- id: pua-adware
+  rule: Blocked adware from a free installer is hygiene, not an incident.
+  tac: Execution
+  d: edr
+- id: qr-code-phish
+  rule: An image-only body with a QR code moves the click off managed devices.
+  tac: Initial Access
+  d: email
+- id: reply-chain-hijack
+  rule: A sudden attachment or link in a revived old thread means the sender is compromised.
+  tac: Initial Access
+  d: email
+- id: reverse-shell
+  rule: A web process spawning an interactive shell to the internet is a popped app.
+  tac: Execution
+  d: linux
+- id: rmm-sanctioned-vs-rogue
+  rule: A remote access tool is rogue unless it is your sanctioned instance and tenant.
+  tac: Command and Control
+  d: endpoint
+- id: run-key-persistence
+  rule: Judge run keys by signer and path, not by an official-sounding value name.
+  tac: Persistence
+  d: endpoint
+- id: s3-public-bucket
+  rule: Public buckets are fine for static sites; judge by content and who changed it.
+  tac: Collection
+  d: cloud
+- id: scheduled-task-fake-name
+  rule: Legit tasks run signed binaries from system paths; fakes hide in AppData under borrowed names.
+  tac: Persistence
+  d: endpoint
+- id: shadow-copy-deletion
+  rule: Deleting shadow copies and backup catalogs is ransomware clearing the escape hatches.
+  tac: Impact
+  d: endpoint
+- id: ssh-authkeys
+  rule: A new authorized key is fine from cloud-init, hostile from a shell.
+  tac: Persistence
+  d: linux
+- id: sudo-context
+  rule: Scoped, password-free sudo for one command during a deploy is least privilege, not escalation.
+  tac: Privilege Escalation
+  d: linux
+- id: teams-external-phish
+  rule: Allow-listed partners chatting is collaboration; unknown tenants posing as IT or pushing files is phishing.
+  tac: Initial Access
+  d: cloud
+- id: vendor-invoice-auth
+  rule: Trust vendor invoices on authentication, history, and sender domain, not the attachment alone.
+  tac: Initial Access
+  d: email
+- id: webshell-activity
+  rule: Web servers serve pages; shells, recon, or undeployed scripts taking POSTs mean a webshell.
+  tac: Persistence
+  d: endpoint

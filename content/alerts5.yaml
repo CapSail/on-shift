@@ -1,0 +1,115 @@
+# ON SHIFT alerts — part 5: tickets lie. Malicious alerts that cite change tickets, plus clean twins.
+- id: t01
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: Service created on domain controller
+  h: 'SRV-DC-03 · CORP\a.nguyen'
+  l: ['cmd: sc.exe create UpdMon binPath= "C:\ProgramData\upd\monitor.exe" start= auto', 'ticket: CHG0044120 "Install monitoring agent on SRV-APP-17"', 'signer: none']
+  v: 1
+  x: T1543.003
+  c: ticket-must-match-scope
+  k: [1]
+  diff: 3
+  trap: bland
+  say: 'Unsigned service from ProgramData installed on a domain controller. The cited change ticket is for installing an agent on a different app server.'
+  tell: 'The ticket is real; it is just for a different box. Attackers love borrowing a legit CHG number. Ticket, host, and binary all have to match or it is cosplay.'
+  q: {kind: pivot, ask: 'First pivot?', o: ['Check who created the service and from where (4697 + logon source)', 'Approve it, there is a ticket', 'Reboot the DC to clear the service'], a: 0, why: 'Find the session that did it; that tells you how far the attacker already is.'}
+- id: t02
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: Service created on application server
+  h: 'SRV-APP-17 · CORP\a.nguyen'
+  l: ['cmd: sc.exe create DTMonitor binPath= "C:\Program Files\Datadog\Datadog Agent\bin\agent.exe" start= auto', 'ticket: CHG0044120 "Install monitoring agent on SRV-APP-17"', 'signer: Datadog, Inc.']
+  v: 0
+  x: T1543.003
+  c: ticket-must-match-scope
+  k: [1]
+  diff: 2
+  trap: scary
+  say: 'New auto-start service on an app server, signed by Datadog in Program Files. The change ticket names this exact server and agent.'
+  tell: 'Ticket names this host, binary is signed and where it belongs. All three line up, so close it. This is what a ticket is supposed to look like.'
+- id: t03
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: Privileged role assigned
+  h: 'Privileged Role Administrator'
+  l: ['target: r.okafor@corp.com', 'actor: r.okafor@corp.com (self-assigned via Graph API)', 'justification: "CHG0043377 approved"', 'CHG0043377 status: closed 19 days ago']
+  v: 1
+  x: T1098.003
+  c: ticket-window-expired
+  k: [1, 3]
+  diff: 3
+  trap: bland
+  say: 'A user grants themselves privileged role admin through the Graph API. The justification cites a change ticket that closed nineteen days ago.'
+  tell: 'Self-granted privilege with a dead ticket number pasted in as justification. Anybody can type CHG-anything. Check the status and window, not just the format.'
+  q: {kind: contain, ask: 'Best containment?', o: ['Remove the role, revoke sessions, review what the account did since', 'Ask the user to open a fresh ticket', 'Disable PIM tenant-wide'], a: 0, why: 'Strip the privilege and the live tokens first; the paperwork conversation can wait.'}
+- id: t04
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: Privileged role assigned
+  h: 'Privileged Role Administrator'
+  l: ['target: r.okafor@corp.com', 'actor: PIM (activation, 2h, approver: k.reyes)', 'justification: "CHG0045012 SSO cert rotation"', 'CHG0045012 status: in progress, window 21:00-23:00 today']
+  v: 0
+  x: T1098.003
+  c: ticket-window-expired
+  k: [1, 3]
+  diff: 2
+  trap: scary
+  say: 'Privileged role activated through PIM for two hours with an approver. The ticket is open and its change window is tonight.'
+  tell: 'Same role, same person, but via PIM with an approver and a live window. The difference is the path and the clock, not the name.'
+- id: t05
+  d: cloud
+  src: 'ServiceNow · sys_audit'
+  t: Change request created and approved
+  h: 'CHG0046801 · ServiceNow'
+  l: ['created by: svc_snow_integration (API)', 'approved by: svc_snow_integration (API), 40 sec later', 'scope: "Add mail forwarding rule for exec mailboxes"', 'source IP: 185.x.x.x (hosting provider)']
+  v: 1
+  x: T1078
+  c: ticket-provenance
+  k: [1, 3]
+  diff: 3
+  trap: bland
+  say: 'A change request for exec mail forwarding is created and approved by the same integration account, forty seconds apart, from a hosting provider IP.'
+  tell: 'If the attacker owns the ITSM integration account, the tickets ARE the attack. Same identity filing and approving, from a VPS, is not a change process.'
+  q: {kind: pivot, ask: 'First pivot?', o: ['Find every change that integration account touched and where its secret lives', 'Reject this one ticket and move on', 'Reset the exec mailbox passwords'], a: 0, why: 'A compromised integration secret means more than one forged ticket. Scope it.'}
+- id: t06
+  d: cloud
+  src: 'ServiceNow · sys_audit'
+  t: Change request created and approved
+  h: 'CHG0046790 · ServiceNow'
+  l: ['created by: m.alvarez (Messaging team)', 'approved by: CAB (3 approvers) after 2 days', 'scope: "Add mail forwarding rule for legal hold mailbox to eDiscovery vault"', 'source IP: corp VPN']
+  v: 0
+  x: T1078
+  c: ticket-provenance
+  k: [1]
+  diff: 2
+  trap: scary
+  say: 'A mail forwarding change filed by a messaging engineer, approved by a three-person change board after two days, from the corporate VPN.'
+  tell: 'Human requester, separate approvers, real review time, internal destination. Separation of duties is the tell that the ticket itself is real.'
+- id: t07
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: Remote access tool installed
+  h: 'WS-FIN-0310 · CORP\l.park'
+  l: ['installed: AnyDesk 8.1 as service', 'ticket: INC0101874 "user needs remote support"', 'ticket opened by: caller "IT vendor", via phone, 6 min before install', 'sanctioned RMM in org: ScreenConnect only']
+  v: 1
+  x: T1219
+  c: ticket-provenance
+  k: [2, 3]
+  diff: 2
+  say: 'AnyDesk installed as a service on a finance workstation. The incident ticket was phoned in by a vendor minutes earlier. The company only sanctions ScreenConnect.'
+  tell: 'A ticket the attacker phoned in themselves is still a ticket. Unsanctioned RMM plus a vendor call is the callback-phishing playbook with paperwork.'
+- id: t08
+  d: linux
+  src: 'Linux · auditd'
+  t: Sudoers file modified
+  h: 'db-prod-04 · root'
+  l: ['file: /etc/sudoers.d/90-ops', 'added: "backup ALL=(ALL) NOPASSWD: ALL"', 'commit msg: "CHG0045555 backup tuning"', 'author: backup (no Ansible run, edited via vi in SSH session from 10.8.3.44)']
+  v: 1
+  x: T1548.003
+  c: ticket-must-match-scope
+  k: [1, 3]
+  diff: 3
+  trap: bland
+  say: 'The backup account gets full passwordless sudo, hand edited in an interactive SSH session. No config management run. The note cites a backup tuning ticket.'
+  tell: 'Backup tuning never needs NOPASSWD: ALL, and real changes come through Ansible, not vi at 2am. The ticket number is decoration.'

@@ -1,0 +1,52 @@
+# ON SHIFT concepts for alerts4.yaml (z01-z70)
+- {id: lolbin-dev-context, rule: 'MSBuild from Visual Studio is work; from Outlook or Temp it is execution.', tac: Stealth, d: endpoint}
+- {id: installutil-exec, rule: 'InstallUtil /U fires code without installing. Parent and DLL path decide.', tac: Stealth, d: endpoint}
+- {id: odbcconf-regsvr, rule: 'Odbcconf regsvr is fine for signed drivers from installers; check signer and path.', tac: Stealth, d: endpoint}
+- {id: cmstp-inf, rule: 'Cmstp is only as evil as its INF. Read the command sections.', tac: Stealth, d: endpoint}
+- {id: wmi-event-sub, rule: 'WMI subscriptions: log-writer consumers are plumbing; command-line consumers are persistence.', tac: Persistence, d: endpoint}
+- {id: named-pipe-c2, rule: 'Know default pipe names: msagent/MSSE are beacons, PSEXESVC is admin. Check source.', tac: Command and Control, d: endpoint}
+- {id: double-extension, rule: 'Windows obeys the last extension. pdf.exe is a binary in costume.', tac: Stealth, d: endpoint}
+- {id: renamed-binary, rule: 'Trust OriginalFileName and signer over the filename on disk.', tac: Stealth, d: endpoint}
+- {id: device-code-phish, rule: 'Device code from hosting IPs is phishing; kiosks on corp egress are fine.', tac: Credential Access, d: identity}
+- {id: ca-policy-change, rule: 'CA changes: judge actor, direction (weaken vs widen) and ticket.', tac: Defense Impairment, d: identity}
+- {id: sp-credential-add, rule: 'New app secret by its owner before expiry is rotation; by anyone else, backdoor.', tac: Persistence, d: identity}
+- {id: token-replay, rule: 'previouslySatisfied is normal on baseline ASN; same session from new device is theft.', tac: Lateral Movement, d: identity}
+- {id: asrep-source, rule: 'Roasting traffic from an ROE-listed assessment host is the test, not the attack.', tac: Credential Access, d: identity}
+- {id: golden-ticket, rule: 'TGT no DC issued plus impossible lifetime means forged krbtgt ticket.', tac: Credential Access, d: identity}
+- {id: okta-api-token, rule: 'API tokens from known IaC accounts on allowlisted runners are automation.', tac: Persistence, d: identity}
+- {id: pta-backdoor, rule: 'A PTA agent on an unknown host harvests every cleartext password.', tac: Credential Access, d: identity}
+- {id: ebs-snapshot-share, rule: 'Snapshots are routine. Sharing one to an unknown account is exfil.', tac: Exfiltration, d: cloud}
+- {id: s3-mass-read, rule: 'Bulk S3 reads: legit role from wrong network means stolen creds.', tac: Collection, d: cloud}
+- {id: imds-cred-offbox, rule: 'Instance role creds used anywhere but their instance were stolen.', tac: Credential Access, d: cloud}
+- {id: gcp-sa-key, rule: 'SA keys from IaC with a commit are fine; human-made admin keys are escalation.', tac: Persistence, d: cloud}
+- {id: disable-cloud-log, rule: 'Log setting deleted and recreated is IaC; deleted and left dark is cover.', tac: Defense Impairment, d: cloud}
+- {id: k8s-exec-context, rule: 'Pod exec by on-call humans with an incident is debugging; by service accounts, not.', tac: Execution, d: cloud}
+- {id: k8s-rbac-escalate, rule: 'cluster-admin bindings are fine only when traceable to a reviewed Git manifest.', tac: Privilege Escalation, d: cloud}
+- {id: ediscovery-abuse, rule: 'eDiscovery export: check role history, scope and a real legal matter.', tac: Collection, d: email}
+- {id: dmarc-fail-spoof, rule: 'DMARC fail plus swapped reply-to is spoof; unaligned vendor DKIM is misconfig.', tac: Stealth, d: email}
+- {id: dns-tunnel-entropy, rule: 'High-entropy DNS labels: check domain age and querying process before tunneling.', tac: Command and Control, d: network}
+- {id: domain-front-c2, rule: 'Fronting needs an unrelated Host behind the CDN; same-domain mismatch is coalescing.', tac: Command and Control, d: network}
+- {id: beacon-vs-telemetry, rule: 'Fixed-interval beacons: resolve process and destination. Agents beat on timers.', tac: Command and Control, d: network}
+- {id: llmnr-poison, rule: 'Endpoints never answer LLMNR for names they do not own.', tac: Credential Access, d: network}
+- {id: smb-admin-context, rule: 'Mass ADMIN$ from the deploy server and account in a window is patching.', tac: Lateral Movement, d: network}
+- {id: tor-egress, rule: 'Tor egress is evil until the source is a scoped, ROE-listed test host.', tac: Command and Control, d: network}
+- {id: systemd-persist, rule: 'Service units: trace the writer and ExecStart. Web user plus curl|bash is persistence.', tac: Persistence, d: linux}
+- {id: disable-auditd, rule: 'Auditd reloads: rules grew is hardening, rules vanished is tampering.', tac: Defense Impairment, d: linux}
+- {id: history-wipe, rule: 'HISTFILE nulled in a base image is hygiene; mid-session by a human is cover.', tac: Stealth, d: linux}
+- {id: passwd-shadow-read, rule: 'Reading /etc/passwd is lookup. Credential dumping needs /etc/shadow.', tac: Credential Access, d: linux}
+- {id: defender-change-writer, rule: 'Defender changes: GPO on a lab OU is policy; macro-spawned PowerShell is tamper.', tac: Defense Impairment, d: edr}
+- {id: sensor-uninstall, rule: 'EDR going dark is fine only when the box is retired and wiped.', tac: Defense Impairment, d: edr}
+- {id: macos-osascript, rule: 'osascript doing shell curl to /tmp from an unsigned app is a stealer.', tac: Execution, d: edr}
+- {id: macos-gatekeeper, rule: 'Quarantine removal matters on unsigned binaries, not notarized installers.', tac: Defense Impairment, d: edr}
+- id: ticket-must-match-scope
+  rule: 'A ticket only counts if host, binary, and action all match it.'
+  tac: Persistence
+  d: endpoint
+- id: ticket-window-expired
+  rule: 'Check ticket status and window. Anyone can paste a CHG number.'
+  tac: Privilege Escalation
+  d: identity
+- id: ticket-provenance
+  rule: 'Who filed and approved the ticket matters. Self-approved or phoned-in is suspect.'
+  tac: Initial Access
+  d: cloud

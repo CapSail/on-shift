@@ -1,0 +1,626 @@
+# ON SHIFT alerts — part 2: identity, cloud/M365, email
+- id: i01
+  d: identity
+  src: Entra ID · SigninLogs
+  t: Impossible travel
+  h: kwong@corp.com
+  l: ['09:02 Dallas, US · ASN: AT&T', '09:31 Frankfurt, DE · ASN: Zscaler', 'MFA: satisfied both · same device ID']
+  v: 0
+  x: T1078.004
+  c: impossible-travel
+  k: [2]
+  diff: 2
+  trap: scary
+  say: Sign-ins from Dallas and Frankfurt half an hour apart, both through a corporate proxy, same device, MFA satisfied both times.
+  tell: Impossible travel loves VPNs. Zscaler egress + same device ID + passed MFA = one person behind a proxy. Check the ASN before you panic.
+- id: i02
+  d: identity
+  src: Entra ID · SigninLogs
+  t: Impossible travel
+  h: rgarcia@corp.com
+  l: ['08:15 Houston, US · device: compliant laptop', '08:52 Lagos, NG · ASN: residential ISP', 'MFA: satisfied via token (no prompt) · device: unregistered · UA: python-requests']
+  v: 1
+  x: T1550.004
+  c: impossible-travel
+  k: [2]
+  diff: 2
+  say: A sign-in from Lagos with a token and no prompt, from an unregistered device, using a python-requests user agent.
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Revoke sessions and tokens, then reset', Reset the password only, Require a new MFA method]
+    a: 0
+    why: A replayed cookie survives a password reset.
+  tell: No MFA prompt, unregistered device, python-requests user agent. That is a stolen session cookie being replayed. Revoke sessions, do not just reset the password.
+- id: i03
+  d: identity
+  src: Entra ID · SigninLogs
+  t: MFA fatigue
+  h: rhad@corp.com
+  l: [22 MFA push denials in 9 minutes, 'push #23: approved at 23:48', 'source IP: 185.220.x.x (Tor exit)']
+  v: 1
+  x: T1621
+  c: mfa-fatigue
+  k: [2]
+  diff: 2
+  say: Twenty-two push denials in nine minutes, then one approval near midnight, from a Tor exit address.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Just reset the password, Revoke sessions and enforce number matching, Call the user]
+    a: 1
+    why: Cut the approved session and stop the bombing.
+  tell: 22 denials then one approve at midnight = the user got annoyed and gave up. Classic MFA bombing. Number matching kills this.
+- id: i04
+  d: identity
+  src: Entra ID · SigninLogs
+  t: Multiple MFA failures
+  h: bwalsh@corp.com
+  l: [5 MFA failures (timeout) in 20 min, 'IP: corp office · device: compliant', 'user ticket: "got a new phone, Authenticator broken"']
+  v: 0
+  x: T1621
+  c: mfa-fatigue
+  k: [2]
+  diff: 2
+  trap: scary
+  say: Five MFA timeouts over twenty minutes from the office on a compliant device, with a new-phone ticket open.
+  tell: Timeouts from the office on a compliant device + a "new phone" ticket = a human fighting their own Authenticator. Fatigue attacks come from outside IPs.
+- id: i05
+  d: identity
+  src: Entra ID · AuditLogs
+  t: MFA method added
+  h: vkapoor@corp.com
+  l: ['operation: User registered security info', 'method: phone (+1 555 01xx) · new', 'actor IP: 104.x.x.x (VPS hosting)', '6 min after: password reset via SSPR by helpdesk']
+  v: 1
+  x: T1098.005
+  c: helpdesk-mfa-reset
+  k: [3]
+  diff: 2
+  say: A new phone security method was added from a hosting provider address, six minutes after a help desk password reset.
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Revoke sessions, remove the new method, and re-verify out of band', Reset the password again, Call the help desk]
+    a: 0
+    why: Undo the takeover and confirm the real user owns it.
+  tell: Helpdesk reset → new MFA phone from a VPS within minutes. That is a social-engineered helpdesk takeover, Scattered Spider's whole personality.
+- id: i06
+  d: identity
+  src: Entra ID · AuditLogs
+  t: OAuth app consent
+  h: nmorris@corp.com
+  l: ['app: "Docs Viewer Pro" (unverified publisher)', 'permissions: Mail.ReadWrite, Files.ReadWrite.All, offline_access', 'consent: user']
+  v: 1
+  x: T1528
+  c: oauth-app-abuse
+  k: [0, 1]
+  diff: 2
+  say: A user consented to an unverified app requesting read-write to all mail and files plus offline access.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Reset the user password, Revoke the app grant tenant-wide, Delete the user mailbox]
+    a: 1
+    why: Consent tokens persist independent of passwords.
+  tell: Unverified app asking to read and write all your mail and files, with offline access. Consent phishing does not need a password at all. Block user consent.
+- id: i07
+  d: identity
+  src: Entra ID · AuditLogs
+  t: OAuth app consent
+  h: tbaker@corp.com
+  l: ['app: "Zoom" (verified publisher: Zoom Video Communications)', 'permissions: User.Read, Calendars.ReadWrite', 'consent: admin, change CHG0042210']
+  v: 0
+  x: T1528
+  c: oauth-app-abuse
+  k: [2]
+  diff: 2
+  trap: scary
+  say: An admin consented, with a change ticket, to a verified Zoom app requesting read-user and calendar access.
+  tell: Verified publisher, scoped permissions that fit the app, admin consent with a change ticket. Boring = good.
+- id: i08
+  d: identity
+  src: Entra ID · AuditLogs
+  t: Privileged role assigned
+  h: Global Administrator
+  l: ['target: svc_backup_old@corp.com (no sign-in 14 months)', 'actor: cflores@corp.com (help desk)', 'via: PIM bypass, direct assignment']
+  v: 1
+  x: T1098.003
+  c: privileged-role-grant
+  k: [2]
+  diff: 2
+  say: A help desk account granted global admin to a service account unused for fourteen months, bypassing privileged access management.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Remove the role and lock the dead account, Reset the help desk account, Enable PIM later]
+    a: 0
+    why: Pull the backdoor grant immediately.
+  tell: Helpdesk handing Global Admin to a dead service account, skipping PIM. Either that help desk account is owned or somebody is building a back door.
+- id: i09
+  d: identity
+  src: Entra ID · AuditLogs
+  t: Privileged role assigned
+  h: Exchange Administrator
+  l: ['target: mreyes@corp.com', 'actor: PIM (activation, 4h)', 'justification: "INC0099120 mailbox migration" · approved by: it_lead']
+  v: 0
+  x: T1098.003
+  c: privileged-role-grant
+  k: [1]
+  diff: 2
+  trap: scary
+  say: A four-hour Exchange admin role was activated through privileged access management with a ticket and an approver.
+  tell: Time-boxed PIM activation with a ticket and an approver is exactly how privileged access is supposed to look.
+- id: i10
+  d: identity
+  src: Windows Security · 4769
+  t: Kerberos RC4 ticket requests
+  h: SRV-DC-01
+  l: ['account: CORP\jmccabe', 61 TGS requests · encryption 0x17 (RC4), 'services: MSSQLSvc/*, HTTP/*, svc_* SPNs']
+  v: 1
+  x: T1558.003
+  c: kerberoast-source
+  k: [1]
+  diff: 2
+  say: A regular user account requested dozens of service tickets using the older RC four encryption in one burst.
+  tell: A normal user asking for dozens of RC4 (0x17) service tickets in a burst = Kerberoasting. Modern clients use AES; RC4 bursts stand out.
+- id: i11
+  d: identity
+  src: Windows Security · 4624
+  t: NTLM logon from workstation to DC
+  h: SRV-DC-02
+  l: ['logon type 3 · NTLM · account: CORP\Administrator', 'source: WS-ACCT-0507', 'key length: 0 · logon process: NtLmSsp']
+  v: 1
+  x: T1550.002
+  c: pass-the-hash
+  k: [2]
+  diff: 2
+  say: The built-in administrator logged on to a domain controller over N-T-L-M from a workstation with key length zero.
+  tell: Built-in Administrator over NTLM from an accounting box with key length 0 smells like pass-the-hash. Admins should not even be using that account.
+- id: i12
+  d: identity
+  src: Windows Security · 4740
+  t: Account lockouts spike
+  h: SRV-DC-02
+  l: [38 lockouts in 15 min, 'caller: EXCH-01', 'all accounts: shared mailbox delegates · after password policy change at 09:00']
+  v: 0
+  x: T1110.001
+  c: lockout-spike
+  k: [2]
+  diff: 2
+  trap: scary
+  say: Thirty-eight account lockouts in fifteen minutes, all called from Exchange, right after a nine o'clock password policy change.
+  tell: Lockouts all calling from Exchange right after a password policy change = stale credentials on phones. A mobile device sync storm, not brute force.
+- id: i13
+  d: identity
+  src: Windows Security · 4662
+  t: Directory replication request
+  h: SRV-DC-04
+  l: ['operation: DS-Replication-Get-Changes-All', 'account: CORP\ariley', 'source: WS-ACCT-0633 (not a DC)']
+  v: 1
+  x: T1003.006
+  c: dcsync
+  k: [2]
+  diff: 2
+  say: A replicate-all directory-changes request came from an account on a workstation that is not a domain controller.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Isolate the source host and plan a krbtgt reset, Reset that one account, Reboot the DC]
+    a: 0
+    why: DCSync means domain-wide hashes; contain the source now.
+  tell: Replication rights used by a non-DC = DCSync. They are pulling every hash in the domain without touching NTDS.dit. Game over unless you move now.
+- id: i14
+  d: identity
+  src: Windows Security · 4662
+  t: Directory replication request
+  h: SRV-DC-01
+  l: ['operation: DS-Replication-Get-Changes-All', 'account: CORP\MSOL_8f2a1c (Entra Connect)', 'source: SRV-AADC-01']
+  v: 0
+  x: T1003.006
+  c: dcsync
+  k: [1]
+  diff: 2
+  trap: scary
+  say: A replicate-all directory-changes request came from the directory sync service account on the sync server.
+  tell: Entra Connect's MSOL_ account does DCSync-style reads for password hash sync. Expected, from the Connect server only. Protect that box like a DC though.
+- id: i15
+  d: identity
+  src: Entra ID · SigninLogs
+  t: Legacy auth sign-in
+  h: finance-shared@corp.com
+  l: ['client app: IMAP4', 'result: success · MFA: not applied (legacy)', 'IP: 45.x.x.x · 140 IMAP sign-ins across 30 users in 1 hr']
+  v: 1
+  x: T1110.003
+  c: password-spray-brute
+  k: [2]
+  diff: 2
+  trap: bland
+  say: A hundred forty I-MAP sign-ins across thirty users from one address, succeeding without multi-factor applied.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Block legacy auth with Conditional Access and reset hit accounts, Reset payroll only, Email the users]
+    a: 0
+    why: Close the legacy side door and clean up the spray.
+  tell: IMAP skips MFA, and one IP hitting 30 users is spraying. Legacy auth is the side door. Block it with Conditional Access.
+- id: i16
+  d: identity
+  src: Entra ID · SigninLogs
+  t: Sign-in from anonymous IP
+  h: jpark@corp.com
+  l: ['IP: Apple iCloud Private Relay', 'device: compliant iPhone · MFA: number match passed', 'app: Outlook mobile']
+  v: 0
+  x: T1078.004
+  c: anonymous-ip-context
+  k: [1]
+  diff: 2
+  trap: scary
+  say: A sign-in through Apple's private relay on a compliant iPhone, number match passed, using Outlook mobile.
+  tell: iCloud Private Relay trips "anonymous IP" rules constantly. Compliant device + strong MFA + Outlook mobile = an iPhone user existing.
+- id: i17
+  d: identity
+  src: Entra ID · AuditLogs
+  t: Federation settings changed
+  h: corp.com tenant
+  l: ['operation: Set domain authentication → Federated', 'domain: corp-sso.com (new, added 20 min ago)', 'issuer URI: http://any.sts/1A2B3C', 'actor: svc_backup_old@corp.com']
+  v: 1
+  x: T1484.002
+  c: federation-change
+  k: [3]
+  diff: 3
+  say: A new federated domain was added twenty minutes ago with an unusual issuer, by a long-dormant account.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Remove the federated domain and lock the actor account, Reset one user, Monitor for a week]
+    a: 0
+    why: A rogue federation mints tokens for anyone; rip it out.
+  tell: Adding a new federated domain lets an attacker mint tokens for any user. Done by that dead account that just got Global Admin. This is a golden SAML-level backdoor.
+- id: i18
+  d: identity
+  src: Okta · System Log
+  t: Admin impersonation session
+  h: okta-admin@corp.com
+  l: ['event: user.session.impersonation.grant', 'target: super admin', 'preceded by: support ticket password reset from unfamiliar caller']
+  v: 1
+  x: T1684.001
+  c: helpdesk-mfa-reset
+  k: [2]
+  diff: 2
+  say: An impersonation grant on a super admin, right after a support ticket password reset from an unfamiliar caller.
+  tell: Impersonation grants on a super admin right after a phone-based reset. Help desk social engineering is how big IdP breaches start.
+- id: c01
+  d: cloud
+  src: Exchange Online · OfficeActivity
+  t: Inbox rule created
+  h: bcole@corp.com
+  l: ['rule: "."', 'condition: subject or body contains "invoice", "wire", "payment"', 'action: move to RSS Subscriptions, mark as read']
+  v: 1
+  x: T1564.008
+  c: mailbox-hide-rule
+  k: [1, 2]
+  diff: 2
+  say: A one-character inbox rule moves mail about invoices, wires, and payments to R-S-S subscriptions and marks it read.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Delete the rule and check for a pending wire, Just delete the rule, Notify the CFO later]
+    a: 0
+    why: The rule hides a live payment-fraud attempt.
+  tell: Single-character rule name + finance keywords + hide in RSS folder = BEC. The attacker is hiding replies while they redirect a wire.
+- id: c02
+  d: cloud
+  src: Exchange Online · OfficeActivity
+  t: Inbox rule created
+  h: mreyes@corp.com
+  l: ['rule: "Jira notifications"', 'condition: from jira@corp.atlassian.net', 'action: move to folder "Jira"', 'client: Outlook desktop, corp IP']
+  v: 0
+  x: T1564.008
+  c: mailbox-hide-rule
+  k: [3]
+  diff: 2
+  trap: scary
+  say: An inbox rule named Jira notifications moves mail from the Jira address into a Jira folder, made from the office desktop.
+  tell: A descriptive name, a sane condition, a real folder, created from the office. That is a person drowning in Jira emails.
+- id: c03
+  d: cloud
+  src: Exchange Online · OfficeActivity
+  t: Mail forwarding to external
+  h: payroll@corp.com
+  l: ['Set-Mailbox -ForwardingSmtpAddress smtp:payrol1.dept@gmail.com -DeliverToMailboxAndForward $true', 'actor IP: 45.x.x.x']
+  v: 1
+  x: T1114.003
+  c: external-forward
+  k: [0]
+  diff: 1
+  say: Mailbox forwarding was set to an outside Gmail address resembling the department name, delivering and forwarding.
+  tell: Forwarding payroll to a Gmail with a 1 instead of an l. Every payslip and bank change now goes to them. Kill it and check who else has forwarding.
+- id: c04
+  d: cloud
+  src: Exchange Online · MailItemsAccessed
+  t: Bulk mailbox access
+  h: ceo@corp.com
+  l: ['MailItemsAccessed: 4,200 items in 8 min', 'AppId: "Docs Viewer Pro" (consented yesterday by nmorris)', via Graph API]
+  v: 1
+  x: T1114.002
+  c: oauth-app-abuse
+  k: [1]
+  diff: 2
+  say: An app consented yesterday read four thousand two hundred mail items in eight minutes through the Graph interface.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Revoke the app grant tenant-wide and review what it read, Reset the CEO password, Delete the mailbox]
+    a: 0
+    why: Token theft ignores passwords; kill the grant.
+  tell: Remember that unverified OAuth app? It is now reading the CEO's mail via Graph. Token theft does not care about passwords. Revoke the app grant tenant-wide.
+- id: c05
+  d: cloud
+  src: SharePoint · OfficeActivity
+  t: Mass file download
+  h: kober@corp.com
+  l: ['FileSyncDownloadedFull: 6,800 files', 'site: Marketing Assets', 'client: OneDrive sync, new compliant laptop enrolled today']
+  v: 0
+  x: T1530
+  c: mass-file-download
+  k: [2]
+  diff: 2
+  trap: scary
+  say: A newly enrolled compliant laptop synced sixty-eight hundred files from the marketing library through the sync client.
+  tell: New laptop + OneDrive sync = the whole library downloads at once. Compliant device and sync client is the tell. Exfil uses browsers, rclone, or APIs.
+- id: c06
+  d: cloud
+  src: SharePoint · OfficeActivity
+  t: Mass file download
+  h: kdavis@corp.com
+  l: ['FileDownloaded: 2,950 files from Finance, Legal, HR sites', 'client: browser · IP: 91.x.x.x (hosting)', 'kdavis resignation date: Friday']
+  v: 1
+  x: T1530
+  c: mass-file-download
+  k: [1, 2]
+  diff: 2
+  say: A browser from a hosting address downloaded nearly three thousand files from finance, legal, and H-R, by someone leaving Friday.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Just disable downloads, Wait until Friday, Suspend the session and loop in HR and IR]
+    a: 2
+    why: Insider plus hosting IP needs both HR and IR now.
+  tell: Browser downloads from three sensitive sites, from a hosting IP, by someone who quits Friday. Insider risk + compromised session = escalate to IR and HR both.
+- id: c07
+  d: cloud
+  src: Azure · AzureActivity
+  t: VM run command executed
+  h: 'sub: corp-prod'
+  l: ['operation: Microsoft.Compute/virtualMachines/runCommand/action', 'VM: prod-sql-01', 'caller: deploy-sp (service principal) · IP: 198.51.x.x (not Azure DevOps)']
+  v: 1
+  x: T1651
+  c: cloud-principal-abuse
+  k: [2]
+  diff: 2
+  trap: bland
+  say: A run command executed on a production database VM, called by a deploy principal from an address outside the pipeline.
+  q:
+    kind: pivot
+    ask: First pivot?
+    o: [Reboot the VM, Rotate the service principal secret and audit its runs, Delete the VM]
+    a: 1
+    why: The SP secret leaked; rotate and scope the blast radius.
+  tell: Run Command = code execution as SYSTEM on a VM via the control plane. Your deploy service principal doing it from outside your pipeline means its secret leaked.
+- id: c08
+  d: cloud
+  src: Azure · AzureActivity
+  t: Key Vault secrets listed
+  h: kv-prod-app
+  l: ['operation: SecretList + SecretGet x 48', 'caller: app-api-prod (managed identity)', 'source: AKS cluster prod-aks · pattern: every pod restart']
+  v: 0
+  x: T1555.006
+  c: keyvault-secret-access
+  k: [2]
+  diff: 2
+  trap: scary
+  say: A managed identity listed and fetched vault secrets on every pod restart from inside its own cluster.
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: [Allowlist the workload identity from the cluster on pod restart, Stop all Key Vault read alerts, Exclude the vault]
+    a: 0
+    why: Trust your own identity pattern; watch humans and new IPs.
+  tell: Managed identity from your own cluster fetching secrets on pod restart is exactly what Key Vault is for. Watch for humans or new IPs doing bulk SecretGet.
+- id: c09
+  d: cloud
+  src: AWS · CloudTrail
+  t: CloudTrail logging stopped
+  h: 'acct: 4471-xxxx-prod'
+  l: ['event: StopLogging', 'trail: org-trail', 'user: arn:aws:iam::...:user/ci-deployer · region: ap-southeast-1 (never used)']
+  v: 1
+  x: T1685.002
+  c: log-clearing
+  k: [2]
+  diff: 2
+  say: Cloud-trail logging was stopped on the org trail by a continuous integration user in a region never used before.
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Ignore, logging resumes', Re-enable the trail and scope the CI user, Delete the CI user quietly]
+    a: 1
+    why: Restore visibility first, then investigate the identity.
+  tell: Turning off CloudTrail from a CI user in a region you never use. First thing an attacker does in AWS is close your eyes.
+- id: c10
+  d: cloud
+  src: AWS · CloudTrail
+  t: New access key created
+  h: 'acct: 7788-xxxx-prod'
+  l: ['event: CreateAccessKey', 'target: admin-breakglass', 'caller: cd-runner · then: 14 RunInstances (p4d.24xlarge) in 4 regions']
+  v: 1
+  x: T1098.001
+  c: cloud-principal-abuse
+  k: [2]
+  diff: 2
+  say: A new access key was created on the break-glass admin, followed by many large GPU instances launched across four regions.
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Disable the new key, stop the instances, and rotate CI creds', Just stop the instances, Open a billing ticket]
+    a: 0
+    why: Kill the keys and the compute, then rotate the leaked creds.
+  tell: Stolen CI creds mint keys on the break-glass admin, then spin up GPU monsters everywhere. That is a cryptominer bill with your name on it.
+- id: c11
+  d: cloud
+  src: AWS · GuardDuty
+  t: S3 bucket made public
+  h: 'bucket: corp-marketing-site'
+  l: ['PutBucketPolicy: Principal "*" s3:GetObject', 'caller: web-team (SSO)', 'bucket hosts: static website · CloudFront origin']
+  v: 0
+  x: T1530
+  c: s3-public-bucket
+  k: [2]
+  diff: 2
+  trap: scary
+  say: A bucket policy set read access for everyone on a static website bucket behind the content delivery network, by the web team.
+  tell: Static site buckets are public on purpose. SSO user from the web team, GetObject only. Still worth a nudge toward CloudFront OAC, but not an incident.
+- id: c12
+  d: cloud
+  src: Microsoft Teams · OfficeActivity
+  t: External Teams chat
+  h: cflores@corp.com
+  l: ['external user: "IT Support" (it-helpdesk@corpsupport.onmicrosoft.com)', 'message: "We''re seeing spam on your account, accept the Quick Assist request"', 'preceded by: 900 spam emails to cflores in 30 min']
+  v: 1
+  x: T1566.003
+  c: teams-external-phish
+  k: [0, 2]
+  diff: 2
+  say: An outside user calling themselves IT Support messaged on Teams to accept a Quick Assist request, after a flood of spam mail.
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Warn the user not to accept, and restrict external Teams', Block the sender only, Reset the mailbox]
+    a: 0
+    why: Stop the live social-engineering handoff first.
+  tell: Email-bomb the user, then show up on Teams as "IT" to "help". Black Basta and friends made this famous. Restrict external Teams access.
+- id: m01
+  d: email
+  src: Defender for Office · EmailEvents
+  t: Phish delivered
+  h: 'To: ap-team@corp.com'
+  l: ['from: billing@d0cusign-secure.net', 'subject: Completed: Invoice #88231 - Please Review', 'link: https://d0cusign-secure.net/s/88231 → login page with corp logo']
+  v: 1
+  x: T1566.002
+  c: lookalike-domain-phish
+  k: [0]
+  diff: 1
+  say: A completed-invoice mail from a DocuSign lookalike domain links to a login page carrying the corporate logo.
+  q:
+    kind: pivot
+    ask: First pivot?
+    o: [Block the domain only, Delete the email, 'Find clicks and submitted credentials, then reset them']
+    a: 2
+    why: Credential harvest means find and reset who entered creds.
+  tell: Zero for o in the domain, a fake DocuSign completion, and a login page with your logo. Credential harvest, possibly AiTM. Find who clicked.
+- id: m02
+  d: email
+  src: Defender for Office · EmailEvents
+  t: Suspicious attachment
+  h: 'To: kdavis@corp.com'
+  l: ['from: invoices@realvendor.com (SPF/DKIM/DMARC pass)', 'attachment: Statement_Oct.pdf', 'sandbox: clean · vendor in AP system for 4 yrs']
+  v: 0
+  x: T1566.001
+  c: vendor-invoice-auth
+  k: [2]
+  diff: 2
+  trap: scary
+  say: An invoice PDF from a four-year vendor passed all authentication checks and came back clean from the sandbox.
+  tell: Auth passes, clean sandbox, long-standing vendor, PDF that is just a PDF. Not every invoice is a crime.
+- id: m03
+  d: email
+  src: Defender for Office · EmailEvents
+  t: Vendor email from lookalike domain
+  h: 'To: dgreen@corp.com'
+  l: ['from: accounts@realvend0r.com (registered 3 days ago)', 'subject: RE: Updated banking details for future payments', 'thread: copies a real thread from realvendor.com']
+  v: 1
+  x: T1684.001
+  c: vendor-invoice-auth
+  k: [0, 2]
+  diff: 2
+  say: A reply about updated banking details came from a vendor lookalike domain registered three days ago, quoting a real thread.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Call the vendor on a known number and freeze the change, Reply to confirm, Pay then verify]
+    a: 0
+    why: Verify banking changes out of band, never via the email.
+  tell: New lookalike domain + "updated banking details" + a real hijacked thread = vendor email compromise. Call the vendor on a known number. Never the one in the email.
+- id: m04
+  d: email
+  src: Defender for Office · UrlClickEvents
+  t: QR code phish
+  h: 'To: 40 employees'
+  l: ['subject: Action required: MFA re-enrollment by Friday', 'body: image only, contains QR code', 'QR → hxxps://corp-mfa[.]help/login']
+  v: 1
+  x: T1566.002
+  c: qr-code-phish
+  k: [1]
+  diff: 2
+  say: An image-only mail about MFA re-enrollment by Friday carries a QR code pointing to an MFA-themed outside domain.
+  q:
+    kind: pivot
+    ask: First pivot?
+    o: [Identify recipients and warn before they scan the code, Block the sender, Delete from inboxes silently]
+    a: 0
+    why: The QR moves off managed devices; reach users fast.
+  tell: Quishing. The QR moves the click to a personal phone, where your email filters and EDR can not see it. Image-only body is the giveaway.
+- id: m05
+  d: email
+  src: Defender for Office · EmailEvents
+  t: Mass internal email
+  h: 'From: hr@corp.com'
+  l: ['to: all-staff (2,300)', 'subject: Open enrollment closes Nov 15', 'sent via: Workday notification relay · SPF/DKIM pass']
+  v: 0
+  x: T1534
+  c: internal-mass-mail
+  k: [2]
+  diff: 2
+  trap: scary
+  say: An all-staff mail about open enrollment came through the Workday notification relay and passed authentication.
+  tell: Internal mass mail from HR via its normal relay during open enrollment. Internal spearphishing looks similar, but it comes from a compromised user mailbox, not a relay.
+- id: m06
+  d: email
+  src: Defender for Office · EmailEvents
+  t: HTML smuggling attachment
+  h: 'To: pshah@corp.com'
+  l: ['attachment: Remittance_Advice.html (2 KB)', 'content: JavaScript builds a blob, auto-downloads Remittance.iso', 'ISO contains: Remittance.lnk']
+  v: 1
+  x: T1027.006
+  c: html-smuggling
+  k: [1]
+  diff: 2
+  say: An H-T-M-L attachment builds a file in the browser that downloads a disk image containing a shortcut file.
+  tell: An HTML file that assembles an ISO in your browser, with an LNK inside. HTML smuggling to dodge the gateway. LNK in ISO is a loader every time.
+- id: m07
+  d: email
+  src: Defender for Office · EmailEvents
+  t: Reply-chain hijack
+  h: 'To: ops-team@corp.com'
+  l: ['from: jlee@partnerco.com (real partner, auth pass)', 'thread: 6-month-old project thread', 'new reply: "see attached" → link to OneDrive-lookalike, password-protected ZIP']
+  v: 1
+  x: T1566.002
+  c: reply-chain-hijack
+  k: [2]
+  diff: 2
+  trap: bland
+  say: A real partner replied into a six-month-old thread saying see attached, linking a password-protected archive on a lookalike site.
+  tell: Real sender, real old thread, sudden "see attached" with a password ZIP. The partner is compromised and replying into old threads. Qakbot made this a whole genre.
+- id: m08
+  d: email
+  src: Defender for Office · EmailEvents
+  t: Lookalike sender
+  h: 'To: nholt@corp.com'
+  l: ['from: no-reply@microsoft365.com · SPF/DKIM pass (microsoft365.com is Microsoft-owned)', 'subject: Your Microsoft 365 invoice is ready', 'links: admin.microsoft.com only']
+  v: 0
+  x: T1566.002
+  c: lookalike-domain-phish
+  k: [0, 2]
+  diff: 2
+  trap: scary
+  say: An invoice mail from a Microsoft-owned domain passed authentication, with every link going to the admin portal.
+  tell: Weird-looking domain, but it is genuinely Microsoft's, auth passes, and every link goes to admin.microsoft.com. Hover the links, verify the domain owner.

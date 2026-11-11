@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.cache/
+src/generated/
+test-results/
+playwright-report/
+tests/shots/
+*.log
+.DS_Store
+
+# original handoff bundle (reference only, kept outside the repo history)
+on-shift-handoff/
+on-shift-handoff.zip

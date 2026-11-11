@@ -1,0 +1,9 @@
+# Content-level settings. Bump content_version on every content drop (shown on the credits screen in Phase 1).
+content_version: 1
+
+# ATT&CK release the whole bank is validated against. Bumping this is a build-time task:
+# re-validate every `x`, remap revoked techniques. Data comes from mitre-attack/attack-stix-data.
+attack_version: '20.1'
+
+# First-run training alerts (ids from alerts*.yaml), in order.
+tutorial: [e10, e13, e06]

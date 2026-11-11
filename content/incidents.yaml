@@ -1,0 +1,495 @@
+# Incidents: story mode. Catch the attack before the end. 3 hearts: every wrong call (missed attack OR escalated decoy) costs one.
+# Each incident: ~5 attack steps (v: 1, in kill-chain order) interleaved with ~4 benign twins (v: 0) that look like the attacker's TTPs.
+# contain.at = 0-based index of the v:1 alert after which the containment decision appears.
+- id: inc_spider
+  g: G1015
+  title: 'Help Desk, We Have a Problem'
+  diff: 2
+  intro: 'Saturday, 11pm. Your help desk just took a call from "the CFO" who lost his phone at the airport. He was charming. He knew his employee ID. He was 19 and lives on Telegram. Meanwhile, your real IT team is doing real IT things. Tell them apart.'
+  win: 'You caught Scattered Spider before they reached ESXi and you did not page the whole IT team for their own change tickets. The real CFO is asleep, blissfully un-headlined. Crew captured.'
+  lose: 'They got Global Admin, federated a domain, and encrypted your ESXi hosts. Or you escalated so many legit admins that IR stopped answering your calls. Either way the help desk is in a meeting with Legal. Run it back.'
+  contain: {at: 6, ask: 'cfo.smith is Global Admin and just federated corp-auth.com. First move?', o: ['Revoke sessions, wipe rogue MFA, remove federation and GA role', 'Reset cfo.smith''s password and close the ticket', 'Isolate the CFO''s laptop in Defender'], a: 0, why: 'A password reset leaves live tokens, the rogue MFA and a federated IdP that mints any user. The laptop was never in the attack.'}
+  a:
+  - d: identity
+    src: 'Entra ID · AuditLogs'
+    t: 'Password reset by help desk'
+    h: 'cfo.smith@corp.com'
+    l: ['actor: helpdesk.ana@corp.com', 'verification: caller gave employee ID + manager name', 'callback to number on file: skipped ("boarding now, please hurry")', 'then: all MFA methods deleted, new Authenticator added from 104.x residential proxy']
+    v: 1
+    x: T1684.001
+    tell: 'Employee ID is LinkedIn trivia, not identity. Skipped callback + MFA wipe + fresh device off a residential proxy = the caller wanted a clean account. Scattered Spider''s whole opening move.'
+    c: helpdesk-reset-verification
+    k: [2, 3]
+    diff: 2
+    say: 'Help desk reset for the CFO. Caller skipped the callback, then all MFA methods were wiped and re-added from a residential proxy.'
+  - d: cloud
+    src: 'SharePoint · OfficeActivity'
+    t: 'SharePoint search activity'
+    h: 'cfo.smith@corp.com'
+    l: ['SearchQueryPerformed: "vpn", "password", "citrix", "vcenter", "onboarding"', 'client IP: 104.x.x.x (same proxy as the new MFA device)', 'baseline: CFO''s usual searches are "Q3 forecast", "board deck"']
+    v: 1
+    x: T1213.002
+    tell: 'The CFO does not search for vCenter runbooks. Someone is reading your IT docs to learn how to go deeper. Scattered Spider does its homework in YOUR SharePoint.'
+    c: sharepoint-recon-search
+    k: [0, 1]
+    diff: 1
+    say: 'The CFO account searching SharePoint for VPN, password, Citrix and vCenter docs, from the same proxy IP as the new MFA device.'
+  - d: identity
+    src: 'Entra ID · AuditLogs'
+    t: 'Password reset by help desk'
+    h: 'dnguyen@corp.com'
+    l: ['actor: helpdesk.ana@corp.com', 'verification: callback to HR number on file + video ID check', 'ticket: INC-48812 · manager approved', 'then: Temporary Access Pass (1h) issued · existing MFA methods kept']
+    v: 0
+    x: T1684.001
+    tell: 'Same help desk, same request, real process: callback to the number on file, video ID, manager sign-off, MFA untouched. Resets are not evil. Skipped verification is.'
+    c: helpdesk-reset-verification
+    k: [1, 3]
+    diff: 2
+    say: 'Help desk reset for dnguyen. Callback to the HR number on file, video ID check, manager-approved ticket, one-hour pass, existing MFA kept.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Remote support tool installed'
+    h: 'SRV-JUMP-01 · cfo.smith'
+    l: ['installed: ScreenConnect.ClientService.exe', 'relay: instance-7f3k.screenconnect.com (not corp tenant)', 'parent: msiexec.exe from C:\Users\cfo.smith\Downloads\', 'also: ngrok.exe tcp 3389']
+    v: 1
+    x: T1219
+    tell: 'An RMM phoning someone else''s instance + ngrok exposing RDP. Two persistent ways back in, both cosplaying as IT tools.'
+    c: rmm-instance-ownership
+    k: [1, 3]
+    diff: 1
+    say: 'ScreenConnect installed on the jump server from the CFO downloads folder, relaying to an unknown instance, plus ngrok exposing RDP.'
+  - d: identity
+    src: 'Entra ID · AuditLogs (PIM)'
+    t: 'Global Administrator role assigned'
+    h: 'mreyes@corp.com'
+    l: ['operation: Add member to role completed (PIM activation)', 'justification: CHG-7731 rotate federation signing cert', 'approver: second GA (kpatel) · MFA: number match · compliant device', 'duration: 2h · eligible assignment since 2023']
+    v: 0
+    x: T1098.003
+    tell: 'Mid-incident, every GA activation looks like the attacker. This one is eligible, approved by a second human, time-boxed and ticketed. That is PIM doing its job, not a breach.'
+    c: pim-activation-context
+    k: [2, 3]
+    diff: 2
+    say: 'mreyes activated Global Admin through PIM. Change ticket attached, second admin approved, number-match MFA on a compliant device, two-hour window.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Remote support tool installed'
+    h: 'WS-FIN-114 · SYSTEM'
+    l: ['installed: ScreenConnect.ClientService.exe', 'relay: corp.screenconnect.com (our tenant)', 'parent: IntuneManagementExtension.exe', 'assignment: "IT Support Tools" app, deployed to Finance group']
+    v: 0
+    x: T1219
+    tell: 'Same tool, different owner. Your relay, your Intune, your app assignment. RMM is only evil when it phones someone else''s house.'
+    c: rmm-instance-ownership
+    k: [1, 2]
+    diff: 2
+    say: 'ScreenConnect installed on a finance workstation by the Intune management extension, relaying to the corp tenant, part of the IT support tools app.'
+  - d: identity
+    src: 'Entra ID · AuditLogs'
+    t: 'Domain authentication changed'
+    h: 'corp.com tenant'
+    l: ['operation: Set domain authentication → Federated', 'domain: corp-auth.com (registered 3 days ago)', 'actor: cfo.smith@corp.com (Global Admin as of 22 min ago, no PIM)', 'issuer URI: http://corp-auth.com/adfs/services/trust']
+    v: 1
+    x: T1484.002
+    tell: 'A federated domain they control lets them sign in as anyone, forever, MFA optional. Brand-new domain + brand-new GA with no PIM = "we own your tenant" speedrun.'
+    c: federation-trust-change
+    k: [1, 2]
+    diff: 2
+    say: 'A domain registered three days ago was set to federated by the CFO account, which became Global Admin twenty-two minutes ago without PIM.'
+  - d: endpoint
+    src: 'vCenter · events'
+    t: 'ESXi SSH enabled'
+    h: 'esx-prod-07'
+    l: ['SSH service started on 1 host · auto-stop timer 60 min', 'user: CORP\vadmin.lin (vSphere admins group)', 'ticket: CHG-7740 apply ESXi 8.0 U3 patch', 'then: esxcli software vib update -d /vmfs/volumes/ds01/VMware-ESXi-8.0U3-depot.zip']
+    v: 0
+    x: T1021.004
+    tell: 'One host, a timer, a patch ticket and a VIB update. Admins do need SSH sometimes. Scope and the very next command tell you why the door is open.'
+    c: esxi-ssh-change-window
+    k: [0, 2, 3]
+    diff: 2
+    say: 'SSH enabled on one ESXi host for sixty minutes by a vSphere admin, on a patch ticket, followed by an esxcli software update.'
+  - d: endpoint
+    src: 'vCenter · events'
+    t: 'ESXi SSH enabled'
+    h: 'esx-prod-01..12'
+    l: ['SSH service started on 12 hosts · no auto-stop', 'user: vsphere.local\cfo.smith (added to Administrators 10 min ago)', 'ticket: none', 'then: esxcli vm process list']
+    v: 1
+    x: T1021.004
+    tell: 'SSH on EVERY ESXi host by a CFO who has never opened vCenter, then listing running VMs. That is step one of encrypting them. Pull the plug.'
+    c: esxi-ssh-change-window
+    k: [0, 1, 3]
+    diff: 1
+    say: 'SSH enabled on all twelve production ESXi hosts with no timer and no ticket, by the CFO account, then listing running VMs.'
+- id: inc_apt29
+  g: G0016
+  title: 'The Forgotten Test Tenant'
+  diff: 3
+  intro: 'Someone made a test tenant in 2021. Nobody turned on MFA. Nobody remembers it. Russia''s SVR remembers it. Your real admins are also rotating secrets and consenting apps tonight, because of course they are.'
+  win: 'You spotted APT29 riding a forgotten OAuth app into executive mailboxes, cut the cord, and left the backup team''s Veeam alone. Midnight Blizzard captured. The board will never know how cool you were.'
+  lose: 'APT29 read the executive team''s email for six weeks, or you nuked the backup app and lost a week of mail. You found out from a government advisory. Ouch. Run it back.'
+  contain: {at: 7, ask: 'A rogue app is reading the CISO''s mail over EWS right now. Move?', o: ['Disable both apps, purge their secrets, hunt every app they touched', 'Reset svc_test_legacy''s password and enforce MFA', 'Block the residential proxy IPs at the firewall'], a: 0, why: 'App-only tokens ignore the user''s password and never cross your firewall. Kill the app credentials, then hunt the backup doors.'}
+  a:
+  - d: identity
+    src: 'Entra ID · SigninLogs (test tenant)'
+    t: 'Failed sign-ins across many accounts'
+    h: 'test-tenant.onmicrosoft.com'
+    l: ['pattern: 1 attempt per account per hour, 340 accounts', 'source: rotating residential proxy IPs', 'success: svc_test_legacy (no MFA, no Conditional Access)']
+    v: 1
+    x: T1110.003
+    tell: 'Low and slow through residential proxies, way under lockout thresholds. One forgotten non-MFA account was all APT29 needed. Patience is their whole personality.'
+    c: low-slow-spray
+    k: [0, 2]
+    diff: 2
+    say: 'Three hundred forty accounts, one failed attempt each per hour from rotating residential IPs, then a success on svc test legacy, which has no MFA.'
+  - d: identity
+    src: 'Entra ID · AuditLogs'
+    t: 'App credential added'
+    h: 'App: "Legacy Test App" (multi-tenant)'
+    l: ['operation: Update application – Certificates and secrets management', 'actor: svc_test_legacy (owner, test tenant)', 'new: client secret, 2-year expiry', 'app has admin consent in corp tenant since 2021']
+    v: 1
+    x: T1098.001
+    tell: 'A fresh secret on an old app that bridges into prod, added by the account that just got sprayed. They are turning a forgotten app into a skeleton key.'
+    c: app-credential-add-context
+    k: [1, 3]
+    diff: 2
+    say: 'New two-year client secret on Legacy Test App, added by svc test legacy. The app has held admin consent in corp since 2021.'
+  - d: identity
+    src: 'Entra ID · SigninLogs'
+    t: 'Sign-in from new country'
+    h: 'jpark@corp.com'
+    l: ['IP: Mexico City · ASN: Telmex', 'device: compliant iPhone · MFA: number match', 'calendar: OOO "Mexico vacation"']
+    v: 0
+    x: T1078.004
+    tell: 'Compliant device, phishing-resistant-ish MFA, and an out-of-office that literally says Mexico. Not everything during an incident is the incident.'
+    c: travel-signin-context
+    k: [1, 2]
+    diff: 1
+    say: 'jpark signed in from Mexico City on a compliant iPhone with number-match MFA. Their calendar says out of office, Mexico vacation.'
+  - d: identity
+    src: 'Entra ID · AuditLogs'
+    t: 'App credential added'
+    h: 'App: "HR-Workday-Sync"'
+    l: ['operation: Update application – Certificates and secrets management', 'actor: tbrooks@corp.com (app owner, PIM: Application Administrator)', 'old secret expires in 6 days · ticket: CHG-8120 rotate secret', 'then: old secret removed 40 min later']
+    v: 0
+    x: T1098.001
+    tell: 'Secret rotation looks exactly like backdooring an app. The difference: the named owner, an expiring secret, a ticket, and the old key gets deleted. Attackers never throw away spare keys.'
+    c: app-credential-add-context
+    k: [1, 2, 3]
+    diff: 2
+    say: 'tbrooks, the app owner, rotated the HR Workday sync secret through PIM on a ticket. The old secret was expiring and got removed.'
+  - d: identity
+    src: 'Entra ID · AuditLogs'
+    t: 'New app registration'
+    h: 'corp.com tenant'
+    l: ['app: "Microsoft Graph Sync Service" · publisher: unverified', 'created by: Legacy Test App (app-only token, Application.ReadWrite.All)', 'client secret added at creation · 02:14 UTC']
+    v: 1
+    x: T1098.001
+    tell: 'An app named to look like Microsoft, created by another app at 2am, born with a secret. They are building a second door in case you find the first.'
+    c: lookalike-app-registration
+    k: [0, 1]
+    diff: 2
+    say: 'A new app called Microsoft Graph Sync Service, unverified publisher, created at 2 a.m. by Legacy Test App using an app-only token, with a secret.'
+  - d: identity
+    src: 'Entra ID · AuditLogs'
+    t: 'App permission granted'
+    h: 'App: "Veeam Backup for Microsoft 365"'
+    l: ['permission: Office 365 Exchange Online · full_access_as_app (application)', 'consent by: lgarcia@corp.com (Exchange admin via PIM) · ticket CHG-8133', 'publisher: Veeam Software (verified)', 'app registered by backup team via vendor setup wizard']
+    v: 0
+    x: T1098.002
+    tell: 'full_access_as_app is scary on purpose, and backup tools genuinely need it. Verified publisher + a human admin + a ticket = sanctioned. An app granting it to another app at 2am = not.'
+    c: mail-app-permission-consent
+    k: [1, 2]
+    diff: 3
+    say: 'Veeam Backup, a verified publisher, was granted full access as app to Exchange. Consent by the Exchange admin through PIM, on a change ticket.'
+  - d: identity
+    src: 'Entra ID · AuditLogs'
+    t: 'App permission granted'
+    h: 'App: "Microsoft Graph Sync Service"'
+    l: ['permission: Office 365 Exchange Online · full_access_as_app (application)', 'granted by: Legacy Test App (app-only, no human in the loop)', 'publisher: unverified · app is 9 min old']
+    v: 1
+    x: T1098.002
+    tell: 'full_access_as_app = read ANY mailbox via EWS, no user sign-in. Granted by an app, to a 9-minute-old app, with no human anywhere. Jackpot permission, stolen.'
+    c: mail-app-permission-consent
+    k: [1, 2]
+    diff: 2
+    say: 'The nine-minute-old Graph Sync Service app got full access as app to Exchange, granted by Legacy Test App, with no human involved.'
+  - d: cloud
+    src: 'Exchange Online · MailItemsAccessed'
+    t: 'App reading mailboxes'
+    h: 'ceo@, cfo.smith@, legal@, ciso@'
+    l: ['AppId: Microsoft Graph Sync Service', 'protocol: EWS · MailAccessType: Bind · 11,000 items · 4 mailboxes', 'client IP: rotating residential proxies', 'items opened: threads containing "Midnight Blizzard", "APT29"']
+    v: 1
+    x: T1114.002
+    tell: 'Four hand-picked mailboxes, residential IPs, and they are reading what you know about THEM. APT29 checks whether it has been caught.'
+    c: app-mailbox-access-baseline
+    k: [0, 2, 3]
+    diff: 1
+    say: 'The Graph Sync Service app opened eleven thousand items in four executive and security mailboxes over EWS, from residential IPs, reading Midnight Blizzard threads.'
+  - d: cloud
+    src: 'Exchange Online · MailItemsAccessed'
+    t: 'App reading mailboxes'
+    h: 'all 4,100 mailboxes'
+    l: ['AppId: Veeam Backup for Microsoft 365', 'MailAccessType: Sync · client IP: 203.0.113.10 (corp egress, backup proxy)', 'schedule: nightly 01:00 · matches 30-day baseline']
+    v: 0
+    x: T1114.002
+    tell: 'Every mailbox, every night, from your own egress, same as the last 30 days. Backup is the noisiest "mail collection" you will ever see. Baseline it once and sleep.'
+    c: app-mailbox-access-baseline
+    k: [1, 2]
+    diff: 2
+    say: 'Veeam backup syncing all four thousand mailboxes from the corp backup proxy at 1 a.m., the same as every night for thirty days.'
+- id: inc_volt
+  g: G1017
+  title: 'Living Off Your Land'
+  diff: 3
+  intro: 'No malware. No phishing. No ransom note. Just a Chinese state crew using your own Windows tools, through your own firewall, slowly, for months. Your admins use the same tools. Good luck.'
+  win: 'You caught Volt Typhoon living off the land on your DCs, slammed the firewall door, and did not wreck the OT vendor''s firmware window. Pre-positioning denied. Crew captured.'
+  lose: 'Volt Typhoon stayed for 300 days and mapped your whole OT network, or you escalated every admin with a CLI and IR muted you. You found out from CISA. Run it back.'
+  contain: {at: 5, ask: 'ntds.dit just left DC-01 via the firewall''s LDAP account. Move?', o: ['Isolate and fix the FortiGate, rotate its creds, plan double krbtgt reset', 'Disable svc_fortinet_ldap and close it out', 'Reimage SRV-DC-01 tonight'], a: 0, why: 'The door is the edge box and every hash is gone. Close the door, then burn the secrets, krbtgt twice. Reimaging a DC fixes neither.'}
+  a:
+  - d: network
+    src: 'Firewall · FortiGate event log'
+    t: 'Admin login to firewall'
+    h: 'fw-edge-01'
+    l: ['admin login via HTTPS GUI from 64.x.x.x', 'source: EOL Cisco RV320 on residential ISP (KV botnet range)', 'preceded by: 1,200 malformed SSL-VPN requests, 2 crash/restarts', 'mgmt interface: exposed to internet · FortiOS unpatched']
+    v: 1
+    x: T1190
+    tell: 'Exploit-shaped noise, then an admin session from a hijacked home router. Volt Typhoon hides behind botnets of dead SOHO gear so the source looks like a random ISP customer.'
+    c: edge-admin-login-source
+    k: [1, 2]
+    diff: 2
+    say: 'Admin login to the edge FortiGate from an end-of-life Cisco home router, right after malformed SSL VPN requests crashed the firewall twice.'
+  - d: endpoint
+    src: 'Windows Security · 4624'
+    t: 'Logon to domain controller'
+    h: 'SRV-DC-01 · CORP\svc_fortinet_ldap'
+    l: ['logon type: 10 (RemoteInteractive / RDP)', 'source: 10.0.0.1 (fw-edge-01 inside interface)', 'baseline: account has only ever done type 3 LDAP binds']
+    v: 1
+    x: T1078.002
+    tell: 'They pulled the LDAP bind creds out of the firewall config. A bind account that suddenly RDPs into a DC is not binding anything.'
+    c: service-account-logon-type
+    k: [0, 2]
+    diff: 2
+    say: 'The firewall LDAP service account made an RDP logon to the domain controller from the firewall itself. It has only ever done network binds.'
+  - d: network
+    src: 'Firewall · FortiGate event log'
+    t: 'Admin login to firewall'
+    h: 'fw-edge-01'
+    l: ['admin login via HTTPS GUI from 10.99.0.12 (mgmt VLAN jump host)', 'user: netadmin.ruiz · FortiToken MFA', 'ticket: CHG-6620 add NAT rule for vendor portal', 'config diff: 1 policy added, matches ticket']
+    v: 0
+    x: T1078.003
+    tell: 'Internal mgmt VLAN, a named admin with a token, a ticket, and a config diff that matches it. Not every firewall login tonight is Beijing.'
+    c: edge-admin-login-source
+    k: [0, 1, 3]
+    diff: 1
+    say: 'Firewall admin login from the management VLAN jump host with FortiToken MFA, on a NAT rule ticket, and the config diff matches.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Event log query'
+    h: 'PAW-IT-03 · CORP\adm.okafor'
+    l: ['cmd: wevtutil qe Security /r:SRV-DC-01 /c:20 /rd:true /f:text /q:"*[System[(EventID=4740)]]"', 'ticket: INC-49102 "jlee locked out every 10 min"', 'source: privileged access workstation · interactive · MFA']
+    v: 0
+    x: T1654
+    tell: 'Same wevtutil, different story: a named admin on a PAW pulling 20 lockout events for an open ticket. LOTL detection is always who, from where, and why now.'
+    c: log-query-who-and-why
+    k: [1, 2]
+    diff: 2
+    say: 'An admin on a privileged workstation pulled the last twenty lockout events from the DC, tied to a ticket about jlee getting locked out.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Event log query'
+    h: 'SRV-DC-01 · CORP\svc_fortinet_ldap'
+    l: ['cmd: wevtutil qe Security /rd:true /f:text /q:"*[System[(EventID=4624)]]" > C:\Windows\Temp\l.txt', 'session: RDP from 10.0.0.1', 'ticket: none']
+    v: 1
+    x: T1654
+    tell: 'Dumping every successful logon to learn who logs in where, so they can blend in. Recon using your own logging. Rude.'
+    c: log-query-who-and-why
+    k: ['h', 1]
+    diff: 2
+    say: 'The firewall service account, in an RDP session on the DC, dumped every successful logon event to a text file in Windows Temp.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Shadow copy created'
+    h: 'SRV-DC-01 · svc_fortinet_ldap'
+    l: ['cmd: vssadmin create shadow /for=C:', 'then: copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy3\Windows\NTDS\ntds.dit C:\Windows\Temp\x\', 'also: reg save HKLM\SYSTEM C:\Windows\Temp\x\s']
+    v: 1
+    x: T1003.003
+    tell: 'Shadow copy on a DC, ntds.dit + SYSTEM hive copied out. Every hash in the domain, using only vssadmin, copy and reg. Pure LOTL.'
+    c: ntds-dit-extraction
+    k: ['h', 1, 2]
+    diff: 1
+    say: 'On the DC, the firewall service account made a shadow copy of C, copied ntds dot dit out of it, and saved the SYSTEM hive.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Shadow storage modified'
+    h: 'SRV-FS-02 · CORP\adm.chen'
+    l: ['cmd: vssadmin resize shadowstorage /for=E: /on=E: /maxsize=25%', 'previous maxsize: 10% · alert: "Shadow storage 98% full"', 'ticket: CHG-6631 · run from PAW-IT-01']
+    v: 0
+    x: T1490
+    tell: 'Ransomware SHRINKS shadow storage to nuke snapshots. This one GREW it after a storage-full alert. Same command, opposite direction. Read the number.'
+    c: vss-change-scope
+    k: [0, 1]
+    diff: 3
+    say: 'An admin raised shadow storage on the file server E drive from ten to twenty-five percent, after a storage-full alert, on a change ticket.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Port proxy configured'
+    h: 'SRV-JUMP-02 · svc_fortinet_ldap'
+    l: ['cmd: netsh interface portproxy add v4tov4 listenport=9999 listenaddress=0.0.0.0 connectport=3389 connectaddress=10.50.1.20', '10.50.1.0/24: OT HMI subnet']
+    v: 1
+    x: T1090.001
+    tell: 'netsh portproxy turns a server into a relay into OT. No tools dropped, just a registry entry that survives reboots. Volt''s favorite souvenir.'
+    c: netsh-portproxy-relay
+    k: [0, 1]
+    diff: 2
+    say: 'netsh portproxy on the jump server, listening on port 9999 for anyone, forwarding to RDP on an OT HMI at 10.50.1.20.'
+  - d: network
+    src: 'Firewall · FortiGate traffic log'
+    t: 'Connection to OT network'
+    h: '10.50.1.20 (HMI-1)'
+    l: ['RDP from SRV-JUMP-02:9999 portproxy (not the OT DMZ jump)', 'no PSM session · no OT change ticket', 'first IT-to-OT RDP from this host in 90 days · 03:40 local']
+    v: 1
+    x: T1021.001
+    tell: 'Through the portproxy, around the conduit, at 3:40am. They are not here to steal. They are here to be ready. That is pre-positioning.'
+    c: it-ot-path-approval
+    k: [0, 1]
+    diff: 1
+    say: 'RDP into an OT HMI through the IT jump server portproxy at 3:40 a.m. No recorded session, no ticket, first time in ninety days.'
+  - d: network
+    src: 'Firewall · FortiGate traffic log'
+    t: 'Connection to OT network'
+    h: '10.50.1.21 (HMI-2)'
+    l: ['RDP from OT-DMZ-JUMP-01 (approved IT/OT conduit)', 'session: CyberArk PSM, recorded · user: ot.vendor.siemens', 'ticket: OT-CHG-311 HMI firmware window 14:00-16:00 · now 14:22']
+    v: 0
+    x: T1021.001
+    tell: 'The approved conduit, a recorded PSM session, inside the vendor''s change window. That is what IT-to-OT is supposed to look like. Memorize it so the other one jumps out.'
+    c: it-ot-path-approval
+    k: [0, 1, 2]
+    diff: 2
+    say: 'RDP to an OT HMI from the approved DMZ jump host, through a recorded CyberArk session, inside the vendor firmware change window.'
+- id: inc_akira
+  g: G1024
+  title: 'VPN Account Without MFA'
+  diff: 1
+  intro: 'Every ransomware report starts the same way. Tonight it is your turn. Akira has a VPN login and a free weekend. Your on-call admins also have a busy weekend. Do not ransom your own coworkers.'
+  win: 'You stopped Akira between exfil and encryption and let the on-call crew finish their tickets. No ransom, no leak site, no Monday meeting with Legal. Crew captured.'
+  lose: 'Akira encrypted 300 servers and posted your HR files on their leak site, or you burned IR on Sunday backups. The ransom note is in every folder. Run it back.'
+  contain: {at: 7, ask: 'rclone is shipping HR to MEGA and they hold every hash. Move?', o: ['Cut VPN + AnyDesk, isolate FS-01, disable admin.test, block MEGA', 'Block mega.nz at the proxy and keep watching', 'Disable admin.test and reset its password'], a: 0, why: 'They hold the hashes and have two ways in; one block just reroutes them. Cut every path at once, then reset privileged creds.'}
+  a:
+  - d: network
+    src: 'VPN · Cisco ASA'
+    t: 'VPN login'
+    h: 'vpn.corp.com'
+    l: ['user: admin.test (created 2022, not in MFA group)', 'source: 45.x.x.x (VPS hosting ASN)', 'preceded by: 4,800 failed logins from 900 IPs']
+    v: 1
+    x: T1133
+    tell: 'A spray that ends in success on a test account outside MFA. Akira loves a Cisco VPN with no MFA. Disable it, then check everything it touched.'
+    c: vpn-mfa-coverage
+    k: [0, 2]
+    diff: 1
+    say: 'VPN login as admin test, an account outside the MFA group, from a VPS, after forty-eight hundred failed logins from nine hundred IPs.'
+  - d: network
+    src: 'VPN · Cisco ASA'
+    t: 'VPN login'
+    h: 'vpn.corp.com'
+    l: ['user: rpatel · Duo push approved', 'source: 73.x.x.x Comcast residential · same as last 60 days', 'time: Sun 02:10 · rpatel is infra on-call (PagerDuty INC-7710)', 'device cert: corp-issued LT-RPATEL-2']
+    v: 0
+    x: T1133
+    tell: '2am Sunday is scary until you check: MFA approved, home ISP they always use, a corp cert, and an actual page. On-call humans exist.'
+    c: vpn-mfa-coverage
+    k: [0, 1, 2]
+    diff: 2
+    say: 'Sunday 2 a.m. VPN login by rpatel with Duo approved, from their usual home ISP, on a corp laptop, while on call for a page.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Directory query tool'
+    h: 'SRV-JUMP-01 · admin.test'
+    l: ['cmd: AdFind.exe -f "(objectcategory=computer)" > c.txt', 'also: AdFind.exe -gcb -sc trustdmp > trusts.txt', 'binary: C:\Users\admin.test\Music\AdFind.exe']
+    v: 1
+    x: T1482
+    tell: 'AdFind dumping every computer and every domain trust, from a Music folder. It is the ransomware crew''s shopping list and map in one.'
+    c: adfind-trust-recon
+    k: [0, 1]
+    diff: 1
+    say: 'AdFind run from the admin test Music folder on the jump server, dumping every computer object and all domain trusts to text files.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Remote support tool installed'
+    h: 'SRV-JUMP-01 · admin.test'
+    l: ['cmd: AnyDesk.exe --install "C:\ProgramData\AnyDesk" --start-with-win --silent', 'then: echo ******** | AnyDesk.exe --set-password', 'corp RMM standard: ScreenConnect (corp tenant) · AnyDesk not approved']
+    v: 1
+    x: T1219
+    tell: 'Silent AnyDesk service with a preset password = their backup door for when you kill the VPN account. Not your RMM, not your problem-solver.'
+    c: rmm-instance-ownership
+    k: [1, 2]
+    diff: 1
+    say: 'AnyDesk silently installed as a startup service on the jump server, password preset from the command line. Corporate standard is ScreenConnect.'
+  - d: network
+    src: 'Proxy · Zscaler'
+    t: 'Large upload to cloud storage'
+    h: 'SRV-FS-01 → corpbackup01.blob.core.windows.net'
+    l: ['tool: azcopy.exe (parent: scheduled task "FS-01 offsite copy") · 96 GB', 'destination: corp-owned storage account (Azure sub: Prod-Backup)', 'baseline: same size, same time, every Sunday 01:00']
+    v: 0
+    x: T1567.002
+    tell: 'Big upload, but to YOUR storage account, by YOUR scheduled task, same as every Sunday. Exfil is about whose bucket, not how big.'
+    c: bulk-upload-destination
+    k: [1, 2]
+    diff: 2
+    say: 'Ninety-six gigabytes from the file server to the corp-owned Azure backup storage account by a scheduled azcopy task, same as every Sunday.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'NTDS database export'
+    h: 'SRV-DC-01 · CORP\da.okafor'
+    l: ['cmd: ntdsutil "ac i ntds" "ifm" "create sysvol full D:\IFM" q q', 'ticket: CHG-5502 promote DC-BR-03 (branch office) via Install From Media', 'then: D:\IFM copied to DC-BR-03 over SMB, deleted after dcpromo']
+    v: 0
+    x: T1003.003
+    tell: 'IFM is how real admins seed a branch DC over a slow link. Named DA, ticket, the media goes to a DC, then gets deleted. Hashes landing on a DC is the point.'
+    c: ntds-dit-extraction
+    k: [1, 2]
+    diff: 3
+    say: 'A domain admin built an install-from-media set on the DC for a branch DC promotion ticket, copied it to the new DC, then deleted it.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'NTDS database export'
+    h: 'SRV-DC-02 · admin.test'
+    l: ['cmd: ntdsutil "ac i ntds" "ifm" "create full C:\ProgramData\temp" q q', 'ticket: none', 'then: 7z.exe a C:\ProgramData\temp\n.7z -p C:\ProgramData\temp\*']
+    v: 1
+    x: T1003.003
+    tell: 'Same IFM, no ticket, a VPN test account, output zipped with a password. Every hash in the domain packed for travel. Encryption is one step away.'
+    c: ntds-dit-extraction
+    k: ['h', 1, 2]
+    diff: 2
+    say: 'The admin test account ran an install-from-media export on DC two into ProgramData, no ticket, then zipped it with a password.'
+  - d: network
+    src: 'Proxy · Zscaler'
+    t: 'Large upload to cloud storage'
+    h: 'SRV-FS-01 → mega.nz'
+    l: ['tool: rclone.exe copy (renamed svchost64.exe) · 112 GB', 'folders: \HR, \Finance, \Legal', 'session: admin.test via AnyDesk', 'destination: MEGA account never seen before']
+    v: 1
+    x: T1567.002
+    tell: 'Renamed rclone to a stranger''s MEGA from the file server = the double-extortion step. Stop it here and there is no leak-site post.'
+    c: bulk-upload-destination
+    k: [0, 3]
+    diff: 1
+    say: 'A renamed rclone pushing one hundred twelve gigabytes of HR, Finance and Legal folders to a never-seen MEGA account, inside an AnyDesk session.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Shadow copy deletion'
+    h: 'SRV-SQL-04 · CORP\mdiaz-a'
+    l: ['cmd: vssadmin delete shadows /for=D: /oldest /quiet', 'scope: 1 server · 6 of 7 snapshots remain', 'ticket: CHG-5519 "D: VSS full, SQL backups failing" · run from PAW-IT-02']
+    v: 0
+    x: T1490
+    tell: 'ONE oldest snapshot on ONE box, with a ticket, from a PAW, is housekeeping. Every snapshot on 312 servers via PsExec is a ransom note. Scope is the tell.'
+    c: vss-change-scope
+    k: [0, 1]
+    diff: 2
+    say: 'An admin deleted only the oldest shadow copy on one SQL server, six snapshots remaining, on a ticket about backups failing from a full volume.'
+  - d: endpoint
+    src: 'Defender for Endpoint · DeviceProcessEvents'
+    t: 'Shadow copy deletion'
+    h: '312 servers · admin.test'
+    l: ['cmd: powershell.exe -Command "Get-WmiObject Win32_Shadowcopy | Remove-WmiObject"', 'pushed via: PsExec (PSEXESVC on 312 servers in 90 s)', 'time: Sat 03:12 · ticket: none']
+    v: 1
+    x: T1490
+    tell: 'Every shadow copy, everywhere, at once, pushed by PsExec. Encryption is minutes away. Isolate everything. Wake up your boss.'
+    c: vss-change-scope
+    k: [0, 1]
+    diff: 1
+    say: 'PowerShell deleting every shadow copy, pushed with PsExec to three hundred twelve servers in ninety seconds, Saturday 3 a.m., no ticket.'

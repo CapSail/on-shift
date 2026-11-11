@@ -1,0 +1,26 @@
+{
+  "name": "on-shift",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "ON SHIFT: a meme-y, expert-level SOC alert triage game.",
+  "scripts": {
+    "content": "node ./node_modules/tsx/dist/cli.mjs scripts/build-content.ts",
+    "validate": "node ./node_modules/tsx/dist/cli.mjs scripts/build-content.ts --check",
+    "dev": "npm run content && node ./node_modules/vite/bin/vite.js",
+    "build": "npm run content && npm run typecheck && node ./node_modules/vite/bin/vite.js build",
+    "preview": "node ./node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173",
+    "qa": "node ./node_modules/tsx/dist/cli.mjs scripts/qa-report.ts",
+    "show": "node ./node_modules/tsx/dist/cli.mjs scripts/show.ts",
+    "typecheck":"node ./node_modules/typescript/bin/tsc --noEmit",
+    "test": "npm run build && node ./node_modules/@playwright/test/cli.js test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "yaml": "^2.6.0"
+  }
+}

