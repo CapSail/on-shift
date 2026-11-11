@@ -1,0 +1,273 @@
+# ON SHIFT alerts, drop 2, part 5: Entra/AD identity pairs + benign twins for existing concepts (y81-y100)
+- id: y81
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'PIM role setting updated'
+  h: 'role: Global Administrator'
+  l: ['operation: Update role setting · approval required true → false; max activation 8 h → 24 h; MFA on activation true → false', 'actor: pim-admin@corp.com (Privileged Role Administrator), sign-in from 91.x.x.x in a new country, token replay flagged by Identity Protection', 'no change request or access review references this edit', '12 min later: a.dumas@corp.com self-activated Global Administrator for 24 h without approval']
+  v: 1
+  x: T1098.003
+  c: entra-pim-setting
+  k: [0, 3]
+  diff: 3
+  say: 'Global Administrator PIM settings were relaxed to no approval, no MFA and 24 hours from a new country, then a user self-activated the role.'
+  tell: 'Weakening the controls on the most powerful role removes every speed bump before the grab: approval off, MFA on activation off, longer sessions. The edit came from a flagged session in a new country, nothing in change management references it, and a self-activation followed within 12 minutes.'
+- id: y82
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'PIM role setting updated'
+  h: 'role: Global Administrator'
+  l: ['operation: Update role setting · approval required false → true; max activation 8 h → 4 h; MFA on activation true (unchanged); justification required true', 'actor: pim-admin@corp.com (Privileged Role Administrator), corporate VPN, compliant device, same IP and device as the previous 90 days', 'change record: CAB entry linked to the PR in the IAM repo that applies the setting through Terraform', 'direction: tighter on every field']
+  v: 0
+  x: T1098.003
+  c: entra-pim-setting
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'Global Administrator PIM settings were tightened to require approval and shorter activation by the usual admin from a compliant device, applied through the IAM repo.'
+  tell: 'Same role setting, opposite direction. Approval on, activation shorter, justification required, MFA kept: every field tighter, from the usual admin on a compliant device and tracked in the IAM repo. Judge setting edits by direction first.'
+- id: y83
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'Owner added to service principal'
+  h: 'app: Finance-Reporting-Connector'
+  l: ['operation: Add owner to service principal · new owner guest.partner_ext#EXT#@corp.onmicrosoft.com', 'the service principal holds application permissions Directory.ReadWrite.All and Mail.Read (admin consented)', 'actor: u.ivanov@corp.com (Application Administrator), from 45.x.x.x, hosting provider', 'guest account created 25 min earlier, first sign-in 3 min after becoming owner']
+  v: 1
+  x: T1098.001
+  c: entra-app-owner-add
+  k: [1, 3]
+  diff: 3
+  say: 'A guest account created 25 minutes earlier became owner of a service principal with directory write and mail read, via a hosting address.'
+  tell: 'App owners can add credentials to the service principal, so an owner of a principal holding Directory.ReadWrite.All is effectively a directory admin. A guest created 25 minutes earlier, added by an app admin from a hosting IP, signing in three minutes later: the next move is a new client secret.'
+- id: y84
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'Owner added to service principal'
+  h: 'app: Finance-Reporting-Connector'
+  l: ['operation: Add owner to service principal · new owner m.rossi@corp.com (employee for 6 years, finance systems team)', 'the service principal holds application permission Reports.Read.All only (admin consented, reviewed in the last access review)', 'actor: fin-apps-lead@corp.com through the app lifecycle workflow after the previous owner left (HR offboarding event)', 'new owner signs in from a managed device on the office network']
+  v: 0
+  x: T1098.001
+  c: entra-app-owner-add
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'An internal finance systems engineer became owner of a report-reading service principal through the lifecycle workflow after the previous owner left, from a managed device.'
+  tell: 'Owner changes happen when people leave. Here the new owner is a six-year employee on the finance systems team, the app holds only Reports.Read.All, and the change came from the lifecycle workflow after an offboarding event. Compare a brand-new guest owning an app with directory write.'
+- id: y85
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'Trusted location added'
+  h: 'policy: Named locations'
+  l: ['operation: Add named location "Branch-Network" marked trusted · ranges 0.0.0.0/1 and 128.0.0.0/1', 'actor: ca-admin@corp.com, sign-in from 185.x.x.x (new geo), MFA satisfied by a freshly added phone method', 'Conditional Access policy "MFA outside trusted locations" now exempts every IPv4 address', 'followed by 31 password-only sign-ins from 4 countries within 15 min']
+  v: 1
+  x: T1556.009
+  c: entra-named-location
+  k: [0, 2]
+  diff: 3
+  say: 'A trusted named location covering all of IPv4 was added by a CA admin from a new country, exempting everyone from the MFA policy.'
+  tell: 'Two /1 ranges is the entire IPv4 space labelled "Branch-Network", so the "MFA outside trusted locations" policy now exempts everyone. It was added from a new country with a freshly added MFA phone, and password-only sign-ins from four countries followed. Revert the location and revoke sessions.'
+- id: y86
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'Trusted location added'
+  h: 'policy: Named locations'
+  l: ['operation: Add named location "Branch-Austin" marked trusted · range 192.0.2.0/28 (the new office ISP block, 14 usable addresses)', 'actor: ca-admin@corp.com, corporate VPN, compliant device, same device and IP as previous admin changes', 'change merged in the network-config repo with the ISP circuit order attached, applied by the IaC pipeline', 'after: sign-ins from the new range are office users on compliant devices']
+  v: 0
+  x: T1556.009
+  c: entra-named-location
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'A trusted named location was added for the new office ISP block, a /28, through the network config repo by the usual CA admin.'
+  tell: 'Adding a trusted location is how Conditional Access learns about a new office. A /28 matching the ISP circuit order, merged in the network repo and applied by the pipeline from the usual admin session. The attack version adds the whole IPv4 space.'
+- id: y87
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'Guest invited and added to privileged group'
+  h: 'tenant corp.com'
+  l: ['guest sec-audit.helper@proton-mail[.]me invited by hr.assistant@corp.com, invitation redeemed 4 min later', 'guest added to group "Finance-Approvers" (grants access to the payments approval app)', 'inviter has no B2B role; a legacy setting still lets all users invite guests', 'guest signed in from 185.x.x.x; no entitlement or access package request exists']
+  v: 1
+  x: T1136.003
+  c: entra-guest-privileged
+  k: [1, 2, 3]
+  diff: 3
+  say: 'A personal mail guest invited by a human resources assistant was added to the finance approvers group within minutes, with no access package request.'
+  tell: 'A throwaway personal-mail guest added to the group that approves payments, four minutes after being invited by someone with no B2B role, with no entitlement request behind it. The legacy setting that lets every user invite guests is the finding, the group membership is the incident.'
+- id: y88
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'Guest invited and added to group'
+  h: 'tenant corp.com'
+  l: ['guest a.weber@supplier-gmbh.com invited through entitlement management access package "Supplier Portal"', 'guest added to group "Supplier-Portal-Users" by the access package policy after sponsor approval (sponsor: procurement lead)', 'invite sent by the entitlement system, guest domain is on the allowed B2B domain list', 'access expires in 90 days with an access review; no finance or admin group involved']
+  v: 0
+  x: T1136.003
+  c: entra-guest-privileged
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'A supplier guest was invited and added to the supplier portal group by an entitlement management access package after sponsor approval, with a 90-day expiry.'
+  tell: 'Guests are normal. This one came through an access package with a named sponsor, from an allowed supplier domain, landed in a portal-only group, and expires in 90 days with a review. Ad hoc invite, personal mail domain, finance approvers group: that is the other one.'
+- id: y89
+  d: identity
+  src: 'Windows Security · 4887'
+  t: 'Certificate issued with different SAN'
+  h: 'CA: CORP-ISSUING-CA01'
+  l: ['event: certificate issued · template "UserAuth-Legacy" (enrollee supplies subject, client authentication EKU)', 'requester CORP\jdoyle (standard user); SAN in the request administrator@corp.com', 'request from WS-MKT-0207 over RPC; the template allows low-privileged enrollment', 'minutes later: Kerberos TGT requested with PKINIT for administrator, source WS-MKT-0207']
+  v: 1
+  x: T1649
+  c: adcs-san-mismatch
+  k: [0, 1]
+  diff: 3
+  say: 'A standard user got a certificate naming the domain administrator from a template that lets the requester set the subject, then logged on with it.'
+  tell: 'Enrollee-supplies-subject plus client authentication and low-privileged enrollment is ESC1: any user can request a certificate as anyone, here administrator@corp.com. The PKINIT TGT for administrator minutes later from the same workstation is the exploit completing. Fix the template and revoke the certificate.'
+- id: y90
+  d: identity
+  src: 'Windows Security · 4887'
+  t: 'Certificate issued with different SAN'
+  h: 'CA: CORP-ISSUING-CA01'
+  l: ['event: certificate issued · template "NDES-Device" (subject built from the enrolling device, SCEP through the NDES service account)', 'requester CORP\svc_ndes on behalf of device WS-NEW-0412 (Intune SCEP profile); SAN in the request WS-NEW-0412.corp.com', 'template requires the NDES enrollment agent signature and is limited to the NDES service account', 'no PKINIT or other user authentication follows; the certificate is used for device Wi-Fi only']
+  v: 0
+  x: T1649
+  c: adcs-san-mismatch
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The NDES service account enrolled a device certificate for a new laptop through Intune SCEP, on an NDES-only template; no user logon followed.'
+  tell: 'A certificate whose subject differs from the requester is expected with NDES and SCEP, where the service account enrolls on behalf of devices. The tests: a template restricted to that account, an enrollment agent signature, a device name in the SAN rather than a person, and no PKINIT logon afterward.'
+- id: y91
+  d: identity
+  src: 'Windows Security · 5136'
+  t: 'GPO modified'
+  h: 'GPO: Default Domain Policy'
+  l: ['event 5136: directory service object modified, the Scheduled Tasks client-side extension was added to the GPO', 'actor: CORP\svc_backup (service account, no GPO edit history) from WS-ACCT-0630 over LDAP', 'new Immediate Task in ScheduledTasks.xml: runs as SYSTEM, cmd.exe /c \\corp.com\SYSVOL\corp.com\scripts\u.bat, applies to all computers', 'GPO linked at the domain root; 6,200 machines will run it at the next refresh']
+  v: 1
+  x: T1484.001
+  c: gpo-immediate-task
+  k: [1, 2]
+  diff: 3
+  say: 'A backup service account edited the Default Domain Policy from a workstation to run a SYSVOL script as system on every computer.'
+  tell: 'Editing the Default Domain Policy to add an immediate task as SYSTEM is domain-wide code execution: the ransomware deployment move. The actor is a backup service account with no GPO history, working from a workstation, and the task launches a batch file staged in SYSVOL.'
+- id: y92
+  d: identity
+  src: 'Windows Security · 5136'
+  t: 'GPO modified'
+  h: 'GPO: Workstation Baseline'
+  l: ['event 5136: GPO "Workstation Baseline" modified, Scheduled Tasks extension added', 'actor: CORP\gpo.admin2 (Group Policy Creator Owners, 5 years of GPO edits) from PAW-IT-02 using GPMC', 'new Immediate Task: runs as SYSTEM, schtasks /delete for the retired "OldAVUpdate" task, item-level targeting to computers in OU Workstations-Retired-AV', 'linked to the Workstations OU only (880 machines); the GPO XML export is committed to the IaC repo']
+  v: 0
+  x: T1484.001
+  c: gpo-immediate-task
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'An experienced GPO admin on a privileged workstation added an immediate task to the workstation baseline to remove a retired scheduled task.'
+  tell: 'Immediate tasks in a GPO are both a ransomware deployment trick and a normal cleanup tool. Scope and actor decide: a five-year GPO admin on a privileged workstation, a task that deletes a retired task, filtered to a small OU, linked to workstations only (880 machines), with the GPO XML exported into the IaC repo.'
+- id: y93
+  d: identity
+  src: 'Windows Security · 4765'
+  t: 'SID history added to account'
+  h: 'target: CORP\helpdesk-temp'
+  l: ['event 4765: SID History was added to an account; the SID added is the Domain Admins group (RID 512)', 'caller: CORP\sysop2 through a PowerShell session on a domain controller (SRV-DC-02)', 'no domain migration is in progress and there is no trust with a source domain', 'account helpdesk-temp created 30 min earlier, then used to sign in to SRV-FILE-07']
+  v: 1
+  x: T1134.005
+  c: sid-history-add
+  k: [0, 2]
+  diff: 3
+  say: 'The Domain Admins SID was added to the history of a new help desk account from a domain controller, with no migration under way.'
+  tell: 'SID history carrying the Domain Admins SID gives a throwaway account admin rights that do not show up in group membership. There is no migration or trust to explain it, it was set from a PowerShell session on a DC, and the account was used within the half hour.'
+- id: y94
+  d: identity
+  src: 'Windows Security · 4765'
+  t: 'SID history added to account'
+  h: 'target: CORP\n.ibrahim'
+  l: ['event 4765: SID History was added to an account; the SID added is the user''s previous identity in the source domain OLD-CORP (not a privileged group)', 'caller: CORP\admt-svc (ADMT migration service account) from the ADMT server MIG-ADMT-01', 'migration wave 3 in progress: 212 user accounts migrated this evening, the same event for each', 'a trust with OLD-CORP exists; every SID added is a user SID, none privileged']
+  v: 0
+  x: T1134.005
+  c: sid-history-add
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'ADMT added source-domain SIDs to migrated user accounts during a scheduled migration wave from the migration server, none of them privileged, across a trust.'
+  tell: 'SID history is the migration mechanism and a classic persistence trick. ADMT adds the old-domain SIDs of user accounts during a migration wave, across a real trust, from the migration server, 212 times this evening. Nothing here is a privileged SID. A privileged-group SID on a brand-new account is the other one.'
+- id: y95
+  d: identity
+  src: 'Windows Security · 4624'
+  t: 'Service account interactive logon'
+  h: 'SRV-SQL-02 · CORP\svc_sqlagent'
+  l: ['logon type 10 (RemoteInteractive) for CORP\svc_sqlagent, source WS-DEV-0112 (a developer workstation)', 'svc_sqlagent has no interactive logon in 400 days of logs', 'followed by: whoami /priv, nltest /dclist, then net use to 6 file servers', 'password last set 1,090 days ago; an SPN is registered, so the account was Kerberoastable']
+  v: 1
+  x: T1078.002
+  c: svc-interactive-logon
+  k: [0, 2]
+  diff: 3
+  say: 'A SQL agent service account logged on through remote desktop from a developer workstation, for the first time in 400 days, and ran reconnaissance commands.'
+  tell: 'Service accounts do not log on interactively. A type 10 logon for svc_sqlagent from a developer workstation, the first in 400 days, followed by whoami /priv and nltest, with a three-year-old password and a registered SPN that made it a Kerberoast target. Assume the password was cracked.'
+- id: y96
+  d: identity
+  src: 'Windows Security · 4624'
+  t: 'Service account interactive logon'
+  h: 'SRV-SQL-02 · CORP\svc_sqlagent'
+  l: ['logon type 10 for CORP\svc_sqlagent, source PAW-DBA-01 (privileged access workstation, DBA tier)', 'break-fix procedure: account checked out from the PAM vault, password rotated on check-in, session recorded', 'followed by: SQL Server Configuration Manager and SSMS only, on SRV-SQL-02', 'logon history: 2 interactive logons in 400 days, both checked out the same way']
+  v: 0
+  x: T1078.002
+  c: svc-interactive-logon
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'A DBA used the SQL agent account over remote desktop from a privileged workstation after a vault checkout, recorded, with database tools only.'
+  tell: 'Interactive logon for a service account is allowed on one path only: vault checkout, from the DBA PAW, recorded, tools limited to the database stack, rotated on check-in. Two such logons in 400 days, both through the vault. A developer workstation and recon commands is the other path.'
+- id: y97
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'Remote session shadowing'
+  h: 'SRV-TS-02 · helpdesk.ana'
+  l: ['cmd: mstsc.exe /shadow:2 /v:SRV-TS-02 /control, run from the help desk workstation WS-HD-0007', 'policy: RDS shadow setting "full control with user''s permission"; the session owner accepted the consent prompt', 'session owner is the requester of support case 50412 "report will not load"', 'session recorded by the help desk tooling']
+  v: 0
+  x: T1563.002
+  c: rdp-session-hijack
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The help desk shadowed a user session with the control option; the session owner accepted the consent prompt, and the user had asked for help.'
+  tell: 'Taking over a user session is only an attack when it happens without consent. mstsc /shadow with /control asks the session owner under the "with user''s permission" policy, the owner accepted, and the owner was the requester of the support case. tscon as SYSTEM never asks anybody.'
+- id: y98
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'OAuth app consent'
+  h: 'app: Zoom Workplace'
+  l: ['app: "Zoom Workplace" (verified publisher Zoom Video Communications), consent type: admin, on behalf of the organization', 'permissions: User.Read, Calendars.ReadWrite, OnlineMeetings.ReadWrite (all listed in the vendor documentation)', 'consent by it-apps-admin@corp.com through the admin consent workflow request from sales ops, corporate VPN', 'app is already in the SaaS catalog, security review 4 months ago']
+  v: 0
+  x: T1528
+  c: oauth-app-abuse
+  k: [0, 2, 3]
+  diff: 2
+  trap: scary
+  say: 'An admin consented to the verified Zoom app with calendar and meeting permissions through the consent workflow; it is in the SaaS catalog.'
+  tell: 'Consent grants are judged by publisher, scopes and trail. Verified publisher, scopes limited to what the product documents, admin consent through the request workflow, and a catalog entry reviewed four months ago. The friendly name proves nothing, the trail does.'
+- id: y99
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'Suspicious child of web server'
+  h: 'SRV-WEB-03 · IIS APPPOOL\Portal'
+  l: ['parent: w3wp.exe (app pool "Portal")', 'cmd: C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /noconfig /fullpaths @"C:\Windows\Temp\Portal\a1b2c3.cmdline"', 'output: C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Temporary ASP.NET Files\portal\hash\a1b2c3.dll', 'first request after an application pool recycle; the same csc.exe pattern follows every deploy on all 6 web nodes']
+  v: 0
+  x: T1505.003
+  c: webshell-activity
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'The web worker launched the .NET compiler with a command file in its own temp folder after an app pool recycle, as on every node.'
+  tell: 'w3wp.exe spawning csc.exe looks like a webshell compiling a payload, and it is also how ASP.NET compiles pages on the first request after a recycle. The compiler is the framework one, the command file and output sit in the app pool''s own temp folders, and every web node does the same after deploys. Webshells run cmd.exe and whoami, not csc.'
+- id: y100
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: 'vssadmin and wbadmin execution'
+  h: 'SRV-FS-08 · SYSTEM'
+  l: ['parent: VeeamAgent.exe (service, signed Veeam Software Group GmbH)', 'cmd: vssadmin.exe delete shadows /for=C: /oldest', 'no /all and no /quiet; one oldest snapshot removed after the backup job completed', 'no wbadmin delete catalog; the same command is in the 2 AM backup job log for 180 nights']
+  v: 0
+  x: T1490
+  c: shadow-copy-deletion
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'The backup agent service deleted only the oldest shadow copy of one volume after its backup job finished, as on the nightly job log.'
+  tell: 'Deleting shadow copies is ransomware prep, and backup software also prunes its own snapshots. The difference is the shape: the parent is the signed backup service, /oldest on one volume instead of /all /quiet, no backup catalog deletion, and 180 nights of the same entry. Parent plus scope decides.'

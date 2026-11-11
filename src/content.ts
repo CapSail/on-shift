@@ -8,6 +8,9 @@ export const ALERTS: Alert[] = D.alerts;
 export const byId: Record<string, Alert> = {};
 ALERTS.forEach((a) => (byId[a.id] = a));
 
+/** Alerts the shared daily and the weekly boss may use (see daily_pool_drop in content/meta.yaml). */
+export const POOL: Alert[] = ALERTS.filter((a) => (a.drop ?? 1) <= D.meta.dailyPoolDrop);
+
 export const INC_ALERTS: Alert[] = D.inc.flatMap((i) => i.a);
 export const CON = D.concepts ?? {};
 

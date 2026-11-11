@@ -1,0 +1,44 @@
+# ON SHIFT concepts for drop 2 (alerts6-10). id, rule (<=15 words), tac (ATT&CK tactic), d (domain)
+- {id: msiexec-remote-install, rule: 'msiexec from a URL is delivery; signed local packages from the software client are installs.', tac: Stealth, d: endpoint}
+- {id: wmic-xsl, rule: 'wmic /format with a URL runs remote script; local csv formats are inventory.', tac: Stealth, d: endpoint}
+- {id: schtasks-remote-create, rule: 'Remote one-shot tasks are patching from the orchestrator and intrusion from anywhere else.', tac: Execution, d: endpoint}
+- {id: net-user-add-admin, rule: 'Admin account creation is provisioning when imaging or LAPS owns it; otherwise intrusion.', tac: Persistence, d: endpoint}
+- {id: ifeo-debugger, rule: 'IFEO debuggers on accessibility binaries are backdoors; on your own app from an IDE, debugging.', tac: Privilege Escalation, d: endpoint}
+- {id: rdp-session-hijack, rule: 'tscon as SYSTEM takes any disconnected session without a password; helpdesk shadowing needs consent.', tac: Lateral Movement, d: endpoint}
+- {id: kube-exec-prod-pod, rule: 'Prod pod exec is on-call work through break-glass; off-rotation exec plus token reads is theft.', tac: Execution, d: linux}
+- {id: runtime-socket-mount, rule: 'Runtime socket mounts are node root: fine for GitOps-managed CI pools, never for app namespaces.', tac: Privilege Escalation, d: linux}
+- {id: ld-preload-persist, rule: 'ld.so.preload is a rootkit hook unless a package owns the library and the writer.', tac: Persistence, d: linux}
+- {id: kube-secret-list, rule: 'Cluster-wide secret reads belong to reviewed operators; workload tokens running curl are theft.', tac: Credential Access, d: linux}
+- {id: aws-cross-account-assume, rule: 'Judge AssumeRole by source account, trust conditions and role power, not the call.', tac: Initial Access, d: cloud}
+- {id: node-identity-token, rule: 'Workload identity use from its own pods is normal; node tokens used off-cluster are stolen.', tac: Credential Access, d: cloud}
+- {id: setuid-new-binary, rule: 'Setuid is packaging when the package owns the file, persistence on a /tmp shell copy.', tac: Privilege Escalation, d: linux}
+- {id: kernel-module-load, rule: 'Signed package-built modules are drivers; unsigned modules from /dev/shm are rootkits.', tac: Persistence, d: linux}
+- {id: audit-rules-cleared, rule: 'Audit rules cleared and reloaded by config management is deployment; left off is blinding.', tac: Defense Impairment, d: linux}
+- {id: strace-credential-harvest, rule: 'strace on your own app is debugging; on sshd or another user it is harvesting.', tac: Credential Access, d: linux}
+- {id: okta-policy-change, rule: 'Judge policy edits by direction, actor and source; weakening by a new admin is attack.', tac: Credential Access, d: identity}
+- {id: gws-domain-delegation, rule: 'Judge delegation by client provenance and scope: verified read-only is backup, unlisted full-mail is takeover.', tac: Privilege Escalation, d: cloud}
+- {id: gws-bulk-link-share, rule: 'Bulk link sharing is publishing for public-labelled, DLP-clean folders; otherwise exposure.', tac: Exfiltration, d: cloud}
+- {id: github-mass-clone, rule: 'Mass clones: indexers match app, range and schedule; a PAT from a VPS is theft.', tac: Collection, d: cloud}
+- {id: gha-workflow-change, rule: 'Judge workflow edits by author, trigger and egress; env piped to curl is theft.', tac: Credential Access, d: cloud}
+- {id: github-deploy-key, rule: 'Read-only keys with a PR and known fingerprint are GitOps; write keys from nowhere persist.', tac: Persistence, d: cloud}
+- {id: slack-export, rule: 'Custodian-scoped exports under hold are discovery; whole-workspace exports from new devices are theft.', tac: Collection, d: cloud}
+- {id: sfdc-bulk-export, rule: 'Big exports match the connected app, IP range and schedule; interactive integration logins are theft.', tac: Collection, d: cloud}
+- {id: snowflake-service-bulk, rule: 'Service users: key-pair, network policy, internal stages are normal; passwords from a VPS are theft.', tac: Initial Access, d: cloud}
+- {id: macos-launchagent-new, rule: 'New launch agents are updaters when signed, root-owned and package-receipted; user-folder Apple lookalikes persist.', tac: Persistence, d: macos}
+- {id: macos-tcc-grant, rule: 'TCC grants through signed MDM profiles are deployment; direct TCC.db writes are implants.', tac: Privilege Escalation, d: macos}
+- {id: macos-quarantine-strip, rule: 'Quarantine stripped on local builds is development; on downloaded unsigned apps, Gatekeeper evasion.', tac: Stealth, d: macos}
+- {id: macos-keychain-read, rule: 'Keychain secrets read by temp binaries are theft; MDM metadata lookups are compliance.', tac: Credential Access, d: macos}
+- {id: calendar-invite-phish, rule: 'Invites are judged by domain age, link destination and sender history, not by SPF passing.', tac: Initial Access, d: email}
+- {id: mailbox-delegate-add, rule: 'Delegation is workflow with an automated grantor and an established grantee; otherwise takeover.', tac: Persistence, d: email}
+- {id: direct-smtp-egress, rule: 'Port 25 fan-out is mail flow from registered gateways and a bot from anywhere else.', tac: Command and Control, d: network}
+- {id: rdp-exposure, rule: 'Any-source internet RDP is exposure; ZTNA-gateway RDP with MFA and recording is access.', tac: Initial Access, d: network}
+- {id: ot-plc-write-source, rule: 'Judge PLC writes by source, range and operator; unlisted writers or wild values are manipulation.', tac: Impact, d: network}
+- {id: ot-vendor-access, rule: 'Vendor OT access via broker, in window, to the named host is maintenance; else bridge.', tac: Initial Access, d: network}
+- {id: entra-pim-setting, rule: 'PIM setting edits are judged by direction and actor; weakening from odd sessions is takeover.', tac: Privilege Escalation, d: identity}
+- {id: entra-app-owner-add, rule: 'Judge owner changes by grantee history and app power: guests on powerful apps are takeover.', tac: Persistence, d: identity}
+- {id: entra-named-location, rule: 'Judge trusted-location edits by range size and provenance; a whole-internet range is takeover.', tac: Credential Access, d: identity}
+- {id: entra-guest-privileged, rule: 'Access-package guests with sponsor and expiry are B2B; ad hoc invites into privileged groups persist.', tac: Persistence, d: identity}
+- {id: adcs-san-mismatch, rule: 'Subject differing from requester is NDES delegation or ESC1: check template, enroller, follow-on logons.', tac: Credential Access, d: identity}
+- {id: gpo-immediate-task, rule: 'Scoped GPO tasks from GPO admins are maintenance; domain-wide tasks from services are attack.', tac: Execution, d: identity}
+- {id: sid-history-add, rule: 'SID history added by ADMT across a trust is migration; privileged SIDs are escalation.', tac: Privilege Escalation, d: identity}
+- {id: svc-interactive-logon, rule: 'Interactive service logons are break-fix via vault checkout from a PAW; anything else is theft.', tac: Initial Access, d: identity}

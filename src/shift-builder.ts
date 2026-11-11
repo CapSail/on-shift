@@ -1,6 +1,6 @@
 // Builds the queues: the personal shift (SRS callbacks + fresh alerts) and the shared daily shift.
 import type { Alert, QueueAlert } from './types';
-import { ALERTS } from './content';
+import { ALERTS, POOL } from './content';
 import { dueConcepts, everSeen, lastSeen, rollingTier, variantFor } from './srs';
 import { mulberry, resetRng, rnd, setRng, shuffle } from './util';
 import { today } from './time';
@@ -77,7 +77,7 @@ export function buildShift(n = 10, opts: ShiftOpts = {}): QueueAlert[] {
 /** The daily: 10 alerts seeded from the bank for everyone (ignores personal SRS). */
 export function buildDaily(): QueueAlert[] {
   setRng(mulberry(today() * 7919));
-  const pool = shuffle(ALERTS);
+  const pool = shuffle(POOL);
   const tp = 2 + Math.floor(rnd() * 5);
   const out: QueueAlert[] = [];
   let ntp = 0;

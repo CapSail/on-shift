@@ -1,0 +1,271 @@
+# ON SHIFT alerts, drop 2, part 2: Linux, Kubernetes and cloud IaaS pairs (y21-y40)
+- id: y21
+  d: linux
+  src: 'Kubernetes · audit log'
+  t: 'Exec into pod'
+  h: 'cluster: prod-eks · ns: payments'
+  l: ['verb: create pods/exec · pod: payments-api-6d9f7 · command: /bin/sh', 'user: jsmith@corp.com (developer group, not in the on-call rotation)', 'source IP: 198.51.x.x (home ISP, not the corporate VPN)', 'no break-glass session open; the exec was followed by a read of /var/run/secrets/kubernetes.io/serviceaccount/token']
+  v: 1
+  x: T1609
+  c: kube-exec-prod-pod
+  k: [1, 3]
+  diff: 2
+  say: 'A developer outside the on-call group opened a shell in a production payments pod from a home address, then read the service account token.'
+  tell: 'pods/exec in production is fine for the on-call engineer through the break-glass path. A developer outside the rotation, off the VPN, with no break-glass session, who then reads the pod service account token, is taking credentials from the workload.'
+- id: y22
+  d: linux
+  src: 'Kubernetes · audit log'
+  t: 'Exec into pod'
+  h: 'cluster: prod-eks · ns: payments'
+  l: ['verb: create pods/exec · pod: payments-api-6d9f7 · command: /bin/sh', 'user: rkaplan@corp.com (SRE on-call group, the rotation shows rkaplan this week)', 'source: corporate VPN, session opened through break-glass tool bg-8812 with recording enabled', 'followed by: kubectl logs and a read of /proc/1/status only']
+  v: 0
+  x: T1609
+  c: kube-exec-prod-pod
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'The on-call SRE opened a shell in a production pod through the recorded break-glass tool over the VPN, then only read logs and status.'
+  tell: 'Same verb, same pod, same shell. The difference is the path: on-call rotation, corporate VPN, a recorded break-glass session, and afterwards only logs and process status. Exec in production is allowed. Exec outside the process is the alert.'
+- id: y23
+  d: linux
+  src: 'Kubernetes · audit log'
+  t: 'Pod mounts container runtime socket'
+  h: 'cluster: prod-gke · ns: web'
+  l: ['pod: img-resizer-7c4 · created by dev-contractor@corp.com via kubectl apply', 'volume: hostPath /run/containerd/containerd.sock → same path (read-write)', 'image: alpine:3.19 from a public registry, command: sleep infinity', 'namespace web has no CI or build workloads']
+  v: 1
+  x: T1610
+  c: runtime-socket-mount
+  k: [0, 1, 2]
+  diff: 3
+  say: 'A contractor created an idle public-image pod in the web namespace that mounts the container runtime socket read-write.'
+  tell: 'The runtime socket is root on the node: whoever holds it can start any container with any mount. An idle public alpine image in a web namespace, created by a contractor with kubectl apply, is a prepared foothold, not a workload.'
+- id: y24
+  d: linux
+  src: 'Kubernetes · audit log'
+  t: 'Pod mounts container runtime socket'
+  h: 'cluster: ci-gke · ns: build-agents'
+  l: ['pod: buildkit-agent-2 · StatefulSet buildkit, synced by Argo CD from the platform repo', 'volume: hostPath /run/containerd/containerd.sock (read-write) on a dedicated node pool tainted ci=true', 'image: registry.corp.com/platform/buildkit:1.9, pinned digest, signed with cosign', 'namespace build-agents holds only CI workloads']
+  v: 0
+  x: T1610
+  c: runtime-socket-mount
+  k: [0, 1, 3]
+  diff: 3
+  trap: scary
+  say: 'A build-agents pod mounts the runtime socket. It is a GitOps-synced StatefulSet on a tainted CI node pool with a signed internal image.'
+  tell: 'A runtime socket mount is node root, so the question is who is allowed to need it. A signed build agent from a GitOps-managed StatefulSet on a tainted CI pool, in a CI-only namespace, is the sanctioned answer. The same mount in an app namespace is not.'
+- id: y25
+  d: linux
+  src: 'Linux · auditd'
+  t: 'ld.so.preload modified'
+  h: 'db-prod-09 · root'
+  l: ['file: /etc/ld.so.preload written (did not exist yesterday)', 'content: /usr/lib/x86_64-linux-gnu/libsystemd-helper.so', 'library: not owned by any package, created 4 min earlier in /dev/shm', 'process: bash from an SSH session from 185.x.x.x']
+  v: 1
+  x: T1574.006
+  c: ld-preload-persist
+  k: [1, 2]
+  diff: 3
+  say: 'A new preload file on a database server points at a library no package owns, created minutes earlier in shared memory.'
+  tell: 'ld.so.preload loads a library into every dynamically linked process, which is how userland rootkits hide files and processes. A new file pointing at a library with a systemd-sounding name, no owning package and a copy staged in /dev/shm is a rootkit install.'
+- id: y26
+  d: linux
+  src: 'Linux · auditd'
+  t: 'ld.so.preload modified'
+  h: 'app-prod-21 · root'
+  l: ['file: /etc/ld.so.preload written by a package post-install script', 'content: /usr/lib/x86_64-linux-gnu/libjemalloc.so.2', 'library: owned by package libjemalloc2 (dpkg -S), hash matches the distro archive', 'unattended-upgrades run; config management shows the same on 40 hosts']
+  v: 0
+  x: T1574.006
+  c: ld-preload-persist
+  k: [2, 3]
+  diff: 2
+  trap: scary
+  say: 'A preload file was written by a package post-install script, pointing at a distribution-owned memory allocator library that matches the archive hash.'
+  tell: 'ld.so.preload is a rootkit favourite and also how some performance packages swap in a memory allocator. The deciders: the library is owned by a package, the hash matches the archive, the writer is a package script, and the same change lands across the fleet.'
+- id: y27
+  d: linux
+  src: 'Kubernetes · audit log'
+  t: 'Secrets listed across namespaces'
+  h: 'cluster: prod-aks · ns: kube-system'
+  l: ['verb: list secrets (all namespaces) · 412 objects returned', 'user: system:serviceaccount:web:frontend (identity of the web tier)', 'source: pod IP in the web namespace, user agent curl/8.5.0', 'RBAC: frontend was granted cluster-wide secret read by a wildcard role binding']
+  v: 1
+  x: T1552.007
+  c: kube-secret-list
+  k: [1, 3]
+  diff: 3
+  say: 'The web tier service account listed secrets across all namespaces with curl from inside its pod, and 412 objects were returned.'
+  tell: 'A web workload using curl against the API server to list every secret is a stolen pod token being used. The web tier never needs cluster-wide secret read. The wildcard binding is the finding, the list call is the incident.'
+- id: y28
+  d: linux
+  src: 'Kubernetes · audit log'
+  t: 'Secrets listed across namespaces'
+  h: 'cluster: prod-aks · ns: kube-system'
+  l: ['verb: list secrets (all namespaces) · 388 objects returned', 'user: system:serviceaccount:external-secrets:external-secrets (operator owned by the platform team)', 'source: the operator pod, user agent external-secrets/v0.9 (Go-http-client)', 'RBAC: ClusterRole reviewed in the platform repo; the operator syncs these 388 secrets every 10 min']
+  v: 0
+  x: T1552.007
+  c: kube-secret-list
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The external secrets operator service account listed secrets across namespaces from its own pod with its own user agent, on the usual sync cycle.'
+  tell: 'Same API call, opposite owner. The external secrets operator is supposed to read secrets cluster-wide: dedicated namespace, reviewed ClusterRole, its own user agent, a regular sync cycle. The frontend case has none of that.'
+- id: y29
+  d: cloud
+  src: 'AWS · CloudTrail'
+  t: 'AssumeRole from external account'
+  h: 'role/prod-admin · account 1111-2222-3333'
+  l: ['eventName: AssumeRole · role: prod-admin · requested by: arn:aws:sts::9876-5432-1098:assumed-role/dev-tools/sess1', 'source account 9876-5432-1098 is not in the AWS Organization', 'sourceIPAddress: 45.x.x.x (hosting provider), userAgent: aws-cli/2.15', 'trust policy on prod-admin allows "AWS": "*" with no ExternalId or org condition']
+  v: 1
+  x: T1078.004
+  c: aws-cross-account-assume
+  k: [1, 3]
+  diff: 3
+  say: 'An admin role was assumed from an AWS account outside the organization, via a hosting address, under a trust policy with no conditions.'
+  tell: 'Cross-account AssumeRole is normal. This one comes from an account that is not in your Organization, from a hosting IP, into an admin role whose trust policy trusts everyone. The call is the incident, the open trust policy is the root cause.'
+- id: y30
+  d: cloud
+  src: 'AWS · CloudTrail'
+  t: 'AssumeRole from external account'
+  h: 'role/security-audit-readonly · account 4444-1111-2222'
+  l: ['eventName: AssumeRole · role: security-audit-readonly · requested by: arn:aws:sts::5555-6666-7777:assumed-role/sec-scanner/scan-0412', 'source account 5555-6666-7777 is the Security OU audit account (Organization member)', 'sourceIPAddress: AWS service, userAgent: Prowler/4.2 Boto3', 'trust policy conditions: aws:PrincipalOrgID = o-corp and ExternalId required; the role is read-only']
+  v: 0
+  x: T1078.004
+  c: aws-cross-account-assume
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'A read-only audit role was assumed by the security account scanner inside the organization, with org ID and external ID conditions in the trust policy.'
+  tell: 'Cross-account AssumeRole is how audit tooling works. The source is an Organization member in the Security OU, the role is read-only, the trust policy demands an org ID and an ExternalId, and the user agent is the scanner. Read the source and the trust, not the call.'
+- id: y31
+  d: cloud
+  src: 'GCP · Cloud Audit Logs'
+  t: 'Service account token used from unexpected host'
+  h: 'sa: gke-nodes@corp-prod.iam.gserviceaccount.com'
+  l: ['method: storage.objects.list · bucket: corp-prod-backups', 'principal: gke-nodes (the default node service account, Editor role)', 'caller IP: 34.x.x.x, external, not a GKE node (token used outside the cluster)', 'token was issued to node pool np-web 6 min earlier through the metadata server']
+  v: 1
+  x: T1552.005
+  c: node-identity-token
+  k: [2, 3]
+  diff: 3
+  say: 'The default node service account listed backup bucket objects from an external address minutes after its token was issued to a web node pool.'
+  tell: 'A node service account token has no business off the node. The token was minted through the metadata server for the web pool six minutes earlier, then used from a public IP: someone reached the metadata endpoint from a compromised pod and walked out with the node identity. The default node account with Editor is what makes it hurt.'
+- id: y32
+  d: cloud
+  src: 'GCP · Cloud Audit Logs'
+  t: 'Service account token used from unexpected host'
+  h: 'sa: assets-reader@corp-prod.iam.gserviceaccount.com'
+  l: ['method: storage.objects.get · bucket: corp-prod-assets', 'principal: assets-reader (Workload Identity, bound to the Kubernetes account web/assets)', 'caller IP: 10.64.2.17 (GKE pod range), via the GKE metadata server', 'role: objectViewer on this one bucket only']
+  v: 0
+  x: T1552.005
+  c: node-identity-token
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A Workload Identity service account read an asset bucket from a cluster pod address, with a narrow viewer role limited to that bucket.'
+  tell: 'Metadata-server credentials are how pods get cloud identity. Here it is Workload Identity: a dedicated service account bound to one Kubernetes service account, used from a pod IP, with a narrow role on one bucket. The scary case is the default node account used from outside the cluster.'
+- id: y33
+  d: linux
+  src: 'Linux · auditd'
+  t: 'setuid bit set on binary'
+  h: 'web-prod-15 · apache'
+  l: ['exec: chmod u+s /tmp/.cache/bash', 'file: /tmp/.cache/bash is a copy of /bin/bash, owner root', 'filesystem: /tmp mounted without nosuid on this host', 'parent: php-fpm worker, no package manager involved']
+  v: 1
+  x: T1548.001
+  c: setuid-new-binary
+  k: [0, 1]
+  diff: 2
+  say: 'A web worker process set the setuid bit on a root-owned copy of the shell hidden in a temp directory.'
+  tell: 'A setuid root copy of bash in /tmp is a one-command root shell for anyone who can run it later. Web worker parent, hidden directory, no package manager and /tmp without nosuid: this is persistence and escalation staged for the next login.'
+- id: y34
+  d: linux
+  src: 'Linux · auditd'
+  t: 'setuid bit set on binary'
+  h: 'app-prod-22 · root'
+  l: ['exec: chmod 4755 /usr/bin/fusermount3', 'parent: dpkg --configure (package fuse3 post-install script)', 'file: owned by package fuse3, hash matches the distro archive, path under /usr/bin', 'same change on every host that installed fuse3 this week']
+  v: 0
+  x: T1548.001
+  c: setuid-new-binary
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A package post-install script set the setuid bit on a system binary under /usr/bin, owned by the fuse package, with a hash matching the archive.'
+  tell: 'Setuid bits show up in packaging all the time: fusermount, ping, sudo. The tests are who owns the file (a package), who changed it (dpkg), whether the hash matches the archive and whether it landed fleet-wide. A bash copy in /tmp passes none of them.'
+- id: y35
+  d: linux
+  src: 'Linux · auditd'
+  t: 'Kernel module loaded'
+  h: 'db-prod-04 · root'
+  l: ['exec: insmod /dev/shm/.k/vmtoolsd.ko', 'module: unsigned, taint flag set (module verification failed, signature missing)', 'name is in no distro or vendor package list; loaded 1 min after an SSH login from a new IP', 'kernel.modules_disabled=0, Secure Boot off on this host']
+  v: 1
+  x: T1547.006
+  c: kernel-module-load
+  k: [1, 2]
+  diff: 3
+  say: 'An unsigned kernel module with a tool-sounding name was loaded from shared memory a minute after an SSH login from a new address.'
+  tell: 'Unsigned module from /dev/shm with a name imitating VMware tools, loaded right after an SSH login from a new IP, with module loading unrestricted and Secure Boot off. This is a kernel rootkit load. Isolate before anyone reboots and loses memory.'
+- id: y36
+  d: linux
+  src: 'Linux · auditd'
+  t: 'Kernel module loaded'
+  h: 'gpu-train-02 · root'
+  l: ['exec: modprobe nvidia (parent: nvidia-persistenced.service at boot)', 'module: nvidia.ko built by DKMS after the kernel 6.5.0-27 update, signed with the enrolled MOK key', 'package nvidia-dkms-550 owns the source, hash matches the build output in /var/lib/dkms', 'GPU training host in the ML cluster, same module on all 12 nodes']
+  v: 0
+  x: T1547.006
+  c: kernel-module-load
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'The NVIDIA driver module loaded at boot, rebuilt by DKMS after a kernel update and signed with the enrolled machine owner key.'
+  tell: 'DKMS rebuilds third-party modules after every kernel update, signs them with the enrolled MOK key and loads them at boot. Package-owned source, a valid signature and the same module on every node of the cluster. The rootkit case is unsigned, from shared memory and right after a login.'
+- id: y37
+  d: linux
+  src: 'Linux · auditd'
+  t: 'Audit rules cleared'
+  h: 'app-prod-03 · root'
+  l: ['exec: auditctl -D (delete all rules) then auditctl -e 0 (disable auditing)', 'user: root via interactive SSH session from 198.51.x.x, tty pts/2', 'no config management run in the last 6 h; /etc/audit/rules.d unchanged', 'followed 90 s later by: tar czf /tmp/.d.tgz /etc /root/.ssh']
+  v: 1
+  x: T1685
+  c: audit-rules-cleared
+  k: [0, 2]
+  diff: 2
+  say: 'Root deleted all audit rules and disabled auditing from an interactive SSH session with no config management run, then archived etc and SSH keys.'
+  tell: 'auditctl -D followed by -e 0 turns off the camera. Interactive root session, no config management run, rules.d untouched so nothing will put it back, and then a tarball of /etc and SSH keys. The sequence is the point: blind first, steal second.'
+- id: y38
+  d: linux
+  src: 'Linux · auditd'
+  t: 'Audit rules cleared'
+  h: 'app-prod-18 · root'
+  l: ['exec: augenrules --load (clears and reloads rules from /etc/audit/rules.d)', 'parent: ansible-playbook run 8821, role "auditd" (config management)', 'rules.d changed in git 20 min ago, PR merged by the platform team', 'auditing re-enabled (-e 1) within 2 s, 118 rules loaded, same on 400 hosts']
+  v: 0
+  x: T1685
+  c: audit-rules-cleared
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'Rules were cleared and reloaded by the config management auditd role after a merged change, with auditing back on within two seconds.'
+  tell: 'Reloading rules clears them first, so a fleet-wide auditd role will always trigger "rules deleted". What matters is the writer (Ansible), the merged change in git, and that auditing comes back on within seconds with a full rule set.'
+- id: y39
+  d: linux
+  src: 'Linux · auditd'
+  t: 'Process attached with strace'
+  h: 'bastion-04 · root'
+  l: ['exec: strace -f -p 1182 -e trace=read,write -s 256 -o /dev/shm/.s', 'target: sshd (PID 1182), the session process of an administrator', 'caller: bash spawned from a reverse shell (parent: /tmp/.b/bd)', 'output file in /dev/shm grew 40 KB in 10 min']
+  v: 1
+  x: T1003.007
+  c: strace-credential-harvest
+  k: [1, 2]
+  diff: 3
+  say: 'Strace attached to an SSH session process and logged its reads and writes into shared memory, from a shell spawned out of tmp.'
+  tell: 'strace on an sshd session process captures the plaintext typed into it: passwords, sudo prompts, keys. The target is an administrator''s session on a bastion, the output goes to /dev/shm and the parent is a reverse shell binary from /tmp. That is credential harvesting from process memory.'
+- id: y40
+  d: linux
+  src: 'Linux · auditd'
+  t: 'Process attached with strace'
+  h: 'dev-box-07 · mkowalski'
+  l: ['exec: strace -f -p 20417 -e trace=network -o ~/trace.out', 'target: node server.js (PID 20417), owned by the same user mkowalski', 'caller: interactive bash in the developer''s own SSH session from the corporate VPN', 'shared dev box; ptrace_scope=0 by policy so users can attach to their own processes']
+  v: 0
+  x: T1003.007
+  c: strace-credential-harvest
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A developer attached strace to their own Node server process on a shared dev box, logging network calls to a file in their home directory.'
+  tell: 'strace -p is a debugging tool and a credential harvester. The target decides: a developer''s own Node process, network syscalls only, output in their own home directory, from their own VPN session. The harvesting case attaches to the SSH daemon or another user''s session.'

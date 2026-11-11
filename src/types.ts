@@ -32,6 +32,8 @@ export interface Alert {
   trap?: 'scary' | 'bland';
   q?: Followup;
   pair?: string;
+  /** content drop this alert shipped in (set by the build from content/meta.yaml; default 1) */
+  drop?: number;
 }
 
 /** An alert as it sits in a running queue. */
@@ -86,7 +88,7 @@ export interface Content {
   tech: Record<string, [string, string]>; // id -> [name, tactics]
   concepts: Record<string, Concept>;
   tutorial: string[];
-  meta: { attack: string; contentVersion: number };
+  meta: { attack: string; contentVersion: number; dailyPoolDrop: number };
 }
 
 // ---- save data (localStorage) ----

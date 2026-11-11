@@ -13,7 +13,7 @@
 - {id: token-replay, rule: 'previouslySatisfied is normal on baseline ASN; same session from new device is theft.', tac: Lateral Movement, d: identity}
 - {id: asrep-source, rule: 'Roasting traffic from an ROE-listed assessment host is the test, not the attack.', tac: Credential Access, d: identity}
 - {id: golden-ticket, rule: 'TGT no DC issued plus impossible lifetime means forged krbtgt ticket.', tac: Credential Access, d: identity}
-- {id: okta-api-token, rule: 'API tokens from known IaC accounts on allowlisted runners are automation.', tac: Persistence, d: identity}
+- {id: okta-api-token, rule: 'Okta tokens from scoped automation in pipelines are fine; from fresh super admins, persistence.', tac: Persistence, d: identity}
 - {id: pta-backdoor, rule: 'A PTA agent on an unknown host harvests every cleartext password.', tac: Credential Access, d: identity}
 - {id: ebs-snapshot-share, rule: 'Snapshots are routine. Sharing one to an unknown account is exfil.', tac: Exfiltration, d: cloud}
 - {id: s3-mass-read, rule: 'Bulk S3 reads: legit role from wrong network means stolen creds.', tac: Collection, d: cloud}

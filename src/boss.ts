@@ -1,7 +1,7 @@
 // Weekly boss: a group with >=30 techniques and >=6 matching alerts, rotating weekly.
 // Phase 1 = triage alerts built from techniques they really use plus benign noise. Phase 2 = intel round (3 multiple-choice).
 import type { Alert, Crew, QueueAlert } from './types';
-import { ALERTS, D, INC_ALERTS, tUrl } from './content';
+import { D, INC_ALERTS, POOL, tUrl } from './content';
 import { S, save } from './state';
 import { today, week } from './time';
 import { capture, crewCard } from './crews';
@@ -10,7 +10,7 @@ import { app, confetti, dock, go, routes, sfx, stopDock } from './ui';
 import { runAlerts, type RunResult } from './runner';
 import { $, $$, esc, mulberry, resetRng, setRng, shuffle } from './util';
 
-const allPool: Alert[] = ALERTS.concat(INC_ALERTS);
+const allPool: Alert[] = POOL.concat(INC_ALERTS);
 
 const bossPoolFor = (b: Crew): Alert[] => {
   const set = new Set(b.t), par = new Set(b.t.map((t) => t.split('.')[0]));
@@ -38,7 +38,7 @@ export function bossIntro(): void {
 function bossFight(b: Crew): void {
   setRng(mulberry(week() * 31 + b.t.length));
   const tp = shuffle(bossPoolFor(b)).slice(0, 6);
-  const ben = shuffle(ALERTS.filter((a) => !a.v && a.trap === 'scary').concat(ALERTS.filter((a) => !a.v))).filter((a, i, arr) => arr.indexOf(a) === i).slice(0, 3);
+  const ben = shuffle(POOL.filter((a) => !a.v && a.trap === 'scary').concat(POOL.filter((a) => !a.v))).filter((a, i, arr) => arr.indexOf(a) === i).slice(0, 3);
   const queue: QueueAlert[] = shuffle(tp.concat(ben)).map((a) => ({ ...a }));
   resetRng();
   runAlerts({ mode: 'boss', boss: b, queue, finish: (r) => bossEnd(b, queue, r) });

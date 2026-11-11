@@ -24,7 +24,7 @@
   tac: Privilege Escalation
   d: linux
 - id: covert-tunnel-egress
-  rule: Internal hosts running Tor or reverse tunnels have no business reaching out that way.
+  rule: Reverse tunnels and Tor from internal hosts matter when the destination is outside.
   tac: Command and Control
   d: network
 - id: cron-persist
@@ -72,7 +72,7 @@
   tac: Privilege Escalation
   d: identity
 - id: helpdesk-mfa-reset
-  rule: A privileged or MFA change right after a help-desk phone reset is account takeover.
+  rule: MFA change after a help-desk reset is takeover unless verification and device context check out.
   tac: Persistence
   d: identity
 - id: html-smuggling
@@ -172,7 +172,7 @@
   tac: Lateral Movement
   d: identity
 - id: password-spray-brute
-  rule: Many accounts with one password, or a distributed brute, hunts for the weak unprotected login.
+  rule: Many accounts or passwords from one source is spray or brute, unless onboarding explains it.
   tac: Credential Access
   d: identity
 - id: periodic-beacon

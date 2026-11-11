@@ -38,4 +38,4 @@ Edit YAML, run `npm run validate`, push. The build **fails** on: invalid YAML, m
 
 It **warns** on: cue leaks (a host/user token that predicts the verdict), names in tells/says/questions that are not in the alert, profile paths that do not match the host-line user, tells that describe a different line than `k`, say text over 25 words, and prints ticket-shortcut and one-sided-concept stats. Fixing an alert must keep its `id`.
 
-Bump `content_version` in `content/meta.yaml` on every content drop.
+Bump `content_version` in `content/meta.yaml` on every content drop. The shared daily shift and weekly boss only draw from alerts up to `daily_pool_drop` (same file), so a drop never changes them until you raise it; see `docs/content-drop-2.md`. Days are calendar days in America/Chicago (`src/time.ts`), not the device's.

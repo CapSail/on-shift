@@ -49,7 +49,12 @@ export function lintContent({ alerts, inc }: { alerts: Alert[]; inc: Incident[] 
   const hostCount = new Map<string, number>();
   for (const a of all) for (const t of new Set(tokens(a.h))) hostCount.set(t, (hostCount.get(t) ?? 0) + 1);
   // identifiers only: host names (a digit, dash or underscore) and the user part of the host line
-  const userTokens = new Set(all.flatMap((a) => tokens((a.h.split(' · ')[1] ?? '').split('\\').pop() ?? '')));
+  const userTokens = new Set(
+    all.flatMap((a) => {
+      const u = (a.h.split(' · ')[1] ?? '').split('\\').pop() ?? '';
+      return /^[\w.@$-]+$/.test(u) ? tokens(u) : []; // a real username, not a phrase like "ns: web"
+    }),
+  );
   const hostVocab = new Set(
     [...hostCount]
       .filter(([t, n]) => t.length >= 3 && n <= 3 && !GENERIC_ID.test(t) && !/^[\d.]+$/.test(t) && (/[\d_-]/.test(t) || userTokens.has(t)))

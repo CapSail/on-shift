@@ -37,7 +37,7 @@ function loadYaml(file: string): unknown {
 }
 const filesMatching = (re: RegExp) => readdirSync(CONTENT_DIR).filter((f) => re.test(f)).sort();
 
-interface Meta { content_version: number; attack_version: string; tutorial: string[] }
+interface Meta { content_version: number; attack_version: string; tutorial: string[]; daily_pool_drop: number; drops?: Record<string, number> }
 const meta = loadYaml('meta.yaml') as Meta;
 if (!meta || !meta.attack_version || !Number.isInteger(meta.content_version)) {
   console.error('content/meta.yaml must define content_version (int) and attack_version');
@@ -220,7 +220,7 @@ async function main() {
   for (const f of filesMatching(/^alerts.*\.yaml$/)) {
     const list = loadYaml(f);
     if (!Array.isArray(list)) { err(f, 'must be a YAML list'); continue; }
-    for (const a of list as Record<string, any>[]) { checkAlert(a, f, techIds, atk.revoked, concepts); alerts.push(a as Alert); }
+    for (const a of list as Record<string, any>[]) { checkAlert(a, f, techIds, atk.revoked, concepts); a.drop = meta.drops?.[f] ?? 1; alerts.push(a as Alert); }
   }
 
   // incidents
@@ -260,6 +260,8 @@ async function main() {
   const usedConcepts = new Set([...alerts, ...inc.flatMap((i) => i.a)].map((a) => a.c));
   for (const c of Object.keys(concepts)) if (!usedConcepts.has(c)) warn(conceptFile[c], `${c}: concept is not used by any alert`);
 
+  if (!Number.isInteger(meta.daily_pool_drop) || meta.daily_pool_drop < 1) err('meta.yaml', 'daily_pool_drop must be an integer >= 1');
+  for (const f of Object.keys(meta.drops ?? {})) if (!existsSync(join(CONTENT_DIR, f))) err('meta.yaml', `drops lists ${f}, which does not exist`);
   if (errors.length) return finish();
 
   // infer twin pairs: same concept, opposite verdict; prefer same title
@@ -284,7 +286,7 @@ async function main() {
     alerts, inc, crews: atk.crews,
     tech: Object.fromEntries(Object.entries(atk.tech).filter(([k]) => used.has(k))),
     concepts, tutorial: meta.tutorial,
-    meta: { attack: atk.version, contentVersion: meta.content_version },
+    meta: { attack: atk.version, contentVersion: meta.content_version, dailyPoolDrop: meta.daily_pool_drop },
   };
 
   const tp = alerts.filter((a) => a.v).length;

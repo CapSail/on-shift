@@ -1,9 +1,22 @@
 # Content-level settings. Bump content_version on every content drop (shown on the credits screen in Phase 1).
-content_version: 1
+content_version: 2
 
 # ATT&CK release the whole bank is validated against. Bumping this is a build-time task:
 # re-validate every `x`, remap revoked techniques. Data comes from mitre-attack/attack-stix-data.
 attack_version: '20.1'
+
+# The daily shift and the weekly boss draw ONLY from alerts whose drop <= daily_pool_drop, so a content drop does not
+# silently change today's daily or this week's boss for people on different versions. Personal shifts use every alert.
+# Bump daily_pool_drop deliberately (and tell the group) when a new drop should enter the shared pool.
+daily_pool_drop: 1
+
+# Which drop each alerts file shipped in (files not listed are drop 1).
+drops:
+  alerts6.yaml: 2
+  alerts7.yaml: 2
+  alerts8.yaml: 2
+  alerts9.yaml: 2
+  alerts10.yaml: 2
 
 # First-run training alerts (ids from alerts*.yaml), in order.
 tutorial: [e10, e13, e06]
