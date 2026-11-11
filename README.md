@@ -43,7 +43,7 @@ Bump `content_version` in `content/meta.yaml` on every content drop. The shared 
 ## Install, offline and hosting
 
 - **Installable PWA.** `public/manifest.webmanifest`, icons in `public/icons/` (regenerate with `npm run icons`), and a generated service worker (`scripts/sw-template.js` -> `dist/sw.js`) that precaches the whole app, content and fonts, so a full shift plays in airplane mode. A new build gets a new cache; the player sees "New version ready, tap to reload" and nothing swaps mid-shift.
-- **Hosting.** `.github/workflows/ci.yml` validates, builds and tests every push and pull request; pushes to `main` also deploy `dist/` to GitHub Pages. The build uses relative paths, so it works under `/on-shift/`.
+- **Hosting.** `.github/workflows/ci.yml` validates, builds and tests every push and pull request; pushes to `main` also deploy `dist/` to GitHub Pages (Pages source: GitHub Actions). If Actions is unavailable on the account, `npm run deploy` builds locally and publishes `dist/` to the `gh-pages` branch instead (Pages source: deploy from branch `gh-pages`). The build uses relative paths, so it works under `/on-shift/`.
 - **Report link.** Every answer shows "Report this answer", a prefilled GitHub issue (`.github/ISSUE_TEMPLATE/report.md`). To add an e-mail fallback for people without GitHub, set `REPORT_EMAIL` in `src/config.ts` (it is public once set).
 - **Credits.** The About screen carries the MITRE ATT&CK attribution and trademark note, the "fictional, not affiliated with any employer or client" disclaimer and the font licences.
 - **Days and the daily.** Calendar days are America/Chicago for everyone; the shared daily and weekly boss use only the alerts up to `daily_pool_drop`.

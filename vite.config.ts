@@ -2,9 +2,11 @@ import { defineConfig, type Plugin } from 'vite';
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { execSync } from 'node:child_process';
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-const sha = (process.env.GITHUB_SHA ?? 'dev').slice(0, 7);
+const gitSha = () => { try { return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch { return 'dev'; } };
+const sha = (process.env.GITHUB_SHA ?? gitSha()).slice(0, 7);
 
 /**
  * After the bundle is written, generate dist/sw.js from scripts/sw-template.js: it precaches every built file

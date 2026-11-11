@@ -10,6 +10,7 @@
     "dev": "npm run content && node ./node_modules/vite/bin/vite.js",
     "build": "npm run content && npm run typecheck && node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173",
+    "deploy": "npm run build && node scripts/deploy-pages.mjs",
     "icons": "node ./node_modules/tsx/dist/cli.mjs scripts/make-icons.ts",
     "qa": "node ./node_modules/tsx/dist/cli.mjs scripts/qa-report.ts",
     "show": "node ./node_modules/tsx/dist/cli.mjs scripts/show.ts",
