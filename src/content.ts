@@ -4,9 +4,15 @@ import type { Alert, Content, Crew } from './types';
 
 export const D = raw as unknown as Content;
 
-export const ALERTS: Alert[] = D.alerts;
+/** Everything, including the After Hours deck (so rematches and twins can find any alert by id). */
+const EVERY: Alert[] = D.alerts;
+/** The work deck: shifts, the daily and the boss draw from this. */
+export const ALERTS: Alert[] = EVERY.filter((a) => a.deck !== 'afterhours');
+/** The After Hours deck: scams, accounts and devices in real life. Never mixed into work rounds. */
+export const AFTER: Alert[] = EVERY.filter((a) => a.deck === 'afterhours');
+export const afterConcepts = new Set(AFTER.map((a) => a.c || a.id));
 export const byId: Record<string, Alert> = {};
-ALERTS.forEach((a) => (byId[a.id] = a));
+EVERY.forEach((a) => (byId[a.id] = a));
 
 /** Alerts the shared daily and the weekly boss may use (see daily_pool_drop in content/meta.yaml). */
 export const POOL: Alert[] = ALERTS.filter((a) => (a.drop ?? 1) <= D.meta.dailyPoolDrop);
@@ -29,7 +35,7 @@ D.crews.forEach((c) =>
 
 /** concept id -> alerts that teach it (the pool for callbacks and twins) */
 export const conceptAlerts: Record<string, Alert[]> = {};
-ALERTS.forEach((a) => {
+EVERY.forEach((a) => {
   const c = a.c || a.id;
   (conceptAlerts[c] = conceptAlerts[c] || []).push(a);
 });

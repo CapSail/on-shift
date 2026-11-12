@@ -10,8 +10,9 @@ import { DALE, TAUNT, line, type RoastKind } from './voice';
 import { addXP } from './progress';
 import { app, buzz, dock, setLeaving, sfx, stopDock, toast } from './ui';
 import { $, $$, $o, esc, rnd, shuffle } from './util';
+import { shiftyHtml, shiftyReact } from './shifty-live';
 
-export type Mode = 'shift' | 'daily' | 'drill' | 'tut' | 'inc' | 'boss';
+export type Mode = 'shift' | 'daily' | 'drill' | 'tut' | 'inc' | 'boss' | 'after';
 
 export interface RunResult {
   won: boolean;      // incident contained / boss HP emptied (unused by other modes)
@@ -33,7 +34,7 @@ export interface RunCfg {
 
 export const DOM: Record<string, [string, string]> = {
   endpoint: ['Endpoint', 'var(--cy)'], identity: ['Identity', 'var(--pu)'], cloud: ['Cloud / SaaS', 'var(--pk)'], email: ['Email', 'var(--yl)'],
-  network: ['Network', 'var(--grn)'], linux: ['Linux / K8s', 'var(--or)'], edr: ['EDR / AV', 'var(--red)'], macos: ['macOS', '#e2e8f0'],
+  network: ['Network', 'var(--grn)'], linux: ['Linux / K8s', 'var(--or)'], edr: ['EDR / AV', 'var(--red)'], macos: ['macOS', '#e2e8f0'], home: ['After hours', 'var(--pk)'],
 };
 
 type Phase = 'call' | 'pick' | 'fb';
@@ -89,7 +90,7 @@ export function runAlerts(cfg: RunCfg): void {
     const right_ = isInc || isBoss
       ? `<span class="hearts">${'❤️'.repeat(Math.max(0, lives))}${'🖤'.repeat(3 - Math.max(0, lives))}</span>`
       : `<span class="combo" id="cb">${combo > 1 ? 'x' + combo + (combo >= 5 ? ' 🔥' : '') : ''}</span>`;
-    return `<div class="bar"><button class="x" id="quit" aria-label="Quit">✕</button><div class="prog"><i style="width:${(100 * i) / Q.length}%"></i></div>${right_}</div>
+    return `<div class="bar"><button class="x" id="quit" aria-label="Quit">✕</button><div class="prog"><i style="width:${(100 * i) / Q.length}%"></i></div>${shiftyHtml('dead', 26, 'sm', true)}${right_}</div>
   ${isBoss ? `<div class="boss"><div class="bn"><span>${esc(cfg.boss!.n.toUpperCase())}</span><span id="hpn">${hp}/100</span></div><div class="hp"><i id="hpb" style="width:${hp}%"></i></div><div class="taunt" id="tn">${i ? '' : '"Let\'s see what you\'ve got."'}</div></div>` : ''}
   ${isInc ? `<div class="chain">${cfg.inc!.a.map((a, k) => `<span class="${chain.includes(k) ? 'on' : ''}">${k < i ? (chain.includes(k) ? '⚑ ' + a.x : '·') : '?'}</span>`).join('')}</div>` : ''}`;
   }
@@ -122,7 +123,7 @@ export function runAlerts(cfg: RunCfg): void {
 
   const stakeText = (v: boolean) =>
     isTut ? (v ? '⚡ SURE · +15 right (no penalty in training)' : 'lean call · +8 right (no penalty in training)')
-      : v ? '⚡ SURE · +15 right, −10 wrong · a miss comes back' : 'lean call · +8 right, −2 wrong';
+      : v ? '⚡ SURE · +15 right, −10 wrong · a miss comes back' : 'lean call · +8 right, no penalty';
 
   const stampText = (escl: boolean) => (escl ? 'ESCALATE' : 'CLOSE') + (sure ? ' ⚡' : '');
 
@@ -280,15 +281,16 @@ export function runAlerts(cfg: RunCfg): void {
     if (ok && eye === false) g = 1;
     if (ok && pk === null) g = Math.min(g, 2);
     const c = a.c || a.id;
-    if (!isTut) { gradeConcept(a, g); pushRolling(a, ok); }
+    if (!isTut) { gradeConcept(a, g); if (a.deck !== 'afterhours') pushRolling(a, ok); }
     logEv({ id: a.id, c, v: a.v, call: call!, conf, ok, eye, mode: cfg.mode, rv: !!a.review, gap: a.review && S.cs[c] ? GAPS[Math.max(0, (S.cs[c].b || 1) - 1)] : 0, d: a.d, x: a.x, diff: a.diff || 2 });
     if (ok) { right++; combo++; S.dayGoal[today()] = (S.dayGoal[today()] || 0) + 1; } else combo = 0;
     let gain: number;
     if (ok) gain = (conf ? 15 : 8) + (eye ? 5 : 0) + Math.min(Math.max(combo - 1, 0), 5) * 2;
-    else gain = conf ? -10 : -2;
+    else gain = conf ? -10 : 0;
     if (ok && eye === false) gain = Math.round(gain / 2);
     if (isTut) gain = Math.max(gain, 0);
     grid.push(ok ? (eye ? '🟩' : '🟨') : '🟥');
+    shiftyReact(ok ? (combo >= 5 ? 'cheer' : 'happy') : 'shock', ok ? 1400 : 1600);
     if (ok) { sfx('ok', 1 + Math.min(combo, 8) * 0.06); buzz(15); } else { sfx('no'); buzz([60, 40, 60]); card.classList.remove('reenter'); card.classList.add('shake'); }
     // incident & boss bookkeeping
     if (isInc) { if (!ok) lives--; if (a.v && ok) chain.push(i); }
@@ -305,7 +307,7 @@ export function runAlerts(cfg: RunCfg): void {
       else if (combo === 8) dale = line(DALE.combo8);
     }
     // intel
-    const intel = ok && a.v && !isTut ? gainIntel(a) : null;
+    const intel = ok && a.v && !isTut && a.deck !== 'afterhours' ? gainIntel(a) : null;
     // retry + twin injection (shift modes only, capped at 3 extra per shift)
     let retryQueued = false;
     if (!isTut && !isBoss && !isInc) {
@@ -330,7 +332,7 @@ export function runAlerts(cfg: RunCfg): void {
     if (showQ) a._q = shufQ(a.q!);
     $('#fb').innerHTML = `<div class="verdict ${ok ? (eye === false ? 'mid' : 'ok') : 'no'}"><div class="vt"><span>${ok ? '✔' : '✘'} ${a.v ? 'True positive' : 'Benign'}</span><small>${gain > 0 ? '+' : ''}${gain} XP${eyeTxt}</small></div>
    ${ok && eye === false ? '<div class="sub">Right call, wrong reason. The highlighted line is what mattered. This one comes back soon.</div>' : ''}
-   ${!ok && conf ? `<div class="sub">Big miss: you were sure. That's the most valuable kind of mistake.${retryQueued ? ' It comes back at the end of this shift.' : isTut ? '' : ' It comes back as a callback next shift.'}</div>` : ''}</div>
+   ${!ok && conf ? `<div class="sub">Big miss: you were sure. That's the most valuable kind of mistake.${retryQueued ? ' It comes back at the end of this round.' : isTut ? '' : ' It comes back as a rematch next round.'}</div>` : ''}</div>
    ${rule ? `<div class="rule"><b>RULE</b><p>${esc(rule)}</p></div>` : ''}
    <div class="tell">${esc(a.tell)}</div>
    <div class="rep">alert <span class="mono">${esc(a.id)}</span> · does this one look wrong? Tell Jordan the id.</div>
@@ -350,7 +352,7 @@ export function runAlerts(cfg: RunCfg): void {
     }
     $$('.fq [data-o]').forEach((b) => (b.onclick = () => answerQ(a._q || a.q!, b)));
     const contain = isInc && !!cfg.inc!.contain && cfg.inc!.contain.at === i && ok;
-    const label = (isInc || isBoss) && lives <= 0 ? 'Uh oh…' : isBoss && hp <= 0 ? 'Finish them →' : contain ? 'Make the call →' : i < Q.length - 1 ? 'Next →' : isInc ? 'See how it ends →' : 'Clock out →';
+    const label = (isInc || isBoss) && lives <= 0 ? 'Uh oh…' : isBoss && hp <= 0 ? 'Finish them →' : contain ? 'Make the call →' : i < Q.length - 1 ? 'Next →' : isInc ? 'See how it ends →' : 'Finish →';
     dock(label, () => {
       if (isBoss) {
         if (hp <= 0) return cfg.finish(result(true));

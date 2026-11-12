@@ -51,8 +51,9 @@ test('Shifty is on the home screen and says something when poked', async ({ page
   await seed(page, { onb: true, shifts: 1 });
   await page.goto('/');
   await expect(page.locator('#shifty svg.shifty')).toBeVisible();
-  await page.locator('#shifty').click();
-  await expect(page.locator('#toast')).toContainText('👻');
+  const before = await page.locator('#shline').textContent();
+  expect(before!.length).toBeGreaterThan(5);
+  await expect.poll(async () => { await page.locator('#shifty').click(); return page.locator('#shline').textContent(); }).not.toBe(before);
   await page.screenshot({ path: 'tests/shots/31_home_shifty.png' });
 });
 

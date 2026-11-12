@@ -7,7 +7,7 @@ import { capture, crewCard } from './crews';
 import { app, confetti, go, routes, sfx, stopDock } from './ui';
 import { runAlerts, type RunResult } from './runner';
 import { $, esc } from './util';
-import { shiftySvg } from './shifty';
+import { shiftyHtml } from './shifty-live';
 import { syncSoon } from './leaderboard';
 
 export function incIntro(inc: Incident): void {
@@ -36,11 +36,11 @@ function incEnd(inc: Incident, r: RunResult): void {
   syncSoon();
   app.innerHTML = `<div class="scr center"><div class="sec" style="margin-top:6px">${won ? 'INCIDENT CONTAINED' : 'BREACHED'}</div>
   <div class="grade" style="font-size:40px;color:${won ? 'var(--grn)' : 'var(--red)'}">${won ? 'W' : 'L'}</div>
-  <div class="mascot lg">${shiftySvg(won ? 'happy' : 'shock', 64)}</div>
+  ${shiftyHtml(won ? 'happy' : 'shock', 64, 'lg')}
   <div class="intro" style="text-align:left"><p style="margin:0">${esc(won ? inc.win : inc.lose)}</p></div>
   <div class="sec">KILL CHAIN YOU CAUGHT</div><div class="chain" style="justify-content:center">${inc.a.map((a, k) => (a.v ? `<span class="${r.chain.includes(k) ? 'on' : ''}">${esc(a.x)}</span>` : '')).join('')}</div>
   ${won ? crewCard(c, 'incident') : ''}
-  <button class="next" id="h">Back to the SOC</button>${won ? '' : '<button class="next red" id="rt">Run it back</button>'}</div>`;
+  <button class="next" id="h">Back home</button>${won ? '' : '<button class="next red" id="rt">Run it back</button>'}</div>`;
   $('#h').onclick = () => go(routes.home);
   if (!won) $('#rt').onclick = () => go(() => incIntro(inc));
 }

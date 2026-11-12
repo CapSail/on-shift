@@ -146,7 +146,8 @@ function buildAttackIndex(objs: StixObj[]) {
 
 // ---------------------------------------------------------------- schema checks
 
-const DOMAINS = new Set(['endpoint', 'identity', 'cloud', 'email', 'network', 'linux', 'edr', 'macos']);
+const DOMAINS = new Set(['endpoint', 'identity', 'cloud', 'email', 'network', 'linux', 'edr', 'macos', 'home']);
+const DECKS = new Set(['afterhours']); // alerts with no deck are the work deck
 const FOLLOW = new Set(['pivot', 'tune', 'contain']);
 const isStr = (x: unknown): x is string => typeof x === 'string' && x.trim().length > 0;
 const wordCount = (s: string) => s.trim().split(/\s+/).length;
@@ -167,6 +168,8 @@ function checkAlert(a: Record<string, any>, where: string, techIds: Set<string>,
   if (!DOMAINS.has(a.d)) err(where, `${id}: bad domain "${a.d}"`);
   if (a.v !== 0 && a.v !== 1) err(where, `${id}: v must be 0 or 1`);
   if (![1, 2, 3].includes(a.diff)) err(where, `${id}: diff must be 1-3`);
+  if (a.deck !== undefined && !DECKS.has(a.deck)) err(where, `${id}: deck must be afterhours (or omitted)`);
+  if ((a.deck === 'afterhours') !== (a.d === 'home')) err(where, `${id}: the after-hours deck and domain "home" go together`);
   if (a.trap !== undefined && a.trap !== 'scary' && a.trap !== 'bland') err(where, `${id}: trap must be scary|bland`);
   if (a.trap === 'scary' && a.v !== 0) err(where, `${id}: trap "scary" must be a benign (v:0)`);
   if (a.trap === 'bland' && a.v !== 1) err(where, `${id}: trap "bland" must be malicious (v:1)`);

@@ -8,7 +8,7 @@ import { startDrill } from './shift';
 import { $, esc, shuffle } from './util';
 
 export function catchStats() {
-  const L = S.log.filter((e) => e.id);
+  const L = S.log.filter((e) => e.id && e.d !== 'home'); // After Hours has its own deck; the skill report and drills are work-only
   const tp = L.filter((e) => e.v), fp = L.filter((e) => !e.v);
   const cr = tp.length ? tp.filter((e) => e.ok).length / tp.length : 0;
   const cc = fp.length ? fp.filter((e) => e.ok).length / fp.length : 0;
@@ -48,10 +48,10 @@ export function skill(): void {
   const boxes = Object.values(S.cs);
   const mastered = boxes.filter((r) => r.b >= 3).length, learning = boxes.filter((r) => r.b > 0 && r.b < 3).length, lapsed = boxes.filter((r) => r.b === 0).length;
   app.innerHTML = `<div class="scr"><div class="bar"><button class="x" id="q">✕</button><b style="font-size:18px">Skill report</b></div>
- ${L.length < 10 ? '<p class="tiny">Play a couple of shifts and this fills in.</p>' : ''}
+ ${L.length < 10 ? '<p class="tiny">Play a couple of rounds and this fills in.</p>' : ''}
  <div class="sk"><h3>Triage accuracy</h3>${bar('Catch rate (attacks escalated)', tp.length ? cr : null, 'var(--red)')}${bar('Clean-close rate (benign closed)', fp.length ? cc : null, 'var(--grn)')}${bias ? `<p class="note">${esc(bias)}</p>` : ''}</div>
  <div class="sk"><h3>Calibration</h3>${bar('Accuracy when SURE (' + sure.length + ')', sure.length ? sa : null, 'var(--yl)')}${bar('Accuracy when LEANING (' + lean.length + ')', lean.length ? la : null, 'var(--dim)')}${cal ? `<p class="note">${esc(cal)}</p>` : ''}</div>
- <div class="sk"><h3>Reading, not guessing</h3>${bar('Sharp eye (right call + right line)', ev.length ? eyeR : null, 'var(--cy)')}${bar('Retention (callbacks after 7+ days)', ret, 'var(--pu)')}</div>
+ <div class="sk"><h3>Reading, not guessing</h3>${bar('Sharp eye (right call + right line)', ev.length ? eyeR : null, 'var(--cy)')}${bar('Retention (rematches after 7+ days)', ret, 'var(--pu)')}</div>
  <div class="sk"><h3>By domain</h3>${Object.entries(doms).map(([d, [n, k]]) => bar((DOM[d] || [d])[0] + ' · ' + n, n >= 3 ? k / n : null, (DOM[d] || ['', 'var(--cy)'])[1])).join('') || '<p class="note">No data yet.</p>'}</div>
  <div class="sk"><h3>Rules · ${mastered} mastered · ${learning} learning · ${lapsed} lapsed</h3>
  ${weak.length ? weak.map(([c, a, n]) => `<div class="weak"><div>${esc(CON[c]?.rule || c)}</div><span>${pct(a)} · ${n}×</span></div>`).join('') : '<p class="note">No weak spots yet.</p>'}

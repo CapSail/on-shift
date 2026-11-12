@@ -62,7 +62,7 @@ test('a full shift plays in airplane mode after the first visit', async ({ page,
   await expect(page.locator('#go'), 'the app loads with no network').toBeVisible();
   await page.locator('#go').click();
   await playRun(page);
-  await expect(page.getByText('SHIFT REPORT')).toBeVisible();
+  await expect(page.getByText('ROUND REPORT')).toBeVisible();
   await expect(page.locator('.grade')).toHaveText('S');
   await context.setOffline(false);
 });

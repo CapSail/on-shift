@@ -1,0 +1,10 @@
+# ON SHIFT After Hours concepts, part 1: scams and social engineering in everyday life (ah01-ah20)
+- {id: delivery-text-origin, rule: 'Believe a parcel or toll text only if you started it and the sender fits.', tac: Initial Access, d: home}
+- {id: stranger-chat-money, rule: 'A friendly stranger becomes a risk the moment money or a new app enters.', tac: Initial Access, d: home}
+- {id: family-emergency-call, rule: 'Verify a family emergency on a number you already hold before any money moves.', tac: Initial Access, d: home}
+- {id: bank-move-money-call, rule: 'Banks ask whether you made a charge; they never ask you to move money.', tac: Impact, d: home}
+- {id: otp-code-ask, rule: 'A one-time code belongs on the screen you started, never in a message.', tac: Credential Access, d: home}
+- {id: marketplace-payment-proof, rule: 'Trust payments you see in your own account, never screenshots or forwarded emails.', tac: Impact, d: home}
+- {id: deposit-before-viewing, rule: 'Deposits follow a viewing and a verifiable owner; never the reverse, never by wire.', tac: Impact, d: home}
+- {id: support-number-source, rule: 'Call support at numbers from the company''s own app or invoice, never search ads.', tac: Initial Access, d: home}
+- {id: job-offer-money-flow, rule: 'Employers pay you and ship equipment; they never send cheques for you to spend.', tac: Resource Development, d: home}

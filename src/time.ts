@@ -12,7 +12,7 @@ export const today = (): number => {
   return Math.floor(Date.UTC(y, m - 1, d) / DAY);
 };
 
-/** Sequential number shown as "DAILY SHIFT #n". */
+/** Sequential number shown as "DAILY HAUNT #n". */
 export const dailyNumber = (): number => today() - 20400;
 
 /** Week id; the weekly boss rotates when it changes (Monday). */

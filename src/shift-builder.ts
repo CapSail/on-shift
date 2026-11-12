@@ -1,6 +1,6 @@
 // Builds the queues: the personal shift (SRS callbacks + fresh alerts) and the shared daily shift.
 import type { Alert, QueueAlert } from './types';
-import { ALERTS, POOL } from './content';
+import { AFTER, ALERTS, POOL } from './content';
 import { dueConcepts, everSeen, lastSeen, rollingTier, variantFor } from './srs';
 import { mulberry, resetRng, rnd, setRng, shuffle } from './util';
 import { today } from './time';
@@ -91,4 +91,27 @@ export function buildDaily(): QueueAlert[] {
   }
   resetRng();
   return out;
+}
+
+/** After Hours round: up to 3 due rematches, then fresh alerts from the personal-life deck, 3-4 real attacks of 8. */
+export function buildAfterHours(n = 8): QueueAlert[] {
+  const out: QueueAlert[] = [];
+  const has = (a: Alert) => out.some((b) => cid(b) === cid(a));
+  for (const c of dueConcepts(true).slice(0, 3)) {
+    const a = variantFor(c);
+    if (a && !has(a)) out.push({ ...a, review: true });
+  }
+  const wantTP = 3 + Math.floor(rnd() * 2);
+  const fresh = shuffle(AFTER.filter((a) => !everSeen(a))).concat(shuffle(AFTER.filter((a) => everSeen(a)).sort((x, y) => lastSeen(x) - lastSeen(y)).slice(0, 12)));
+  let tp = out.filter((a) => a.v).length;
+  for (const a of fresh) {
+    if (out.length >= n) break;
+    if (has(a)) continue;
+    if (a.v && tp >= wantTP) continue;
+    if (!a.v && out.length - tp >= n - wantTP) continue;
+    out.push({ ...a });
+    if (a.v) tp++;
+  }
+  for (const a of fresh) { if (out.length >= n) break; if (!has(a)) out.push({ ...a }); }
+  return shuffle(out);
 }

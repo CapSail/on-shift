@@ -63,7 +63,7 @@ test('training, a perfect shift, drop, persistence, and the three UI-nit fixes',
   await nextBtn(page).click();
   await playRun(page);
 
-  await expect(page.getByText('SHIFT REPORT')).toBeVisible();
+  await expect(page.getByText('ROUND REPORT')).toBeVisible();
   await expect(page.locator('.grade')).toHaveText('S');
   await expect(page.getByText('10/10 correct')).toBeVisible();
   await page.locator('[data-p="1"]').click({ force: true }); // packs bob forever, so they are never "stable"
@@ -179,7 +179,7 @@ test('the stakes are visible before you commit, and SURE is announced', async ({
   await seed(page, { onb: true, shifts: 1 });
   await page.goto('/');
   await page.locator('#go').click();
-  await expect(page.locator('#stake')).toContainText('+8 right, −2 wrong');
+  await expect(page.locator('#stake')).toContainText('+8 right, no penalty');
   await page.locator('#sure').click();
   await expect(page.locator('#stake')).toContainText('+15 right, −10 wrong');
   await expect(page.locator('#sure')).toHaveAttribute('aria-label', /plus 15.*minus 10/);
@@ -311,7 +311,7 @@ test('daily shift is recorded and shareable; skill report, dex and ride mode ren
   await page.goto('/');
   await page.locator('#daily').click();
   await playRun(page);
-  await expect(page.getByText(/DAILY SHIFT #\d+/)).toBeVisible();
+  await expect(page.getByText(/DAILY HAUNT #\d+/)).toBeVisible();
   await expect(page.locator('.share').first()).toContainText('🟩');
   await expect(page.locator('#cp')).toBeVisible();
   await page.locator('#h').click();

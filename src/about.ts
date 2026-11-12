@@ -3,12 +3,12 @@ import { D } from './content';
 import { APP_VERSION } from './config';
 import { app } from './ui';
 import { $, esc } from './util';
-import { shiftySvg } from './shifty';
+import { shiftyHtml } from './shifty-live';
 
 export function about(): void {
   app.innerHTML = `<div class="scr"><div class="bar"><button class="x" id="q" aria-label="Back">✕</button><b style="font-size:18px">About ON SHIFT</b></div>
- <div class="sk"><div class="mascot lg">${shiftySvg('dead', 72)}</div><h3 class="center">Meet Shifty</h3>
-  <p class="note center">The night-shift cyber-ghost. Died at 2am, still got paged. He is on every shift with you.</p></div>
+ <div class="sk">${shiftyHtml('dead', 72, 'lg')}<h3 class="center">Meet Shifty</h3>
+  <p class="note center">The cyber-ghost. Died at 2am, still got paged. He is in every round with you.</p></div>
  <div class="sk"><h3>What this is</h3>
   <p class="note">A meme-y, expert-level SOC alert triage game. Triage the alert, tap the line that gave it away, learn the rule. Progress lives on this device only.</p>
   <p class="note mono">app ${esc(APP_VERSION)}<br>content v${D.meta.contentVersion} · ${D.alerts.length + D.inc.reduce((n, i) => n + i.a.length, 0)} alerts<br>MITRE ATT&amp;CK v${esc(D.meta.attack)}</p></div>

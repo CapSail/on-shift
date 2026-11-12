@@ -22,6 +22,8 @@ drops:
   alerts13.yaml: 3
   alerts14.yaml: 3
   alerts15.yaml: 3
+  alerts16.yaml: 4
+  alerts17.yaml: 4
 
 # First-run training alerts (ids from alerts*.yaml), in order.
 tutorial: [e10, e13, e06]

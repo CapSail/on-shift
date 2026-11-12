@@ -1,6 +1,6 @@
 // Spaced repetition, per concept (not per card): a miss comes back as a DIFFERENT alert teaching the same rule.
 import type { Alert } from './types';
-import { conceptAlerts } from './content';
+import { afterConcepts, conceptAlerts } from './content';
 import { S, save } from './state';
 import { today } from './time';
 
@@ -28,8 +28,8 @@ export function gradeConcept(a: Alert, g: number): void {
 }
 
 /** Concepts due for a callback, most overdue first. */
-export const dueConcepts = (): string[] =>
-  Object.keys(S.cs).filter((c) => S.cs[c].d <= today() && conceptAlerts[c]).sort((x, y) => S.cs[x].d - S.cs[y].d);
+export const dueConcepts = (after = false): string[] =>
+  Object.keys(S.cs).filter((c) => S.cs[c].d <= today() && conceptAlerts[c] && afterConcepts.has(c) === after).sort((x, y) => S.cs[x].d - S.cs[y].d);
 
 export const missedDue = (): number => dueConcepts().filter((c) => S.cs[c].b === 0).length;
 

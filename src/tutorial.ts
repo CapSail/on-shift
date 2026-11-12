@@ -9,14 +9,14 @@ import { runAlerts } from './runner';
 import type { QueueAlert } from './types';
 import { $, esc } from './util';
 import { requestPersist } from './pwa';
-import { shiftySvg } from './shifty';
+import { shiftyHtml } from './shifty-live';
 
 export function tutorial(): void {
-  app.innerHTML = `<div class="scr center" style="padding-top:5vh"><div class="mascot lg">${shiftySvg('dead', 84)}</div><div class="logo px" style="font-size:22px">ON<b>·</b>SHIFT</div>
+  app.innerHTML = `<div class="scr center" style="padding-top:5vh">${shiftyHtml('dead', 84, 'lg')}<div class="logo px" style="font-size:22px">ON<b>·</b>SHIFT</div>
  <p class="tiny" style="margin-top:6px">Shifty, your night-shift buddy. Dead inside. Reads every log.</p>
  <div class="dale" style="margin-top:16px"><div class="av">☕</div><div><b>DALE · NIGHT SHIFT SOC MANAGER</b><p>${esc(DALE.first[0])}</p></div></div>
  <div class="intro" style="text-align:left;margin-top:12px"><p style="margin:0">Alerts come in. You make the call:</p>
- <p>👉 <b style="color:var(--red)">Escalate</b> (swipe right) if it's a real attack.<br>👈 <b style="color:var(--grn)">Close</b> (swipe left) if it's benign.<br>⚡ Tap <b>SURE</b> before you swipe when you're certain: +15 if right, −10 if wrong. Otherwise it's a lean: +8 / −2.</p>
+ <p>👉 <b style="color:var(--red)">Escalate</b> (swipe right) if it's a real attack.<br>👈 <b style="color:var(--grn)">Close</b> (swipe left) if it's benign.<br>⚡ Tap <b>SURE</b> before you swipe when you're certain: +15 if right, −10 if wrong. Otherwise it's a lean: +8 if right, nothing lost if wrong.</p>
  <p>Then point at the line that gave it away. That's the skill.</p></div>
  <button class="next" id="t">Start training (3 alerts)</button></div>`;
   $('#t').onclick = () => go(() => {
@@ -35,7 +35,7 @@ function tutEnd(): void {
   addXP(30);
   save();
   confetti(40);
-  app.innerHTML = `<div class="scr center"><div class="sec">TRAINING COMPLETE</div><div class="mascot lg">${shiftySvg('happy', 72)}</div><div class="grade" style="font-size:40px;color:var(--grn)">✓</div>
+  app.innerHTML = `<div class="scr center"><div class="sec">TRAINING COMPLETE</div>${shiftyHtml('happy', 72, 'lg')}<div class="grade" style="font-size:40px;color:var(--grn)">✓</div>
  <div class="dale"><div class="av">☕</div><div><b>DALE</b><p>Not bad. Here's your first threat crew card. Catch real attacks to earn intel on more crews. Now clock in for real.</p></div></div>${crewCard(c, 'training')}
  <button class="next" id="h">Enter the SOC</button></div>`;
   $('#h').onclick = () => go(routes.home);

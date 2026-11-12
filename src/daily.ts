@@ -20,8 +20,8 @@ export async function copyShare(): Promise<void> {
 
 export function dailyResult(): void {
   const d = S.daily[today()];
-  app.innerHTML = `<div class="scr center"><div class="bar"><button class="x" id="q">✕</button></div><div class="sec">DAILY SHIFT #${dailyNumber()}</div><div class="grade">${d.score}/${d.n}</div><div class="share">${shareText()}</div>
- <button class="next" id="cp">Copy result</button><p class="tiny">New daily shift tomorrow.</p></div>`;
+  app.innerHTML = `<div class="scr center"><div class="bar"><button class="x" id="q">✕</button></div><div class="sec">DAILY HAUNT #${dailyNumber()}</div><div class="grade">${d.score}/${d.n}</div><div class="share">${shareText()}</div>
+ <button class="next" id="cp">Copy result</button><p class="tiny">New daily haunt tomorrow.</p></div>`;
   $('#q').onclick = () => history.back();
   $('#cp').onclick = copyShare;
 }

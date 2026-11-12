@@ -7,20 +7,20 @@ export const SAVE_VERSION = 2;
 
 /** [xp needed, title, flavour] */
 export const RANKS: [number, string, string][] = [
-  [0, 'Intern', 'still looking for the coffee'],
-  [150, 'Tier 1 Analyst', 'closing tickets, opening eyes'],
-  [450, 'Tier 2 Analyst', 'the one who actually reads the logs'],
-  [900, 'Tier 3 Analyst', 'pivots in their sleep'],
-  [1600, 'Incident Responder', 'calm in the chaos'],
-  [2600, 'Detection Engineer', 'writes the rules everyone else trips'],
-  [4000, 'Threat Hunter', 'finds what the rules missed'],
-  [6000, 'SOC Lead', 'the pager fears you'],
-  [8500, "CISO's Favorite", 'mentioned in the board deck'],
-  [12000, "APT's Worst Nightmare", 'nation-states have a file on you'],
+  [0, 'Fresh Spook', 'just woke up dead'],
+  [150, 'Haunter', 'rattling the right chains'],
+  [450, 'Poltergeist', 'moves things that matter'],
+  [900, 'Specter', 'sees through every pretext'],
+  [1600, 'Phantom', 'calm in the chaos'],
+  [2600, 'Wraith', 'walks through the noise'],
+  [4000, 'Banshee', 'screams before it happens'],
+  [6000, 'Night Warden', 'the dark answers to you'],
+  [8500, 'Grim Archivist', 'remembers every technique'],
+  [12000, 'Legendary Ghost', 'attackers whisper your name'],
 ];
 
 const DEFAULTS: SaveData = {
-  ver: SAVE_VERSION, name: '', best: 0, wk: { id: 0, xp: 0 }, lb: { joined: false, dailySent: [] }, xp: 0, streak: 0, lastPlay: null, freeze: 0, cs: {}, seen: {}, log: [], dex: {}, intel: {}, inc: {}, boss: {},
+  ver: SAVE_VERSION, name: '', hat: '', hatsSeen: [], puz: { twin: 0, name: 0, speed: 0 }, best: 0, wk: { id: 0, xp: 0 }, lb: { joined: false, dailySent: [] }, xp: 0, streak: 0, lastPlay: null, freeze: 0, cs: {}, seen: {}, log: [], dex: {}, intel: {}, inc: {}, boss: {},
   daily: {}, onb: false, sound: true, rolling: { 1: [], 2: [], 3: [] }, shifts: 0, dayGoal: {},
 };
 
@@ -38,6 +38,7 @@ function load(): SaveData {
   // migrations go here, keyed on s.ver, e.g. if (s.ver < 3) { ...reshape...; }
   s.lb = { ...DEFAULTS.lb, ...(s.lb ?? {}) };
   s.wk = { ...DEFAULTS.wk, ...(s.wk ?? {}) };
+  s.puz = { ...DEFAULTS.puz, ...(s.puz ?? {}) };
   s.ver = SAVE_VERSION;
   return s;
 }

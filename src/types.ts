@@ -1,6 +1,6 @@
 // Shared types for content (built from YAML) and the app.
 
-export type Domain = 'endpoint' | 'identity' | 'cloud' | 'email' | 'network' | 'linux' | 'edr' | 'macos';
+export type Domain = 'endpoint' | 'identity' | 'cloud' | 'email' | 'network' | 'linux' | 'edr' | 'macos' | 'home';
 export type FollowKind = 'pivot' | 'tune' | 'contain';
 
 export interface Followup {
@@ -32,6 +32,8 @@ export interface Alert {
   trap?: 'scary' | 'bland';
   q?: Followup;
   pair?: string;
+  /** 'afterhours' = the non-work deck (personal-life cases); omitted = the work deck */
+  deck?: 'afterhours';
   /** content drop this alert shipped in (set by the build from content/meta.yaml; default 1) */
   drop?: number;
 }
@@ -135,6 +137,9 @@ export interface SaveData {
   /** save format version, so a later release can migrate saves instead of resetting them */
   ver: number;
   name: string;
+  hat: string;
+  puz: { twin: number; name: number; speed: number };
+  hatsSeen: string[];
   best: number;
   wk: { id: number; xp: number };
   lb: { joined: boolean; dailySent: number[] };

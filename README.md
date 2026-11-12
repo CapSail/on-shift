@@ -54,3 +54,11 @@ Bump `content_version` in `content/meta.yaml` on every content drop. The shared 
 - **Shifty** is the 16-bit night-shift ghost (`src/shifty.ts`, drawn from a pixel grid so the icons and every pose come from one definition; `npm run icons` renders the app icons from it).
 - **Install gate.** On a phone that has not installed the app, the first screen is "Make it an app" with exact steps for Android and iPhone (and for in-app browsers). A site cannot force an install, so the gate shows on every visit until installed, with a small "play in the browser anyway" that lasts one session.
 - **Leaderboard.** Name, join-by-code and all boards are built; it needs a Supabase project, see `docs/leaderboard-setup.md` (schema in `supabase/schema.sql`).
+
+## Shifty, closet, After Hours and puzzles
+
+- **Animated Shifty** (`src/shifty.ts` = the pixel grid, poses and hats; `src/shifty-live.ts` = one shared ticker that animates every `<span class="shifty-live">`). Put `shiftyHtml(mood, px, cls, reactive)` in any screen; `initShifty()` (called in `main.ts`) upgrades it. `shiftyReact('happy'|'shock'|'cheer')` makes the round-header Shifty react. Reduced motion shows a still frame.
+- **Closet** (`src/closet.ts`): six hats unlocked by milestones (rounds, calls, streak, crews, XP, boss win). The equipped hat is `S.hat`.
+- **After Hours** (`deck: afterhours`, `d: home` in YAML; files `alerts16-17.yaml`): the personal-life deck. `ALERTS`/`POOL` exclude it, so work rounds, the daily, the boss and incidents never see it; `AFTER` feeds `buildAfterHours()`. Rematches are per deck (`dueConcepts(after)`). The validator requires `deck: afterhours` and `d: home` together.
+- **Puzzles** (`src/puzzles.ts`): Twin Spotter, Name That Technique, 60-second Speed Round. No spaced repetition; best scores in `S.puz`; small XP; they count for the streak.
+- **Language:** ghost ranks (`RANKS` in `state.ts`), "round" not "shift". Lean-wrong costs 0 XP; only a wrong SURE costs −10.

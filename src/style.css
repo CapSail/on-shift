@@ -243,7 +243,10 @@ a{color:inherit}
 
 /* phase 3: Shifty the ghost + install gate */
 .mascot{display:inline-block;line-height:0;background:none;border:0;padding:0;cursor:pointer;flex:none}
-.mascot svg{image-rendering:pixelated;animation:shbob 3.2s ease-in-out infinite;filter:drop-shadow(0 0 8px #22d3ee55)}
+.mascot{position:relative;animation:shbob 3.2s ease-in-out infinite}
+.mascot svg{image-rendering:pixelated;filter:drop-shadow(0 0 8px #22d3ee55);display:block}
+.mascot.lg svg{margin:0 auto}
+.mascot.sm{cursor:default}
 .mascot.lg{display:block;margin:6px auto 8px;cursor:default;text-align:center;width:auto;padding:0;background:none}
 @keyframes shbob{50%{transform:translateY(-3px)}}
 .gate{padding-top:3vh;text-align:center}
@@ -266,3 +269,25 @@ input:focus{outline:2px solid var(--cy);outline-offset:1px}
 .lbname{flex:1;min-width:0}.lbname b{display:block;font-size:15px}.lbname small{display:block;font-size:12px;color:var(--dim);word-break:break-word}
 .lbv{font-weight:700;white-space:nowrap}
 .chip{max-width:44vw;overflow:hidden;text-overflow:ellipsis}
+
+/* shifty alive */
+.corner{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;text-align:left;background:var(--p1);border:1px solid var(--ln);border-radius:18px;padding:10px 14px}
+.corner .bubble.sm{margin:0;background:none;border:0;padding:0;font-size:14px;line-height:1.4;color:var(--tx)}
+.spark{position:absolute;bottom:60%;font-style:normal;font-size:14px;color:var(--yl);pointer-events:none;animation:spk 1s ease-out forwards}
+@keyframes spk{from{transform:translateY(0) scale(.6);opacity:1}to{transform:translateY(-38px) scale(1.2);opacity:0}}
+.closet{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.item{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--p1);border:2px solid var(--ln);border-radius:16px;padding:10px 4px;font-size:12px;text-align:center}
+.item b{font-size:12px;line-height:1.2}.item small{font-size:10.5px;color:var(--dim)}
+.item.on{border-color:var(--grn)}
+.item.locked{opacity:.5}
+.bar .mascot.sm{margin:0 -2px}
+
+/* puzzles */
+.twin{display:block;width:100%;text-align:left;position:relative;margin-top:10px;padding:0;background:none;border:2px solid transparent;border-radius:24px}
+.twin .ab{position:absolute;top:-8px;left:-4px;z-index:2;background:var(--cy);color:#000;font-weight:800;border-radius:99px;width:24px;height:24px;display:grid;place-items:center;font-size:13px}
+.twin.r{border-color:var(--grn)}.twin.w{border-color:var(--red)}.twin.dim:not(.r){opacity:.55}
+.card.pz{margin-top:10px;will-change:auto}
+.pzr{margin-left:auto;font-size:13px;color:var(--dim)}
+.pzacts{position:sticky;bottom:12px;margin-top:14px;grid-template-columns:1fr 1fr}
+
+.mascot .sf{display:block;line-height:0}

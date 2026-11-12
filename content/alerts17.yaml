@@ -1,0 +1,341 @@
+# ON SHIFT After Hours deck, part 2: personal accounts, devices and the home network (ah21-ah40)
+- id: ah21
+  d: home
+  deck: afterhours
+  src: 'Discord · security log'
+  t: 'New session on the account'
+  h: 'Account · Jonas'
+  l: ['session: active from 198.51.100.77 (hosting provider, Romania) · client: browser · no login event and no 2FA prompt logged', 'owner: last login 6 days ago from the home PC 203.0.113.10, 2FA by authenticator app', 'yesterday: Jonas ran "FPS-Booster-Free.exe" from a download link a friend sent by DM in a game server', 'now: the session sent a "free gift, claim here" link to 41 friends and changed the account email']
+  v: 1
+  x: T1539
+  c: chat-token-session
+  k: [0, 2]
+  diff: 2
+  say: 'A chat account shows a new session from a hosting address with no login event, then sends 41 friends a giveaway link.'
+  tell: 'Every login leaves a login event and a 2FA prompt; this session has neither, which is what a stolen session token looks like. It followed a "booster" tool that arrived by DM, and its first moves were spamming friends and swapping the email. Token grabbers skip the password entirely.'
+  q:
+    kind: contain
+    ask: First move?
+    o: ['Change the password and keep the session open', 'Log out all sessions, change the password, remove the email change and scan the PC', 'Message the friends to ignore the link and wait']
+    a: 1
+    why: A token survives a password change on some services, so kill sessions, restore recovery details and clean the PC that leaked it.
+- id: ah22
+  d: home
+  deck: afterhours
+  src: 'Discord · security log'
+  t: 'New session on the account'
+  h: 'Account · Mara'
+  l: ['session: login from 203.0.113.45 (home ISP, same city) · client: desktop app on a new PC · 2FA code from the authenticator app accepted', 'owner: bought the PC this weekend; the old PC session was signed out from settings in the same minute', 'email: "new login location" notice 20 seconds earlier, Mara tapped "yes, it was me"', 'after: no email, password or 2FA changes, no messages sent']
+  v: 0
+  x: T1539
+  c: chat-token-session
+  k: [0, 1]
+  diff: 2
+  trap: scary
+  say: 'A chat account logs in on a new desktop from a home address; the authenticator code is accepted and the old PC signs out.'
+  tell: 'Scary header, boring body: a new PC on the home ISP, an authenticator code accepted and the old PC session ended in the same minute. A stolen session has no 2FA prompt and starts spamming; this one touched nothing. Know your own weekend purchases.'
+- id: ah23
+  d: home
+  deck: afterhours
+  src: 'Phone · system log'
+  t: 'Phone lost its signal'
+  h: 'Phone · Priya'
+  l: ['14:02 status bar shows "No service" and stays that way; Wi-Fi works; neighbours on the same carrier have bars', '14:05-14:14 six password-reset emails and SMS codes requested for the email, bank and exchange accounts, none by Priya', 'carrier chat history: "SIM change processed at a retail store at 14:01, ID shown"', 'owner: at her desk all afternoon, has not visited any store']
+  v: 1
+  x: T1111
+  c: sim-swap-signs
+  k: [0, 1]
+  diff: 3
+  trap: bland
+  say: 'A phone drops to no service in the afternoon while Wi-Fi works, and six password-reset requests for email and bank accounts arrive within ten minutes.'
+  tell: 'No service while Wi-Fi works, plus a burst of reset requests nobody at the desk made, is the SIM-swap signature. Her number now lives on someone else''s SIM, so SMS codes go to them and they are walking through email and bank resets. Call the carrier from another line, lock the number, then secure the accounts.'
+  q:
+    kind: contain
+    ask: First move?
+    o: ['Restart the phone and wait for signal', 'Call the carrier from another line to take the number back and lock it, then secure email first', 'Change the bank password from the phone']
+    a: 1
+    why: The number is the key being used, so take it back first and move email off SMS codes before the resets finish.
+- id: ah24
+  d: home
+  deck: afterhours
+  src: 'Phone · system log'
+  t: 'Phone lost its signal'
+  h: 'Phone · Omar'
+  l: ['09:12 status bar shows "No service"; Wi-Fi works; the carrier status page lists a regional outage and neighbours on the same carrier have no bars', '09:12-10:15 no reset emails or codes requested on any account; the account security feeds are quiet', 'carrier app: no SIM change, no port-out and no eSIM transfer in the account history', '10:15 service returns on its own and the carrier texts a one-day credit']
+  v: 0
+  x: T1111
+  c: sim-swap-signs
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A phone shows no service in the morning while Wi-Fi works; the carrier lists an area outage and no account has a reset request.'
+  tell: 'No service on its own proves nothing. The account history shows no SIM change, port-out or eSIM transfer, and no reset emails or codes were requested anywhere. Quiet security feeds are the tell. Make a coffee and wait.'
+- id: ah25
+  d: home
+  deck: afterhours
+  src: 'Wallet · signing request'
+  t: 'Signature requested'
+  h: 'Wallet · Leo'
+  l: ['site: claim-lumenfi-drop.example (registered 2 days ago), reached from a reply on a social post saying "you were eligible"', 'request: setApprovalForAll for the whole collection, spender 0x9f3…c1, which has no verified contract; button says "Verify wallet"', 'wallet preview: the spender could move every item in the collection with no expiry; nothing comes back to Leo', 'the same spender address appears on two public abuse lists']
+  v: 1
+  x: T1657
+  c: wallet-approval-scope
+  k: [1, 2]
+  diff: 2
+  say: 'A wallet shows a one-click signature on a two-day-old airdrop page, granting blanket approval over a collection to an unverified spender address.'
+  tell: 'The site is two days old and arrived by a "you were eligible" reply, and the request is a blanket approval of the whole collection to an unverified spender with no expiry. That is a drainer: sign it and everything in the collection can be moved out. Claiming nothing costs nothing; this signature costs the lot.'
+  q:
+    kind: pivot
+    ask: What do you check first?
+    o: ['What the signature grants, to which spender, for how long', 'How nice the claim page looks', 'Whether the gas fee is low']
+    a: 0
+    why: Scope, spender and expiry decide the damage; the page design and fee say nothing about it.
+- id: ah26
+  d: home
+  deck: afterhours
+  src: 'Wallet · signing request'
+  t: 'Signature requested'
+  h: 'Wallet · Hana'
+  l: ['site: dex.lumenswap.example, bookmarked, used by Hana for 2 years · action: swap 50 USDC for ETH', 'request: approve USDC for exactly 50, spender is the exchange''s verified router contract 0x7a2…e5', 'wallet preview: Hana sends 50 USDC and receives about 0.015 ETH; no other asset is touched', 'allowance expires in 30 minutes']
+  v: 0
+  x: T1657
+  c: wallet-approval-scope
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A wallet asks to sign an approval for exactly 50 USDC to a bookmarked exchange''s router, with the swap preview matching.'
+  tell: 'Approval prompts look frightening, but this one is for exactly 50 USDC to the verified router of a swap site she has used for years, and the preview matches the swap. The allowance expires and touches nothing else. Compare that with a blanket approval to an unknown spender.'
+- id: ah27
+  d: home
+  deck: afterhours
+  src: 'Router · admin log'
+  t: 'Settings changed'
+  h: 'Router · Ben'
+  l: ['02:14 remote administration switched on · login from 198.51.100.88 (internet, hosting provider) using the default admin password', '02:15 DNS servers changed from the ISP resolvers to 203.0.113.53 and 203.0.113.54, which no one in the house has set before', '02:16 port forward added: WAN 8080 to 192.168.1.30 port 80 (the NAS)', '02:17 firmware is 3 years old; the admin password was never changed after install']
+  v: 1
+  x: T1584.008
+  c: router-config-change
+  k: [0, 1]
+  diff: 1
+  say: 'A router admin log shows a login from the internet with the default password, then new DNS servers and a port forward within three minutes.'
+  tell: 'The internet should never reach the router admin page, and the default password made it trivial. Within three minutes the DNS servers were swapped for unknown ones and a port forward appeared, so every lookup in the house now answers to someone else. Reset, update, put DNS back.'
+  q:
+    kind: contain
+    ask: First move?
+    o: ['Factory reset, update firmware, set a new admin password, turn remote administration off', 'Delete the port forward and keep everything else', 'Reboot the router']
+    a: 0
+    why: DNS, forwards and remote access were all changed with a known password, so reset to a clean state and close the door.
+- id: ah28
+  d: home
+  deck: afterhours
+  src: 'Router · admin log'
+  t: 'Settings changed'
+  h: 'Router · Rita'
+  l: ['03:05 firmware 4.2.1 to 4.2.3 installed by the automatic update, signed image fetched from the vendor''s update server over HTTPS', '03:07 reboot; settings restored from backup: DNS back on the ISP resolvers 198.51.100.1 and 198.51.100.2, no new port forwards', 'remote administration off before and after; admin password changed 2 months ago', 'vendor changelog for 4.2.3: security fixes for the web interface']
+  v: 0
+  x: T1584.008
+  c: router-config-change
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A router installs a signed firmware update overnight and reboots; DNS settings come back unchanged, and remote administration stays off.'
+  tell: 'A signed update, a reboot and a config restore at 3 a.m. look busy but change nothing: DNS is back on the ISP resolvers, no forwards appeared and remote administration stayed off. Judge a router change by what the settings say after the reboot.'
+- id: ah29
+  d: home
+  deck: afterhours
+  src: 'Router · admin log'
+  t: 'Settings changed'
+  h: 'Router · Wen'
+  l: ['19:40 admin login from 192.168.1.12 (LAN, the laptop of Wen''s son Theo) with the admin password; remote administration off', '19:42 port forward added: WAN 3074 to 192.168.1.40 (game console); DNS servers unchanged', '19:43 UPnP left on; no other changes', 'context: Wen asked Theo in the family chat at 19:35 to fix the console''s strict NAT warning']
+  v: 0
+  x: T1584.008
+  c: router-config-change
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'A router admin log shows a game-console port forward added from a laptop inside the house, minutes after a family chat message asking for it.'
+  tell: 'A port forward from a LAN laptop, with remote administration off and DNS untouched, right after Wen asked Theo to fix the console warning. Source inside the house plus a matching request beats the scary words "port forward".'
+- id: ah30
+  d: home
+  deck: afterhours
+  src: 'Phone · system log'
+  t: 'App permission review'
+  h: 'Phone · Alma'
+  l: ['app: "System Service" with no launcher icon, installed 3 weeks ago from a downloaded APK, not the store', 'permissions: accessibility service, device admin and notification access on, location always; 18% of battery use in the background', 'network: uploads about 40 MB a day to tracker-sync.example, including on Wi-Fi at 3 a.m.', 'timeline: installed the day after an ex-partner borrowed the unlocked phone "to check a photo"']
+  v: 1
+  x: T1056
+  c: stalkerware-signs
+  k: [0, 1]
+  diff: 3
+  say: 'A phone has an app with no icon, installed outside the store, with accessibility and device admin rights, uploading data nightly to an unfamiliar host.'
+  tell: 'An app called "System Service" with no icon, installed from a downloaded file after a borrowed-phone moment, holding accessibility, device admin and notification access, and quietly uploading every night. That is the stalkerware recipe. Plan safety steps before removing it, because the person watching will notice.'
+  q:
+    kind: contain
+    ask: Before removing it?
+    o: ['Uninstall it right now and tell the person who installed it', 'Plan safely: secure accounts from a clean device, keep evidence, then remove it with a support contact', 'Ignore it, battery use is not a risk']
+    a: 1
+    why: Removal alerts the watcher; secure accounts from another device first and get support if there is a safety risk.
+- id: ah31
+  d: home
+  deck: afterhours
+  src: 'Phone · system log'
+  t: 'App permission review'
+  h: 'Phone · Kai'
+  l: ['app: "Family Check-in" with a visible icon, installed from the official store by Kai''s mother and listed under Family settings on Kai''s account (Kai is 15)', 'permissions: location always and notification access; a standing "location sharing is on" notification', 'network: small sync to the app vendor''s documented API a few times an hour', 'setup: Kai was present and agreed; Kai can see and remove the app from settings, and the parent sees the removal']
+  v: 0
+  x: T1056
+  c: stalkerware-signs
+  k: [0, 3]
+  diff: 2
+  trap: scary
+  say: 'A teenager''s phone runs a location-sharing app with a visible icon and a standing notification, installed by a parent while the teenager watched.'
+  tell: 'Same permissions as stalkerware, opposite everything else: a visible icon, a standing notification, installed by a parent in front of Kai, and removable from settings. Monitoring is a family decision when the watched person knows. Hidden is the problem, not location.'
+- id: ah32
+  d: home
+  deck: afterhours
+  src: 'Laptop · Wi-Fi log'
+  t: 'Joined a captive-portal network'
+  h: 'Laptop · Ines'
+  l: ['network: "Airport_Free_WiFi" (open) · a second access point shares the name with a stronger signal and a different BSSID than the previous 3 visits', 'portal: asks to "verify" with email address, email password and a card number for an "age check"; page served over HTTP at 10.0.0.1/login', 'after: HTTPS sites show a certificate warning and every site redirects to the portal', 'gate poster: the official network is "FlyThrough-WiFi" with a code printed on the boarding pass']
+  v: 1
+  x: T1557
+  c: captive-portal-ask
+  k: [1, 3]
+  diff: 2
+  say: 'A laptop joins an open airport network, then lands on a page asking for an email password and a card number.'
+  tell: 'Two networks with one name, the stronger one sending Ines to an HTTP page that wants an email password and a card for an "age check". No airport portal asks for either, and the poster at the gate lists a different network. Forget the network and use mobile data.'
+- id: ah33
+  d: home
+  deck: afterhours
+  src: 'Laptop · Wi-Fi log'
+  t: 'Joined a captive-portal network'
+  h: 'Laptop · Tobias'
+  l: ['network: "GrandHarbor-Guest" (open) · same BSSID prefix as the 4 other access points on the floor; the name is printed on the key card', 'portal: asks for room number and last name only, over HTTPS with a valid certificate for guest.grandharbor.example; no password or card requested', 'after: the laptop connects through a VPN, all sites show valid certificates and nothing redirects', 'terms: a 50 MB daily free tier with an optional paid upgrade']
+  v: 0
+  x: T1557
+  c: captive-portal-ask
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A laptop joins an open hotel network and lands on a page asking only for room number and last name, with a valid certificate.'
+  tell: 'The portal asks for a room number and last name over HTTPS with a valid certificate, on a network printed on the key card. Nothing worth stealing is requested: no password, no card. Afterwards the VPN and the certificates all look as expected.'
+- id: ah34
+  d: home
+  deck: afterhours
+  src: 'Laptop · browser and app log'
+  t: 'Remote-support tool connected'
+  h: 'Laptop · Gil'
+  l: ['10:31 browser tab "WARNING: your computer is blocked" opens full screen with an alarm sound and the toll-free number 1-800-555-0142, reached from a search-result ad', '10:36 Gil called the number; the caller asked him to open a remote-support site and read out a 9-digit code', '10:44 RemoteHelpPro installed and connected from 198.51.100.140; the caller opened Gil''s banking site', '10:52 Gil was asked to log in to the bank so the caller could "return an overcharge"']
+  v: 1
+  x: T1219
+  c: remote-help-origin
+  k: [0, 2]
+  diff: 1
+  say: 'A browser shows a full-screen blocked warning with a phone number; after the call, a remote tool connects and opens a banking site.'
+  tell: 'A full-screen warning with a phone number is a hook, not a diagnosis. Gil called it, installed the remote tool it asked for, and the caller promptly opened the banking site for a "refund". Disconnect, uninstall the tool, call the bank.'
+  q:
+    kind: contain
+    ask: First move?
+    o: ['Disconnect the network, uninstall the tool and call the bank', 'Run a quick scan and keep the session open', 'Close the tab and carry on']
+    a: 0
+    why: Cut the caller off first, then remove the tool and warn the bank, since the session already reached the banking site.
+- id: ah35
+  d: home
+  deck: afterhours
+  src: 'Laptop · browser and app log'
+  t: 'Remote-support tool connected'
+  h: 'Laptop · Nina'
+  l: ['17:02 Nina texted her daughter Zoe: "the printer won''t scan, can you look?"; Zoe replied she would send a code for the built-in remote assist app', '17:05 Nina opened the built-in remote assist app and typed the 6-digit code Zoe texted from her saved number', '17:06 session connected from 198.51.100.22 (Zoe''s home ISP, same city as the code sender); Nina approved the "allow control" prompt on screen', '17:20 session ended by Nina; nothing left installed and no passwords typed; the printer scans again']
+  v: 0
+  x: T1219
+  c: remote-help-origin
+  k: [0, 2]
+  diff: 2
+  trap: scary
+  say: 'A remote-assist session starts on a laptop after a text from a daughter with a six-digit code; the user approves control and ends it herself.'
+  tell: 'Nina asked for help, her daughter Zoe sent the code from her saved number, Nina approved control on screen and ended the session, leaving nothing installed. Remote tools are plumbing when you start the conversation and hold the off switch.'
+- id: ah36
+  d: home
+  deck: afterhours
+  src: 'Laptop · antivirus log'
+  t: 'Virus warning on screen'
+  h: 'Laptop · Felix'
+  l: ['window: desktop notification from the installed antivirus ShieldSure (signed, licensed to this laptop since March), not a browser tab', 'detail: "invoice_scan.js" in Downloads detected as a script downloader and quarantined automatically; the file was never run', 'no phone number, no countdown and no "call now" button; the only buttons are "View details" and "Dismiss"', 'follow-up: no remote-support tool installed, no new outbound connections, scheduled scan finishes clean']
+  v: 0
+  x: T1219
+  c: remote-help-origin
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'An installed antivirus app shows a notification that it quarantined a downloaded script, with only View details and Dismiss buttons.'
+  tell: 'This is the installed antivirus doing its job: signed, licensed since March, file quarantined, only View details and Dismiss offered. Warnings that scare you into calling a number are the ones to worry about; this one has no number.'
+- id: ah37
+  d: home
+  deck: afterhours
+  src: 'Browser · extension log'
+  t: 'Extension updated'
+  h: 'Browser · Cora'
+  l: ['extension: "PDF Tidy" 2.3.1 to 2.4.0 · store publisher changed from "Tidy Tools" to "Quickfix Labs LLC" 9 days ago (ownership transfer)', 'permissions: added "read and change all your data on all websites" and "cookies"; 2.3.1 only touched the current tab on click', 'behaviour: loads an obfuscated script from cdn-stats.example on every page and posts form fields to 198.51.100.60', 'browser disabled it pending approval of the new permissions; Cora clicked "Enable"']
+  v: 1
+  x: T1176.001
+  c: extension-update-scope
+  k: [0, 1]
+  diff: 3
+  trap: bland
+  say: 'A browser extension updates after a publisher change and now asks to read and change data on all websites, loading an obfuscated remote script.'
+  tell: 'The extension changed hands nine days ago, then an update jumped from the current tab on click to every site plus cookies and began posting form fields out. The browser asked again and Cora clicked Enable. Remove it and reset any password typed since.'
+  q:
+    kind: contain
+    ask: First move?
+    o: ['Remove the extension, then reset passwords typed since the update', 'Disable it and keep using the browser as is', 'Wait for the next update to fix it']
+    a: 0
+    why: Form fields were posted out, so removal comes with a reset of anything typed while it was active.
+- id: ah38
+  d: home
+  deck: afterhours
+  src: 'Browser · extension log'
+  t: 'Extension updated'
+  h: 'Browser · Raj'
+  l: ['extension: "PDF Tidy" 2.3.1 to 2.3.2 · same publisher "Tidy Tools" for 4 years, store-verified, updated through the browser''s own store', 'permissions: unchanged (current tab on click), no new host access', 'network: no new domains; changelog says "fixes a crash when printing, updated translations"', 'the version matches the store listing and the vendor''s release notes from 2 days ago']
+  v: 0
+  x: T1176.001
+  c: extension-update-scope
+  k: [0, 1]
+  diff: 2
+  say: 'A browser extension auto-updates a minor version from the same four-year publisher with unchanged permissions and a changelog about a printing crash.'
+  tell: 'Same publisher for four years, permissions unchanged, no new host access. A version bump alone proves nothing; check the publisher and what the update asks for. Here nothing that matters changed.'
+- id: ah39
+  d: home
+  deck: afterhours
+  src: 'Photos app · sharing log'
+  t: 'Album link created'
+  h: 'Cloud photos · Wes'
+  l: ['event: "Family 2024" album (1,840 photos, including scanned passports) set to "anyone with the link" at 01:20 from 198.51.100.9, a country Wes has never signed in from', 'sign-in at 01:18: new device, password accepted, no 2FA prompt (2FA was never turned on)', 'after: link downloaded 212 times in 40 minutes from 9 IPs; a new recovery email was added at 01:25', 'history: every earlier share was to named relatives by email; link sharing was never used']
+  v: 1
+  x: T1530
+  c: photo-link-share
+  k: [0, 2]
+  diff: 2
+  say: 'An album with scanned passports becomes a public link at 1 a.m. from a new country; 212 downloads follow.'
+  tell: 'Link sharing on an album full of passport scans, turned on at 1 a.m. from a new country after a password-only sign-in, with a recovery email added right after. 212 downloads in 40 minutes confirm it, and Wes has only ever shared with named relatives.'
+  q:
+    kind: contain
+    ask: First move?
+    o: ['Turn off the link, sign out all devices, reset the password, remove the new recovery email, enable 2FA', 'Delete the album', 'Change the album title']
+    a: 0
+    why: 'Kill the link, the intruder''s session and the new recovery path together; deleting the album leaves the account open.'
+- id: ah40
+  d: home
+  deck: afterhours
+  src: 'Photos app · sharing log'
+  t: 'Album link created'
+  h: 'Cloud photos · Yara'
+  l: ['event: "Reunion 2026" album (214 party photos) set to "anyone with the link" at 19:05 from Yara''s usual phone on home Wi-Fi 203.0.113.18', 'sign-in: same phone and IP as every day, 2FA prompt accepted on the device a minute earlier', 'link settings: expires in 14 days, downloads disabled, location data stripped', 'context: Yara posted the link in the family chat at 19:06; 11 views from 8 IPs the next day; no recovery email or password change']
+  v: 0
+  x: T1530
+  c: photo-link-share
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'An owner shares a 214-photo party album by link from her usual phone, with a 14-day expiry and downloads disabled.'
+  tell: 'Link sharing was switched on from Yara''s usual phone, expires in 14 days, blocks downloads and strips location, and the family chat shows she posted it herself. Public links are fine when the owner meant it.'

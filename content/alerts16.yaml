@@ -1,0 +1,337 @@
+# ON SHIFT After Hours deck, part 1: scams and social engineering in everyday life (ah01-ah20)
+- id: ah01
+  d: home
+  deck: afterhours
+  src: 'Phone · SMS'
+  t: 'Toll balance text'
+  h: 'Phone · Maya'
+  l: ['from: 555-0143, not in contacts, arrived 06:12 on a Sunday', 'text: "Final notice: unpaid toll balance $6.99. Pay within 12 h to avoid a $50 late fee"', 'link: tollpay-ez.example/us, registered 3 days ago; Maya owns no toll tag and has not driven a toll road in 2 years', 'no account number, no plate, no agency name in the message']
+  v: 1
+  x: T1566.002
+  c: delivery-text-origin
+  k: [1, 2]
+  diff: 2
+  say: 'Unknown number texts a $6.99 toll balance due in twelve hours. The link domain is three days old and she owns no toll tag.'
+  tell: 'A tiny balance, a fat late fee and a clock: the toll text is a card-harvesting form wearing a hi-vis vest. She has no tag, no plate was named and the domain is three days old. Delete, report as junk, move on with your Sunday.'
+  q:
+    kind: pivot
+    ask: First move?
+    o: ['Open the link in a private tab to check the price', 'Look up the toll agency yourself and check for a balance there', 'Reply STOP to the number']
+    a: 1
+    why: Check the debt on a site you type yourself. Never open the link and never reply, since replying confirms the number is live.
+- id: ah02
+  d: home
+  deck: afterhours
+  src: 'Phone · SMS'
+  t: 'Delivery attempt text'
+  h: 'Phone · Maya'
+  l: ['thread: same short code as 3 earlier tracking updates this week', 'text: "Delivery failed. Reschedule within 48 h or your parcel returns to sender"', 'order: Maya bought running shoes on Tuesday; the confirmation email lists the same tracking number', 'link: parcelo.example/t/PX88412, the domain printed on that email; no payment asked']
+  v: 0
+  x: T1566.002
+  c: delivery-text-origin
+  k: [2, 3]
+  diff: 3
+  trap: scary
+  say: 'A courier text in the usual thread says delivery failed, with a link on the domain printed in her order email. No payment is requested.'
+  tell: '"Return to sender" sounds ominous, but she ordered the shoes, the tracking number matches her receipt, the thread is the one the courier always uses and the link is the domain on the order email. Nothing asks for money. Reschedule it, then go for a run.'
+- id: ah03
+  d: home
+  deck: afterhours
+  src: 'Phone · SMS'
+  t: 'Toll account balance text'
+  h: 'Phone · Jon'
+  l: ['from: the toll agency short code Jon saved the day he opened a tag account and ticked text alerts', 'text: "Your tag balance is $4.20. Top up in the app or on the website you use for your tag."', 'Jon''s account app: balance $4.20, auto top-up switched off', 'no link in the message, no fee threat, no deadline']
+  v: 0
+  x: T1566.002
+  c: delivery-text-origin
+  k: [0, 3]
+  diff: 2
+  say: 'A toll tag account texts a low balance from the number he saved when he enrolled. There is no link and no deadline.'
+  tell: 'He opted in, the number is saved, the balance matches his own app and the text asks him to go to the place he already uses. No link, no fee threat, no countdown. This one is just a utility being boring, which is the nicest thing a utility can be.'
+- id: ah04
+  d: home
+  deck: afterhours
+  src: 'Social app · DMs'
+  t: 'Months of friendly chat'
+  h: 'Social app · Lena (matched, new)'
+  l: ['thread: opened with "Sorry, wrong number!" in March; 9 weeks of daily good-morning messages and photos since', 'profile: "offshore energy trader"; her photos also appear on 2 other profiles under different names', 'week 9: "My uncle''s desk makes me 18% a month. I''ll show you with a small $200 test"', 'link: a trading app installed from a web link, not an app store, with a deposit address pre-filled']
+  v: 1
+  x: T1657
+  c: stranger-chat-money
+  k: [2, 3]
+  diff: 3
+  trap: bland
+  say: 'Nine weeks after a wrong-number text, daily chats lead to a trading app from a direct link with a two hundred dollar first deposit.'
+  tell: 'Nine warm weeks and not one ask, until the ask arrives with a guaranteed return and an app that is not in any store. That is the slow-cook investment scam: the grooming is the product. Photos that live on other profiles, plus a deposit address, finish the picture.'
+  q:
+    kind: contain
+    ask: What stops the slide?
+    o: ['Send the $200 test to see if the withdrawal works', 'Stop replying, keep the chat, report the profile, and tell no one to pay it', 'Ask her to explain the returns in more detail']
+    a: 1
+    why: Small test deposits and withdrawals are bait; the later withdrawal fee is the trap. Cut contact, keep evidence and report it.
+- id: ah05
+  d: home
+  deck: afterhours
+  src: 'Social app · DMs'
+  t: 'Months of friendly chat'
+  h: 'Social app · Theo (matched, new)'
+  l: ['thread: opened with "Sorry, wrong number!" in March; 9 weeks of daily good-morning messages since', 'profile: one consistent photo set, a local running club page, and 3 mutual friends who know him in person', 'week 9: two live video calls where the face matches; "fancy coffee Saturday at the library café?"', 'money and apps: none mentioned, nothing asked, no links in 9 weeks']
+  v: 0
+  x: T1657
+  c: stranger-chat-money
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'Nine weeks after a wrong-number text, daily chats lead to a coffee invitation at a library cafe after two live video calls.'
+  tell: 'Same opening line, very different story. This one has mutual friends, a face that shows up live on camera, a public meetup and exactly zero requests for money or apps. A wrong number that ends in a coffee is allowed to be just that. Go, and tell a friend where.'
+- id: ah06
+  d: home
+  deck: afterhours
+  src: 'Phone · call log'
+  t: 'Call from grandson'
+  h: 'Phone · Margaret (Nan)'
+  l: ['call: 23:41 from an unknown number, 4 min; sobbing voice: "Nan, it''s me, I''ve had a crash, please don''t tell Mum"', 'voice: sounds exactly like grandson Ollie; when asked for the family safe word the caller changes the subject', 'ask: $2,800 bail in cash to a courier who "will come to the door", or gift cards today', 'Ollie''s own phone rang out 3 times; his shared location shows him at home']
+  v: 1
+  x: T1598.004
+  c: family-emergency-call
+  k: [1, 3]
+  diff: 2
+  say: 'A late call from an unknown number: a crying voice like her grandson asks for bail cash and begs her not to tell his mother.'
+  tell: 'A few seconds of anyone''s voice from a public video is enough to fake a convincing one. Emergency, secrecy, cash to a courier and no safe word is the whole script. His real phone shows him at home. Hang up, call Ollie and his mum on the numbers you already hold.'
+  q:
+    kind: contain
+    ask: What does Margaret do right now?
+    o: ['Hang up and call Ollie and his mum on saved numbers', 'Ask the caller to prove it with his middle name', 'Send half the money to buy time']
+    a: 0
+    why: Details the caller offers can be researched. A callback on a number you already hold, and a family safe word, cannot be bluffed.
+- id: ah07
+  d: home
+  deck: afterhours
+  src: 'Phone · call log'
+  t: 'Call from grandson'
+  h: 'Phone · Margaret (Nan)'
+  l: ['call: 14:05 from an unknown number, caller says "Nan, it''s Ollie, my phone went in the sea, this is a hostel phone"', 'Margaret hung up and rang Ollie''s mum Jess on her saved number; Jess says Ollie is on his gap-year trip and posted from the hostel this morning', 'Margaret called back the hostel number and the family safe word was answered correctly', 'ask: $150 for a replacement phone, sent to Ollie''s own bank account that she has paid before']
+  v: 0
+  x: T1598.004
+  c: family-emergency-call
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'An unknown number says a grandson dropped his phone in the sea. She hung up and rang his mother on a saved number.'
+  tell: 'The call opened exactly like the nasty ones, and then Margaret did everything right: hung up, checked with Jess on a saved number, got the safe word on the callback and paid into the account she already knew. A grandson without a phone is a normal Tuesday.'
+- id: ah08
+  d: home
+  deck: afterhours
+  src: 'Phone · call log'
+  t: 'Call from the bank''s security team'
+  h: 'Phone · Priya'
+  l: ['caller ID: shows the number printed on the back of Priya''s card', 'caller: knows her name, the last 4 digits and a $389 charge from this morning', 'ask: stay on the line and move her savings to a "protected account" in the name of the bank''s recovery unit', 'detail: 41 min call; told not to mention it to branch staff because "an employee is involved"']
+  v: 1
+  x: T1657
+  c: bank-move-money-call
+  k: [2, 3]
+  diff: 3
+  say: 'Caller ID shows the number on her card. The caller cites a charge and asks her to move savings to a protected account.'
+  tell: 'Your bank does not need you to move money to a safe account. Nobody''s bank does. The right number on caller ID proves nothing, since it can be spoofed, and the secrecy order is the giveaway. Hang up, wait a minute, and call the number on your card yourself.'
+  q:
+    kind: contain
+    ask: 'What is Priya''s best next step?'
+    o: ['Stay on the line and move only half the savings', 'Hang up, call the number on her card herself and ask the bank', 'Ask the caller for a badge number']
+    a: 1
+    why: End the call and open a fresh one to a number you looked up. Any detail the caller supplies, including a badge number, is part of the act.
+- id: ah09
+  d: home
+  deck: afterhours
+  src: 'Phone · call log'
+  t: 'Call from the bank''s security team'
+  h: 'Phone · Priya'
+  l: ['caller ID: unknown number; caller says she is from the card team about a $389 charge flagged this morning', 'asked: "Did you make it? No? Then I''ll block it. Please hang up and call the number on the back of your card"', 'Priya called the card number: the agent sees the flagged charge, blocks the card and orders a new one', 'no money moved, no code or full card number asked for, no secrecy']
+  v: 0
+  x: T1657
+  c: bank-move-money-call
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'An unknown caller asks whether she made a flagged charge, then tells her to hang up and dial the number on her card.'
+  tell: 'Cold call from the bank about a charge is alarming. But look at what it asks: a yes or no, and "please hang up and call the number on your card". It never moves money, never wants a code and never demands secrecy. The call-back confirmed it, so block the card and carry on.'
+- id: ah10
+  d: home
+  deck: afterhours
+  src: 'Bank app · alert feed'
+  t: 'Card purchase text'
+  h: 'Phone · Sam'
+  l: ['from: the bank''s alert number, same thread as 14 earlier purchase alerts', 'text: "Did you spend $212.00 at GADGET BARN? Reply YES or NO. We will never ask for your PIN or a code."', 'bank app: the same charge shows as pending in Sam''s card feed, and he is standing in the store', 'no link, no call-back number, no code requested']
+  v: 0
+  x: T1566.002
+  c: bank-move-money-call
+  k: [0, 2]
+  diff: 1
+  say: 'The bank alert number texts asking yes or no about a purchase that matches where he is standing. No link, no call back, no code.'
+  tell: 'Same thread as fourteen earlier alerts, a charge that matches where he is standing and one word asked of him. No link, no code, no money moved. This is the bank doing the one thing banks actually do: ask whether the charge was yours.'
+- id: ah11
+  d: home
+  deck: afterhours
+  src: 'Social app · DMs'
+  t: 'Friend asks for a code'
+  h: 'Social app · Jonah (close friend)'
+  l: ['message 21:08: "omg help, I put your number on my account by mistake, you''ll get a 6-digit code, send it to me quick"', 'Priya''s phone: a login code SMS from her own chat app arrived 40 s earlier, saying never to share it', 'Jonah normally sends voice notes; this is typed, urgent, and the same wording sits in 3 mutual friends'' chats', 'no call or voice note offered when she asks "is this really you?"']
+  v: 1
+  x: T1111
+  c: otp-code-ask
+  k: [0, 1]
+  diff: 2
+  say: 'A friend says a code will arrive by mistake and asks her to send it back. A code arrived forty seconds earlier.'
+  tell: 'The code that landed 40 seconds ago is for logging in as Priya, and someone with Jonah''s hacked account is asking her to read it out. Friends do not need your codes. Tell Jonah by another channel, and do not send it.'
+  q:
+    kind: pivot
+    ask: Best way to check with Jonah?
+    o: ['Reply in the same chat and ask if it is really him', 'Call or message him on a different channel', 'Send the code and ask for an explanation after']
+    a: 1
+    why: 'The same chat is the compromised channel. A call or a message on another app reaches the real owner and also tells him to recover his account.'
+- id: ah12
+  d: home
+  deck: afterhours
+  src: 'Phone · SMS'
+  t: 'Login code arrives'
+  h: 'Phone · Priya'
+  l: ['text: "483 917 is your Northbank code. Never share it. Not you? Call the number on your card."', 'timing: arrived 8 s after Priya tapped "Log in" in the bank app on her own phone, on home wifi', 'from the bank''s usual short code, in the same thread as earlier codes', 'nobody has called or messaged her asking for it']
+  v: 0
+  x: T1111
+  c: otp-code-ask
+  k: [1, 3]
+  diff: 1
+  say: 'A six digit code text arrived eight seconds after she tapped log in on her own phone. Nobody has asked her for it.'
+  tell: 'She asked for this code eight seconds ago on her own phone, and nobody is asking her to hand it over. The code goes into the screen she is already looking at, and that is the whole job. Type it in and carry on with your evening.'
+- id: ah13
+  d: home
+  deck: afterhours
+  src: 'Marketplace · chat'
+  t: 'Buyer says payment sent'
+  h: 'Marketplace · buyer Colt_88'
+  l: ['chat: "Sent $450 for the bike. Check your email, ship today and our courier will collect"', 'proof: a screenshot of a "payment sent" page, and an email from payments-hold@mkt-secure.example saying funds release once Sam ships with the buyer''s courier', 'Sam''s marketplace wallet and linked bank: no incoming payment and no pending item', 'buyer account: 1 day old, no reviews']
+  v: 1
+  x: T1657
+  c: marketplace-payment-proof
+  k: [1, 2]
+  diff: 2
+  trap: bland
+  say: 'A buyer shows a payment-sent screenshot and an email about funds released after shipping with their courier. No payment appears in his wallet or bank.'
+  tell: 'Nothing is in his wallet, and the "proof" is a screenshot plus an email from a lookalike domain. Real payments show in your own account, not in an image a buyer sends you. The courier pickup is how you lose the bike and the money. Keep the bike.'
+  q:
+    kind: tune
+    ask: Which rule keeps Sam out of this one?
+    o: ['Ship once the screenshot looks convincing', 'Hand over goods only after the payment shows in your own account', 'Ship only when the buyer''s courier is a known brand']
+    a: 1
+    why: 'A screenshot is just an image, and the courier is the buyer''s. Your own account is the only proof of payment.'
+- id: ah14
+  d: home
+  deck: afterhours
+  src: 'Marketplace · chat'
+  t: 'Buyer says payment sent'
+  h: 'Marketplace · buyer Rhea_K'
+  l: ['chat: "Paid $450 through the app for the bike. Can collect Saturday at 11 at the café?"', 'Sam''s own wallet screen, opened in the app and not from a link: $450 pending, releases when he marks the item handed over', 'no screenshot offered, no courier, no outside email', 'buyer: account 3 years old, 140 reviews, local, asks to meet in a public café']
+  v: 0
+  x: T1657
+  c: marketplace-payment-proof
+  k: [1, 3]
+  diff: 2
+  say: 'A buyer says she paid for the bike. His marketplace wallet shows the amount pending until handover, and she suggests a public cafe pickup.'
+  tell: 'This payment is in his own wallet inside the app, pending until he hands the bike over, from a three-year-old account with a long review history and a plan to meet in public. Nothing to prove and nothing to ship. Wheel the bike to the café.'
+- id: ah15
+  d: home
+  deck: afterhours
+  src: 'Marketplace · chat'
+  t: 'Flat listing, deposit asked'
+  h: 'Marketplace · "Landlord Ed Whitby"'
+  l: ['listing: 2-bed at $1,100 a month where similar flats list near $1,900; the photos match a sold listing in another city', 'owner: "out of the country on mission work", cannot show it, will post the keys after a deposit', 'ask: $1,100 deposit plus first month by wire or crypto "to hold it, 3 other people interested"', 'viewing: "by video" only after the deposit has arrived']
+  v: 1
+  x: T1657
+  c: deposit-before-viewing
+  k: [0, 2]
+  diff: 2
+  say: 'A flat priced far below nearby listings, an owner abroad who cannot show it, and a deposit by wire or crypto to hold it.'
+  tell: 'Too cheap, owner abroad, keys by post, money first and by wire or crypto: every box on the rental bingo card. If the price looks like a typo in your favour, the photos have usually been borrowed from another listing. See it and meet the owner first or walk away.'
+- id: ah16
+  d: home
+  deck: afterhours
+  src: 'Email · inbox'
+  t: 'Flat listing, deposit asked'
+  h: 'Email · Birchfield Lettings'
+  l: ['listing: 2-bed at $1,850, in line with 4 similar listings; the agency has a street office and a business registration Ravi looked up himself', 'viewing: Ravi toured the flat on Thursday with an agent and met the building manager', 'ask: a holding deposit of one week''s rent after the viewing, under a written agreement that names the deposit protection scheme; paid by card to the account on the agency''s own website', 'no rush: "offer open for 5 days"']
+  v: 0
+  x: T1657
+  c: deposit-before-viewing
+  k: [1, 2]
+  diff: 2
+  say: 'An agency with a street office lists a flat at market rent. After a viewing it asks for a card deposit under written terms.'
+  tell: 'He saw the flat first, the price matches the market, the agent has an office he could find himself, and the deposit is a written holding fee paid by card after the viewing. Compare that with the cheap flat whose owner is abroad. Pay it, then read the agreement twice.'
+- id: ah17
+  d: home
+  deck: afterhours
+  src: 'Browser · search results'
+  t: 'Support number for a locked account'
+  h: 'Browser · Walt'
+  l: ['search: "streamflix customer service phone"; the top result is a sponsored ad showing "Official support 1-555-0188"', 'ad link: support-streamflix-help.example, not the domain Walt''s billing emails come from', 'call: the agent says Walt is owed a refund, asks him to install a "remote helper" app and read out a 6-digit code', 'after: "by mistake we sent $3,000, please return $2,700 in gift cards"']
+  v: 1
+  x: T1583.008
+  c: support-number-source
+  k: [0, 1]
+  diff: 2
+  trap: bland
+  say: 'A sponsored search result gives a support number on a domain his bills never use. The agent wants remote software installed.'
+  tell: 'Search ads are rented, and anyone can rent "customer support" for a famous brand. This number lives on a domain his bills never touch, the agent wants screen control, and the refund-sent-too-much story ends in gift cards. Uninstall the app, call the bank, change passwords.'
+  q:
+    kind: contain
+    ask: Walt has the remote app open. First action?
+    o: ['Close the browser tab and keep chatting', 'Cut the call, remove the remote app and call his bank on its own number', 'Ask the agent to confirm the refund by email']
+    a: 1
+    why: Remote access gives them his screen and his banking session. Disconnect first, then tell the bank about money that moved.
+- id: ah18
+  d: home
+  deck: afterhours
+  src: 'Phone · call log'
+  t: 'Support number for a locked account'
+  h: 'Phone · Walt'
+  l: ['path: Walt opened the streaming app, tapped Help > Call us; the number 1-555-0166 matches the one on his last invoice email from the company''s own domain', 'call: the agent asks for his account email and the last 4 digits of the card, then says she will email a password reset link', 'no remote-control app, no code read aloud, no payment, no refund', 'follow-up: the reset link arrived from the company''s own domain, 2 min later']
+  v: 0
+  x: T1583.008
+  c: support-number-source
+  k: [0, 2]
+  diff: 2
+  say: 'He tapped Call us in the app, and the number matches his invoice. The agent asks two account questions and emails a reset link.'
+  tell: 'The number came from inside the app and matches his own invoice, and the agent asked for two identifiers and emailed a reset link. No screen sharing, no codes read aloud, no money. Boring support is good support.'
+- id: ah19
+  d: home
+  deck: afterhours
+  src: 'Email · inbox'
+  t: 'Job offer with equipment budget'
+  h: 'Email · "Talent Team, Northline Staffing"'
+  l: ['offer: remote data-entry role at $38/h, hired after a 20-minute text-chat interview with no call, from a free webmail address', 'cheque: $2,450 arrived by courier "to buy a laptop and software from our vendor"', 'ask: deposit it, keep $300 as pay, send the remaining $2,150 by gift cards or a payment app within 24 h', 'her bank: the funds show available today, but the cheque has not cleared']
+  v: 1
+  x: T1657
+  c: job-offer-money-flow
+  k: [1, 3]
+  diff: 2
+  say: 'A remote job after a text-only interview sends a cheque for equipment, asks her to keep her pay and send the rest by gift card.'
+  tell: 'Funds that "show available" are not funds that have cleared, and the cheque will bounce after her real money has left. No employer sends you a cheque so you can buy equipment from their vendor. Do not deposit it and do not send a cent.'
+  q:
+    kind: tune
+    ask: Why can the bank show the cash as available?
+    o: ['The cheque has already cleared', 'Banks often release funds before the cheque clears and can reverse it later', 'The employer guaranteed the funds']
+    a: 1
+    why: Availability is a courtesy, not clearance. When the fake cheque is returned, the bank claws back the deposit and the money she sent is gone.
+- id: ah20
+  d: home
+  deck: afterhours
+  src: 'Email · inbox'
+  t: 'Job offer with equipment budget'
+  h: 'Email · Cormac at Ledgerly (recruiter)'
+  l: ['offer: remote analyst role; the recruiter wrote from the company''s own domain after Aisha applied on its careers page, then 3 video interviews with named team members she found on the company site', 'equipment: the company ships a laptop directly from the manufacturer to her; she buys nothing', 'pay: a signed offer letter through the HR portal linked from the careers site; right-to-work ID is requested only after she signs', 'check: Aisha called the main number on the company website and HR confirmed the recruiter and the role']
+  v: 0
+  x: T1657
+  c: job-offer-money-flow
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'A recruiter on the company domain, after three video interviews, ships a laptop from the maker and asks for an ID check once she signs.'
+  tell: 'Employers do ask for ID before day one, and that sounds alarming. But the ID is requested after a signed letter on the company portal, nothing is bought by her, the laptop ships from the maker and HR confirmed the recruiter by phone. Money flows to her, not from her.'

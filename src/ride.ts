@@ -122,7 +122,7 @@ export function ride(): void {
         draw('ans', false);
       } else {
         const ok = ans === !!a.v;
-        if (ok) { score++; sfx('ok'); addXP(8); } else { sfx('no'); addXP(-2); }
+        if (ok) { score++; sfx('ok'); addXP(8); } else { sfx('no'); }
         gradeConcept(a, ok ? 2 : 1);
         logEv({ id: a.id, c: a.c || a.id, v: a.v, call: ans, conf: 0, ok, mode: 'ride', d: a.d, x: a.x, diff: a.diff || 2 });
         if (ok) S.dayGoal[today()] = (S.dayGoal[today()] || 0) + 1;
@@ -138,7 +138,7 @@ export function ride(): void {
       earnStreak();
       await say(`Shift over. ${score} out of ${Q.length}.`);
       stopRide();
-      app.innerHTML = `<div class="scr center"><div class="sec">RIDE SHIFT DONE</div><div class="grade">${score}/${Q.length}</div><button class="next" id="h">Back to the SOC</button><button class="next ghost" id="a">Another ride</button></div>`;
+      app.innerHTML = `<div class="scr center"><div class="sec">RIDE DONE</div><div class="grade">${score}/${Q.length}</div><button class="next" id="h">Back home</button><button class="next ghost" id="a">Another ride</button></div>`;
       $('#h').onclick = () => go(routes.home);
       $('#a').onclick = () => go(ride);
     }

@@ -1,0 +1,10 @@
+# ON SHIFT After Hours concepts: personal accounts, devices and the home network. id, rule (<=15 words), tac (ATT&CK tactic), d (domain)
+- {id: chat-token-session, rule: 'A session with no login event or 2FA prompt is a stolen token.', tac: Credential Access, d: home}
+- {id: sim-swap-signs, rule: 'No service plus unrequested reset codes is a SIM swap; outages leave account history clean.', tac: Credential Access, d: home}
+- {id: wallet-approval-scope, rule: 'Judge a signing request by what it grants, to whom, and for how long.', tac: Impact, d: home}
+- {id: router-config-change, rule: 'Judge router edits by source and result: WAN-side DNS or port changes are hijacks.', tac: Persistence, d: home}
+- {id: stalkerware-signs, rule: 'Monitoring apps are family tools when visible and agreed to; hidden ones are stalkerware.', tac: Collection, d: home}
+- {id: captive-portal-ask, rule: 'Portals asking for passwords or cards are traps; hotel portals ask room and name.', tac: Credential Access, d: home}
+- {id: remote-help-origin, rule: 'Remote help is fine when you asked; a pop-up phone number is the hook.', tac: Command and Control, d: home}
+- {id: extension-update-scope, rule: 'Judge extension updates by publisher change, permission growth and new endpoints, not the update.', tac: Persistence, d: home}
+- {id: photo-link-share, rule: 'Public album links are fine when the owner chose them; check who and where from.', tac: Collection, d: home}
