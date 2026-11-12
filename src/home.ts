@@ -18,10 +18,9 @@ import { tutorial } from './tutorial';
 import { about } from './about';
 import { friends } from './friends';
 import { lbJoined } from './leaderboard';
-import { SHIFTY_LINES } from './shifty';
+import { nextShiftyLine } from './shifty-lines';
 import { shiftyHtml } from './shifty-live';
 import { announceUnlocks, closet } from './closet';
-import { pick } from './util';
 import { APP_VERSION } from './config';
 import { canInstall, isIosSafari, isStandalone, promptInstall } from './pwa';
 
@@ -44,7 +43,7 @@ function shiftyLine(due: number, dailyDone: boolean): string {
   if (liveStreak() >= 3) return `🔥 ${liveStreak()} days in a row. Even the dead respect that.`;
   if (!dailyDone) return "Today's daily is up. I'll hold your coat.";
   if (h >= 22 || h < 5) return 'Late again. Perfect ghost hours.';
-  return pick(SHIFTY_LINES);
+  return nextShiftyLine();
 }
 
 export function home(): void {
@@ -96,7 +95,7 @@ export function home(): void {
   $('#afterh').onclick = () => go(startAfterHours);
   $('#puz').onclick = () => go(puzzles);
   $('#namechip').onclick = () => go(friends);
-  $('#shifty').onclick = () => { $('#shline').textContent = pick(SHIFTY_LINES); };
+  $('#shifty').onclick = () => { $('#shline').textContent = nextShiftyLine(); };
   $('#closetchip').onclick = () => go(closet);
   announceUnlocks();
   const inst = document.getElementById('install');

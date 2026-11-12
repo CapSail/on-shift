@@ -148,17 +148,3 @@ export function shiftySvg(look: Pose | Look = 'dead', px = 48, label = 'Shifty t
   });
   return `<svg class="shifty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${GW} ${h}" width="${px}" height="${Math.round((px * h) / GW)}" shape-rendering="crispEdges" role="img" aria-label="${label}">${rects}</svg>`;
 }
-
-/** Things Shifty says when you poke him. */
-export const SHIFTY_LINES = [
-  'Shifty is on shift. Technically.',
-  'I died at 2am. Still got paged.',
-  'Boo. (That was the alert, not me.)',
-  'I have 4,112 unread tickets and no pulse.',
-  'Read the log line. I would, but I am a ghost.',
-  'Dead inside, alert on the outside.',
-  'My MTTR is infinite. I have all the time in the afterlife.',
-  'Being dead is great for uptime.',
-  'I phased through the firewall. It was open anyway.',
-  'Ask me about my 3am incident. Actually, do not.',
-];

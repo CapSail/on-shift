@@ -3,6 +3,7 @@
  */
 import { expect, test, type Page } from '@playwright/test';
 import { currentAlert, playAlert, playRun, seed } from './helpers';
+import { SHIFTY_LINES } from '../src/shifty-lines';
 
 const errors: string[] = [];
 test.beforeEach(({ page }) => {
@@ -137,4 +138,10 @@ test('playing a whole work round still works end to end with the animated Shifty
   await playRun(page, { right: true, sure: true });
   await expect(page.getByText('ROUND REPORT')).toBeVisible();
   await expect(page.locator('.shifty-live svg.shifty').first()).toBeVisible();
+});
+
+test('Shifty has 200+ distinct, bubble-sized lines', () => {
+  expect(SHIFTY_LINES.length).toBeGreaterThanOrEqual(200);
+  expect(new Set(SHIFTY_LINES).size).toBe(SHIFTY_LINES.length);
+  for (const l of SHIFTY_LINES) { expect(l.length, l).toBeLessThanOrEqual(120); expect(l.length, l).toBeGreaterThan(15); }
 });
