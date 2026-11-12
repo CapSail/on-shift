@@ -27,7 +27,7 @@ Every malicious alert has a benign twin sharing its concept (and the reverse), a
 
 Validation, the editorial lints and the end-to-end tests all pass, so the content is mechanically sound: schema, ATT&CK ids live in v20.1, rules hold for both twins, no verdict leaks in `say`, names consistent.
 
-**Not yet reviewed by a human SOC expert.** I drafted the technical content (log fields, event names, command lines, product behaviour) and checked it against my own knowledge, not a second source. Skim these before sharing the link, in this order of risk:
+**Reviewed and approved by Jordan (expert review complete, 2026-11-11).** The technical content (log fields, event names, command lines, product behaviour) was drafted with AI and then approved by a human SOC expert. The original risk list is kept for reference; fixes keep the alert `id`:
 1. Product-specific claims: Okta event types, Google Workspace `AUTHORIZE_API_CLIENT_ACCESS`, Salesforce `ReportExport`, Snowflake history views, GitHub audit actions, Modbus function codes and register ranges.
 2. macOS behaviour (TCC writes needing Full Disk Access, `xattr`, Jamf paths, the Microsoft AutoUpdate agent path).
 3. Anything where a benign twin depends on a subtle discriminator (`y08`, `y24`, `y44`, `y58`, `y94`, `y99`).
