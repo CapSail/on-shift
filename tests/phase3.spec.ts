@@ -47,6 +47,18 @@ test('on an iPhone the gate explains Safari and Add to Home Screen', async ({ br
   await ctx.close();
 });
 
+test('on an iPhone in Chrome or an in-app browser the gate says to open Safari first', async ({ browser }) => {
+  const CHROME_IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/126.0.6478.153 Mobile/15E148 Safari/604.1';
+  const ctx = await browser.newContext({ userAgent: CHROME_IOS, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await ctx.newPage();
+  await page.goto('/');
+  const text = (await page.locator('.gate').innerText()).replace(/\s+/g, ' ');
+  expect(text).toContain('You are not in Safari');
+  expect(text).toContain('Edit Actions');
+  expect(text).toContain('Copy the link');
+  await ctx.close();
+});
+
 test('Shifty is on the home screen and says something when poked', async ({ page }) => {
   await seed(page, { onb: true, shifts: 1 });
   await page.goto('/');

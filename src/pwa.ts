@@ -17,6 +17,12 @@ export const isStandalone = (): boolean =>
 export const isIosSafari = (): boolean =>
   /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+/** On an iPhone/iPad: is this real Safari? Chrome, Firefox, Edge and in-app browsers (Gmail, Instagram, Messages previews) do not offer Add to Home Screen reliably. */
+export const isRealIosSafari = (): boolean => {
+  const ua = navigator.userAgent;
+  return /safari\//i.test(ua) && /version\//i.test(ua) && !/crios|fxios|edgios|opios|gsa\/|fban|fbav|instagram|line\/|twitter|linkedin|snapchat|musical_ly/i.test(ua);
+};
+
 /** True when Chrome/Edge offered an install prompt we can trigger from a button. */
 export const canInstall = (): boolean => deferred !== null && !isStandalone();
 

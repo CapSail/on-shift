@@ -33,7 +33,7 @@ function goalRing(): string {
 function installCard(): string {
   if (isStandalone()) return '';
   if (canInstall()) return '<button class="big alt" id="install"><span class="px" style="font-size:12px">INSTALL THE APP</span><small>Full screen, works offline in the car, keeps your progress safe</small></button>';
-  if (isIosSafari()) return '<div class="intro" style="margin-top:12px"><b style="font-size:13px">Keep your progress: add to Home Screen</b><p style="font-size:14px">Tap <b>Share</b>, then <b>Add to Home Screen</b>, and open ON SHIFT from the new icon. Safari can erase a website\'s saved data after a week of not using it; an installed app is exempt.</p></div>';
+  if (isIosSafari()) return '<div class="intro" style="margin-top:12px"><b style="font-size:13px">Keep your progress: add to Home Screen</b><p style="font-size:14px">Tap <b>Share</b> (behind <b>⋯</b> on the compact Safari bar), scroll down to <b>Add to Home Screen</b>, and open ON SHIFT from the new icon. Safari can erase a website\'s saved data after a week of not using it; an installed app is exempt.</p></div>';
   return '';
 }
 
