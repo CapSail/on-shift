@@ -30,7 +30,7 @@ export function installGate(onContinue: () => void): void {
        'Open <b>ON SHIFT</b> from your home screen. That is the app.'];
 
   app.innerHTML = `<div class="scr gate">
- <div class="mascot big">${shiftySvg(justInstalled() ? 'happy' : 'dead', 96)}</div>
+ <div class="mascot lg">${shiftySvg(justInstalled() ? 'happy' : 'dead', 96)}</div>
  <div class="bubble">${justInstalled() ? 'Installed! Close this tab and open <b>ON SHIFT</b> from your home screen.' : "I'm Shifty. Put me on your home screen so I work offline, run full screen, and <b>keep your progress safe</b>."}</div>
  <h1 class="px gateh">MAKE IT AN APP</h1>
  <p class="note center">Takes 30 seconds. Do this first, then play.</p>

@@ -244,7 +244,7 @@ a{color:inherit}
 /* phase 3: Shifty the ghost + install gate */
 .mascot{display:inline-block;line-height:0;background:none;border:0;padding:0;cursor:pointer;flex:none}
 .mascot svg{image-rendering:pixelated;animation:shbob 3.2s ease-in-out infinite;filter:drop-shadow(0 0 8px #22d3ee55)}
-.mascot.big{display:block;margin:6px auto 8px;cursor:default}
+.mascot.lg{display:block;margin:6px auto 8px;cursor:default;text-align:center;width:auto;padding:0;background:none}
 @keyframes shbob{50%{transform:translateY(-3px)}}
 .gate{padding-top:3vh;text-align:center}
 .gateh{font-size:20px;color:var(--grn);margin:14px 0 6px}

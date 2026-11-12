@@ -7,7 +7,7 @@ import { shiftySvg } from './shifty';
 
 export function about(): void {
   app.innerHTML = `<div class="scr"><div class="bar"><button class="x" id="q" aria-label="Back">✕</button><b style="font-size:18px">About ON SHIFT</b></div>
- <div class="sk"><div class="mascot big">${shiftySvg('dead', 72)}</div><h3 class="center">Meet Shifty</h3>
+ <div class="sk"><div class="mascot lg">${shiftySvg('dead', 72)}</div><h3 class="center">Meet Shifty</h3>
   <p class="note center">The night-shift cyber-ghost. Died at 2am, still got paged. He is on every shift with you.</p></div>
  <div class="sk"><h3>What this is</h3>
   <p class="note">A meme-y, expert-level SOC alert triage game. Triage the alert, tap the line that gave it away, learn the rule. Progress lives on this device only.</p>

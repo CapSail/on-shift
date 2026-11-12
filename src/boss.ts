@@ -51,7 +51,7 @@ function bossEnd(b: Crew, queue: QueueAlert[], r: RunResult): void {
   if (r.won) return bossIntel(b);
   sfx('no');
   const miss = queue.filter((a) => a.v);
-  app.innerHTML = `<div class="scr center"><div class="sec">YOU GOT COOKED</div><div class="grade" style="font-size:40px;color:var(--red)">L</div><div class="mascot big">${shiftySvg('shock', 64)}</div>
+  app.innerHTML = `<div class="scr center"><div class="sec">YOU GOT COOKED</div><div class="grade" style="font-size:40px;color:var(--red)">L</div><div class="mascot lg">${shiftySvg('shock', 64)}</div>
  <p style="color:var(--dim)">${esc(b.n)} laughs in living-off-the-land. Here's what they threw at you. Study up, rematch tomorrow.</p>
  <div class="tq" style="justify-content:center">${miss.map((a) => `<a class="tag" href="${tUrl(a.x)}" target="_blank" rel="noopener">${esc(a.x)} ${esc((D.tech[a.x] || [''])[0])} ↗</a>`).join('')}</div>
  <button class="next" id="h">Back to the SOC</button></div>`;
@@ -105,7 +105,7 @@ function bossIntel(b: Crew): void {
     earnStreak();
     save();
     syncSoon();
-    app.innerHTML = `<div class="scr center"><div class="sec">BOSS DEFEATED</div><div class="grade" style="font-size:44px;color:var(--grn)">KO</div><div class="mascot big">${shiftySvg('happy', 64)}</div>
+    app.innerHTML = `<div class="scr center"><div class="sec">BOSS DEFEATED</div><div class="grade" style="font-size:44px;color:var(--grn)">KO</div><div class="mascot lg">${shiftySvg('happy', 64)}</div>
   <p style="color:var(--dim)">Intel round ${score}/3 · +${x} XP${first ? ' · crew captured' : ''}</p>${crewCard(b, 'boss')}<button class="next" id="h">Back to the SOC</button></div>`;
     $('#h').onclick = () => go(routes.home);
   }

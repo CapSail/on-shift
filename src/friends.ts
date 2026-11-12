@@ -53,7 +53,7 @@ export function friends(): void {
  <div class="sk"><h3>Your name</h3>
   <div class="row2"><input id="nm" maxlength="20" autocomplete="off" autocapitalize="words" placeholder="Pick a name" value="${esc(S.name)}"><button class="next" id="nmsave" style="margin:0;width:auto;padding:12px 16px">Save</button></div>
   <p class="note" id="nmmsg">${joined ? 'Everyone in the group sees this name.' : 'Shown on the home screen' + (configured ? ' and to your friends once you join.' : '.')}</p></div>
- ${!configured ? `<div class="sk center"><div class="mascot big">${shiftySvg('sleepy', 64)}</div><p class="note">The leaderboard is not switched on yet. Your name is saved on this phone and you will be on the board the day it opens.</p></div>${mineHtml()}` : ''}
+ ${!configured ? `<div class="sk center"><div class="mascot lg">${shiftySvg('sleepy', 64)}</div><p class="note">The leaderboard is not switched on yet. Your name is saved on this phone and you will be on the board the day it opens.</p></div>${mineHtml()}` : ''}
  ${configured && !joined ? `<div class="sk"><h3>Join your friends</h3><p class="note">Ask Jordan for the group code.</p>
   <input id="code" autocomplete="off" autocapitalize="characters" placeholder="Group code"><button class="next" id="join">Join the group</button><p class="note" id="joinmsg"></p></div>` : ''}
  ${joined ? `<div class="filters" id="tabs">${BOARDS.map(([k, n]) => `<button data-b="${k}" class="${k === board ? 'on' : ''}">${n}</button>`).join('')}</div>

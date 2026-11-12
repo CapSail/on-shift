@@ -12,7 +12,7 @@ import { requestPersist } from './pwa';
 import { shiftySvg } from './shifty';
 
 export function tutorial(): void {
-  app.innerHTML = `<div class="scr center" style="padding-top:5vh"><div class="mascot big">${shiftySvg('dead', 84)}</div><div class="logo px" style="font-size:22px">ON<b>·</b>SHIFT</div>
+  app.innerHTML = `<div class="scr center" style="padding-top:5vh"><div class="mascot lg">${shiftySvg('dead', 84)}</div><div class="logo px" style="font-size:22px">ON<b>·</b>SHIFT</div>
  <p class="tiny" style="margin-top:6px">Shifty, your night-shift buddy. Dead inside. Reads every log.</p>
  <div class="dale" style="margin-top:16px"><div class="av">☕</div><div><b>DALE · NIGHT SHIFT SOC MANAGER</b><p>${esc(DALE.first[0])}</p></div></div>
  <div class="intro" style="text-align:left;margin-top:12px"><p style="margin:0">Alerts come in. You make the call:</p>
@@ -35,7 +35,7 @@ function tutEnd(): void {
   addXP(30);
   save();
   confetti(40);
-  app.innerHTML = `<div class="scr center"><div class="sec">TRAINING COMPLETE</div><div class="mascot big">${shiftySvg('happy', 72)}</div><div class="grade" style="font-size:40px;color:var(--grn)">✓</div>
+  app.innerHTML = `<div class="scr center"><div class="sec">TRAINING COMPLETE</div><div class="mascot lg">${shiftySvg('happy', 72)}</div><div class="grade" style="font-size:40px;color:var(--grn)">✓</div>
  <div class="dale"><div class="av">☕</div><div><b>DALE</b><p>Not bad. Here's your first threat crew card. Catch real attacks to earn intel on more crews. Now clock in for real.</p></div></div>${crewCard(c, 'training')}
  <button class="next" id="h">Enter the SOC</button></div>`;
   $('#h').onclick = () => go(routes.home);

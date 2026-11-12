@@ -41,7 +41,7 @@ export function shiftEnd(mode: Mode, r: RunResult): void {
   const pose: Pose = acc >= 0.8 ? 'happy' : acc >= 0.4 ? 'dead' : 'shock'; // Shifty reacts to your shift
   app.innerHTML = `<div class="scr center"><div class="sec" style="margin-top:6px">${mode === 'daily' ? 'DAILY SHIFT #' + dailyNumber() : mode === 'drill' ? 'DRILL REPORT' : 'SHIFT REPORT'}</div>
   <div class="grade" style="color:${acc >= 0.8 ? 'var(--grn)' : acc >= 0.5 ? 'var(--yl)' : 'var(--red)'}">${g[0]}</div>
-  <div class="mascot big">${shiftySvg(pose, 64)}</div>
+  <div class="mascot lg">${shiftySvg(pose, 64)}</div>
   <div style="font-size:18px;font-weight:700">${right}/${n} correct · +${Math.max(0, xp) + bonus} XP</div>
   <div class="share">${grid.join('')}</div>
   <div class="dale"><div class="av">☕</div><div><b>DALE</b><p>${esc(g[1])}</p></div></div>
