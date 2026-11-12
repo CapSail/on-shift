@@ -45,7 +45,7 @@ Why bother installing: it runs full screen, works offline, and on iPhone it stop
 - **Hosting:** free GitHub Pages. No server runs the game.
 - **Testing:** an automated browser plays whole shifts, bosses and incidents on a phone-sized screen, offline, with touch and keyboard, before every release.
 - **The art:** Shifty, the dead-inside night-shift ghost, is drawn from a tiny pixel grid in code, and one small animation loop makes him blink, float and react. The hats are the same grid with extra pixels.
-- **How it was made:** built by Jordan with AI help (Claude Code). The alerts were drafted with AI and checked against real incidents; every drop, including the newest 100 work alerts and the 40 After Hours ones, has been reviewed by a human expert; a few mistakes can still slip through, so say the id and it gets fixed. Say the id and it gets fixed.
+- **How it was made:** built by Jordan with AI help (Claude Code). The alerts were drafted with AI and checked against real incidents; every drop, including the newest 100 work alerts and the 40 After Hours ones, has been reviewed by a human expert; a few mistakes can still slip through, so say the id and it gets fixed.
 
 ## Privacy and honesty
 - No accounts, no analytics, no tracking. Progress lives **only on your phone**. Lose the phone or clear the site data and you start over (on purpose, for now).
