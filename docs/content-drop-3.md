@@ -14,7 +14,7 @@ Five themes, each written as TP/benign twins grounded in real incidents and genu
 
 ## Status
 
-- Validation, lints and all tests pass; the shared daily and weekly boss still draw only from drops 1 and 2 (`daily_pool_drop: 2`). Raise it to 3 once you have skimmed this drop; until then drop 3 appears only in personal shifts.
+- Validation, lints and all tests pass. `daily_pool_drop` is 3 (raised 2026-11-12 at the owner's request), so this drop is in the shared daily and the weekly boss as well as personal shifts.
 - **Not yet reviewed by a human expert.** The writers were told to stay generic where unsure and to list claims worth a second look. Skim these first:
 
 **Technical claims flagged for an expert check**
