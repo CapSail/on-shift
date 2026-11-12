@@ -291,3 +291,5 @@ input:focus{outline:2px solid var(--cy);outline-offset:1px}
 .pzacts{position:sticky;bottom:12px;margin-top:14px;grid-template-columns:1fr 1fr}
 
 .mascot .sf{display:block;line-height:0}
+
+.tipbox{margin-top:12px;padding:12px;border-radius:12px;background:#2a2008;border:1px solid var(--yl);font-size:14px;line-height:1.45}

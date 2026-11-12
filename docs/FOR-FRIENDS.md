@@ -5,7 +5,7 @@ ON SHIFT is a SOC alert-triage game for people who already do this job. You get 
 
 ## Get it on your phone (30 seconds)
 1. Open the link in **Chrome** (Android) or **Safari** (iPhone). If you tapped it inside Gmail, Slack or a chat, use the menu to **Open in Chrome / Safari** first.
-2. Follow the "Make it an app" page: Chrome menu, **Install app**; Safari Share, **Add to Home Screen**.
+2. Follow the "Make it an app" page: Chrome menu, **Install app**; Safari Share (behind **⋯** on the compact bar), **Add to Home Screen**. If Add to Home Screen is not in the list: scroll to the bottom of the Share sheet, **Edit Actions**, tap **+** next to it, **Done**.
 3. Open **ON SHIFT** from your home screen. Do the 3-card training, then tap **New round**.
 
 Why bother installing: it runs full screen, works offline, and on iPhone it stops Safari from wiping your progress after a week of not playing.

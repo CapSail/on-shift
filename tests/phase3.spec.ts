@@ -44,6 +44,8 @@ test('on an iPhone the gate explains Safari and Add to Home Screen', async ({ br
   expect(text).toContain('Safari');
   expect(text).toContain('Share');
   expect(text).toContain('Add to Home Screen');
+  expect(text).toContain('Edit Actions');
+  expect(text).toContain('Done');
   await ctx.close();
 });
 

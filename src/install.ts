@@ -37,7 +37,8 @@ export function installGate(onContinue: () => void): void {
  ${ios && !isRealIosSafari() ? '<div class="intro" style="border-color:var(--yl)"><b style="color:var(--yl)">You are not in Safari.</b><p style="font-size:14px;margin:6px 0 0">This browser will not show Add to Home Screen. Tap <b>Copy the link</b> below, open <b>Safari</b>, and paste it into the address bar.</p></div>' : ''}
  ${canInstall() ? '<button class="big" id="inst"><span class="px">INSTALL ON SHIFT</span><small>One tap. Then open it from your home screen.</small></button>' : ''}
  <div class="intro"><div style="font-size:11px;letter-spacing:.12em;color:var(--cy);font-weight:700">${ios ? 'ON IPHONE / IPAD' : 'ON ANDROID'}</div>
-  <ol class="steps">${steps.map((s) => `<li>${s}</li>`).join('')}</ol></div>
+  <ol class="steps">${steps.map((s) => `<li>${s}</li>`).join('')}</ol>
+  ${ios ? '<div class="tipbox"><b>No “Add to Home Screen” in the list?</b> Scroll to the very bottom of the Share sheet, tap <b>Edit Actions</b>, tap the green <b>+</b> next to <b>Add to Home Screen</b>, then <b>Done</b>. It shows up in the list from then on.</div>' : ''}</div>
  <button class="next ghost" id="copy">Copy the link (to paste into ${ios ? 'Safari' : 'Chrome'})</button>
  <p class="tiny">Why: an installed app works in airplane mode, has no browser bars, and ${ios ? "Safari can't erase its saved progress" : 'keeps your progress safe'}.</p>
  <button class="linkbtn" id="skip">Play in the browser anyway (progress may be lost)</button>
