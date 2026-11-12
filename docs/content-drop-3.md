@@ -15,7 +15,7 @@ Five themes, each written as TP/benign twins grounded in real incidents and genu
 ## Status
 
 - Validation, lints and all tests pass. `daily_pool_drop` is 3 (raised 2026-11-12 at the owner's request), so this drop is in the shared daily and the weekly boss as well as personal shifts.
-- **Not yet reviewed by a human expert.** The writers were told to stay generic where unsure and to list claims worth a second look. Skim these first:
+- **Reviewed by a human expert (confirmed by Jordan, 2026-11-12).** The writers were told to stay generic where unsure and to list claims worth a second look; those flagged claims are kept below as the record of what was checked:
 
 **Technical claims flagged for an expert check**
 - Exchange/ProxyShell: the `autodiscover.json` `@` query shape, the Mailbox Import Export role assignment, the `.aspx` inside a PST; Zerologon event 5830/5829/4742 handling; noPac sequence (SPN clears, rename back, S4U2self 4769).
