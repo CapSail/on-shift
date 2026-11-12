@@ -7,6 +7,8 @@ import { capture, crewCard } from './crews';
 import { app, confetti, go, routes, sfx, stopDock } from './ui';
 import { runAlerts, type RunResult } from './runner';
 import { $, esc } from './util';
+import { shiftySvg } from './shifty';
+import { syncSoon } from './leaderboard';
 
 export function incIntro(inc: Incident): void {
   const c = crewById[inc.g];
@@ -31,8 +33,10 @@ function incEnd(inc: Incident, r: RunResult): void {
   } else sfx('no');
   earnStreak();
   save();
+  syncSoon();
   app.innerHTML = `<div class="scr center"><div class="sec" style="margin-top:6px">${won ? 'INCIDENT CONTAINED' : 'BREACHED'}</div>
   <div class="grade" style="font-size:40px;color:${won ? 'var(--grn)' : 'var(--red)'}">${won ? 'W' : 'L'}</div>
+  <div class="mascot big">${shiftySvg(won ? 'happy' : 'shock', 64)}</div>
   <div class="intro" style="text-align:left"><p style="margin:0">${esc(won ? inc.win : inc.lose)}</p></div>
   <div class="sec">KILL CHAIN YOU CAUGHT</div><div class="chain" style="justify-content:center">${inc.a.map((a, k) => (a.v ? `<span class="${r.chain.includes(k) ? 'on' : ''}">${esc(a.x)}</span>` : '')).join('')}</div>
   ${won ? crewCard(c, 'incident') : ''}

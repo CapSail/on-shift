@@ -1,11 +1,14 @@
 // About, credits, licences and the "fictional" disclaimer.
 import { D } from './content';
-import { APP_VERSION, REPO, REPORT_EMAIL } from './config';
+import { APP_VERSION } from './config';
 import { app } from './ui';
 import { $, esc } from './util';
+import { shiftySvg } from './shifty';
 
 export function about(): void {
   app.innerHTML = `<div class="scr"><div class="bar"><button class="x" id="q" aria-label="Back">✕</button><b style="font-size:18px">About ON SHIFT</b></div>
+ <div class="sk"><div class="mascot big">${shiftySvg('dead', 72)}</div><h3 class="center">Meet Shifty</h3>
+  <p class="note center">The night-shift cyber-ghost. Died at 2am, still got paged. He is on every shift with you.</p></div>
  <div class="sk"><h3>What this is</h3>
   <p class="note">A meme-y, expert-level SOC alert triage game. Triage the alert, tap the line that gave it away, learn the rule. Progress lives on this device only.</p>
   <p class="note mono">app ${esc(APP_VERSION)}<br>content v${D.meta.contentVersion} · ${D.alerts.length + D.inc.reduce((n, i) => n + i.a.length, 0)} alerts<br>MITRE ATT&amp;CK v${esc(D.meta.attack)}</p></div>
@@ -18,8 +21,7 @@ export function about(): void {
  <div class="sk"><h3>Fonts</h3>
   <p class="note">Press Start 2P (CodeMan38), Space Grotesk (Florian Karsten) and JetBrains Mono (JetBrains), all under the SIL Open Font License 1.1.</p></div>
  <div class="sk"><h3>Something wrong?</h3>
-  <p class="note">Every answer has a <b>🚩 Report this answer</b> link under the explanation. It opens a prefilled issue with the alert id and your call.</p>
-  <div class="tq"><a class="tag" href="https://github.com/${REPO}/issues" target="_blank" rel="noopener">github.com/${REPO}/issues ↗</a>${REPORT_EMAIL ? `<a class="tag" href="mailto:${esc(REPORT_EMAIL)}">${esc(REPORT_EMAIL)}</a>` : ''}</div></div>
+  <p class="note">Every answer shows its alert id (like <span class="mono">y45</span>) under the explanation. If an answer, a log line or a technique mapping looks wrong, tell Jordan the id.</p></div>
  </div>`;
   $('#q').onclick = () => history.back();
 }

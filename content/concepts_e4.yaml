@@ -1,0 +1,10 @@
+# ON SHIFT concepts for drop 3, batch 4: Linux, macOS, containers, CI/CD and supply chain. id, rule (<=15 words), tac (ATT&CK tactic), d (domain)
+- {id: sshd-liblzma-load, rule: 'sshd mapping liblzma is normal via libsystemd; the version, source and auth cost decide.', tac: Initial Access, d: linux}
+- {id: npm-postinstall-egress, rule: 'Install hooks fetching pinned binaries are builds; hooks reading secrets and posting out are theft.', tac: Initial Access, d: linux}
+- {id: ci-log-secret-dump, rule: 'Encoded log blobs are artifacts when public; secrets read from runner memory are theft.', tac: Credential Access, d: cloud}
+- {id: docker-api-remote-create, rule: 'Docker API: mTLS with scoped mounts is deployment; plain port with host root is intrusion.', tac: Execution, d: linux}
+- {id: java-app-shell-child, rule: 'JVM shell children are work when args are local, exploitation when fed by requests.', tac: Initial Access, d: linux}
+- {id: pkexec-empty-argv, rule: 'pkexec with real arguments is admin work; empty argv plus GCONV_PATH debris is privilege escalation.', tac: Privilege Escalation, d: linux}
+- {id: ebpf-program-load, rule: 'eBPF loads from signed agents are observability; probe-write hooks from /dev/shm are rootkits.', tac: Stealth, d: linux}
+- {id: ssh-agent-socket-use, rule: 'Agent sockets used within their own session are convenience; foreign uids connecting are hijacking.', tac: Lateral Movement, d: linux}
+- {id: macos-fake-password-prompt, rule: 'Signed MDM prompts are management; osascript password dialogs plus dscl checks are stealers.', tac: Credential Access, d: macos}

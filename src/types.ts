@@ -134,6 +134,10 @@ export interface BossState {
 export interface SaveData {
   /** save format version, so a later release can migrate saves instead of resetting them */
   ver: number;
+  name: string;
+  best: number;
+  wk: { id: number; xp: number };
+  lb: { joined: boolean; dailySent: number[] };
   xp: number;
   streak: number;
   lastPlay: number | null;

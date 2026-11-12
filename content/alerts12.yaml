@@ -1,0 +1,335 @@
+# ON SHIFT alerts, drop 3, part 2: identity and cloud real-world cases + benign twins (y121-y140)
+- id: y121
+  d: identity
+  src: 'Entra ID · SigninLogs'
+  t: 'Session used from a second network'
+  h: 'user: l.romero@corp.com'
+  l: ['sign-in 09:12: password + Authenticator push satisfied, IP 185.x.x.x (hosting ASN, country B), Edge on Windows, device not registered, sessionId 7f3c…', 'refresh 09:14: same sessionId, IP 91.x.x.x (residential ISP, country C), Chrome on Linux, device not registered, MFA claim carried over from the first sign-in', 'Exchange Online 09:19: New-InboxRule moves mail containing "invoice" and "wire" to RSS Subscriptions and marks it read, from the second IP', 'Defender for Office: l.romero clicked a link to login-corp-sso.example (registered 2 days ago) 11 min before the first sign-in']
+  v: 1
+  x: T1550.004
+  c: aitm-session-ip-split
+  k: [0, 1]
+  diff: 3
+  say: 'One session ID signed in from a hosting network, then refreshed from a residential address in another country, then created an inbox rule.'
+  tell: 'Same sessionId, two countries, two browsers, two minutes apart, and the MFA claim rode along. That is a session cookie lifted by a reverse proxy, the "Evilginx" shape, not a user teleporting. The inbox rule for invoice and wire is the next BEC move. Revoke sessions, not just the password.'
+  q:
+    kind: contain
+    ask: 'First containment move?'
+    o: ['Reset the password only', 'Revoke refresh tokens and sessions, then remove the inbox rule', 'Block the second IP in Conditional Access']
+    a: 1
+    why: 'The stolen session survives a password reset. Revoke it and undo the rule.'
+- id: y122
+  d: identity
+  src: 'Entra ID · SigninLogs'
+  t: 'Session used from a second network'
+  h: 'user: t.okafor@corp.com'
+  l: ['sign-in 09:12: password + Authenticator push satisfied, IP 165.x.x.x (corporate SASE egress pool, city A), Edge on Windows, Entra hybrid joined and compliant, deviceId 3a91…, sessionId 52be…', 'refresh 09:14: same sessionId, IP 165.x.x.x (another node of the same egress pool, city B), same Edge build, same deviceId, compliance claim present', 'the egress pool follows the nearest point of presence: 14 refreshes in 4 h across 3 cities, all inside the SASE ranges registered as a named location', 'no inbox rules, no new MFA methods, no consent grants; the mail client reads the same folders as yesterday']
+  v: 0
+  x: T1550.004
+  c: aitm-session-ip-split
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'One session ID refreshed from a different city two minutes after the first sign-in, and both addresses sit inside the company secure web gateway ranges.'
+  tell: 'Same sessionId, new city, two minutes later: it looks like theft until you read the device. Same deviceId, same browser build, compliant, and both IPs sit in the SASE egress ranges that rotate with the nearest point of presence. The proxy moved. The session did not.'
+- id: y123
+  d: identity
+  src: 'Entra ID · SigninLogs'
+  t: 'Session used from a second network'
+  h: 'user: s.brandt@corp.com'
+  l: ['sign-in 07:40: IP 198.x.x.x (office Wi-Fi egress), Outlook iOS through the broker, Intune-compliant iPhone, deviceId 9c20…, sessionId 18ad…', 'refresh 07:58: same sessionId, IP 37.x.x.x (mobile carrier ASN, same country), same client, same deviceId, token bound to the broker', 'badge system: the user left the building at 07:52; the carrier ASN matches the user''s weekend sign-ins', 'no new MFA methods, no inbox rules, no sign-in risk detections']
+  v: 0
+  x: T1550.004
+  c: aitm-session-ip-split
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'One session ID moved from office Wi-Fi to a mobile carrier address in the same country seventeen minutes after the first sign-in.'
+  tell: 'Wi-Fi to cellular mid-session is a network change, not a stolen cookie. Client, deviceId and broker binding all stayed identical, the carrier ASN matches the weekend history, and the badge system explains the timing. Read what did not change.'
+- id: y124
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'App registration granted mail access'
+  h: 'tenant: corp-lab · user: qa-legacy@corp-lab.onmicrosoft.com'
+  l: ['qa-legacy: created 2021, no MFA registered and excluded from the MFA policy, last successful sign-in 14 months ago; 3,100 failed sign-ins over 9 days from about 2,000 residential proxy IPs, then one success from 98.x.x.x', 'operations 6 min after the success: Add application "Quality-Check-Tool", Add service principal, Add user q.audit@corp-lab.onmicrosoft.com', 'operations 9 min later: Consent to application by q.audit (created 9 min earlier), Add app role assignment: Office 365 Exchange Online full_access_as_app', 'the app then reads 6 mailboxes (CEO, CISO, legal, finance) over EWS; MailItemsAccessed from 98.x.x.x']
+  v: 1
+  x: T1098.003
+  c: dormant-test-account-grant
+  k: [0, 2]
+  diff: 3
+  say: 'A test account silent for 14 months signed in after thousands of failures, then registered an application and granted it full Exchange access.'
+  tell: 'Midnight-Blizzard-style: spray a forgotten test account with no MFA, then mint an OAuth app with full_access_as_app and read executive mail with no user in the loop. Old test tenants are production with a lower guard. Disable the account, delete the app and consent, then hunt every mailbox it touched.'
+  q:
+    kind: contain
+    ask: 'Best containment?'
+    o: ['Disable qa-legacy, delete the app and consents, revoke tokens, audit mailbox access', 'Force MFA registration on qa-legacy at next sign-in', 'Rotate the app client secret']
+    a: 0
+    why: 'The app role grant and the extra user are the persistence. Remove them and scope the mail access.'
+- id: y125
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'App registration granted mail access'
+  h: 'tenant: corp-lab · user: qa-synth@corp-lab.onmicrosoft.com'
+  l: ['qa-synth: created 2023, signs in nightly 02:00 UTC from the CI runner NAT 52.x.x.x (400 consecutive nights), MFA exempt through a Conditional Access exclusion limited to that named location', 'operations from that IP: Add application "e2e-mail-sandbox", Add service principal, Add app role assignment: Mail.ReadWrite (application)', 'an application access policy limits the app to a mail-enabled security group of 3 synthetic mailboxes; the tenant has no production users or data', 'the same three operations ran last night with the app name suffixed by the build number; the pipeline deletes old apps after 24 h']
+  v: 0
+  x: T1098.003
+  c: dormant-test-account-grant
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'A test account without MFA created an application and gave it mail permissions, from the address it used on the last 400 nights.'
+  tell: 'Midnight-Blizzard-style on paper: test account, no MFA, mail permission on an app it just created. The differences are a 400-night baseline from one CI egress, an access policy pinning the app to three synthetic mailboxes, and a tenant with no real mail. Judge scope and baseline.'
+- id: y126
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'Security info changed after password reset'
+  h: 'user: d.keller@corp.com (VP Finance)'
+  l: ['operations in 18 min: Reset password by helpdesk-agent2@corp.com, Delete all authentication methods, Create Temporary Access Pass (one use, 60 min) by the same agent', 'User registered security info 4 min after the pass: Authenticator on a new device and a new phone number with a VoIP prefix that differs from the HR mobile; IP 104.x.x.x (residential VPN range), different country from the office', 'the VP''s calendar shows a flight at that time; the helpdesk call note says "verified by caller ID and manager name"', 'first sign-in with the new method 3 min later opens the finance SharePoint site and exports the payment-approval list']
+  v: 1
+  x: T1098.005
+  c: post-reset-mfa-enroll
+  k: [1, 2]
+  diff: 3
+  trap: bland
+  say: 'A finance vice president''s password was reset by the helpdesk, then a new authenticator and phone number were registered from a residential VPN address.'
+  tell: 'This is the Scattered Spider helpdesk play: call in, get a reset and a pass, enrol your own authenticator. Caller ID and a manager name are not identity proof. Registration came from a residential VPN with a VoIP number while the VP was in the air. Lock the account and call back on a known number.'
+  q:
+    kind: pivot
+    ask: 'What settles it fastest?'
+    o: ['Call the VP back on the HR number and compare the registration IP with the flight', 'Check whether the new password meets complexity', 'Ask the agent to re-verify by caller ID']
+    a: 0
+    why: 'Out-of-band contact on a number you already hold beats anything the caller supplied.'
+- id: y127
+  d: identity
+  src: 'Entra ID · AuditLogs'
+  t: 'Security info changed after password reset'
+  h: 'user: p.novak@corp.com (regional sales manager)'
+  l: ['operations in 35 min: Reset password by helpdesk-agent5@corp.com, Create Temporary Access Pass (one use, 60 min), User registered security info, old Authenticator device removed', 'registration from the office egress 81.x.x.x, 20 min after the user badged in: Authenticator on an iPhone enrolled in Intune 8 min earlier, phone number matches the HR mobile', 'service desk record: in-person identity check at the Munich desk with photo ID against the HR record, lost-phone report filed by the manager through the HR system', 'first sign-in with the new method from the same office IP, number matching approved on the enrolled phone, no mailbox or SharePoint exports']
+  v: 0
+  x: T1098.005
+  c: post-reset-mfa-enroll
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A regional manager''s password was reset by the helpdesk, then a pass was issued and a new authenticator registered while the old device was removed.'
+  tell: 'Reset, pass, new authenticator, old one removed: the same sequence as the takeover, with opposite evidence. In-person photo ID against the HR record, registration from the office egress, a phone enrolled in Intune minutes earlier and a number that matches HR. Judge reset chains by identity proof and device.'
+- id: y128
+  d: cloud
+  src: 'Azure Activity Log'
+  t: 'Run Command executed on production VM'
+  h: 'vm: vm-sql-prd-04 · caller: sp-ops-legacy'
+  l: ['operation: Microsoft.Compute/virtualMachines/runCommand/action (RunPowerShellScript) by service principal sp-ops-legacy from 185.x.x.x (hosting provider); first activity since creation 11 months ago', 'script body: requests the VM managed identity token for vault.azure.net from the metadata endpoint and posts it to an external host', 'sp-ops-legacy: client secret added 2 days ago by an Application Administrator who is not in the platform group; the principal has write rights on rg-data-prd', 'one call, one VM, exit code 0, 1.1 KB of output']
+  v: 1
+  x: T1651
+  c: azure-vm-runcommand
+  k: [0, 1]
+  diff: 3
+  trap: bland
+  say: 'A dormant ops service principal ran a PowerShell script on a database VM from a hosting provider address. One call, exit code zero.'
+  tell: 'One Run Command call on one VM is quiet, which is the point. A dormant principal with a fresh secret, a hosting-provider IP and a script that lifts the VM managed identity token for Key Vault: no agent, no malware, just a VM write role turned into vault access. Rotate the secret and chase what the token reached.'
+  q:
+    kind: contain
+    ask: 'Containment order?'
+    o: ['Remove the new secret, review Key Vault access by the VM identity, rotate what it reached', 'Reboot the VM', 'Delete the VM']
+    a: 0
+    why: 'The token already left the box. Cut the principal and rotate whatever the identity could read.'
+- id: y129
+  d: cloud
+  src: 'Azure Activity Log'
+  t: 'Run Command executed on production VM'
+  h: 'vm: vm-sql-prd-04 · caller: mi-aa-patching'
+  l: ['operation: Microsoft.Compute/virtualMachines/runCommand/action (RunPowerShellScript) by the managed identity of Automation account aa-patching-prd; runs Tuesdays 02:00 UTC, 4 years of history', 'script: published runbook Patch-Prod-SQL, content hash equals the version tagged in the ops repo; calls Install-WindowsUpdate, then restarts the SQL service', 'scope: the 15 VMs of the monthly maintenance configuration, one at a time with a health probe between each, 40 min in total', 'caller address: Azure datacenter range of the Automation service, no interactive sign-in involved']
+  v: 0
+  x: T1651
+  c: azure-vm-runcommand
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'A managed identity ran a PowerShell script through Run Command on a production database VM at two in the morning, one of fifteen servers.'
+  tell: 'Run Command against production SQL looks like lateral movement until you read who and what. A managed identity on an Automation account with four years of Tuesday history, a runbook whose hash matches the repo, 15 VMs one at a time with health probes. Pinned script, known caller, bounded scope.'
+- id: y130
+  d: cloud
+  src: 'AWS ALB · access logs'
+  t: 'Request targeting instance metadata address'
+  h: 'alb: shop-prod-alb · target: web-07'
+  l: ['GET /render?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/ · 200 · 1184 bytes · client 185.x.x.x · UA python-requests', 'GET /render?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/shop-web-role · 200 · 1642 bytes · same client 9 s later', 'web-07: IMDSv1 enabled (HttpTokens optional, hop limit 2); instance role shop-web-role allows s3:GetObject and s3:ListAllMyBuckets on 40 buckets', 'CloudTrail 14 min later: ListBuckets and GetObject using shop-web-role credentials from 185.x.x.x, not an AWS address']
+  v: 1
+  x: T1552.005
+  c: ssrf-metadata-probe
+  k: [1, 2]
+  diff: 3
+  say: 'A server-side render endpoint fetched the instance metadata path for role credentials and returned them with a 200 to a client outside the company.'
+  tell: 'Capital-One-style SSRF: make the app fetch 169.254.169.254, read the role name, then read its temporary keys. Two 200s with kilobyte bodies, IMDSv1 still on, and the credentials used from a non-AWS IP 14 minutes later. Enforce IMDSv2, revoke role sessions, fix the URL validator.'
+  q:
+    kind: contain
+    ask: 'First fix?'
+    o: ['Revoke the role sessions, enforce IMDSv2 and patch the URL validator', 'Rename the S3 buckets', 'Add a WAF rule for the word metadata']
+    a: 0
+    why: 'Stolen role keys keep working until the sessions are revoked, and IMDSv2 plus a validator close the path.'
+- id: y131
+  d: cloud
+  src: 'AWS ALB · access logs'
+  t: 'Request targeting instance metadata address'
+  h: 'alb: shop-prod-alb · target: web-07'
+  l: ['GET /render?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/ · 403 · 87 bytes · client 10.20.x.x (DAST scanner subnet) · header X-Scan-Id: dast-weekly', '60 SSRF payload variants (decimal and hex IPs, redirects, rebinding names) in 4 min, all 403 from the app URL validator; no outbound connection from web-07 to the metadata address', 'web-07: IMDSv2 required (HttpTokens required, hop limit 1); instance role limited to its own queue and one bucket', 'scan schedule: weekly Sunday 03:00 for 2 years, scanner source IP in the security tooling allow-list']
+  v: 0
+  x: T1552.005
+  c: ssrf-metadata-probe
+  k: [0, 1, 2]
+  diff: 3
+  trap: scary
+  say: 'A render endpoint received sixty variants of the metadata address from an internal subnet, each answered with a 403 and no outbound call.'
+  tell: 'The same URL as the real thing, answered 403 by the validator: sixty payload encodings in four minutes from the DAST subnet, with IMDSv2 required and hop limit 1 as a second wall. A scanner doing its Sunday job. Hunt the 200 with role names. The 403 is the control working.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Alert on 2xx and 3xx responses to metadata-address requests, keep scanner traffic as a hunt query', 'Suppress every request containing the metadata address', 'Disable the rule on this ALB']
+    a: 0
+    why: 'The response code and who sent it separate a blocked probe from a leak. Keep the rule where it matters.'
+- id: y132
+  d: cloud
+  src: 'CloudTrail · S3 data events'
+  t: 'Burst of customer-key encrypted writes'
+  h: 'bucket: corp-finance-archive · principal: svc-reports'
+  l: ['PutObject x48,210 in 55 min, each with SSE-C headers (customer-provided AES-256 key, nothing in KMS) and the same object keys as existing objects, so overwrites; versioning off', 'principal: access key of IAM user svc-reports, created 2 years ago and only used from the ETL host; this session from 185.x.x.x, first seen 3 h earlier', 'PutBucketLifecycleConfiguration 2 min before the first write: expire every object after 7 days', 'GetObject preceded each PutObject on the same key, so the plaintext was read before it was overwritten']
+  v: 1
+  x: T1486
+  c: s3-ssec-overwrite
+  k: [0, 2]
+  diff: 3
+  say: 'A forgotten IAM user overwrote tens of thousands of finance objects using customer-provided keys, after setting a seven day expiry on the bucket.'
+  tell: 'Codefinger: no malware, just valid keys, SSE-C so only the attacker holds the AES key, then a seven-day lifecycle expiry as the clock on the ransom note. AWS cannot decrypt what it never stored. Cut the key, freeze lifecycle, and check whether versioning or backups exist outside this account.'
+  q:
+    kind: contain
+    ask: 'First move?'
+    o: ['Deactivate the access key and remove the lifecycle rule', 'Turn on KMS encryption for the bucket', 'Ask the svc-reports owner for the encryption keys']
+    a: 0
+    why: 'Stop further writes and the seven-day deletion clock. SSE-C keys are not recoverable from AWS.'
+- id: y133
+  d: cloud
+  src: 'CloudTrail · S3 data events'
+  t: 'Burst of customer-key encrypted writes'
+  h: 'bucket: corp-partner-drop · principal: intake-app-prod'
+  l: ['PutObject x812 in 55 min with SSE-C headers; all object keys are new under /customers/{id}/uploads/, no overwrites, versioning on', 'principal: role intake-app-prod assumed by the ECS task from the VPC endpoint, client IP inside the corporate NAT; the app keeps per-customer keys in its own vault by design for a data-residency customer', 'bucket policy has required the SSE-C header on writes since 2022; no lifecycle changes, no GetObject before a write', 'same pattern daily for 3 years: 600 to 900 uploads per day']
+  v: 0
+  x: T1486
+  c: s3-ssec-overwrite
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'A bucket received hundreds of customer-provided-key encrypted writes from an application role in the last hour.'
+  tell: 'SSE-C is rare but real: some customers require keys that AWS never stores, and the app keeps them. The tell is shape. New keys, versioning on, no reads before writes, the app role inside the VPC, a bucket policy that demands SSE-C, a three-year baseline. Overwrites plus a lifecycle expiry is the extortion version.'
+- id: y134
+  d: identity
+  src: 'Entra ID · SigninLogs + AD FS audit'
+  t: 'Federated sign-in without matching token issuance'
+  h: 'user: a.mendez@corp.com (Exchange administrator)'
+  l: ['sign-in 03:41: federated (AD FS), MFA claim present in the assertion, IP 185.x.x.x (new country), resource Microsoft Graph; the user has no on-prem logon in 20 h', 'AD FS farm adfs-01, adfs-02, adfs-03 (all forwarding, no gaps in the last 24 h): zero token issuance events for a.mendez between 03:00 and 04:00', 'adfs-01 audit 6 days ago: directory read of the DKM container holding the token-signing key material by a service account outside the AD FS admin group']
+  v: 1
+  x: T1606.002
+  c: saml-issuance-gap
+  k: [1, 2]
+  diff: 3
+  say: 'A federated sign-in with an MFA claim arrived at 03:41 and no AD FS server on the farm recorded issuing a token for that user.'
+  tell: 'A golden SAML signature: the cloud accepted an assertion the AD FS farm never issued. All three nodes are forwarding, so the gap is real, and six days ago someone read the DKM container where the signing key lives. Rotate the token-signing certificates twice and hunt for the account that read it.'
+  q:
+    kind: contain
+    ask: 'Containment that matters?'
+    o: ['Rotate the token-signing and decryption certificates twice and revoke federated sessions', 'Reset the user password', 'Disable the user']
+    a: 0
+    why: 'A forged assertion needs only the signing key. Rotating it twice invalidates the stolen copy.'
+- id: y135
+  d: identity
+  src: 'Entra ID · SigninLogs + AD FS audit'
+  t: 'Federated sign-in without matching token issuance'
+  h: 'user: r.santos@corp.com (Exchange administrator)'
+  l: ['sign-in 03:41: federated (AD FS), MFA claim present, IP 81.x.x.x (the user''s home ISP, seen in 60 earlier sign-ins), resource Microsoft Graph', 'AD FS farm: no issuance event on adfs-01 to adfs-03, but the forwarder on adfs-04 (added to the farm 3 days ago) is not onboarded to the SIEM yet', 'adfs-04 local audit: issuance for r.santos at 03:41, request id and client IP match the sign-in; no reads of the DKM container on any node in 30 days']
+  v: 0
+  x: T1606.002
+  c: saml-issuance-gap
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A federated sign-in with an MFA claim arrived at 03:41 and the central log has no matching token issuance event for the user.'
+  tell: 'Absence in the log is not forgery. The issuance event exists on adfs-04, a node added three days ago whose forwarder was never onboarded, and the request id and client IP match. With no DKM reads in thirty days and a familiar home IP, this is a coverage gap. Fix the forwarder before the next one.'
+- id: y136
+  d: cloud
+  src: 'CloudTrail · management events'
+  t: 'Identity active in unfamiliar regions'
+  h: 'key: ci-deploy-bot · account: corp-prod'
+  l: ['first use of the key from 185.x.x.x (hosting ASN) 25 min after it appeared in a public GitHub commit: GetCallerIdentity, ListUsers, GetAccountAuthorizationDetails', 'then RunInstances for p4d.24xlarge and g5.48xlarge in 11 regions the account has never used (eu-north-1, ap-southeast-3 and others), plus 6 service quota increase requests', 'CreateUser backup-svc2, AttachUserPolicy AdministratorAccess, CreateAccessKey; all from 185.x.x.x', 'normal use of the key: 1 or 2 calls an hour from the CI runner NAT, only in us-east-1']
+  v: 1
+  x: T1496.001
+  c: cloud-key-multiregion
+  k: [0, 1]
+  diff: 3
+  say: 'A CI deploy key suddenly launched large GPU instances in eleven unused regions and created a new administrator user, from a hosting address.'
+  tell: 'Exposed keys get found in minutes. The order is textbook: caller identity, enumerate, persistence user with AdministratorAccess, then GPU instances in eleven regions you never look at, plus quota requests. A CI key that makes one call an hour from one NAT does none of this. Disable the key, delete the user, hunt every region.'
+  q:
+    kind: contain
+    ask: 'Containment scope?'
+    o: ['Deactivate the key, delete backup-svc2 and its key, terminate instances in every region, then rotate', 'Terminate the GPU instances only', 'Open a support case about the bill']
+    a: 0
+    why: 'The new admin user and key outlive the leaked one. Sweep identities first, then compute in all regions.'
+- id: y137
+  d: cloud
+  src: 'CloudTrail · management events'
+  t: 'Identity active in unfamiliar regions'
+  h: 'role: dr-orchestrator · account: corp-prod'
+  l: ['RunInstances x60 in us-west-2 (never used before by this account; the DR region named in the recovery plan) by role dr-orchestrator through a recovery-service launch job; instance types match the 60 source servers', 'caller: AWS service on behalf of dr-orchestrator, no interactive sign-in; the role trusts only that service and the DR pipeline', 'quarterly drill: the same job ran in March and June in a sandbox account; it launched, health-checked and terminated all 60 instances after 2 h', 'no IAM changes, no quota requests, no calls from outside the corporate NAT or AWS service ranges']
+  v: 0
+  x: T1496.001
+  c: cloud-key-multiregion
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'A role launched sixty instances in a region this account has never used, from a recovery service launch job.'
+  tell: 'New region plus sixty instances looks like mining prep. What differs: a role, not a leaked key; the region is the one in the recovery plan; instance types mirror the sixty source servers; the same job ran in a sandbox in March and June; no IAM changes or quota requests. Drills should be this boring.'
+- id: y138
+  d: cloud
+  src: 'CloudTrail · management events'
+  t: 'Identity active in unfamiliar regions'
+  h: 'role: sec-posture-scan · account: corp-prod'
+  l: ['Describe*, List* and Get* calls in all 17 enabled regions within 9 min, 2,600 calls, all read-only, from the security tooling account through cross-account role sec-posture-scan', 'source IP: the scanner runner NAT in the security account VPC; external ID condition satisfied; same role and API set every Monday 06:00 for 18 months', 'no write calls, no CreateAccessKey, no RunInstances; the role has only the SecurityAudit managed policy', 'regions touched match the enabled-region list, including 4 regions with no workloads']
+  v: 0
+  x: T1496.001
+  c: cloud-key-multiregion
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'A role called thousands of read-only APIs across every enabled region in nine minutes, including regions with no workloads.'
+  tell: 'Every region in nine minutes is what enumeration looks like from either side. This one is a scheduled posture scan: cross-account role with an external ID, SecurityAudit policy only, the same API set for eighteen months, zero writes. Enumeration is a prelude only when a write follows.'
+- id: y139
+  d: cloud
+  src: 'Azure Storage · StorageBlobLogs'
+  t: 'Bulk blob reads over SAS token'
+  h: 'storage: stcorpresearch01 · container: ml-datasets'
+  l: ['GetBlob x61,400 in 3 h, authType SAS, UA AzCopy/10, caller 20.x.x.x (Azure range, other tenant), 6.2 TB read; no prior requests from this IP', 'SAS: account-level, services bfqt, permissions racwdl (read, write, delete, list), expiry 2051, signed with the account key; created in 2021 by an export pipeline', 'the same SAS URL has been in a public repo README for 5 months; the usual readers of the container are the training cluster in snet-ml']
+  v: 1
+  x: T1530
+  c: storage-sas-bulk-read
+  k: [0, 1]
+  diff: 3
+  trap: bland
+  say: 'A research container served sixty thousand blob reads over a shared access signature to an Azure address outside the training network.'
+  tell: 'AzCopy from an Azure IP looks like any data job. The token is the story: account-level, read-write-delete, expiry in 2051, signed with the account key, sitting in a public README. Same shape as the 2023 Microsoft AI research exposure. Revoke by rotating the account key.'
+  q:
+    kind: contain
+    ask: 'How do you kill the token?'
+    o: ['Rotate the storage account keys, which invalidates the SAS, then review the logs', 'Delete the README', 'Add the caller IP to a deny list only']
+    a: 0
+    why: 'A SAS signed with the account key dies only when that key rotates. The README and one IP do not stop copies.'
+- id: y140
+  d: cloud
+  src: 'Azure Storage · StorageBlobLogs'
+  t: 'Bulk blob reads over SAS token'
+  h: 'storage: stcorpresearch01 · container: ml-datasets'
+  l: ['GetBlob x58,900 in 3 h, authType SAS, UA AzCopy/10, caller 40.x.x.x (the partner''s registered egress range), 5.9 TB read', 'SAS: user delegation key (Entra-backed), service blob, permissions r and l only, 24 h expiry, IP restricted to the partner /29, issued at 08:00 by the data-share job', 'the same partner pulled the same container weekly for 14 months; volume within 5% of the weekly baseline']
+  v: 0
+  x: T1530
+  c: storage-sas-bulk-read
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A research container served sixty thousand blob reads over a shared access signature to an external address range, about the same volume as last week.'
+  tell: 'Sixty thousand reads and terabytes out of a research container: loud, and expected from this partner. The SAS is a user delegation token, read and list only, 24 hours, pinned to the partner /29, issued by the share job, and volume sits within 5 percent of 14 months of baseline. Short, narrow, pinned.'

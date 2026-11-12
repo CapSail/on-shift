@@ -15,6 +15,10 @@ import { catchStats, skill } from './skill';
 import { incIntro } from './incidents';
 import { tutorial } from './tutorial';
 import { about } from './about';
+import { friends } from './friends';
+import { lbJoined } from './leaderboard';
+import { SHIFTY_LINES, shiftySvg } from './shifty';
+import { pick } from './util';
 import { APP_VERSION } from './config';
 import { canInstall, isIosSafari, isStandalone, promptInstall } from './pwa';
 
@@ -40,7 +44,8 @@ export function home(): void {
   const dly = S.daily[today()];
   const played = S.shifts > 0;
   app.innerHTML = `<div class="scr">
- <div class="hdr"><div class="logo px">ON<b>·</b>SHIFT</div><div style="margin-left:auto;display:flex;gap:6px">
+ <div class="hdr"><button class="mascot" id="shifty" aria-label="Poke Shifty">${shiftySvg('dead', 34)}</button><div class="logo px">ON<b>·</b>SHIFT</div><div style="margin-left:auto;display:flex;gap:6px">
+ <button class="chip" id="namechip">${S.name ? '👤 ' + esc(S.name) : 'set your name'}</button>
  <button class="chip" id="snd" aria-label="Sound">${S.sound ? '🔊' : '🔇'}</button></div></div>
  <div class="rank"><div class="t">RANK ${ri + 1}/${RANKS.length}</div><div class="n">${r[1]}</div>
  <div class="xpb"><i style="width:${pct}%"></i></div><div class="t" style="margin-top:6px">${S.xp} XP${nx ? ' · ' + (nx[0] - S.xp) + ' to ' + nx[1] : ' · max rank'} · <i>${r[2]}</i></div></div>
@@ -54,6 +59,7 @@ export function home(): void {
   <button class="tile" id="ride" style="--c:var(--cy)"><span class="k">Ride mode</span><span class="v">Ears only</span><small>earbud buttons answer</small></button>
   <button class="tile" id="skill" style="--c:var(--grn)"><span class="k">Skill report</span><span class="v">${S.log.length ? catchStats().line : 'No data yet'}</span><small>weak spots + drills</small></button>
  </div>
+ <button class="big alt" id="friends"><span class="px" style="font-size:12px">FRIENDS</span><small>${lbJoined() ? 'Leaderboard · everyone\'s stats' : 'Set your name · the leaderboard'}</small></button>
  <div class="sec">Incidents · story mode</div>
  ${D.inc.map((i, ix) => {
     const c = crewById[i.g], st = S.inc[i.id];
@@ -70,6 +76,9 @@ export function home(): void {
   $('#ride').onclick = () => go(ride);
   $('#skill').onclick = () => go(skill);
   $('#about').onclick = () => go(about);
+  $('#friends').onclick = () => go(friends);
+  $('#namechip').onclick = () => go(friends);
+  $('#shifty').onclick = () => toast('👻 ' + pick(SHIFTY_LINES));
   const inst = document.getElementById('install');
   if (inst) inst.onclick = () => void promptInstall();
   $('#snd').onclick = () => { S.sound = !S.sound; save(); home(); };

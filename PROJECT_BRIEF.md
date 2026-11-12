@@ -55,7 +55,7 @@ Incidents add `contain: {at, ask, o, a, why}` (shuffle options at runtime; the s
 - **Friends-only.** Not public, not in app stores (for now).
 - **Leaderboard is a must.** It can ship after hosting, but it's required (see Phase 4).
 - **Everyone sees the full roster** on the leaderboard immediately, including friends with 0 XP.
-- **Report link required** on every alert ("this answer's wrong").
+- **Reporting:** friends tell Jordan at work; every answer shows its alert id (the owner dropped the report button and the e-mail on 2026-11-11).
 - **Testing order:** Jordan on Android first, then a friend on iPhone.
 - **Hosting:** free static hosting. GitHub Pages via Actions is the default; Jordan's GitHub account and conventions apply.
 - **Keep the voice.** Irreverent, meme-y, accurate. Dale the night-shift SOC manager stays.

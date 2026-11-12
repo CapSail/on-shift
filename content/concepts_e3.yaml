@@ -1,0 +1,10 @@
+# ON SHIFT concepts for drop 3, batch 3 (network, email and perimeter real-world cases). id, rule (<=15 words), tac (ATT&CK tactic), d (domain)
+- {id: vpn-session-ip-change, rule: 'Same VPN session from a second IP is roaming only if device and posture persist.', tac: Credential Access, d: network}
+- {id: edge-appliance-integrity, rule: 'Edge exploit probes are noise; unmanifested file changes plus appliance egress are compromise.', tac: Initial Access, d: network}
+- {id: rpc-coercion-source, rule: 'Spooler RPC is printing against print servers and coercion when aimed at domain controllers.', tac: Credential Access, d: network}
+- {id: exchange-export-target, rule: 'Exports into web roots as .aspx are shells; PSTs to file shares are discovery.', tac: Persistence, d: email}
+- {id: run-dialog-powershell, rule: 'Run-box PowerShell pulling from the internet is ClickFix; signed internal scripts are support.', tac: Execution, d: endpoint}
+- {id: wscript-js-origin, rule: 'wscript on a browser-downloaded zip is Gootloader; wscript on admin logon scripts is plumbing.', tac: Execution, d: endpoint}
+- {id: redirector-link-destination, rule: 'Judge redirector links by final destination and cloaking, not by the trusted domain in front.', tac: Initial Access, d: email}
+- {id: encrypted-archive-delivery, rule: 'Password in the same mail defeats scanning; out-of-band passwords and history mark partners.', tac: Initial Access, d: email}
+- {id: tls-fingerprint-context, rule: 'JA3 and JARM hits need process, cadence and destination; Go agents share fingerprints with implants.', tac: Command and Control, d: network}

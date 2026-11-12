@@ -8,6 +8,8 @@ interface InstallEvent extends Event {
 }
 
 let deferred: InstallEvent | null = null;
+let installedNow = false;
+export const justInstalled = (): boolean => installedNow;
 
 export const isStandalone = (): boolean =>
   matchMedia('(display-mode: standalone)').matches || (navigator as unknown as { standalone?: boolean }).standalone === true;
@@ -23,7 +25,8 @@ export async function promptInstall(): Promise<void> {
   const d = deferred;
   deferred = null;
   await d.prompt();
-  await d.userChoice.catch(() => undefined);
+  const choice = await d.userChoice.catch(() => undefined);
+  if (choice?.outcome === 'accepted') installedNow = true;
   routes.home();
 }
 
@@ -53,9 +56,9 @@ export function initPwa(): void {
   addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferred = e as InstallEvent;
-    if (document.querySelector('.rank')) routes.home(); // the home screen is showing: add the install button
+    if (document.querySelector('.rank, .gate')) routes.home(); // the home or install screen is showing: add the install button
   });
-  addEventListener('appinstalled', () => { deferred = null; });
+  addEventListener('appinstalled', () => { deferred = null; installedNow = true; if (document.querySelector('.gate')) routes.home(); });
 
   if (!('serviceWorker' in navigator) || !import.meta.env.PROD) return;
   navigator.serviceWorker.register('./sw.js').then((reg) => {

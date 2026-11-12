@@ -44,7 +44,13 @@ Bump `content_version` in `content/meta.yaml` on every content drop. The shared 
 
 - **Installable PWA.** `public/manifest.webmanifest`, icons in `public/icons/` (regenerate with `npm run icons`), and a generated service worker (`scripts/sw-template.js` -> `dist/sw.js`) that precaches the whole app, content and fonts, so a full shift plays in airplane mode. A new build gets a new cache; the player sees "New version ready, tap to reload" and nothing swaps mid-shift.
 - **Hosting.** `.github/workflows/ci.yml` validates, builds and tests every push and pull request; pushes to `main` also deploy `dist/` to GitHub Pages (Pages source: GitHub Actions). If Actions is unavailable on the account, `npm run deploy` builds locally and publishes `dist/` to the `gh-pages` branch instead (Pages source: deploy from branch `gh-pages`). The build uses relative paths, so it works under `/on-shift/`.
-- **Report link.** Every answer shows "Report this answer", a prefilled GitHub issue (`.github/ISSUE_TEMPLATE/report.md`). To add an e-mail fallback for people without GitHub, set `REPORT_EMAIL` in `src/config.ts` (it is public once set).
+- **Reporting.** No report button (owner's call): every answer shows its alert id so a friend can say "y45 looks wrong" at work.
 - **Credits.** The About screen carries the MITRE ATT&CK attribution and trademark note, the "fictional, not affiliated with any employer or client" disclaimer and the font licences.
 - **Days and the daily.** Calendar days are America/Chicago for everyone; the shared daily and weekly boss use only the alerts up to `daily_pool_drop`.
 - **iPhone.** Safari can erase a site's saved data after 7 days unused, so the home screen shows an "Add to Home Screen" prompt on iOS when the app is not installed, and the app asks the browser for persistent storage.
+
+## Friends, Shifty and the install gate
+
+- **Shifty** is the 16-bit night-shift ghost (`src/shifty.ts`, drawn from a pixel grid so the icons and every pose come from one definition; `npm run icons` renders the app icons from it).
+- **Install gate.** On a phone that has not installed the app, the first screen is "Make it an app" with exact steps for Android and iPhone (and for in-app browsers). A site cannot force an install, so the gate shows on every visit until installed, with a small "play in the browser anyway" that lasts one session.
+- **Leaderboard.** Name, join-by-code and all boards are built; it needs a Supabase project, see `docs/leaderboard-setup.md` (schema in `supabase/schema.sql`).

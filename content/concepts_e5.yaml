@@ -1,0 +1,10 @@
+# ON SHIFT concepts for drop 3, batch 5. id, rule (<=15 words), tac (ATT&CK tactic), d (domain)
+- {id: veeam-cred-store, rule: 'Credential-store reads by the backup service itself are jobs; shells decrypting them are harvesting.', tac: Credential Access, d: endpoint}
+- {id: esxi-vm-process-kill, rule: 'Judge ESXi VM stops and disk rewrites by initiator and scope, not the command.', tac: Impact, d: linux}
+- {id: rclone-remote-config, rule: 'Judge rclone by binary, schedule and destination ownership, not by the sync itself.', tac: Exfiltration, d: endpoint}
+- {id: archive-staging, rule: 'Archives are records when scheduled and internal; password-protected staging followed by egress is theft.', tac: Collection, d: endpoint}
+- {id: departing-user-data, rule: 'Leaver file movement is handover inside the tenant and theft to personal sync.', tac: Exfiltration, d: cloud}
+- {id: hid-injection-vs-token, rule: 'Keyboard-class USB devices are tokens when they type one field, injection when they open shells.', tac: Initial Access, d: endpoint}
+- {id: network-implant-vs-scanner, rule: 'Sweeping devices are scanners when inventoried; uninventoried ones with silent tunnels out are implants.', tac: Initial Access, d: network}
+- {id: payroll-bank-change, rule: 'Judge bank-detail edits by who, from where, and whether the value truly changed.', tac: Impact, d: cloud}
+- {id: registrar-ns-change, rule: 'Nameserver moves are migrations when zones match and locks hold; hijacks alter records.', tac: Resource Development, d: cloud}

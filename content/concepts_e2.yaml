@@ -1,0 +1,10 @@
+# ON SHIFT concepts for drop 3, batch 2 (identity and cloud real-world pairs, y121-y140)
+- {id: aitm-session-ip-split, rule: 'One session from two networks is theft unless device id and client stay identical.', tac: Credential Access, d: identity}
+- {id: dormant-test-account-grant, rule: 'Judge test-account app grants by egress baseline and permission scope, not by tenant name.', tac: Initial Access, d: identity}
+- {id: post-reset-mfa-enroll, rule: 'A reset followed by new MFA enrollment is judged by device, network and identity proof.', tac: Persistence, d: identity}
+- {id: azure-vm-runcommand, rule: 'Run Command: judge caller history and script provenance, not the fact of execution.', tac: Execution, d: cloud}
+- {id: ssrf-metadata-probe, rule: 'Metadata-address requests are judged by response, IMDS version and who sent them.', tac: Credential Access, d: cloud}
+- {id: s3-ssec-overwrite, rule: 'SSE-C is judged by who writes, overwrite versus new keys, and lifecycle changes.', tac: Impact, d: cloud}
+- {id: saml-issuance-gap, rule: 'A federated sign-in needs a matching issuance event; check farm coverage before declaring forgery.', tac: Credential Access, d: identity}
+- {id: cloud-key-multiregion, rule: 'Multi-region activity is judged by principal type, API mix, recurrence and whether writes follow.', tac: Impact, d: cloud}
+- {id: storage-sas-bulk-read, rule: 'SAS bulk reads are judged by token scope, expiry, signer and caller baseline.', tac: Exfiltration, d: cloud}

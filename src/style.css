@@ -240,3 +240,29 @@ a{color:inherit}
 .upd{position:fixed;left:12px;right:12px;top:calc(var(--top) + 10px);z-index:80;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--yl);color:#000;font-weight:700;font-size:14px;padding:10px 12px;border-radius:14px}
 .upd button{background:#000;color:var(--yl);border-radius:10px;padding:8px 12px;font-weight:700}
 .note.mono{font-family:var(--mono);font-size:12px;color:var(--dim)}
+
+/* phase 3: Shifty the ghost + install gate */
+.mascot{display:inline-block;line-height:0;background:none;border:0;padding:0;cursor:pointer;flex:none}
+.mascot svg{image-rendering:pixelated;animation:shbob 3.2s ease-in-out infinite;filter:drop-shadow(0 0 8px #22d3ee55)}
+.mascot.big{display:block;margin:6px auto 8px;cursor:default}
+@keyframes shbob{50%{transform:translateY(-3px)}}
+.gate{padding-top:3vh;text-align:center}
+.gateh{font-size:20px;color:var(--grn);margin:14px 0 6px}
+.bubble{background:var(--p1);border:1px solid var(--ln);border-radius:16px;padding:12px 14px;font-size:14.5px;line-height:1.5;text-align:left;margin-top:6px}
+.steps{padding-left:20px;margin-top:8px;text-align:left}
+.steps li{font-size:15px;line-height:1.5;margin-top:8px}
+.center{text-align:center}
+
+/* friends / leaderboard */
+.row2{display:flex;gap:8px;align-items:center}
+input{font:inherit;color:var(--tx);background:var(--p2);border:1px solid var(--ln);border-radius:12px;padding:12px 14px;width:100%;font-size:16px}
+input:focus{outline:2px solid var(--cy);outline-offset:1px}
+#code{margin-bottom:10px}
+.lbrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-top:1px solid var(--ln)}
+.lbrow:first-child{border-top:0}
+.lbrow.me{background:#0c2a1a;border-radius:10px;padding-left:8px;padding-right:8px}
+.lbrow.dim{opacity:.55}
+.lbn{width:22px;text-align:center;color:var(--dim);font-weight:700;flex:none}
+.lbname{flex:1;min-width:0}.lbname b{display:block;font-size:15px}.lbname small{display:block;font-size:12px;color:var(--dim);word-break:break-word}
+.lbv{font-weight:700;white-space:nowrap}
+.chip{max-width:44vw;overflow:hidden;text-overflow:ellipsis}

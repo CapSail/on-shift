@@ -20,7 +20,7 @@ export const RANKS: [number, string, string][] = [
 ];
 
 const DEFAULTS: SaveData = {
-  ver: SAVE_VERSION, xp: 0, streak: 0, lastPlay: null, freeze: 0, cs: {}, seen: {}, log: [], dex: {}, intel: {}, inc: {}, boss: {},
+  ver: SAVE_VERSION, name: '', best: 0, wk: { id: 0, xp: 0 }, lb: { joined: false, dailySent: [] }, xp: 0, streak: 0, lastPlay: null, freeze: 0, cs: {}, seen: {}, log: [], dex: {}, intel: {}, inc: {}, boss: {},
   daily: {}, onb: false, sound: true, rolling: { 1: [], 2: [], 3: [] }, shifts: 0, dayGoal: {},
 };
 
@@ -36,6 +36,8 @@ function load(): SaveData {
   }
   const s = Object.assign({}, DEFAULTS, saved ?? {});
   // migrations go here, keyed on s.ver, e.g. if (s.ver < 3) { ...reshape...; }
+  s.lb = { ...DEFAULTS.lb, ...(s.lb ?? {}) };
+  s.wk = { ...DEFAULTS.wk, ...(s.wk ?? {}) };
   s.ver = SAVE_VERSION;
   return s;
 }

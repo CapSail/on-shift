@@ -1,0 +1,10 @@
+# ON SHIFT concepts for drop 3, part 1: Windows endpoint and AD intrusion tradecraft. id, rule (<=15 words), tac (ATT&CK tactic), d (domain)
+- {id: spooler-driver-load, rule: 'Unsigned spooler drivers pushed by users escalate privileges; signed packages from print admins are maintenance.', tac: Privilege Escalation, d: endpoint}
+- {id: netlogon-secure-channel, rule: 'Zero-credential Netlogon floods then DC password changes are takeover; single allowed legacy-device events are exceptions.', tac: Privilege Escalation, d: identity}
+- {id: samaccountname-rename, rule: 'Machine accounts renamed to DC names are noPac; renames keeping the dollar are imaging.', tac: Privilege Escalation, d: identity}
+- {id: exchange-pst-export-path, rule: 'Mailbox exports are discovery to a legal share and shell drops to a web directory.', tac: Persistence, d: email}
+- {id: java-service-child-shell, rule: 'Java services spawning shells are build agents with workspaces or exploited servers with outbound JNDI.', tac: Initial Access, d: endpoint}
+- {id: backup-credential-read, rule: 'Backup credential tables are read by the product service; scripted reads with decryption are theft.', tac: Credential Access, d: endpoint}
+- {id: staging-archive-scope, rule: 'Judge archives by source, size and output path: new shares to odd folders are staging.', tac: Collection, d: endpoint}
+- {id: ad-recon-sweep, rule: 'Directory enumeration is attack from user workstations, and audit from registered scanners and security hosts.', tac: Discovery, d: endpoint}
+- {id: mass-deploy-collection, rule: 'All-client deploys of new binaries are ransomware rails; staged pilot rings are patching.', tac: Execution, d: endpoint}

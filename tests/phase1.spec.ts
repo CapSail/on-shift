@@ -67,32 +67,19 @@ test('a full shift plays in airplane mode after the first visit', async ({ page,
   await context.setOffline(false);
 });
 
-test('every answer has a report link that opens a prefilled issue', async ({ page }) => {
+test('every answer shows its alert id, and there is no report button or e-mail', async ({ page }) => {
   await seed(page, { onb: true, shifts: 1 });
   await page.goto('/');
   await page.locator('#go').click();
   const a = await currentAlert(page);
-  await page.locator('#sure').click();
   await page.locator(`.acts button[data-c="${a.v ? 1 : 0}"]`).click();
   await page.locator('.pickable').waitFor();
   await page.locator(`.pickable [data-k="${a.k[0]}"]`).click();
-  const link = page.locator('.rep a.rlink');
-  await expect(link).toHaveText(/Report this answer/);
-  const href = (await link.getAttribute('href'))!;
-  const u = new URL(href);
-  expect(u.origin + u.pathname).toBe('https://github.com/CapSail/on-shift/issues/new');
-  expect(u.searchParams.get('template')).toBe('report.md');
-  expect(u.searchParams.get('title')).toBe('[report] ' + a.id);
-  const body = u.searchParams.get('body')!;
-  expect(body).toContain(a.id);
-  expect(body).toContain(a.v ? 'true positive' : 'benign');
-  expect(body).toContain('My call: ' + (a.v ? 'escalate' : 'close') + ' (sure)');
-  expect(body).toMatch(/App \S+ \| content v2/);
-  const mail = page.locator('.rep a[href^="mailto:"]');
-  await expect(mail, 'e-mail fallback for people without GitHub').toHaveAttribute('href', /^mailto:jrsjordans@gmail\.com\?subject=/);
-  await expect(page.locator('.rep')).toContainText('jrsjordans@gmail.com');
-  await expect(link).toHaveAttribute('target', '_blank');
-  await expect(link).toHaveAttribute('rel', /noopener/);
+  await expect(page.locator('.rep')).toContainText(a.id);
+  await expect(page.locator('.rep')).toContainText('Tell Jordan');
+  await expect(page.locator('a[href^="mailto:"], a[href*="/issues"]'), 'no report link or e-mail anywhere on the answer').toHaveCount(0);
+  const html = await page.content();
+  expect(html).not.toContain('@gmail.com');
 });
 
 test('the about screen carries the MITRE credit, the fictional disclaimer and font licences', async ({ page }) => {
@@ -104,7 +91,7 @@ test('the about screen carries the MITRE credit, the fictional disclaimer and fo
   expect(text).toContain('MITRE ATT&CK® is a registered trademark of The MITRE Corporation');
   expect(text).toContain('Nothing here is affiliated with, derived from, or based on any employer or client');
   expect(text).toContain('SIL Open Font License');
-  expect(text).toMatch(/content v2/);
+  expect(text).toMatch(/content v\d+/);
   await expect(page.locator('a[href="https://attack.mitre.org/"]')).toHaveCount(1);
   await page.screenshot({ path: 'tests/shots/20_about.png', fullPage: true });
   await page.locator('#q').click();

