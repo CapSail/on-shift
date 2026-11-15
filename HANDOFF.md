@@ -15,6 +15,11 @@ What changed
 - Build: `npm run content` / `validate` run the SOC bank, the AI bank and the quip lint. Tests: Playwright projects `soc`, `ai` (SHIFTY-1's suite, every card answered through the UI) and `shell` (switch, deep links, carry-over from a save written by the real standalone build, offline, the forwarder).
 - Fixed in passing: the SOC test "no report button or e-mail" failed whenever the random alert contained a made-up gmail address; it now checks the report line itself.
 
+Status at the end of 2026-11-15
+- Gate passed locally on the final build: `npm run validate` (SOC bank, AI bank, quips) and `npm test` = 69/69 (soc 37, ai 12 with all 905 cards, shell 20). An independent review found three style leaks between the shifts and a few edge cases; all fixed, with tests.
+- Committed to `main` (5e5e01b) and **deployed**: https://capsail.github.io/on-shift/ serves the merged app (checked live: `#shifty-1` opens the AI school). Not yet checked on Cap's phone with his real save.
+- Deploying: this repo's Pages site comes from the **`gh-pages` branch**, so a push to `main` deploys nothing. Run `npm run deploy` (builds, then force-pushes `dist/` to `gh-pages`). The Actions workflow in `.github/` does not run here; the tests are the local `npm test`.
+
 ## Still to do: forward the old link (needs Cap's OK in chat)
 
 Everything is prepared in `cutover/` (the page, its service worker, the exact steps in `cutover/README.md`) and tested by `tests/shell/forward.spec.ts`. The `shifty_1` folder and the CapSail/shifty-1 repo have **not** been touched. After the forward they stay as the archive; never delete them without Cap's say-so.
