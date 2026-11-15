@@ -3,7 +3,7 @@
  * schema checks pass. Returns hard errors (fail the build), warnings (review
  * them) and info lines (stats worth glancing at on every content drop).
  */
-import type { Alert, Incident } from '../src/types.ts';
+import type { Alert, Incident } from '../src/soc/types.ts';
 
 export interface LintResult { errors: string[]; warnings: string[]; info: string[] }
 

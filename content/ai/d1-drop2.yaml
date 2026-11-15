@@ -1,0 +1,1944 @@
+# Domain 1 content drop 2: extra cards and facts for existing D1 concepts.
+# Ids are stable forever: never renumber or reuse a card or fact id.
+
+cards:
+  # ------------------------------------------------ ai-ml-dl-genai-agentic
+  - id: d1-201
+    c: ai-ml-dl-genai-agentic
+    kind: order
+    diff: 1
+    pre: true
+    q: 'Order these fields from the broadest to the most specific.'
+    steps:
+      - 'Artificial intelligence'
+      - 'Machine learning'
+      - 'Deep learning'
+      - 'Generative AI'
+    why: 'AI is the umbrella. ML is AI that learns from data, deep learning is ML with multi-layer neural networks, and GenAI uses deep models to create new content.'
+
+  - id: d1-202
+    c: ai-ml-dl-genai-agentic
+    kind: mcq
+    diff: 2
+    q: 'A hospital wants software that examines X-ray images and highlights possible fractures for a radiologist. Which combination BEST describes this solution?'
+    o:
+      - 'Computer vision built on deep learning'
+      - 'NLP built on reinforcement learning'
+      - 'Speech recognition built on clustering'
+      - 'Generative AI built on hand-written rules'
+    a: 0
+    why: 'Interpreting images is computer vision, and modern image models are deep neural networks. NLP handles language, speech recognition handles audio, and nothing here needs new content generated.'
+
+  - id: d1-203
+    c: ai-ml-dl-genai-agentic
+    kind: mcq
+    diff: 2
+    q: 'A bank''s assistant answers questions about fees but cannot act. The bank wants it to check a balance, open a dispute ticket and send a confirmation email on its own. What is the bank moving toward?'
+    o:
+      - 'Supervised learning'
+      - 'Agentic AI'
+      - 'Computer vision'
+      - 'Batch inference'
+    a: 1
+    why: 'Planning several steps and acting through other systems is agentic AI. An agent uses a foundation model to decide which tools to call, instead of only answering.'
+
+  - id: d1-204
+    c: ai-ml-dl-genai-agentic
+    kind: multi
+    diff: 2
+    q: 'A team is new to large language models (LLMs). Which statements about LLMs are correct? (Choose TWO.)'
+    o:
+      - 'They are deep learning models built on neural networks'
+      - 'They generate new text, so they are a form of GenAI'
+      - 'They are rule sets written by hand with no training'
+      - 'They always return the same answer to the same prompt'
+      - 'They only work on structured, tabular data'
+    a: [0, 1]
+    why: 'LLMs are large neural networks trained on vast text, and they generate content, which makes them GenAI. Their output is nondeterministic, and they handle unstructured text.'
+
+  - id: d1-205
+    c: ai-ml-dl-genai-agentic
+    kind: mcq
+    diff: 3
+    q: 'A product manager lists four claims about deep learning. Which claim is NOT correct?'
+    o:
+      - 'It uses neural networks with many layers'
+      - 'It is a subset of machine learning'
+      - 'It needs no training data to learn'
+      - 'It underpins most modern GenAI models'
+    a: 2
+    why: 'Deep learning learns its weights from data, usually a lot of it. The other three claims are true: it is multi-layer neural networks, part of ML, and the basis of today''s GenAI.'
+
+  - id: d1-206
+    c: ai-ml-dl-genai-agentic
+    kind: tf
+    diff: 1
+    s: 'An AI agent usually relies on a foundation model to reason about which tool or action to use next.'
+    v: true
+    why: 'Agentic AI wraps a foundation model with tools, memory and a goal. The model does the reasoning and planning; the tools carry out the actions.'
+
+  - id: d1-207
+    c: ai-ml-dl-genai-agentic
+    kind: hallu
+    diff: 2
+    s:
+      - 'Machine learning learns patterns from data.'
+      - 'Neural networks are layers of connected nodes.'
+      - 'Computer vision is the branch of AI that interprets images.'
+      - 'Natural language processing only works on images of handwriting.'
+    bad: 3
+    o:
+      - 'NLP works with human language, such as emails, reviews and chat messages.'
+      - 'NLP only works with numbers stored in spreadsheets.'
+      - 'NLP only works with sensor readings over time.'
+    a: 0
+    why: 'Natural language processing understands and generates human language, mostly as text. Reading images is computer vision. I was 97 percent confident, which is how you know.'
+
+  - id: d1-208
+    c: ai-ml-dl-genai-agentic
+    kind: multi
+    diff: 3
+    q: 'A company lists five systems it runs. Which are examples of generative AI? (Choose TWO.)'
+    o:
+      - 'A model that writes product descriptions from bullet points'
+      - 'A model that creates images from a text prompt'
+      - 'A model that labels emails as spam or not spam'
+      - 'A model that groups customers into segments'
+      - 'A model that predicts next month''s revenue'
+    a: [0, 1]
+    why: 'GenAI creates new content, like text or images. Spam labeling is classification, segmentation is clustering, and revenue prediction is regression: all predictive ML, not generative.'
+
+  # ------------------------------------------------ model-training-inference
+  - id: d1-209
+    c: model-training-inference
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A grocery chain has a trained demand model. Each evening it sends every store''s latest sales to the model to get tomorrow''s forecast. What is this step called?'
+    o:
+      - 'Training'
+      - 'Feature engineering'
+      - 'Inference'
+      - 'Hyperparameter tuning'
+    a: 2
+    why: 'Sending new data to a finished model and getting predictions back is inference. Training built the model earlier; nothing is being learned in this step.'
+
+  - id: d1-210
+    c: model-training-inference
+    kind: mcq
+    diff: 2
+    q: 'A team compares the cost of one training run with the cost of one prediction. Which statement is MOST accurate?'
+    o:
+      - 'One training run usually costs far more than one prediction'
+      - 'One prediction usually costs far more than a training run'
+      - 'Training and inference always cost exactly the same'
+      - 'Inference has no cost once training ends'
+    a: 0
+    why: 'Training processes the whole dataset, often many times, so one run is expensive. A single prediction is cheap, though serving millions of them still adds up.'
+
+  - id: d1-211
+    c: model-training-inference
+    kind: multi
+    diff: 2
+    q: 'Which are model parameters learned during training, rather than settings chosen before training? (Choose TWO.)'
+    o:
+      - 'The weights in a neural network'
+      - 'The coefficients in a linear regression'
+      - 'The learning rate'
+      - 'The number of training epochs'
+      - 'The batch size'
+    a: [0, 1]
+    why: 'Weights and coefficients are learned from the data, and they make up the model. Learning rate, epochs and batch size are hyperparameters you set before training.'
+
+  - id: d1-212
+    c: model-training-inference
+    kind: mcq
+    diff: 3
+    q: 'A fintech trains a fraud model once a month in a few hours. The model then scores hundreds of transactions per second, all day, every day. Over a year, which statement is MOST likely true?'
+    o:
+      - 'Total inference cost can exceed training cost'
+      - 'Training always dominates total cost in every project'
+      - 'Inference is free once the model is trained'
+      - 'Both cost the same because they use one model'
+    a: 0
+    why: 'One prediction is cheap, but constant high-volume serving runs around the clock. Over time, inference can become the larger share of the bill, so serving choices matter.'
+
+  - id: d1-213
+    c: model-training-inference
+    kind: tf
+    diff: 1
+    s: 'Algorithm and model mean the same thing, so the two words can be used interchangeably.'
+    v: false
+    why: 'The algorithm is the learning procedure. The model is what training produces: the learned parameters you deploy. Same recipe, different cakes.'
+
+  - id: d1-214
+    c: model-training-inference
+    kind: hallu
+    diff: 2
+    s:
+      - 'Training finds patterns in historical data.'
+      - 'A trained model can be saved and deployed.'
+      - 'A neural network is one kind of model architecture.'
+      - 'Inference needs the full training dataset on every request.'
+    bad: 3
+    o:
+      - 'Inference needs only the trained model and the new input.'
+      - 'Inference needs the dataset plus a fresh training run.'
+      - 'Inference needs a correct label for every new request.'
+    a: 0
+    why: 'The model already holds what it learned. At inference time it only needs the new input, which is why predictions are fast and cheap compared with training.'
+
+  - id: d1-215
+    c: model-training-inference
+    kind: duel
+    diff: 2
+    q: 'A model serves good predictions. A new hire suggests retraining it from scratch before every single request "to keep it fresh". Which approach is better?'
+    A: 'Retrain the model from scratch before each request so every prediction uses the newest possible weights.'
+    B: 'Serve predictions from the deployed model and retrain on a schedule, or when monitoring shows quality dropping.'
+    a: 1
+    why: 'Training is slow and costly; inference should be fast. Retraining belongs on a schedule or a drift trigger, not inside every request.'
+
+  - id: d1-216
+    c: model-training-inference
+    kind: mcq
+    diff: 2
+    q: 'During training, a neural network''s predictions are compared with the correct answers. What does training adjust to reduce the error?'
+    o:
+      - 'The number of input records'
+      - 'The labels in the dataset'
+      - 'The endpoint instance type'
+      - 'The weights between the nodes'
+    a: 3
+    why: 'Training repeatedly nudges the network''s weights to shrink the gap between predictions and labels. The data, labels and hosting hardware are not what the model learns.'
+
+  # ------------------------------------------------ fit-bias-fairness
+  - id: d1-217
+    c: fit-bias-fairness
+    kind: mcq
+    diff: 2
+    q: 'A model scores 72 percent on training data and 71 percent on validation data. The business needs 90 percent. Which diagnosis and fix is MOST likely right?'
+    o:
+      - 'Underfitting; use a richer model or better features'
+      - 'Overfitting; simplify the model and add regularization'
+      - 'Data drift; retrain the model on newer production data'
+      - 'Overfitting; remove most of the validation data'
+    a: 0
+    why: 'Low, similar scores on both sets mean the model is too simple to capture the pattern. Overfitting would show a high training score with a much lower validation score.'
+
+  - id: d1-218
+    c: fit-bias-fairness
+    kind: multi
+    diff: 2
+    q: 'A model has 98 percent training accuracy but 70 percent accuracy on new data. Which actions can help reduce this problem? (Choose TWO.)'
+    o:
+      - 'Add more diverse training data'
+      - 'Use regularization or a simpler model'
+      - 'Train for many more epochs'
+      - 'Add more features from the same small dataset'
+      - 'Evaluate only on the training data'
+    a: [0, 1]
+    why: 'This is overfitting. More varied data and regularization or a simpler model help it generalize. More epochs and more features usually make memorizing worse, and training-only evaluation hides the problem.'
+
+  - id: d1-219
+    c: fit-bias-fairness
+    kind: mcq
+    diff: 3
+    q: 'A hiring model was trained on 10 years of past hiring decisions. It ranks equally qualified candidates of one gender lower. What is the MOST likely root cause?'
+    o:
+      - 'Underfitting from too few training epochs'
+      - 'Historical bias in the training labels'
+      - 'Using real-time instead of batch inference'
+      - 'A learning rate that was set too high'
+    a: 1
+    why: 'If past human decisions were biased, the labels teach the model that bias. The fix starts with the data and labels, not with epochs, learning rate or inference mode.'
+
+  - id: d1-220
+    c: fit-bias-fairness
+    kind: mcq
+    diff: 2
+    q: 'A company wants an AWS tool to measure bias in its training data and explain which features drive its model''s predictions. Which should it use?'
+    o:
+      - 'Amazon SageMaker Ground Truth'
+      - 'Amazon Comprehend'
+      - 'Amazon SageMaker Clarify'
+      - 'Amazon SageMaker Feature Store'
+    a: 2
+    why: 'SageMaker Clarify detects bias in data and models and explains predictions with feature attributions. Ground Truth labels data, Feature Store stores features, and Comprehend analyzes text.'
+
+  - id: d1-221
+    c: fit-bias-fairness
+    kind: tf
+    diff: 3
+    s: 'A model can still be biased by gender even with no gender column, because features like job title can act as proxies.'
+    v: true
+    why: 'Dropping a sensitive column does not guarantee fairness. Correlated features can carry the same signal, so you still need to check results for each group.'
+
+  - id: d1-222
+    c: fit-bias-fairness
+    kind: hallu
+    diff: 3
+    s:
+      - 'High variance usually shows up as overfitting.'
+      - 'High bias usually shows up as underfitting.'
+      - 'Training for more epochs always fixes overfitting.'
+      - 'Regularization can help a model generalize.'
+    bad: 2
+    o:
+      - 'More epochs can worsen overfitting; stopping early often helps instead.'
+      - 'More epochs always fix underfitting but never affect overfitting.'
+      - 'Overfitting can only be fixed by deleting the validation data.'
+    a: 0
+    why: 'The longer a model trains on the same data, the more it can memorize noise. Early stopping, regularization and more varied data are the usual fixes for overfitting.'
+
+  - id: d1-223
+    c: fit-bias-fairness
+    kind: match
+    diff: 2
+    q: 'Match each symptom to the diagnosis.'
+    pairs:
+      - ['Strong on training data, weak on validation data', 'Overfitting']
+      - ['Weak on both training and validation data', 'Underfitting']
+      - ['Similar, strong results on both data sets', 'Good fit']
+      - ['Accurate overall but far worse for one age group', 'Unfair bias']
+    why: 'The train-versus-validation gap shows overfitting, low scores everywhere show underfitting, and close strong scores mean a good fit. A subgroup that fares much worse points to bias.'
+
+  - id: d1-224
+    c: fit-bias-fairness
+    kind: multi
+    diff: 2
+    q: 'Which statements about bias and fairness in ML are correct? (Choose TWO.)'
+    o:
+      - 'Bias can come from past human decisions captured in labels'
+      - 'Unrepresentative training data can lead to biased predictions'
+      - 'A very large dataset is automatically free of bias'
+      - 'Fairness checks are only needed for generative AI'
+      - 'Fixing overfitting also guarantees a fair model'
+    a: [0, 1]
+    why: 'Biased labels and skewed samples are the classic sources of unfair models. Size alone does not remove bias, fairness applies to every model type, and good fit is not the same as fairness.'
+
+  # ------------------------------------------------ inference-types
+  - id: d1-225
+    c: inference-types
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A mobile game wants to personalize the store screen the instant a player opens it. Traffic is steady all day. Which inference option fits BEST?'
+    o:
+      - 'Batch inference'
+      - 'Asynchronous inference'
+      - 'Real-time inference'
+      - 'Serverless inference'
+    a: 2
+    why: 'An instant answer with steady traffic calls for an always-on real-time endpoint. Batch and async return results later, and serverless can add cold-start delays.'
+
+  - id: d1-226
+    c: inference-types
+    kind: mcq
+    diff: 3
+    q: 'A tax-prep startup gets heavy model traffic in March and April and almost none the rest of the year. It can tolerate an occasional short startup delay. Which option has the LEAST cost and operational overhead?'
+    o:
+      - 'Serverless inference'
+      - 'Real-time inference on dedicated instances'
+      - 'A nightly batch transform job'
+      - 'Asynchronous inference on a large instance'
+    a: 0
+    why: 'Serverless inference scales with demand, down to nothing when idle, and there are no instances to manage. Dedicated real-time instances would sit idle for ten months, and batch cannot answer users on demand.'
+
+  - id: d1-227
+    c: inference-types
+    kind: multi
+    diff: 1
+    q: 'Which characteristics point to batch inference rather than real-time inference? (Choose TWO.)'
+    o:
+      - 'Predictions are needed for a whole dataset at once'
+      - 'Results are not needed immediately'
+      - 'Each user waits on screen for an answer'
+      - 'Requests arrive one at a time all day'
+      - 'Latency must be well under one second'
+    a: [0, 1]
+    why: 'Batch scores many records together when nobody is waiting. Users waiting on screen, steady single requests and tight latency all point to a real-time endpoint.'
+
+  - id: d1-228
+    c: inference-types
+    kind: multi
+    diff: 3
+    q: 'A company uses Amazon SageMaker AI asynchronous inference. Which statements are correct? (Choose TWO.)'
+    o:
+      - 'Incoming requests are queued and processed as capacity allows'
+      - 'It suits large payloads and long processing times'
+      - 'The client must hold the connection open until the result returns'
+      - 'It can only score an entire dataset in one scheduled job'
+      - 'It needs a new training job for each request'
+    a: [0, 1]
+    why: 'Async inference queues requests and writes results to Amazon S3 when done, so clients do not wait on an open connection. Scoring a whole stored dataset in one job is batch transform.'
+
+  - id: d1-229
+    c: inference-types
+    kind: tf
+    diff: 2
+    s: 'Batch inference keeps a persistent endpoint running around the clock so it can score a record at any moment.'
+    v: false
+    why: 'Batch inference spins up compute for the job, scores the dataset offline and then stops. An always-on endpoint describes real-time inference.'
+
+  - id: d1-230
+    c: inference-types
+    kind: hallu
+    diff: 2
+    s:
+      - 'Real-time inference suits a fraud check at checkout.'
+      - 'Batch inference suits nightly scoring of every customer.'
+      - 'Asynchronous inference is best when each user needs an answer in milliseconds.'
+      - 'Serverless inference can have a cold start after idle time.'
+    bad: 2
+    o:
+      - 'Asynchronous inference suits large, slow requests whose results can arrive later.'
+      - 'Asynchronous inference only scores whole datasets once a month.'
+      - 'Asynchronous inference runs with no compute at all.'
+    a: 0
+    why: 'Async means the answer comes back later, which is great for big, slow jobs and wrong for millisecond responses. Millisecond answers need a real-time endpoint.'
+
+  - id: d1-231
+    c: inference-types
+    kind: duel
+    diff: 3
+    q: 'A ride-share app must show a fare estimate as soon as a rider enters a destination, with thousands of requests per minute all day. Which design is better?'
+    A: 'Host the model on a real-time endpoint with auto scaling.'
+    B: 'Run a batch transform job every hour and show the cached results.'
+    a: 0
+    why: 'Each fare depends on a destination nobody knew an hour ago, and the rider is waiting. That needs a low-latency real-time endpoint; batch results would be stale or missing.'
+
+  - id: d1-232
+    c: inference-types
+    kind: mcq
+    diff: 1
+    q: 'Which Amazon SageMaker AI inference option means you choose no instance types at all, with capacity scaling to match incoming requests?'
+    o:
+      - 'Real-time inference'
+      - 'Serverless inference'
+      - 'Batch transform'
+      - 'Asynchronous inference'
+    a: 1
+    why: 'With serverless inference you set memory and concurrency, and AWS provisions and scales the compute. Real-time, async and batch transform all run on instance types you pick.'
+
+  # ------------------------------------------------ data-types
+  - id: d1-233
+    c: data-types
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A team tags 10,000 X-ray images as "fracture" or "no fracture" to train a model. What has the team created?'
+    o:
+      - 'Unlabeled tabular data'
+      - 'Labeled image data'
+      - 'Time-series text data'
+      - 'Structured graph data'
+    a: 1
+    why: 'Each image now carries its correct answer, which makes it labeled data, and the inputs are images. That is exactly what a supervised image classifier needs.'
+
+  - id: d1-234
+    c: data-types
+    kind: mcq
+    diff: 2
+    q: 'A company has 200,000 product photos and needs people to tag the objects in each one to create training data. Which AWS service helps manage this labeling work?'
+    o:
+      - 'Amazon Rekognition'
+      - 'Amazon SageMaker Feature Store'
+      - 'Amazon SageMaker Clarify'
+      - 'Amazon SageMaker Ground Truth'
+    a: 3
+    why: 'SageMaker Ground Truth manages labeling jobs with human workers and optional automated labeling. Rekognition analyzes images with its own models, Feature Store stores model inputs, and Clarify checks bias.'
+
+  - id: d1-235
+    c: data-types
+    kind: multi
+    diff: 1
+    q: 'Which of these datasets are time-series data? (Choose TWO.)'
+    o:
+      - 'Hourly electricity use per building for three years'
+      - 'Daily closing price of a stock for a decade'
+      - 'A folder of customer profile photos'
+      - 'A list of product names and colors'
+      - 'A collection of support emails'
+    a: [0, 1]
+    why: 'Readings taken at regular time steps, where order matters, are time series. Photos, product lists and emails have no meaningful time order.'
+
+  - id: d1-236
+    c: data-types
+    kind: mcq
+    diff: 2
+    q: 'A clinic wants to train a model, but privacy rules restrict use of real patient records. What type of data could it generate to mimic the statistics of real records?'
+    o:
+      - 'Time-series data'
+      - 'Synthetic data'
+      - 'Unlabeled data'
+      - 'Streaming data'
+    a: 1
+    why: 'Synthetic data is artificially generated to resemble the patterns of real data without exposing real people. The other options describe data properties, not a privacy-safe substitute.'
+
+  - id: d1-237
+    c: data-types
+    kind: tf
+    diff: 2
+    s: 'Images and free text cannot be used for machine learning until someone converts them by hand into rows and columns.'
+    v: false
+    why: 'Deep learning models learn directly from raw unstructured data like images, text and audio. Hand-building a table is not required.'
+
+  - id: d1-238
+    c: data-types
+    kind: hallu
+    diff: 2
+    s:
+      - 'Tabular data is organized in rows and columns.'
+      - 'Time-series data is ordered by time.'
+      - 'Labeled data is usually cheaper to get than unlabeled data.'
+      - 'Audio recordings are unstructured data.'
+    bad: 2
+    o:
+      - 'Labeling takes time and money, so labeled data is usually scarcer and costlier.'
+      - 'Labeled data is free because the model labels it during inference.'
+      - 'Labeled and unlabeled data always cost exactly the same.'
+    a: 0
+    why: 'Someone, often an expert, must attach the right answer to each example. That effort makes labeled data harder to get than raw unlabeled data.'
+
+  - id: d1-239
+    c: data-types
+    kind: mcq
+    diff: 3
+    q: 'A retailer predicts weekly sales per store. It randomly shuffles all weekly rows before splitting into training and test sets, and test scores look unrealistically good. What is the MOST likely problem?'
+    o:
+      - 'Random splits leaked future weeks into training'
+      - 'Unstructured data cannot be split for testing'
+      - 'The task needed reinforcement learning instead'
+      - 'The model needed more features from the same weeks'
+    a: 0
+    why: 'With time-series data, a random split lets the model train on weeks after the ones it is tested on. Split by time instead: train on the past, test on the future.'
+
+  - id: d1-240
+    c: data-types
+    kind: match
+    diff: 2
+    q: 'Match each dataset to how structured it is.'
+    pairs:
+      - ['Customer records with the same fixed columns', 'Structured data']
+      - ['Recorded calls and photos of receipts', 'Unstructured data']
+      - ['JSON event logs whose fields vary by record', 'Semi-structured data']
+    why: 'A fixed schema is structured. Audio and images have no schema at all. JSON has keys and tags but no rigid schema, so it is semi-structured.'
+
+  # ------------------------------------------------ supervised-unsupervised-reinforcement
+  - id: d1-241
+    c: supervised-unsupervised-reinforcement
+    kind: multi
+    diff: 2
+    pre: true
+    q: 'Which tasks are examples of supervised learning? (Choose TWO.)'
+    o:
+      - 'Predicting house prices from past sales with known prices'
+      - 'Routing tickets using past tickets tagged by department'
+      - 'Grouping news articles by topic with no labels'
+      - 'Teaching a robot arm to grasp through rewards'
+      - 'Finding unusual patterns in unlabeled server logs'
+    a: [0, 1]
+    why: 'Both use historical examples with known answers, a price or a department, which is supervised. Unlabeled grouping and outlier hunting are unsupervised, and rewards mean reinforcement learning.'
+
+  - id: d1-242
+    c: supervised-unsupervised-reinforcement
+    kind: mcq
+    diff: 3
+    q: 'Which scenario is NOT an example of unsupervised learning?'
+    o:
+      - 'Segmenting shoppers by behavior with no labels'
+      - 'Predicting loan default from labeled past loans'
+      - 'Flagging unusual sensor readings with no labels'
+      - 'Reducing hundreds of features to a few for charts'
+    a: 1
+    why: 'Loans labeled as defaulted or repaid make this supervised classification. Unlabeled segmentation, unlabeled anomaly detection and dimensionality reduction are all unsupervised.'
+
+  - id: d1-243
+    c: supervised-unsupervised-reinforcement
+    kind: mcq
+    diff: 2
+    q: 'A research team rewards a simulated car for staying in its lane and penalizes it for collisions. Over millions of tries, the car improves. In reinforcement learning terms, what is the car''s control software?'
+    o:
+      - 'The label'
+      - 'The cluster'
+      - 'The agent'
+      - 'The feature'
+    a: 2
+    why: 'In reinforcement learning, the agent takes actions in an environment and learns from rewards and penalties. The simulator is the environment; there are no labels or clusters.'
+
+  - id: d1-244
+    c: supervised-unsupervised-reinforcement
+    kind: mcq
+    diff: 3
+    q: 'Large language models are first pre-trained on huge amounts of raw text that nobody labeled. Which approach makes this possible?'
+    o:
+      - 'Self-supervised next-word prediction'
+      - 'Reinforcement learning from game scores'
+      - 'Supervised learning on hand-labeled text'
+      - 'K-means clustering of documents'
+    a: 0
+    why: 'The text supplies its own targets: the model predicts the next or a hidden word and checks itself. That self-supervised setup needs no human labels, which is how pre-training scales.'
+
+  - id: d1-245
+    c: supervised-unsupervised-reinforcement
+    kind: tf
+    diff: 2
+    s: 'Reinforcement learning from human feedback uses people''s rankings of model answers to build a reward signal for improving the model.'
+    v: true
+    why: 'In RLHF, humans compare or rank responses, a reward model learns those preferences, and reinforcement learning tunes the model toward answers people prefer.'
+
+  - id: d1-246
+    c: supervised-unsupervised-reinforcement
+    kind: hallu
+    diff: 2
+    s:
+      - 'Supervised learning compares predictions with known labels.'
+      - 'Unsupervised learning can find clusters without labels.'
+      - 'Semi-supervised learning uses only fully labeled data.'
+      - 'Reinforcement learning uses rewards and penalties.'
+    bad: 2
+    o:
+      - 'Semi-supervised learning mixes a little labeled data with lots of unlabeled data.'
+      - 'Semi-supervised learning uses only rewards from an environment.'
+      - 'Semi-supervised learning uses no data at all.'
+    a: 0
+    why: 'Semi-supervised learning is the middle ground: a small labeled set guides learning from a much larger unlabeled set. Handy when labeling everything is too costly.'
+
+  - id: d1-247
+    c: supervised-unsupervised-reinforcement
+    kind: match
+    diff: 1
+    q: 'Match each learning type to the feedback it learns from.'
+    pairs:
+      - ['Supervised learning', 'Known correct labels']
+      - ['Unsupervised learning', 'No labels, only structure in the data']
+      - ['Reinforcement learning', 'Rewards and penalties for actions']
+    why: 'Labels guide supervised learning, unsupervised learning finds structure on its own, and reinforcement learning improves from reward signals.'
+
+  - id: d1-248
+    c: supervised-unsupervised-reinforcement
+    kind: multi
+    diff: 3
+    q: 'A bank has 2 million transactions, and only 1 percent are labeled fraud or legitimate. Which statements are correct? (Choose TWO.)'
+    o:
+      - 'Semi-supervised learning can use both labeled and unlabeled records'
+      - 'Unsupervised anomaly detection can flag unusual records without labels'
+      - 'Supervised learning cannot use the labeled 1 percent at all'
+      - 'Reinforcement learning is required whenever labels are scarce'
+      - 'Unlabeled records must be deleted before any training'
+    a: [0, 1]
+    why: 'Scarce labels suit semi-supervised learning, and anomaly detection works with no labels. The labeled slice is still usable, and reinforcement learning needs an environment with rewards, not just few labels.'
+
+  # ------------------------------------------------ ai-value-and-limits
+  - id: d1-249
+    c: ai-value-and-limits
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A bank reviews 2 million loan documents a year for missing fields, and 40 analysts spend most of their time on it. Which AI benefit is MOST relevant?'
+    o:
+      - 'Guaranteeing zero errors on every document'
+      - 'Scaling and automating high-volume work'
+      - 'Removing the need for any human oversight'
+      - 'Avoiding the need for any training data'
+    a: 1
+    why: 'High-volume, repetitive review is where AI scales and automates. AI does not guarantee zero errors, still benefits from human oversight, and needs data.'
+
+  - id: d1-250
+    c: ai-value-and-limits
+    kind: mcq
+    diff: 3
+    q: 'An executive at a retailer says, "We need AI." Which is the BEST first step before choosing any model?'
+    o:
+      - 'Define the problem and a success metric'
+      - 'Pick the largest foundation model available'
+      - 'Reserve GPU instances for training'
+      - 'Label every record in the data lake'
+    a: 0
+    why: 'Start with the business problem and how success will be measured. That decides whether ML fits at all, which data matters, and what to build. Hardware and labeling come later.'
+
+  - id: d1-251
+    c: ai-value-and-limits
+    kind: multi
+    diff: 2
+    q: 'Which situations suggest ML is NOT a good fit? (Choose TWO.)'
+    o:
+      - 'The result must follow an exact, known formula every time'
+      - 'Running the model would cost more than the value it adds'
+      - 'There are millions of records with complex patterns'
+      - 'The rules are too complex for people to write by hand'
+      - 'The task involves sorting free-text messages'
+    a: [0, 1]
+    why: 'Exact formulas belong in code, and a model that costs more than it returns fails the cost-benefit test. Complex patterns at scale and messy text are where ML shines.'
+
+  - id: d1-252
+    c: ai-value-and-limits
+    kind: mcq
+    diff: 2
+    q: 'A small bakery has 40 rows of sales history and wants a demand forecast. A consultant proposes a custom deep learning model. What is the MAIN concern?'
+    o:
+      - 'Too little data for the cost to pay off'
+      - 'Deep learning cannot predict numbers'
+      - 'Forecasts require reinforcement learning'
+      - 'Sales history is always unstructured'
+    a: 0
+    why: 'Deep models need lots of data, and the build and hosting costs would dwarf the benefit for a tiny bakery. A simple method or spreadsheet trend would do.'
+
+  - id: d1-253
+    c: ai-value-and-limits
+    kind: tf
+    diff: 2
+    s: 'Once an ML model is highly accurate, high-impact decisions such as loan denials no longer need any human review.'
+    v: false
+    why: 'ML predictions are probabilistic, so even a good model is sometimes wrong. High-impact decisions often keep a human in the loop to review, explain and correct outcomes.'
+
+  - id: d1-254
+    c: ai-value-and-limits
+    kind: hallu
+    diff: 2
+    s:
+      - 'AI can assist people by ranking cases for review.'
+      - 'AI can scale analysis to volumes people cannot handle.'
+      - 'A good ML model gives the exact right answer every time, like a calculator.'
+      - 'ML projects need quality data to deliver value.'
+    bad: 2
+    o:
+      - 'ML predictions are probabilistic and can be wrong, unlike a fixed formula.'
+      - 'ML returns random answers with no patterns at all.'
+      - 'ML only works when there is no data available.'
+    a: 0
+    why: 'Models estimate likely answers from patterns, so some predictions miss. When you need a guaranteed exact answer, a calculator beats me. Dale says that is most days.'
+
+  - id: d1-255
+    c: ai-value-and-limits
+    kind: duel
+    diff: 3
+    q: 'Dale wants to route 10,000 free-text support emails a day to the right team. Which approach is better?'
+    A: 'Write keyword if-then rules for every possible way a customer might phrase a request.'
+    B: 'Train a text classifier on past emails that agents already routed, and send low-confidence cases to a person.'
+    a: 1
+    why: 'Free text varies too much for hand-written rules to cover. Learning from labeled history scales, and a human check on low-confidence cases manages the risk of wrong guesses.'
+
+  - id: d1-256
+    c: ai-value-and-limits
+    kind: mcq
+    diff: 3
+    q: 'Which project is the STRONGEST candidate for ML rather than traditional code?'
+    o:
+      - 'Converting Celsius readings to Fahrenheit'
+      - 'Applying a fixed sales tax rate to each order total'
+      - 'Predicting machine failures from sensor history'
+      - 'Checking that passwords meet length rules'
+    a: 2
+    why: 'Failure prediction depends on subtle patterns in historical data, which is what ML learns. The other three are exact, known rules that plain code handles perfectly.'
+
+  # ------------------------------------------------ regression-classification-clustering
+  - id: d1-257
+    c: regression-classification-clustering
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'An airline wants to predict how many minutes each flight will be delayed. Which technique fits?'
+    o:
+      - 'Binary classification'
+      - 'Clustering'
+      - 'Multiclass classification'
+      - 'Regression'
+    a: 3
+    why: 'Minutes of delay is a continuous number, so this is regression. Classification would only say delayed or on time, or pick a delay bucket.'
+
+  - id: d1-258
+    c: regression-classification-clustering
+    kind: mcq
+    diff: 2
+    q: 'A support center wants to assign each ticket to one of eight departments, using past tickets that agents already routed. Which technique fits BEST?'
+    o:
+      - 'Multiclass classification'
+      - 'Binary classification'
+      - 'Linear regression'
+      - 'K-means clustering of past tickets'
+    a: 0
+    why: 'Eight possible categories with labeled history is multiclass classification. Binary means only two classes, regression predicts numbers, and k-means is for unlabeled grouping.'
+
+  - id: d1-259
+    c: regression-classification-clustering
+    kind: mcq
+    diff: 3
+    q: 'An insurer wants to predict whether each claim is fraudulent, and also how large each payout will be. Which pair of techniques fits?'
+    o:
+      - 'Regression for fraud, classification for payout'
+      - 'Classification for fraud, regression for payout'
+      - 'Clustering for fraud, clustering for payout'
+      - 'Regression for fraud and for payout'
+    a: 1
+    why: 'Fraud or not is a category, so classification. Payout amount is a number, so regression. The swapped option is the trap: always ask whether the target is a label or a number.'
+
+  - id: d1-260
+    c: regression-classification-clustering
+    kind: multi
+    diff: 2
+    q: 'Which problems are clustering problems? (Choose TWO.)'
+    o:
+      - 'Grouping news articles by similarity, with no topic labels'
+      - 'Segmenting customers by purchase behavior, with no labels'
+      - 'Predicting a customer''s exact annual spend'
+      - 'Marking X-rays normal or abnormal from labeled scans'
+      - 'Estimating delivery time in minutes'
+    a: [0, 1]
+    why: 'Grouping similar items without labels is clustering. Annual spend and delivery time are regression, and labeled normal-or-abnormal scans are classification.'
+
+  - id: d1-261
+    c: regression-classification-clustering
+    kind: tf
+    diff: 2
+    s: 'Despite its name, logistic regression is commonly used for classification problems with yes or no outcomes.'
+    v: true
+    why: 'Logistic regression outputs the probability of a class, then a threshold turns it into yes or no. It is a classic binary classification algorithm.'
+
+  - id: d1-262
+    c: regression-classification-clustering
+    kind: hallu
+    diff: 2
+    s:
+      - 'Predicting a temperature is a regression task.'
+      - 'K-means is a common clustering algorithm.'
+      - 'Binary classification chooses among three or more categories.'
+      - 'Classifiers often output a probability for each class.'
+    bad: 2
+    o:
+      - 'Binary classification chooses between exactly two categories.'
+      - 'Binary classification predicts a continuous number.'
+      - 'Binary classification groups records that have no labels.'
+    a: 0
+    why: 'Binary means two: spam or not, fraud or not. Three or more categories is multiclass classification.'
+
+  - id: d1-263
+    c: regression-classification-clustering
+    kind: match
+    diff: 2
+    q: 'Match each retail problem to the technique.'
+    pairs:
+      - ['Predict next quarter''s revenue in dollars', 'Regression']
+      - ['Tag each review as positive, neutral or negative', 'Multiclass classification']
+      - ['Decide whether a customer will churn, yes or no', 'Binary classification']
+      - ['Group stores with similar sales patterns, no labels', 'Clustering']
+    why: 'Dollars are a number, three sentiment labels are multiclass, yes or no is binary, and unlabeled grouping is clustering.'
+
+  - id: d1-264
+    c: regression-classification-clustering
+    kind: mcq
+    diff: 3
+    q: 'A marketing team has no customer labels. It first groups customers by behavior, names each group, and then trains a model to place new customers into those groups. Which sequence of techniques is this?'
+    o:
+      - 'Classification first, then clustering'
+      - 'Regression first, then clustering'
+      - 'Clustering first, then classification'
+      - 'Classification first, then regression'
+    a: 2
+    why: 'Discovering the groups without labels is clustering. Once each customer has a group name, those become labels, and assigning new customers is classification.'
+
+  # ------------------------------------------------ ai-real-world-applications
+  - id: d1-265
+    c: ai-real-world-applications
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A bank wants to flag card transactions that look unlike a customer''s normal spending, as they happen. Which application is this?'
+    o:
+      - 'Forecasting'
+      - 'Fraud detection'
+      - 'Recommendation'
+      - 'Speech recognition'
+    a: 1
+    why: 'Spotting transactions that break a customer''s usual pattern is fraud detection. Forecasting predicts future values, and recommendation suggests items.'
+
+  - id: d1-266
+    c: ai-real-world-applications
+    kind: mcq
+    diff: 2
+    q: 'A streaming service wants to show each viewer a "Because you watched" row of titles based on viewing history. Which AWS service is purpose-built for this?'
+    o:
+      - 'Amazon Comprehend'
+      - 'Amazon Rekognition'
+      - 'Amazon Personalize'
+      - 'Amazon Lex'
+    a: 2
+    why: 'Amazon Personalize builds recommendation models from user interaction data, with no ML expertise needed. Comprehend analyzes text, Rekognition analyzes images, and Lex builds chatbots.'
+
+  - id: d1-267
+    c: ai-real-world-applications
+    kind: mcq
+    diff: 2
+    q: 'An insurance firm wants to pull typed text, form fields and tables out of scanned claim forms. Which AWS service fits BEST?'
+    o:
+      - 'Amazon Textract'
+      - 'Amazon Rekognition'
+      - 'Amazon Comprehend'
+      - 'Amazon Transcribe'
+    a: 0
+    why: 'Amazon Textract extracts text, handwriting, forms and tables from documents. Rekognition focuses on objects and faces in images, Comprehend analyzes text you already have, and Transcribe handles audio.'
+
+  - id: d1-268
+    c: ai-real-world-applications
+    kind: multi
+    diff: 2
+    q: 'A manufacturer wants to spot surface defects in camera images of parts, and to predict next month''s demand for spare parts. Which applications apply? (Choose TWO.)'
+    o:
+      - 'Computer vision'
+      - 'Forecasting'
+      - 'Speech recognition'
+      - 'Recommendation system'
+      - 'Natural language processing'
+    a: [0, 1]
+    why: 'Defects in images are a computer vision job, and future demand from history is forecasting. Nothing here involves audio, item suggestions or text.'
+
+  - id: d1-269
+    c: ai-real-world-applications
+    kind: tf
+    diff: 2
+    s: 'Amazon Rekognition can detect objects, faces and inappropriate content in images and videos without the customer training a model.'
+    v: true
+    why: 'Rekognition comes with pre-trained models for labels, faces, text in images and content moderation. Custom Labels is optional, for business-specific objects.'
+
+  - id: d1-270
+    c: ai-real-world-applications
+    kind: hallu
+    diff: 2
+    s:
+      - 'Computer vision can read license plates in images.'
+      - 'Forecasting predicts future values from past data.'
+      - 'Recommendation systems need no data about users or items.'
+      - 'NLP can classify the intent of a customer message.'
+    bad: 2
+    o:
+      - 'Recommendation systems learn from user behavior and item data.'
+      - 'Recommendation systems only work on audio recordings.'
+      - 'Recommendation systems are a type of speech synthesis.'
+    a: 0
+    why: 'Recommendations come from patterns in what users clicked, watched or bought, plus item details. No data, no suggestions. I recommend data.'
+
+  - id: d1-271
+    c: ai-real-world-applications
+    kind: mcq
+    diff: 3
+    q: 'A law firm wants staff to ask questions in plain English and get answers grounded in its 50,000 internal case memos. Which application pattern fits BEST?'
+    o:
+      - 'A clustering model trained on the memos'
+      - 'A knowledge base that searches the memos'
+      - 'A regression model that scores each memo by length'
+      - 'Speech recognition run on the memo text'
+    a: 1
+    why: 'A knowledge base lets an assistant find relevant passages in the firm''s own documents and answer from them. Clustering groups memos but does not answer questions.'
+
+  - id: d1-272
+    c: ai-real-world-applications
+    kind: match
+    diff: 2
+    q: 'Match each AWS service to its job.'
+    pairs:
+      - ['Amazon Rekognition', 'Find objects and faces in photos and video']
+      - ['Amazon Textract', 'Pull forms and tables from scanned documents']
+      - ['Amazon Transcribe', 'Turn spoken audio into text']
+      - ['Amazon Personalize', 'Recommend items from user behavior']
+    why: 'Rekognition sees, Textract reads documents, Transcribe listens, and Personalize recommends.'
+
+  # ------------------------------------------------ aws-managed-ai-services
+  - id: d1-273
+    c: aws-managed-ai-services
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A global retailer wants to show product reviews written in Japanese to English-speaking shoppers, automatically and at scale. Which service should it use?'
+    o:
+      - 'Amazon Comprehend'
+      - 'Amazon Transcribe'
+      - 'Amazon Translate'
+      - 'Amazon Polly'
+    a: 2
+    why: 'Amazon Translate converts text between languages. Comprehend analyzes text, Transcribe turns audio into text, and Polly turns text into speech.'
+
+  - id: d1-274
+    c: aws-managed-ai-services
+    kind: mcq
+    diff: 3
+    q: 'A travel company wants its English trip itineraries read aloud to customers in Spanish. Which combination fits BEST?'
+    o:
+      - 'Amazon Polly, then Amazon Translate'
+      - 'Amazon Translate, then Amazon Polly'
+      - 'Amazon Transcribe, then Amazon Polly'
+      - 'Amazon Comprehend, then Amazon Lex'
+    a: 1
+    why: 'First translate the English text into Spanish with Translate, then turn the Spanish text into speech with Polly. Running Polly first would produce English audio that Translate cannot use.'
+
+  - id: d1-275
+    c: aws-managed-ai-services
+    kind: multi
+    diff: 2
+    q: 'A pharmacy wants a phone and chat assistant that understands requests like "refill my prescription" and asks for the prescription number if it is missing. Which statements are correct? (Choose TWO.)'
+    o:
+      - 'Amazon Lex can recognize the intent behind the request'
+      - 'Amazon Lex can prompt the user for missing details'
+      - 'Amazon Polly can detect the intent of the request'
+      - 'Amazon Translate is needed to understand English'
+      - 'Amazon Textract runs the voice conversation'
+    a: [0, 1]
+    why: 'Lex maps what users say to intents and collects required details, called slots, by asking follow-up questions. Polly only speaks, Translate converts languages and Textract reads documents.'
+
+  - id: d1-276
+    c: aws-managed-ai-services
+    kind: mcq
+    diff: 2
+    q: 'A call center must remove card numbers and other personal data from call transcripts. Which service feature helps MOST directly during transcription?'
+    o:
+      - 'Neural voices in Amazon Polly'
+      - 'PII redaction in Amazon Transcribe'
+      - 'Custom terminology in Amazon Translate'
+      - 'Intent slots in Amazon Lex'
+    a: 1
+    why: 'Amazon Transcribe can identify and redact personally identifiable information in its transcripts. The other features exist but solve different problems: voices, brand terms and chatbot inputs.'
+
+  - id: d1-277
+    c: aws-managed-ai-services
+    kind: mcq
+    diff: 3
+    q: 'A medical-device company finds Amazon Transcribe often misspells its product names. Which fix needs the LEAST effort?'
+    o:
+      - 'Add a custom vocabulary to Amazon Transcribe'
+      - 'Train a new speech model from scratch in SageMaker AI'
+      - 'Use Amazon Polly to re-read the audio'
+      - 'Run Amazon Translate on each transcript'
+    a: 0
+    why: 'A custom vocabulary teaches Transcribe domain words like product names. Building a speech model from scratch is far more work, and Polly and Translate do not fix recognition.'
+
+  - id: d1-278
+    c: aws-managed-ai-services
+    kind: tf
+    diff: 1
+    s: 'Amazon Lex turns written documents into lifelike speech, for example to create audiobook versions of manuals.'
+    v: false
+    why: 'Turning text into lifelike speech is Amazon Polly. Lex builds conversational bots that understand voice and text input.'
+
+  - id: d1-279
+    c: aws-managed-ai-services
+    kind: hallu
+    diff: 2
+    s:
+      - 'Amazon Transcribe can label which speaker said what in a call.'
+      - 'Amazon Translate supports custom terminology for brand names.'
+      - 'Amazon Polly analyzes customer emails for sentiment.'
+      - 'Amazon Lex uses intents to understand what a user wants.'
+    bad: 2
+    o:
+      - 'Amazon Comprehend analyzes sentiment; Polly turns text into speech.'
+      - 'Amazon Transcribe analyzes sentiment; Polly translates text.'
+      - 'Amazon Lex analyzes sentiment; Polly builds chatbots.'
+    a: 0
+    why: 'Sentiment in written text is Amazon Comprehend''s job. Polly only speaks. Speaker labels in Transcribe and custom terminology in Translate are real features.'
+
+  - id: d1-280
+    c: aws-managed-ai-services
+    kind: multi
+    diff: 3
+    q: 'A company wants sentiment analysis in its app with the LEAST development effort now. Later it will need a model for a unique prediction no AWS AI service offers. Which choices fit? (Choose TWO.)'
+    o:
+      - 'Use Amazon Comprehend now for sentiment analysis'
+      - 'Use Amazon SageMaker AI later for the custom model'
+      - 'Use Amazon Polly now for sentiment analysis'
+      - 'Train a sentiment model from scratch now'
+      - 'Use Amazon Transcribe later for the custom model'
+    a: [0, 1]
+    why: 'Use a pre-built service when it already solves the task, and SageMaker AI when nothing pre-built fits. Training sentiment from scratch wastes effort, and Polly and Transcribe do neither job.'
+
+  # ------------------------------------------------ traditional-ml-vs-fm
+  - id: d1-281
+    c: traditional-ml-vs-fm
+    kind: mcq
+    diff: 2
+    pre: true
+    q: 'A company must classify 5 million rows of tabular transaction data every hour. Which approach is MOST cost-effective?'
+    o:
+      - 'A gradient-boosted tree model such as XGBoost'
+      - 'A large language model prompted once per row'
+      - 'A diffusion model fine-tuned on the rows'
+      - 'A multimodal foundation model on each row'
+    a: 0
+    why: 'Narrow, high-volume tabular classification is where small traditional models excel: fast, cheap and accurate. Sending millions of rows to a foundation model would cost far more for no gain.'
+
+  - id: d1-282
+    c: traditional-ml-vs-fm
+    kind: mcq
+    diff: 1
+    q: 'A marketing team needs product descriptions in 12 languages and several tones for thousands of new items, with no labeled training data. Which approach fits BEST?'
+    o:
+      - 'A decision tree trained on product prices'
+      - 'A foundation model guided by prompts'
+      - 'A linear regression on item weights'
+      - 'K-means clustering on product names'
+    a: 1
+    why: 'Open-ended, multilingual text generation is a foundation model strength, and prompts can steer tone with no training data. The other options predict numbers or groups, not text.'
+
+  - id: d1-283
+    c: traditional-ml-vs-fm
+    kind: multi
+    diff: 3
+    q: 'A health insurer is choosing between a foundation model and a traditional ML model for claim approvals. Which requirements favor traditional ML? (Choose TWO.)'
+    o:
+      - 'Regulators require a clear reason for every decision'
+      - 'Each decision must be reproducible for audits'
+      - 'Inputs are open-ended conversations with members'
+      - 'The model must draft long, friendly letters'
+      - 'One model should handle many unrelated tasks'
+    a: [0, 1]
+    why: 'Explainability and repeatable, auditable outputs point to traditional, interpretable models. Conversation, letter writing and broad multi-task use are foundation model strengths.'
+
+  - id: d1-284
+    c: traditional-ml-vs-fm
+    kind: mcq
+    diff: 3
+    q: 'A foundation model gives slightly different answers to the same prompt each time. For which task is this behavior the BIGGEST problem?'
+    o:
+      - 'Brainstorming blog post titles'
+      - 'Drafting a friendly welcome email for new hires'
+      - 'Quoting a regulated insurance premium'
+      - 'Suggesting names for a new product'
+    a: 2
+    why: 'A regulated premium must be exact and repeatable, so nondeterminism is unacceptable. For creative tasks like titles, emails and names, variety is a feature.'
+
+  - id: d1-285
+    c: traditional-ml-vs-fm
+    kind: tf
+    diff: 2
+    s: 'A foundation model can often do a new task from a well-written prompt and a few examples, with no task-specific training.'
+    v: true
+    why: 'Broad pre-training lets FMs adapt through zero-shot or few-shot prompting. Traditional ML usually needs its own labeled dataset and training run for each task.'
+
+  - id: d1-286
+    c: traditional-ml-vs-fm
+    kind: hallu
+    diff: 2
+    s:
+      - 'Traditional ML models are usually much smaller than foundation models.'
+      - 'Foundation models are pre-trained on broad data.'
+      - 'Foundation models always respond faster than a small decision tree.'
+      - 'Traditional ML often needs labeled data for each task.'
+    bad: 2
+    o:
+      - 'Large FMs usually have higher latency and cost than small models.'
+      - 'Decision trees need GPUs, so they are always slower.'
+      - 'FMs and decision trees always have identical latency.'
+    a: 0
+    why: 'Billions of parameters take more compute per request. A small decision tree answers in a blink on modest hardware, which matters for tight latency budgets.'
+
+  - id: d1-287
+    c: traditional-ml-vs-fm
+    kind: duel
+    diff: 2
+    q: 'A logistics firm must classify package size from five numeric sensor fields on a handheld scanner with no internet connection. Which design is better?'
+    A: 'Call a large foundation model in the cloud for every package scanned.'
+    B: 'Deploy a small traditional classification model directly on the scanner.'
+    a: 1
+    why: 'No connectivity, limited hardware and a narrow numeric task all favor a small local model. A cloud FM call would fail offline and is overkill for five numbers.'
+
+  - id: d1-288
+    c: traditional-ml-vs-fm
+    kind: mcq
+    diff: 1
+    q: 'Which is a typical advantage of a foundation model over a traditional ML model?'
+    o:
+      - 'It adapts to many tasks with little task-specific data'
+      - 'It is always easier to explain to auditors and regulators'
+      - 'It is always cheaper to run per prediction'
+      - 'It needs no compute to serve requests'
+    a: 0
+    why: 'Versatility is the FM superpower. The trade-off is higher cost per request and less transparency than small traditional models.'
+
+  # ------------------------------------------------ ml-pipeline-stages
+  - id: d1-289
+    c: ml-pipeline-stages
+    kind: mcq
+    diff: 2
+    pre: true
+    q: 'A data scientist fills missing ages with the median, removes duplicate rows and converts all dates to one format. Which pipeline stage is this?'
+    o:
+      - 'Feature engineering'
+      - 'Data pre-processing'
+      - 'Model evaluation'
+      - 'Hyperparameter tuning'
+    a: 1
+    why: 'Fixing missing values, duplicates and formats is cleaning, which is data pre-processing. Feature engineering creates new inputs; it does not repair broken ones.'
+
+  - id: d1-290
+    c: ml-pipeline-stages
+    kind: mcq
+    diff: 1
+    q: 'Before cleaning anything, an analyst plots histograms and a correlation matrix to see how the columns are distributed and related. Which stage is this?'
+    o:
+      - 'Data pre-processing'
+      - 'Feature engineering'
+      - 'Production model monitoring'
+      - 'Exploratory data analysis'
+    a: 3
+    why: 'Looking at distributions and relationships to understand the data is exploratory data analysis. It shapes the cleaning and feature decisions that follow.'
+
+  - id: d1-291
+    c: ml-pipeline-stages
+    kind: mcq
+    diff: 3
+    q: 'A team runs dozens of training jobs with different learning rates and tree depths to find the best validation score. Which Amazon SageMaker AI capability automates this?'
+    o:
+      - 'SageMaker automatic model tuning'
+      - 'SageMaker Model Monitor'
+      - 'SageMaker Ground Truth labeling jobs'
+      - 'SageMaker Clarify'
+    a: 0
+    why: 'Automatic model tuning launches many training jobs over a range of hyperparameter values and keeps the best one. Model Monitor watches live models, Ground Truth labels data, Clarify checks bias.'
+
+  - id: d1-292
+    c: ml-pipeline-stages
+    kind: order
+    diff: 2
+    q: 'A telecom is building a churn model. Put these steps in order.'
+    steps:
+      - 'Pull customer records from the billing and CRM systems'
+      - 'Chart churn rates and check for missing values'
+      - 'Remove bad rows and standardize date formats'
+      - 'Create a "months since signup" input'
+      - 'Train the model on historical data'
+    why: 'Collect, explore, clean, engineer features, then train. Each step depends on the one before: you cannot clean what you have not looked at.'
+
+  - id: d1-293
+    c: ml-pipeline-stages
+    kind: multi
+    diff: 2
+    q: 'Which activities are part of feature engineering? (Choose TWO.)'
+    o:
+      - 'Creating a debt-to-income ratio from two existing fields'
+      - 'Turning a color category into numeric columns'
+      - 'Choosing the learning rate for training'
+      - 'Measuring F1 score on the test set'
+      - 'Watching a deployed model for drift'
+    a: [0, 1]
+    why: 'Deriving new inputs and encoding categories as numbers make data easier for a model to learn from. Learning rate is tuning, F1 is evaluation, and drift watching is monitoring.'
+
+  - id: d1-294
+    c: ml-pipeline-stages
+    kind: tf
+    diff: 3
+    s: 'The test dataset should be used again and again during hyperparameter tuning to pick the best settings.'
+    v: false
+    why: 'Tuning uses the validation set. The test set is held back for one final, honest check; reusing it while tuning leaks information and inflates the score.'
+
+  - id: d1-295
+    c: ml-pipeline-stages
+    kind: hallu
+    diff: 2
+    s:
+      - 'Data collection gathers raw data from source systems.'
+      - 'Feature engineering creates useful inputs for the model.'
+      - 'Model evaluation should use the same data the model trained on.'
+      - 'Deployment makes the model available to applications.'
+    bad: 2
+    o:
+      - 'Model evaluation uses held-out data the model never trained on.'
+      - 'Model evaluation happens only after a year in production.'
+      - 'Model evaluation replaces the need for training.'
+    a: 0
+    why: 'Testing on training data rewards memorizing. Only unseen data shows how the model will do in the real world.'
+
+  - id: d1-296
+    c: ml-pipeline-stages
+    kind: mcq
+    diff: 3
+    q: 'A model scored 95 percent in testing but only 70 percent after deployment. Investigation shows live data was not cleaned the way training data was. Which practice would have prevented this?'
+    o:
+      - 'Apply the same pre-processing steps to live inference data'
+      - 'Move from real-time to batch inference on bigger instances'
+      - 'Skip exploratory data analysis on the next project'
+      - 'Collect less training data next time'
+    a: 0
+    why: 'A model expects inputs shaped like its training data. Running the same cleaning and feature steps at inference prevents this training-serving mismatch.'
+
+  # ------------------------------------------------ fm-sourcing-and-serving
+  - id: d1-297
+    c: fm-sourcing-and-serving
+    kind: mcq
+    diff: 2
+    pre: true
+    q: 'A startup wants to start from a popular open-source pre-trained model and deploy it to its own SageMaker AI endpoint in a few clicks. Which feature fits BEST?'
+    o:
+      - 'Amazon SageMaker Ground Truth'
+      - 'Amazon SageMaker JumpStart'
+      - 'Amazon SageMaker Clarify'
+      - 'Amazon SageMaker Model Monitor'
+    a: 1
+    why: 'SageMaker JumpStart is a hub of pre-trained models, including open-source ones, that you can deploy or fine-tune quickly. The others label data, check bias or monitor live models.'
+
+  - id: d1-298
+    c: fm-sourcing-and-serving
+    kind: mcq
+    diff: 3
+    q: 'A retailer wants a chatbot backed by a foundation model within two weeks. It has no ML engineers and wants the LEAST operational overhead. Which approach fits BEST?'
+    o:
+      - 'Train a custom FM on Amazon EC2'
+      - 'Self-host an open model on Amazon EKS'
+      - 'Call a model through Amazon Bedrock'
+      - 'Build a model from scratch in SageMaker AI'
+    a: 2
+    why: 'Amazon Bedrock is a managed API: no servers, no training, pay per use. Self-hosting or training from scratch needs ML skills, time and ongoing operations the team lacks.'
+
+  - id: d1-299
+    c: fm-sourcing-and-serving
+    kind: multi
+    diff: 2
+    q: 'Which are tradeoffs of self-hosting a model on your own endpoint compared with using a managed API? (Choose TWO.)'
+    o:
+      - 'More control over instance types and scaling'
+      - 'More responsibility for capacity, patching and uptime'
+      - 'No ability to choose which model runs'
+      - 'AWS handles all scaling decisions for you'
+      - 'No infrastructure costs of any kind'
+    a: [0, 1]
+    why: 'Self-hosting buys control at the price of operational work. A managed API flips that: the provider runs and scales the infrastructure, and you give up some control.'
+
+  - id: d1-300
+    c: fm-sourcing-and-serving
+    kind: mcq
+    diff: 2
+    q: 'A business analyst with no coding skills wants to explore sales dashboards and ask an AI assistant questions about company data. Which AWS service fits BEST?'
+    o:
+      - 'Kiro'
+      - 'Amazon SageMaker AI'
+      - 'Amazon Transcribe'
+      - 'Amazon Quick'
+    a: 3
+    why: 'Amazon Quick gives business users BI dashboards and AI agents over their data. Kiro is for developers writing code, SageMaker AI is for building models, and Transcribe handles audio.'
+
+  - id: d1-301
+    c: fm-sourcing-and-serving
+    kind: mcq
+    diff: 2
+    q: 'A development team wants an AI coding environment that turns written requirements into a design and a task list before generating code. Which AWS tool fits BEST?'
+    o:
+      - 'Amazon Quick'
+      - 'Kiro'
+      - 'Amazon Polly'
+      - 'Amazon Lex'
+    a: 1
+    why: 'Kiro is an agentic IDE built on spec-driven development: requirements, then design, then tasks, then code. Amazon Quick serves business users, and Polly and Lex handle speech and chatbots.'
+
+  - id: d1-302
+    c: fm-sourcing-and-serving
+    kind: tf
+    diff: 2
+    s: 'For a company with a small dataset and a tight budget, training a custom foundation model from scratch is usually the best first choice.'
+    v: false
+    why: 'Pre-training needs massive data and compute. Starting from a pre-trained model, through a managed API or an open-source model, is far cheaper and faster.'
+
+  - id: d1-303
+    c: fm-sourcing-and-serving
+    kind: hallu
+    diff: 3
+    s:
+      - 'Amazon Bedrock offers models from several providers through one API.'
+      - 'SageMaker JumpStart offers pre-trained models you can deploy.'
+      - 'Amazon Quick is an agentic IDE for writing application code.'
+      - 'Self-hosting gives more control but more operational work.'
+    bad: 2
+    o:
+      - 'Kiro is the agentic IDE; Amazon Quick serves business users with BI and agents.'
+      - 'Amazon Polly is the agentic IDE; Amazon Quick converts speech.'
+      - 'Amazon Lex is the agentic IDE; Amazon Quick builds chatbots.'
+    a: 0
+    why: 'Developers code in Kiro. Business users analyze data and work with AI agents in Amazon Quick. I mixed up my coworkers again.'
+
+  - id: d1-304
+    c: fm-sourcing-and-serving
+    kind: duel
+    diff: 3
+    q: 'A bank needs a foundation model and must control the exact instance types, network setup and its own custom inference code. Which design is better?'
+    A: 'Deploy the model to a SageMaker AI endpoint that the team configures and manages.'
+    B: 'Use a managed API and accept the provider''s standard serving setup.'
+    a: 0
+    why: 'Custom inference code and instance-level control are what self-hosting provides. A managed API is simpler but does not let you choose instances or run your own serving code.'
+
+  # ------------------------------------------------ mlops-fundamentals
+  - id: d1-305
+    c: mlops-fundamentals
+    kind: mcq
+    diff: 2
+    pre: true
+    q: 'A team wants every model version stored with its metrics and approval status, so deployments always use a known, approved version. Which SageMaker AI feature fits?'
+    o:
+      - 'SageMaker Ground Truth'
+      - 'SageMaker Model Registry'
+      - 'SageMaker Clarify'
+      - 'SageMaker JumpStart'
+    a: 1
+    why: 'The Model Registry catalogs model versions with metadata and approval status for controlled deployment. Ground Truth labels data, Clarify checks bias, JumpStart offers pre-trained models.'
+
+  - id: d1-306
+    c: mlops-fundamentals
+    kind: mcq
+    diff: 2
+    q: 'A company wants data preparation, training, evaluation and registration to run the same way every time, automatically, when new data arrives. Which service fits BEST?'
+    o:
+      - 'Amazon SageMaker Pipelines'
+      - 'Amazon SageMaker Model Monitor'
+      - 'Amazon SageMaker Ground Truth'
+      - 'Amazon SageMaker Clarify'
+    a: 0
+    why: 'SageMaker Pipelines defines ML workflow steps as a repeatable, automated pipeline. Model Monitor watches deployed models; it does not orchestrate training.'
+
+  - id: d1-307
+    c: mlops-fundamentals
+    kind: multi
+    diff: 2
+    q: 'Which are signs of technical debt in an ML project? (Choose TWO.)'
+    o:
+      - 'One-off scripts that only one person understands'
+      - 'Manual deployment steps that nobody documented'
+      - 'Automated, versioned training pipelines'
+      - 'Live models monitored for drift with alerts'
+      - 'Experiments logged with data and parameters'
+    a: [0, 1]
+    why: 'Untracked scripts and undocumented manual steps make systems fragile and hard to change. Pipelines, monitoring and experiment tracking are the MLOps habits that pay that debt down.'
+
+  - id: d1-308
+    c: mlops-fundamentals
+    kind: mcq
+    diff: 3
+    q: 'A loan model''s input data looks the same as at launch, but during a recession the link between income and default changed, and accuracy fell. What is this called?'
+    o:
+      - 'Data leakage'
+      - 'Underfitting'
+      - 'Concept drift'
+      - 'Class imbalance'
+    a: 2
+    why: 'When the relationship between inputs and the target changes, that is concept drift. Data drift is when the inputs themselves shift. Either one calls for retraining on recent data.'
+
+  - id: d1-309
+    c: mlops-fundamentals
+    kind: mcq
+    diff: 2
+    q: 'A team wants alerts when the distribution of live input data moves away from the training data baseline. Which SageMaker AI feature fits BEST?'
+    o:
+      - 'SageMaker automatic model tuning'
+      - 'SageMaker Ground Truth'
+      - 'SageMaker JumpStart'
+      - 'SageMaker Model Monitor'
+    a: 3
+    why: 'Model Monitor compares live data and predictions against a baseline and raises alerts on drift. Tuning picks hyperparameters, Ground Truth labels data, and JumpStart offers models.'
+
+  - id: d1-310
+    c: mlops-fundamentals
+    kind: tf
+    diff: 2
+    s: 'In MLOps, once a model passes evaluation at launch, later model versions can skip automated testing to ship faster.'
+    v: false
+    why: 'Every new version should pass the same automated checks before promotion. Skipping tests is how a worse model quietly reaches production.'
+
+  - id: d1-311
+    c: mlops-fundamentals
+    kind: hallu
+    diff: 2
+    s:
+      - 'SageMaker Pipelines automates ML workflow steps.'
+      - 'SageMaker Model Registry tracks model versions.'
+      - 'SageMaker Model Monitor trains brand-new models from scratch.'
+      - 'Retraining on fresh data can restore accuracy after drift.'
+    bad: 2
+    o:
+      - 'Model Monitor detects drift and quality issues; a pipeline can then retrain.'
+      - 'Model Monitor labels images to build training datasets.'
+      - 'Model Monitor translates model outputs into other languages.'
+    a: 0
+    why: 'Model Monitor watches; it does not train. Its alerts can trigger a pipeline that retrains, evaluates and registers a new version.'
+
+  - id: d1-312
+    c: mlops-fundamentals
+    kind: order
+    diff: 2
+    q: 'Put this automated retraining loop in order.'
+    steps:
+      - 'Monitoring detects drift in live data'
+      - 'A pipeline retrains the model on recent data'
+      - 'The new model is evaluated against the current one'
+      - 'The approved version is registered'
+      - 'The new version is deployed'
+    why: 'Detect, retrain, evaluate, register, deploy. Evaluation before registration makes sure only a better model gets promoted.'
+
+  # ------------------------------------------------ precision-recall-f1
+  - id: d1-313
+    c: precision-recall-f1
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A fraud model flags 100 transactions, and 80 of them are actually fraud. What is the model''s precision?'
+    o:
+      - '20 percent'
+      - '80 percent'
+      - '100 percent'
+      - 'Unknown without the recall'
+    a: 1
+    why: 'Precision is true positives divided by everything flagged: 80 out of 100 is 80 percent. Recall would need the total number of real fraud cases.'
+
+  - id: d1-314
+    c: precision-recall-f1
+    kind: mcq
+    diff: 3
+    q: 'There are 50 real fraud cases. A model catches 40 of them and also flags 20 legitimate transactions. What are its precision and recall?'
+    o:
+      - 'Precision 80 percent, recall about 67 percent'
+      - 'Precision 40 percent, recall 60 percent'
+      - 'Precision about 67 percent, recall 80 percent'
+      - 'Precision 80 percent, recall 100 percent'
+    a: 2
+    why: 'Precision is 40 of 60 flagged, about 67 percent. Recall is 40 of 50 real cases, 80 percent. The trap option swaps the two.'
+
+  - id: d1-315
+    c: precision-recall-f1
+    kind: multi
+    diff: 2
+    q: 'In which situations should a team prioritize recall? (Choose TWO.)'
+    o:
+      - 'Screening for a serious but treatable disease'
+      - 'Detecting intrusions where a missed attack is costly'
+      - 'Flagging spam when false alarms anger users'
+      - 'Auto-approving refunds where false approvals cost money'
+      - 'Showing one featured product on a home page'
+    a: [0, 1]
+    why: 'When a missed positive is the expensive mistake, maximize recall. When false alarms are the expensive mistake, as with spam or wrong refund approvals, precision matters more.'
+
+  - id: d1-316
+    c: precision-recall-f1
+    kind: mcq
+    diff: 2
+    q: 'Classes are imbalanced, and both false positives and false negatives matter. Which single metric is MOST useful?'
+    o:
+      - 'Accuracy'
+      - 'Mean squared error'
+      - 'F1 score'
+      - 'Training loss'
+    a: 2
+    why: 'F1 is the harmonic mean of precision and recall, so it drops if either is poor. Accuracy hides rare-class failures, and mean squared error is for regression.'
+
+  - id: d1-317
+    c: precision-recall-f1
+    kind: mcq
+    diff: 3
+    q: 'An AI shopping assistant raised conversions a little, but serving costs rose so much that the project now loses money. Which metric shows this problem MOST directly?'
+    o:
+      - 'Recall'
+      - 'Return on investment'
+      - 'F1 score'
+      - 'Area under the ROC curve'
+    a: 1
+    why: 'Return on investment compares the value gained with what was spent, so a money-losing project shows a negative ROI. Recall, F1 and AUC only measure prediction quality.'
+
+  - id: d1-318
+    c: precision-recall-f1
+    kind: tf
+    diff: 2
+    s: 'Precision, recall and F1 are classification metrics; a regression model that predicts prices is scored with error measures instead.'
+    v: true
+    why: 'Regression is judged by how far predictions land from actual values, with measures like mean squared error. Precision and recall need categories to count hits and misses.'
+
+  - id: d1-319
+    c: precision-recall-f1
+    kind: hallu
+    diff: 2
+    s:
+      - 'A false positive is a negative case flagged as positive.'
+      - 'A false negative is a positive case the model missed.'
+      - 'Raising the decision threshold usually raises recall.'
+      - 'Precision and recall often trade off against each other.'
+    bad: 2
+    o:
+      - 'A higher threshold usually raises precision and lowers recall.'
+      - 'A higher threshold always raises both precision and recall.'
+      - 'A higher threshold has no effect on predictions.'
+    a: 0
+    why: 'A stricter threshold flags fewer items, so flags are more often right (precision up) but more real cases slip through (recall down).'
+
+  - id: d1-320
+    c: precision-recall-f1
+    kind: match
+    diff: 2
+    q: 'Match each metric to the question it answers.'
+    pairs:
+      - ['Precision', 'Of the items flagged, how many were real?']
+      - ['Recall', 'Of the real cases, how many were caught?']
+      - ['Accuracy', 'Of all predictions, how many were right?']
+      - ['Cost per user', 'What does serving each user cost?']
+    why: 'Precision starts from the flags, recall starts from the real cases, accuracy counts everything, and cost per user is a business metric.'
+
+facts:
+  # ------------------------------------------------ aws-ai-services
+  - id: f1-001
+    c: aws-managed-ai-services
+    g: aws-ai-services
+    term: 'Amazon Comprehend'
+    def: 'Finds sentiment, entities, key phrases and PII in written text'
+  - id: f1-002
+    c: aws-managed-ai-services
+    g: aws-ai-services
+    term: 'Amazon Transcribe'
+    def: 'Converts speech in audio or video files into text'
+  - id: f1-003
+    c: aws-managed-ai-services
+    g: aws-ai-services
+    term: 'Amazon Translate'
+    def: 'Converts written text from one human language into another'
+  - id: f1-004
+    c: aws-managed-ai-services
+    g: aws-ai-services
+    term: 'Amazon Polly'
+    def: 'Turns written text into lifelike spoken audio'
+  - id: f1-005
+    c: aws-managed-ai-services
+    g: aws-ai-services
+    term: 'Amazon Lex'
+    def: 'Builds voice and text chatbots that recognize user intents'
+  - id: f1-006
+    c: ai-real-world-applications
+    g: aws-ai-services
+    term: 'Amazon Rekognition'
+    def: 'Detects objects, faces and unsafe content in images and video'
+  - id: f1-007
+    c: ai-real-world-applications
+    g: aws-ai-services
+    term: 'Amazon Textract'
+    def: 'Extracts printed text, handwriting, forms and tables from documents'
+  - id: f1-008
+    c: ai-real-world-applications
+    g: aws-ai-services
+    term: 'Amazon Personalize'
+    def: 'Generates individual product recommendations from user interaction data'
+  - id: f1-009
+    c: aws-managed-ai-services
+    g: aws-ai-services
+    term: 'Amazon SageMaker AI'
+    def: 'Managed platform to build, train, tune and deploy custom ML models'
+  - id: f1-010
+    c: fm-sourcing-and-serving
+    g: aws-ai-services
+    term: 'Amazon Bedrock'
+    def: 'Fully managed API access to foundation models from many providers'
+  - id: f1-011
+    c: fm-sourcing-and-serving
+    g: aws-ai-services
+    term: 'Amazon Quick'
+    def: 'Workspace giving business users BI dashboards, research and AI agents'
+  - id: f1-012
+    c: fm-sourcing-and-serving
+    g: aws-ai-services
+    term: 'Kiro'
+    def: 'Agentic IDE that turns specs into designs, tasks and code'
+
+  # ------------------------------------------------ sagemaker-features
+  - id: f1-013
+    c: fit-bias-fairness
+    g: sagemaker-features
+    term: 'Amazon SageMaker Clarify'
+    def: 'Measures bias in data and models and explains feature influence'
+  - id: f1-014
+    c: data-types
+    g: sagemaker-features
+    term: 'Amazon SageMaker Ground Truth'
+    def: 'Manages human and automated labeling to create training datasets'
+  - id: f1-015
+    c: mlops-fundamentals
+    g: sagemaker-features
+    term: 'Amazon SageMaker Model Monitor'
+    def: 'Watches deployed endpoints for data drift and quality drops'
+  - id: f1-016
+    c: mlops-fundamentals
+    g: sagemaker-features
+    term: 'Amazon SageMaker Model Registry'
+    def: 'Catalogs model versions with metadata and approval status'
+  - id: f1-017
+    c: mlops-fundamentals
+    g: sagemaker-features
+    term: 'Amazon SageMaker Pipelines'
+    def: 'Orchestrates ML workflow steps into repeatable, automated CI/CD runs'
+  - id: f1-018
+    c: fm-sourcing-and-serving
+    g: sagemaker-features
+    term: 'Amazon SageMaker JumpStart'
+    def: 'Hub of pre-trained and open-source models to deploy or fine-tune'
+  - id: f1-019
+    c: ml-pipeline-stages
+    g: sagemaker-features
+    term: 'Amazon SageMaker automatic model tuning'
+    def: 'Runs many training jobs to find the best hyperparameter values'
+
+  # ------------------------------------------------ ml-learning-types
+  - id: f1-020
+    c: supervised-unsupervised-reinforcement
+    g: ml-learning-types
+    term: 'Supervised learning'
+    def: 'Learns from examples paired with correct answers to predict a target'
+  - id: f1-021
+    c: supervised-unsupervised-reinforcement
+    g: ml-learning-types
+    term: 'Unsupervised learning'
+    def: 'Finds hidden groups or patterns in data that has no labels'
+  - id: f1-022
+    c: supervised-unsupervised-reinforcement
+    g: ml-learning-types
+    term: 'Reinforcement learning'
+    def: 'An agent learns by trial and error to maximize cumulative reward'
+  - id: f1-023
+    c: supervised-unsupervised-reinforcement
+    g: ml-learning-types
+    term: 'Semi-supervised learning'
+    def: 'Combines a small labeled dataset with a much larger unlabeled one'
+  - id: f1-024
+    c: supervised-unsupervised-reinforcement
+    g: ml-learning-types
+    term: 'Self-supervised learning'
+    def: 'Makes its own training targets from raw data, like predicting hidden words'
+  - id: f1-025
+    c: supervised-unsupervised-reinforcement
+    g: ml-learning-types
+    term: 'Transfer learning'
+    def: 'Reuses knowledge from a model trained on one task for another'
+
+  # ------------------------------------------------ ml-techniques
+  - id: f1-026
+    c: regression-classification-clustering
+    g: ml-techniques
+    term: 'Regression'
+    def: 'Predicts a continuous number, such as a price or duration'
+  - id: f1-027
+    c: regression-classification-clustering
+    g: ml-techniques
+    term: 'Binary classification'
+    def: 'Assigns each item to one of exactly two categories'
+  - id: f1-028
+    c: regression-classification-clustering
+    g: ml-techniques
+    term: 'Multiclass classification'
+    def: 'Assigns each item to one of three or more categories'
+  - id: f1-029
+    c: regression-classification-clustering
+    g: ml-techniques
+    term: 'Clustering'
+    def: 'Groups similar unlabeled items into segments with no predefined categories'
+  - id: f1-030
+    c: regression-classification-clustering
+    g: ml-techniques
+    term: 'Anomaly detection'
+    def: 'Flags rare data points that differ sharply from normal behavior'
+  - id: f1-031
+    c: regression-classification-clustering
+    g: ml-techniques
+    term: 'Dimensionality reduction'
+    def: 'Shrinks the number of input features while keeping key information'
+
+  # ------------------------------------------------ ai-applications
+  - id: f1-032
+    c: ai-real-world-applications
+    g: ai-applications
+    term: 'Computer vision'
+    def: 'Interprets images and video, such as spotting product defects'
+  - id: f1-033
+    c: ai-real-world-applications
+    g: ai-applications
+    term: 'Natural language processing'
+    def: 'Analyzes the meaning of human text, such as sentiment or entities'
+  - id: f1-034
+    c: ai-real-world-applications
+    g: ai-applications
+    term: 'Speech recognition'
+    def: 'Converts spoken audio into written text'
+  - id: f1-035
+    c: ai-real-world-applications
+    g: ai-applications
+    term: 'Recommendation system'
+    def: 'Suggests items to each user based on past behavior'
+  - id: f1-036
+    c: ai-real-world-applications
+    g: ai-applications
+    term: 'Fraud detection'
+    def: 'Flags suspicious transactions that break a customer''s usual pattern'
+  - id: f1-037
+    c: ai-real-world-applications
+    g: ai-applications
+    term: 'Forecasting'
+    def: 'Predicts future values, like demand, from historical time-ordered data'
+  - id: f1-038
+    c: ai-real-world-applications
+    g: ai-applications
+    term: 'Knowledge base'
+    def: 'Lets an assistant answer from an organization''s own documents'
+
+  # ------------------------------------------------ inference-types
+  - id: f1-039
+    c: inference-types
+    g: inference-types
+    term: 'Real-time inference'
+    def: 'Always-on endpoint returning low-latency predictions for each request'
+  - id: f1-040
+    c: inference-types
+    g: inference-types
+    term: 'Batch inference'
+    def: 'Scores a whole stored dataset offline, with no persistent endpoint'
+  - id: f1-041
+    c: inference-types
+    g: inference-types
+    term: 'Asynchronous inference'
+    def: 'Queues large or slow requests and delivers results later'
+  - id: f1-042
+    c: inference-types
+    g: inference-types
+    term: 'Serverless inference'
+    def: 'No instances to manage; suits intermittent traffic but may cold start'
+  - id: f1-043
+    c: inference-types
+    g: inference-types
+    term: 'Edge inference'
+    def: 'Runs the model on a local device near where data is created'
+
+  # ------------------------------------------------ data-types
+  - id: f1-044
+    c: data-types
+    g: data-types
+    term: 'Labeled data'
+    def: 'Examples that include the correct target answer, like spam or not'
+  - id: f1-045
+    c: data-types
+    g: data-types
+    term: 'Unlabeled data'
+    def: 'Raw examples with no target answers attached'
+  - id: f1-046
+    c: data-types
+    g: data-types
+    term: 'Structured data'
+    def: 'Fits a fixed, predefined schema of rows and columns'
+  - id: f1-047
+    c: data-types
+    g: data-types
+    term: 'Unstructured data'
+    def: 'Has no fixed schema at all, like free text, images or audio'
+  - id: f1-048
+    c: data-types
+    g: data-types
+    term: 'Semi-structured data'
+    def: 'Uses tags or keys without a rigid schema, like JSON logs'
+  - id: f1-049
+    c: data-types
+    g: data-types
+    term: 'Time-series data'
+    def: 'Measurements recorded in time order, where the sequence carries meaning'
+
+  # ------------------------------------------------ model-metrics
+  - id: f1-050
+    c: precision-recall-f1
+    g: model-metrics
+    term: 'Accuracy'
+    def: 'Share of all predictions that are correct'
+  - id: f1-051
+    c: precision-recall-f1
+    g: model-metrics
+    term: 'Precision'
+    def: 'Share of predicted positives that are truly positive'
+  - id: f1-052
+    c: precision-recall-f1
+    g: model-metrics
+    term: 'Recall'
+    def: 'Share of actual positives that the model correctly finds'
+  - id: f1-053
+    c: precision-recall-f1
+    g: model-metrics
+    term: 'F1 score'
+    def: 'Harmonic mean that balances precision and recall'
+  - id: f1-054
+    c: precision-recall-f1
+    g: model-metrics
+    term: 'Mean squared error'
+    def: 'Average squared gap between predicted and actual numeric values'
+  - id: f1-055
+    c: precision-recall-f1
+    g: model-metrics
+    term: 'Return on investment (ROI)'
+    def: 'Value gained from the AI project relative to its total cost'
+  - id: f1-056
+    c: precision-recall-f1
+    g: model-metrics
+    term: 'Cost per user'
+    def: 'Total spend to run the solution divided by the people it serves'
+  - id: f1-057
+    c: precision-recall-f1
+    g: model-metrics
+    term: 'Customer feedback'
+    def: 'Users'' ratings and comments on how helpful the AI feature is'
+
+  # ------------------------------------------------ ml-pipeline-stages
+  - id: f1-058
+    c: ml-pipeline-stages
+    g: ml-pipeline-stages
+    term: 'Exploratory data analysis'
+    def: 'Using statistics and charts to understand data before modeling'
+  - id: f1-059
+    c: ml-pipeline-stages
+    g: ml-pipeline-stages
+    term: 'Data pre-processing'
+    def: 'Cleaning data by fixing missing values, duplicates and formats'
+  - id: f1-060
+    c: ml-pipeline-stages
+    g: ml-pipeline-stages
+    term: 'Feature engineering'
+    def: 'Creating or selecting the input variables a model learns from'
+  - id: f1-061
+    c: ml-pipeline-stages
+    g: ml-pipeline-stages
+    term: 'Model training'
+    def: 'Fitting parameters to data by running a learning algorithm'
+  - id: f1-062
+    c: ml-pipeline-stages
+    g: ml-pipeline-stages
+    term: 'Hyperparameter tuning'
+    def: 'Searching settings like learning rate for the best-performing version'
+  - id: f1-063
+    c: ml-pipeline-stages
+    g: ml-pipeline-stages
+    term: 'Model evaluation'
+    def: 'Measuring performance on held-out data that was never used for training'
+  - id: f1-064
+    c: ml-pipeline-stages
+    g: ml-pipeline-stages
+    term: 'Model monitoring'
+    def: 'Watching live predictions in production for drift and declining quality'
+
+  # ------------------------------------------------ ml-terms
+  - id: f1-065
+    c: model-training-inference
+    g: ml-terms
+    term: 'Algorithm'
+    def: 'Learning procedure that is run on data to produce a model'
+  - id: f1-066
+    c: model-training-inference
+    g: ml-terms
+    term: 'Model'
+    def: 'Trained artifact of learned values that maps inputs to outputs'
+  - id: f1-067
+    c: model-training-inference
+    g: ml-terms
+    term: 'Parameter'
+    def: 'Internal value, such as a weight, learned from data during training'
+  - id: f1-068
+    c: model-training-inference
+    g: ml-terms
+    term: 'Hyperparameter'
+    def: 'Setting chosen before training, like learning rate or tree depth'
+  - id: f1-069
+    c: model-training-inference
+    g: ml-terms
+    term: 'Feature'
+    def: 'An input variable used to make a prediction'
+  - id: f1-070
+    c: model-training-inference
+    g: ml-terms
+    term: 'Label'
+    def: 'The known correct answer attached to a training example'

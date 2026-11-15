@@ -11,7 +11,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
-import type { Alert, Concept, Content, Crew, Incident } from '../src/types.ts';
+import type { Alert, Concept, Content, Crew, Incident } from '../src/soc/types.ts';
 import { lintContent } from './lint-content.ts';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');

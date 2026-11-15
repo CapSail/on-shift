@@ -23,7 +23,7 @@ Both apps are on the same origin (`capsail.github.io`), and localStorage belongs
 
 - The save format stays frozen at SHIFTY-1's `SAVE_VERSION = 1`. Until the cut-over the old app and the merged app can both be used on the same phone and see the same progress.
 - The first time the merged app opens the SHIFTY-1 shift it writes a one-time copy of the save to `shifty1.v1.bak-merge` (never overwritten). Insurance only.
-- A test proves it: a save made by the **real old build** (`shifty_1/dist`, played in Playwright) is loaded by the merged app and must come out byte-identical after a visit to home, with the same tier, XP, streak, reviews due and benchmark history on screen (`tests/ai/carryover.spec.ts`, fixture in `tests/fixtures/`).
+- A test proves it: a save made by the **real old build** (`shifty_1/dist`, played in Playwright) is loaded by the merged app and must come out byte-identical after a visit to home, with the same tier, XP, streak, reviews due and benchmark history on screen (`tests/shell/carryover.spec.ts`; the fixture and the script that made it are in `tests/fixtures/`).
 - iPhone only: an installed home-screen app has its own storage box, so a friend who installed SHIFTY-1 on an iPhone will not see their save inside an installed ON SHIFT. For that case the SHIFTY-1 About screen gets "Move my progress" (copy a code / paste a code), and the forwarding page offers the same copy button. Android (Cap) needs none of this.
 
 ## 3. Code layout
@@ -37,6 +37,7 @@ src/
     progress.ts  createProgress(store, words): addXP / earnStreak (same rules, each shift's wording)
     deck.ts      shuffled, saved deck of lines (no repeats until all are seen)
     speech.ts    text to speech, silent audio, earbud ⏮/⏭ (was copied in ride.ts and voice.ts)
+    shift.ts     which shift is on (remembered)
     switcher.ts  the SOC / SHIFTY-1 switch
     style.css    shared styles (SHIFTY-1's sheet is a superset; card styles ride along)
     fonts/ env.d.ts
@@ -94,7 +95,7 @@ Playwright runs two projects against the one build:
 | `soc` | ON SHIFT's four specs (`tests/soc/`), unchanged apart from import paths | default (SOC) |
 | `ai` | SHIFTY-1's `smoke` and `all-cards` specs (`tests/ai/`), unchanged apart from import paths; every card in the bank answered through the UI | `onshift.shift = ai` preset |
 
-New tests: the progress carry-over test (section 2), the switcher (flip both ways, choice remembered, neither save touched by the other shift), `#shifty-1` and `#card=` deep links, both shifts playable offline, and move-my-progress round trip.
+A third project, `shell` (`tests/shell/`), holds the new tests: the progress carry-over (section 2), the switcher (flip both ways, choice remembered, neither save touched by the other shift), `#shifty-1` and `#card=` deep links, both shifts playable offline, the move-my-progress round trip, and the forwarding page in `cutover/`.
 
 Gate before deploy: `npm run validate` (both banks + quips), typecheck, build, **both** projects green.
 

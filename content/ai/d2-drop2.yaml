@@ -1,0 +1,1942 @@
+# SHIFTY-1 content drop 2: Domain 2, Fundamentals of GenAI. Extra cards and facts for existing concepts.
+# Ids are stable forever. Append; never renumber. Cards d2-201+, facts f2-001+.
+
+cards:
+  # tokens-and-pricing
+  - id: d2-201
+    c: tokens-and-pricing
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A developer is estimating usage for an Amazon Bedrock app. Roughly how many tokens is a 750-word English passage?'
+    o:
+      - 'About 100 tokens'
+      - 'About 1,000 tokens'
+      - 'About 7,500 tokens'
+      - 'About 75,000 tokens'
+    a: 1
+    why: 'A token is about three quarters of an English word, so 750 words is roughly 1,000 tokens. Exact counts vary by tokenizer, but the rule of thumb is good enough for cost estimates.'
+
+  - id: d2-202
+    c: tokens-and-pricing
+    kind: mcq
+    diff: 2
+    q: 'A travel company''s Amazon Bedrock assistant gives complete answers, but users wait several seconds for long responses. Which change MOST directly reduces response time?'
+    o:
+      - 'Request concise answers with a lower output cap'
+      - 'Switch the app from on-demand to batch inference'
+      - 'Add more worked examples to every prompt'
+      - 'Raise the temperature for faster sampling'
+    a: 0
+    why: 'Models generate output one token at a time, so shorter answers finish sooner. Batch inference is asynchronous and slower to return, extra examples add input tokens, and temperature changes randomness, not speed.'
+
+  - id: d2-203
+    c: tokens-and-pricing
+    kind: mcq
+    diff: 2
+    q: 'A news site sends 10,000 requests a day to an on-demand Amazon Bedrock model. Each has 2,000 input tokens and 500 output tokens. What determines the daily bill?'
+    o:
+      - 'Input and output token counts times their prices'
+      - 'The number of hours the model endpoint was running'
+      - 'Only the 10,000 requests, at a flat price per call'
+      - 'Only output tokens, because input tokens are free'
+    a: 0
+    why: 'On-demand Bedrock bills per token, with separate input and output prices per model. Hourly billing is Provisioned Throughput, and there is no flat per-call price or free input tier.'
+
+  - id: d2-204
+    c: tokens-and-pricing
+    kind: mcq
+    diff: 3
+    q: 'A company runs the same chatbot in English and several other languages on one model. Per message, some non-English versions cost noticeably more. What is the MOST likely reason?'
+    o:
+      - 'Some languages need more tokens for the same meaning'
+      - 'Non-English traffic is billed at a premium Region rate'
+      - 'The model raises its temperature for other languages'
+      - 'Translation always requires Provisioned Throughput'
+    a: 0
+    why: 'Tokenizers are often trained mostly on English text, so many other languages split into more tokens for the same content. More tokens per message means more cost and latency.'
+
+  - id: d2-205
+    c: tokens-and-pricing
+    kind: multi
+    diff: 2
+    q: 'A team wants to lower the per-request token cost of a document Q&A app on Amazon Bedrock while keeping its quality target. Which actions help? (Choose TWO.)'
+    o:
+      - 'Retrieve only the most relevant chunks for each question'
+      - 'Paste the full document set into every prompt'
+      - 'Use a smaller model if it still meets the quality target'
+      - 'Ask the model to explain its reasoning at length'
+      - 'Repeat the instructions twice for emphasis'
+    a: [0, 2]
+    why: 'Focused retrieval cuts input tokens, and a smaller model usually has a lower price per token. Pasting everything, long explanations and repeated instructions all add billed tokens.'
+
+  - id: d2-206
+    c: tokens-and-pricing
+    kind: tf
+    diff: 2
+    s: 'Streaming shows the answer to the user as it is generated, but it does not reduce the number of tokens you are billed for.'
+    v: true
+    why: 'Streaming improves perceived latency because the first words appear sooner. The model still generates the same output tokens, so the cost is the same.'
+
+  - id: d2-207
+    c: tokens-and-pricing
+    kind: hallu
+    diff: 3
+    s:
+      - 'Different models can count the same text as different numbers of tokens.'
+      - 'The context window limits how many tokens one request can handle.'
+      - 'If output hits the maximum token limit, the answer can be cut off.'
+      - 'Cutting my prompt in half always cuts my bill exactly in half.'
+    bad: 3
+    o:
+      - 'Halving the prompt cuts input cost; output tokens are billed separately.'
+      - 'Halving the prompt doubles the price of each output token.'
+      - 'Halving the prompt makes the request free below a size limit.'
+    a: 0
+    why: 'The bill is input tokens plus output tokens, each at its own price. A shorter prompt only shrinks the input part; a long answer still costs the same.'
+
+  - id: d2-208
+    c: tokens-and-pricing
+    kind: match
+    diff: 1
+    q: 'Match each change to its main effect on an on-demand Amazon Bedrock bill.'
+    pairs:
+      - ['A longer system prompt on every call', 'Higher input token cost']
+      - ['Wordier answers', 'Higher output token cost']
+      - ['Switching to a larger model', 'Higher price per token']
+      - ['Moving overnight jobs to batch inference', 'Discounted price for non-urgent work']
+    why: 'Prompts drive input tokens, answers drive output tokens, model choice sets the per-token price, and batch inference trades speed for a lower price on supported models.'
+
+  # embeddings-vectors
+  - id: d2-209
+    c: embeddings-vectors
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'What does an embedding model return when it is given a paragraph of text?'
+    o:
+      - 'A shorter, rewritten summary of the paragraph'
+      - 'A vector of numbers representing its meaning'
+      - 'The paragraph translated into another language'
+      - 'A list of the paragraph''s most common words'
+    a: 1
+    why: 'Embedding models output vectors, not new text. The numbers capture meaning, so similar text lands close together, which powers semantic search, clustering and recommendations.'
+
+  - id: d2-210
+    c: embeddings-vectors
+    kind: mcq
+    diff: 2
+    q: 'A team chunks long manuals for retrieval. Answers sometimes miss facts that span the boundary between two chunks. What should the team try FIRST?'
+    o:
+      - 'Add some overlap between neighboring chunks'
+      - 'Raise the temperature of the answering model'
+      - 'Store each manual as a single large chunk'
+      - 'Use Provisioned Throughput for embeddings'
+    a: 0
+    why: 'Overlap repeats a little text at each boundary, so a fact split across chunks still appears whole in one of them. One giant chunk buries the fact and may exceed limits; temperature is unrelated.'
+
+  - id: d2-211
+    c: embeddings-vectors
+    kind: mcq
+    diff: 3
+    q: 'A company switches its knowledge base to a newer embedding model. What must it do with the document vectors it already stored?'
+    o:
+      - 'Re-embed all documents with the new model'
+      - 'Keep them, since all models share one vector space'
+      - 'Convert them by raising the model temperature'
+      - 'Delete the source text and keep only the vectors'
+    a: 0
+    why: 'Each embedding model has its own vector space. Old vectors cannot be compared with new query vectors, so the documents must be re-embedded with the new model.'
+
+  - id: d2-212
+    c: embeddings-vectors
+    kind: mcq
+    diff: 2
+    q: 'A furniture retailer wants shoppers to upload a photo and find visually similar products in its catalog. Which approach fits BEST?'
+    o:
+      - 'Multimodal embeddings and similarity search'
+      - 'Exact keyword search across all product titles'
+      - 'A diffusion model that draws new furniture pieces'
+      - 'An LLM that translates every product description'
+    a: 0
+    why: 'Multimodal embedding models map images and text into one vector space, so a photo can find similar products. Diffusion models create new images instead of matching them.'
+
+  - id: d2-213
+    c: embeddings-vectors
+    kind: multi
+    diff: 2
+    q: 'A software company has 500,000 past support tickets. Which tasks can text embeddings help with? (Choose TWO.)'
+    o:
+      - 'Grouping tickets into topics by meaning'
+      - 'Generating product screenshots for the help site'
+      - 'Finding past tickets similar to a new one'
+      - 'Encrypting the ticket database at rest'
+      - 'Counting the tokens in each ticket'
+    a: [0, 2]
+    why: 'Embeddings place similar tickets near each other, which enables clustering by topic and similarity search. Image generation, encryption and token counting are different tools.'
+
+  - id: d2-214
+    c: embeddings-vectors
+    kind: tf
+    diff: 2
+    s: 'Every embedding model produces vectors with the same number of dimensions.'
+    v: false
+    why: 'Dimensions vary by model, and some let you choose. Amazon Titan Text Embeddings V2, for example, offers 256, 512 or 1,024 dimensions. Smaller vectors save storage; larger ones can hold more detail.'
+
+  - id: d2-215
+    c: embeddings-vectors
+    kind: hallu
+    diff: 2
+    s:
+      - 'Cosine similarity is a common way to compare two vectors.'
+      - 'Semantic search can match synonyms that keyword search misses.'
+      - 'A vector store usually keeps the chunk text alongside its vector.'
+      - 'Embeddings are made once in pre-training and cannot be created for new documents.'
+    bad: 3
+    o:
+      - 'New documents can be embedded any time by calling the embedding model.'
+      - 'New documents can be embedded only after fine-tuning the embedding model.'
+      - 'New documents can be added only by retraining the answering LLM.'
+    a: 0
+    why: 'An embedding model is called at any time, like any inference: send new text, get a vector back. That is how knowledge bases stay current without retraining anything.'
+
+  - id: d2-216
+    c: embeddings-vectors
+    kind: duel
+    diff: 2
+    q: 'Policy documents are long and cover many topics. Which retrieval design is better for a policy assistant?'
+    A: 'Embed each full 80-page policy as one vector and retrieve the closest policy.'
+    B: 'Split policies into section-sized chunks, embed each chunk, and retrieve the closest chunks.'
+    a: 1
+    why: 'One vector for 80 pages blurs many topics into one point, and retrieving it floods the prompt. Section chunks match questions precisely and send only the relevant text.'
+
+  # fm-model-types
+  - id: d2-217
+    c: fm-model-types
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A marketing team wants to create original product images from text descriptions. Which type of model is designed for this?'
+    o:
+      - 'Diffusion model'
+      - 'Embedding model'
+      - 'Text classification model'
+      - 'Speech recognition model'
+    a: 0
+    why: 'Diffusion models generate images from prompts by denoising step by step. Embedding models output vectors, classifiers assign labels, and speech recognition turns audio into text.'
+
+  - id: d2-218
+    c: fm-model-types
+    kind: mcq
+    diff: 1
+    q: 'Which mechanism lets a transformer weigh how each token in the input relates to every other token?'
+    o:
+      - 'Self-attention'
+      - 'Convolution filters'
+      - 'Decision tree splits'
+      - 'K-means clustering'
+    a: 0
+    why: 'Self-attention scores every token against the others, so the model can use context from anywhere in the input. It is the core idea of the transformer architecture behind LLMs.'
+
+  - id: d2-219
+    c: fm-model-types
+    kind: mcq
+    diff: 2
+    q: 'A clinic wants an assistant that reads an uploaded chart image together with a typed question and answers in text. Which model capability matters MOST?'
+    o:
+      - 'Multimodal input support'
+      - 'A larger text-only context window'
+      - 'Diffusion-based image generation'
+      - 'A lower temperature setting'
+    a: 0
+    why: 'The input mixes an image and text, so the model must accept more than one modality. A bigger text-only window cannot read images, and diffusion creates images rather than reading them.'
+
+  - id: d2-220
+    c: fm-model-types
+    kind: mcq
+    diff: 2
+    q: 'A company wants a low-latency, low-cost model on Amazon Bedrock for simple text-only tasks such as classification. Which option fits?'
+    o:
+      - 'Amazon Nova Micro'
+      - 'Amazon Rekognition'
+      - 'Amazon Polly'
+      - 'Amazon Nova Sonic'
+    a: 0
+    why: 'Nova Micro is the text-only Nova model built for low latency and cost. Rekognition analyzes images and video, Polly turns text into speech, and Sonic handles speech-to-speech conversation.'
+
+  - id: d2-221
+    c: fm-model-types
+    kind: multi
+    diff: 3
+    q: 'Which statements about transformer-based LLMs are correct? (Choose TWO.)'
+    o:
+      - 'They generate output one token at a time'
+      - 'They read only one word at a time with no wider context'
+      - 'They use self-attention across the input'
+      - 'They are a type of diffusion model'
+      - 'They need fully labeled data for pre-training'
+    a: [0, 2]
+    why: 'LLMs attend across the whole input and generate token by token. Pre-training is self-supervised on mostly unlabeled text, and diffusion is a different family used mainly for images.'
+
+  - id: d2-222
+    c: fm-model-types
+    kind: tf
+    diff: 2
+    s: 'LLMs are pre-trained mostly on unlabeled text by learning to predict the next token.'
+    v: true
+    why: 'Next-token prediction is self-supervised: the text itself supplies the answers, so no human labels are needed. That is what makes training on huge datasets practical.'
+
+  - id: d2-223
+    c: fm-model-types
+    kind: hallu
+    diff: 2
+    s:
+      - 'Amazon Polly turns text into lifelike speech.'
+      - 'Amazon Rekognition analyzes images and video.'
+      - 'An embedding model returns vectors, not readable text.'
+      - 'A diffusion model writes essays by predicting the next word.'
+    bad: 3
+    o:
+      - 'A diffusion model creates images by gradually removing noise.'
+      - 'A diffusion model compresses text into vectors for search.'
+      - 'A diffusion model turns speech into text in real time.'
+    a: 0
+    why: 'Next-word prediction is how LLMs write. Diffusion models start from noise and refine it into an image, which is why they lead in image generation.'
+
+  - id: d2-224
+    c: fm-model-types
+    kind: duel
+    diff: 1
+    q: 'A legal team needs drafts of contract summaries from long text documents. Which model choice is better?'
+    A: 'A text LLM with a context window large enough for the contracts.'
+    B: 'A diffusion model tuned on scanned contract images.'
+    a: 0
+    why: 'Summarizing text is a language task, so an LLM with enough context fits. Diffusion models generate images; they do not read and condense documents.'
+
+  # genai-use-cases
+  - id: d2-225
+    c: genai-use-cases
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A call center wants agents to see a short recap of a customer''s previous calls before picking up. Which GenAI use case is this?'
+    o:
+      - 'Summarization'
+      - 'Image generation'
+      - 'Translation'
+      - 'Code generation'
+    a: 0
+    why: 'Condensing long call transcripts into a few key points is summarization. The model generates new, shorter text that keeps what matters.'
+
+  - id: d2-226
+    c: genai-use-cases
+    kind: mcq
+    diff: 2
+    q: 'A software company wants developers to describe features in plain English and have an AI agent plan and write the code in their editor. Which AWS offering is built for this?'
+    o:
+      - 'Kiro'
+      - 'Amazon Polly'
+      - 'Amazon Quick'
+      - 'Amazon Rekognition'
+    a: 0
+    why: 'Kiro is an agentic IDE for code generation that works from specs. Polly turns text into speech, Quick serves business users, and Rekognition analyzes images and video.'
+
+  - id: d2-227
+    c: genai-use-cases
+    kind: mcq
+    diff: 2
+    q: 'Which task is BEST suited to traditional ML rather than generative AI?'
+    o:
+      - 'Drafting personalized marketing emails'
+      - 'Creating storyboard images from a script'
+      - 'Summarizing long legal documents'
+      - 'Scoring each card payment as fraud or not'
+    a: 3
+    why: 'Scoring payments as fraud or not is classification on structured data, a classic traditional ML job. The other tasks create new text or images, which is what GenAI is for.'
+
+  - id: d2-228
+    c: genai-use-cases
+    kind: mcq
+    diff: 3
+    q: 'A telecom company wants a customer service agent that answers plan questions AND can actually change a customer''s plan. What does this need beyond text generation?'
+    o:
+      - 'Tool use to call the billing system API'
+      - 'A higher temperature for a friendlier tone'
+      - 'A diffusion model to draw plan comparisons'
+      - 'A larger embedding vector dimension'
+    a: 0
+    why: 'Answering is text generation; changing a plan is an action. The agent needs a tool that calls the billing system, which the app runs on the model''s request.'
+
+  - id: d2-229
+    c: genai-use-cases
+    kind: multi
+    diff: 1
+    q: 'A streaming company is listing projects for next year. Which are generative AI use cases? (Choose THREE.)'
+    o:
+      - 'Creating a short promo video from a script'
+      - 'Producing a synthetic voiceover for a trailer'
+      - 'Writing episode summaries for the website'
+      - 'Storing raw footage in Amazon S3'
+      - 'Counting views per episode in a dashboard'
+      - 'Encrypting archived video files'
+    a: [0, 1, 2]
+    why: 'Video, audio and text creation are generative. Storage, counting and encryption are ordinary IT tasks that create no new content.'
+
+  - id: d2-230
+    c: genai-use-cases
+    kind: tf
+    diff: 2
+    s: 'Code from a code generation assistant is always correct and secure, so human review is no longer needed.'
+    v: false
+    why: 'Generated code can contain bugs, outdated calls or security flaws, just like a hallucinated fact. Treat it as a fast first draft: review it, test it, and scan it.'
+
+  - id: d2-231
+    c: genai-use-cases
+    kind: hallu
+    diff: 2
+    s:
+      - 'GenAI can draft first versions of marketing copy.'
+      - 'Recommendation engines can use embeddings to find similar items.'
+      - 'Some models can generate natural-sounding speech.'
+      - 'Translating with an LLM needs a separate fine-tuned model for every language pair.'
+    bad: 3
+    o:
+      - 'Many LLMs are multilingual and can translate from a simple prompt.'
+      - 'LLMs can translate only into English, never out of it.'
+      - 'Translation always needs a diffusion model.'
+    a: 0
+    why: 'Large models are pre-trained on many languages, so a prompt like "translate this into Spanish" usually works with no extra training. Fine-tuning is an option for special domains, not a requirement.'
+
+  - id: d2-232
+    c: genai-use-cases
+    kind: match
+    diff: 2
+    q: 'Match each AWS model or service to what it does.'
+    pairs:
+      - ['Amazon Rekognition', 'Analyzes images and video']
+      - ['Amazon Translate', 'Converts text between languages']
+      - ['Amazon Nova Sonic', 'Speech-to-speech conversation model']
+      - ['Amazon Nova Micro', 'Fast, low-cost text-only model']
+    why: 'Rekognition analyzes images and video, Translate converts text between languages, Sonic handles real-time speech-to-speech conversation, and Micro is the fast, low-cost text-only model.'
+
+  # fm-lifecycle
+  - id: d2-233
+    c: fm-lifecycle
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'Which FM lifecycle stage adapts an already pre-trained model to a company''s specific task using a smaller dataset?'
+    o:
+      - 'Fine-tuning'
+      - 'Pre-training'
+      - 'Data selection'
+      - 'Deployment'
+    a: 0
+    why: 'Fine-tuning starts from a pre-trained model and trains it further on task-specific data. Pre-training builds the general model, and deployment serves it.'
+
+  - id: d2-234
+    c: fm-lifecycle
+    kind: mcq
+    diff: 2
+    q: 'A startup wants a model that assigns medical billing codes. What is the BEST first step in the FM lifecycle?'
+    o:
+      - 'Select the data and a suitable base model'
+      - 'Deploy a model to a production endpoint'
+      - 'Collect user feedback on live answers'
+      - 'Fine-tune on whatever data is at hand'
+    a: 0
+    why: 'The lifecycle starts with choosing data and a model. You cannot fine-tune well without the right data, and deployment and feedback come after evaluation.'
+
+  - id: d2-235
+    c: fm-lifecycle
+    kind: mcq
+    diff: 1
+    q: 'Before launch, a bank tests its fine-tuned FM on realistic customer questions to confirm it meets accuracy and tone targets. Which lifecycle stage is this?'
+    o:
+      - 'Evaluation'
+      - 'Pre-training'
+      - 'Feedback'
+      - 'Data selection'
+    a: 0
+    why: 'Evaluation checks the model against benchmarks and business requirements before users see it. Feedback comes from real users after deployment.'
+
+  - id: d2-236
+    c: fm-lifecycle
+    kind: mcq
+    diff: 3
+    q: 'A company needs a model for its niche industry. It has 5,000 labeled examples and a small budget. Which approach is MOST cost-effective?'
+    o:
+      - 'Fine-tune an existing foundation model'
+      - 'Pre-train a new model from scratch'
+      - 'Train a new transformer on the 5,000 examples'
+      - 'Deploy an untuned model and skip evaluation'
+    a: 0
+    why: 'Fine-tuning reuses everything a pre-trained model already knows. Pre-training needs vast data and compute, 5,000 examples are far too few to train a transformer from zero, and skipping evaluation is risky.'
+
+  - id: d2-237
+    c: fm-lifecycle
+    kind: multi
+    diff: 2
+    q: 'Which activities belong to the deployment and feedback stages of the FM lifecycle? (Choose TWO.)'
+    o:
+      - 'Serving the model behind an inference endpoint or API'
+      - 'Collecting user ratings and monitoring live outputs'
+      - 'Pre-training on a large web-scale text corpus'
+      - 'Choosing which base model architecture to use'
+      - 'Curating the initial training dataset'
+    a: [0, 1]
+    why: 'Deployment puts the model behind an endpoint, and feedback gathers ratings and monitoring data from real use. Pre-training, model choice and data curation happen earlier.'
+
+  - id: d2-238
+    c: fm-lifecycle
+    kind: tf
+    diff: 1
+    s: 'Model selection, choosing which base model to start from, comes before fine-tuning in the FM lifecycle.'
+    v: true
+    why: 'You must pick a base model before you can adapt it. Most teams select an existing pre-trained FM, then fine-tune and evaluate it.'
+
+  - id: d2-239
+    c: fm-lifecycle
+    kind: hallu
+    diff: 3
+    s:
+      - 'Data selection affects the quality and bias of the final model.'
+      - 'Pre-training teaches general patterns from broad data.'
+      - 'Fine-tuning usually needs far less data than pre-training.'
+      - 'Evaluation is finished once the model scores well on one public benchmark.'
+    bad: 3
+    o:
+      - 'Evaluation should also test real tasks and business goals, not just one benchmark.'
+      - 'Evaluation is done only by the model provider, never by the customer.'
+      - 'Evaluation means counting how many tokens the model outputs.'
+    a: 0
+    why: 'A public benchmark shows general skill, not fitness for your job. Good evaluation also uses your own test data, human review and business metrics.'
+
+  - id: d2-240
+    c: fm-lifecycle
+    kind: duel
+    diff: 3
+    q: 'A retailer''s deployed model gets worse ratings after many new products launch. Which plan is better?'
+    A: 'Collect the low-rated cases, add fresh product data, fine-tune, re-evaluate, then redeploy.'
+    B: 'Pre-train a brand-new model from scratch on web data plus the product catalog.'
+    a: 0
+    why: 'Feedback feeds the next lifecycle loop: targeted new data, fine-tuning and re-evaluation. Pre-training from scratch is the most expensive stage and unnecessary for a catalog update.'
+
+  # context-engineering
+  - id: d2-241
+    c: context-engineering
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'Which item is part of an FM''s context for a request, rather than its trained weights?'
+    o:
+      - 'Documents retrieved for this request'
+      - 'Patterns learned during pre-training'
+      - 'Knowledge added by fine-tuning'
+      - 'The model''s total parameter count'
+    a: 0
+    why: 'Context is whatever the app sends with the request: instructions, retrieved documents, history, tool results. Pre-training and fine-tuning live in the weights.'
+
+  - id: d2-242
+    c: context-engineering
+    kind: mcq
+    diff: 2
+    q: 'An agent has access to 80 tools and often picks the wrong one. Which context engineering change should the team try FIRST?'
+    o:
+      - 'Expose only the tools the task needs'
+      - 'Fine-tune the model on all 80 tool descriptions'
+      - 'Raise the temperature to explore more tools'
+      - 'Switch the agent to Provisioned Throughput'
+    a: 0
+    why: 'Fewer, relevant tool definitions make the right choice clearer and save tokens. Fine-tuning is slow and costly, temperature adds randomness, and capacity does not affect tool choice.'
+
+  - id: d2-243
+    c: context-engineering
+    kind: mcq
+    diff: 3
+    q: 'An HR assistant answers from retrieved policy passages but sometimes mixes in another country''s rules. What is the BEST context engineering fix?'
+    o:
+      - 'Filter retrieval by employee country metadata'
+      - 'Raise the maximum output token limit per answer'
+      - 'Include every country''s policy in each prompt'
+      - 'Remove the system prompt to free up space'
+    a: 0
+    why: 'Metadata filtering narrows retrieval to passages that apply to this employee. Sending every policy makes mix-ups more likely, and a longer output cap changes nothing about the input.'
+
+  - id: d2-244
+    c: context-engineering
+    kind: mcq
+    diff: 2
+    q: 'A prompt mixes instructions, a customer email and retrieved FAQ text with no separation. The model sometimes obeys sentences inside the email. Which change helps MOST?'
+    o:
+      - 'Clearly delimit and label each section'
+      - 'Put the customer email before the system prompt'
+      - 'Raise the temperature to vary the output'
+      - 'Remove the retrieved FAQ text entirely'
+    a: 0
+    why: 'Labels or tags show the model which text is instruction and which is data. That reduces confusion and some injection risk, though it is not a full defense on its own.'
+
+  - id: d2-245
+    c: context-engineering
+    kind: multi
+    diff: 3
+    q: 'A long-running agent keeps hitting its context window limit. Which techniques help? (Choose TWO.)'
+    o:
+      - 'Summarize older conversation turns'
+      - 'Keep key facts in memory and retrieve them when relevant'
+      - 'Append every tool output in full for the whole session'
+      - 'Raise the temperature setting'
+      - 'Repeat the system prompt at the end of each request'
+    a: [0, 1]
+    why: 'Summaries and selective memory keep what matters in fewer tokens. Full tool outputs and repeated prompts fill the window faster, and temperature does not change its size.'
+
+  - id: d2-246
+    c: context-engineering
+    kind: tf
+    diff: 2
+    s: 'With a very large context window, you no longer need to choose what context to include.'
+    v: false
+    why: 'A big window holds more, but every token still costs money and time, and irrelevant text can distract the model. Choosing relevant context still matters.'
+
+  - id: d2-247
+    c: context-engineering
+    kind: tf
+    diff: 2
+    s: 'Better context engineering can improve an agent''s results without retraining or fine-tuning the model.'
+    v: true
+    why: 'Context engineering changes what the model sees at inference time, such as better retrieval, cleaner history and fewer tools. The weights stay the same.'
+
+  - id: d2-248
+    c: context-engineering
+    kind: hallu
+    diff: 2
+    s:
+      - 'A system prompt sets the model''s role and rules.'
+      - 'Retrieved documents can give the model facts it was not trained on.'
+      - 'Old chat turns can be summarized to save tokens.'
+      - 'Only the user''s latest message counts toward the context window.'
+    bad: 3
+    o:
+      - 'System prompt, history, retrieved text and tool results all count toward it.'
+      - 'Only the system prompt counts toward the context window.'
+      - 'Only output tokens count toward the context window.'
+    a: 0
+    why: 'The context window covers everything sent in the request, plus the generated output on most models. Big system prompts and long histories eat it just as user messages do.'
+
+  # multi-agent-patterns
+  - id: d2-249
+    c: multi-agent-patterns
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A content team uses three agents. One researches, one writes a draft from the research, and one edits the draft. Each passes output to the next. Which pattern is this?'
+    o:
+      - 'Sequential pipeline'
+      - 'Parallel fan-out'
+      - 'Swarm'
+      - 'Supervisor with routing'
+    a: 0
+    why: 'Each step depends on the previous output, in a fixed order, which is a sequential pipeline. Fan-out runs agents at the same time, and a swarm has no fixed order.'
+
+  - id: d2-250
+    c: multi-agent-patterns
+    kind: mcq
+    diff: 2
+    q: 'A due-diligence app must check a company''s financials, legal filings and news coverage. The checks are independent and the report is needed fast. Which pattern fits BEST?'
+    o:
+      - 'Parallel fan-out, then combine the results'
+      - 'A sequential chain of three agents'
+      - 'One agent doing each check in turn'
+      - 'A single agent with a much longer prompt'
+    a: 0
+    why: 'Independent subtasks can run at the same time, so total time is roughly the slowest check rather than the sum. A chain or single agent runs them one after another.'
+
+  - id: d2-251
+    c: multi-agent-patterns
+    kind: mcq
+    diff: 3
+    q: 'In Amazon Bedrock multi-agent collaboration, a supervisor should send simple requests straight to the one relevant collaborator agent instead of planning a full breakdown. Which mode fits?'
+    o:
+      - 'Supervisor with routing mode'
+      - 'Batch inference mode'
+      - 'Provisioned Throughput mode'
+      - 'Cross-Region inference mode'
+    a: 0
+    why: 'Bedrock multi-agent collaboration offers supervisor mode, which plans and combines, and supervisor with routing mode, which forwards suitable requests directly to one collaborator for speed.'
+
+  - id: d2-252
+    c: multi-agent-patterns
+    kind: duel
+    diff: 2
+    q: 'Which first design is better for an assistant that answers FAQ questions from one knowledge base?'
+    A: 'A single agent with retrieval over the knowledge base, adding more agents only if a real need appears.'
+    B: 'Five cooperating agents from day one: a supervisor, a router and three specialists.'
+    a: 0
+    why: 'Every extra agent adds tokens, latency and failure points. A single focused agent has the least operational overhead when the task does not naturally split.'
+
+  - id: d2-253
+    c: multi-agent-patterns
+    kind: multi
+    diff: 2
+    q: 'Which are valid ways for agents in a multi-agent system to communicate? (Choose TWO.)'
+    o:
+      - 'Passing messages through a supervisor agent'
+      - 'Using the Agent2Agent (A2A) protocol'
+      - 'Sharing model weights during inference'
+      - 'Editing each other''s training data'
+      - 'Trading Provisioned Throughput model units'
+    a: [0, 1]
+    why: 'Agents exchange messages, either through an orchestrator or directly over a protocol such as A2A. Weights, training data and capacity units are not communication channels.'
+
+  - id: d2-254
+    c: multi-agent-patterns
+    kind: tf
+    diff: 2
+    s: 'Strands Agents supports multi-agent patterns, such as swarms and graphs of agents, defined in code.'
+    v: true
+    why: 'Strands Agents includes multi-agent building blocks such as agents as tools, swarms and graphs, so developers can code these patterns without building coordination from scratch.'
+
+  - id: d2-255
+    c: multi-agent-patterns
+    kind: hallu
+    diff: 2
+    s:
+      - 'A supervisor agent can combine results from specialist agents.'
+      - 'Parallel agents can cut total time when subtasks are independent.'
+      - 'A sequential pipeline suits steps that depend on earlier output.'
+      - 'In a supervisor pattern, every specialist must use the same foundation model.'
+    bad: 3
+    o:
+      - 'Each specialist agent can use a model suited to its own task.'
+      - 'Each specialist must share one prompt with the supervisor.'
+      - 'Specialist agents can never run at the same time.'
+    a: 0
+    why: 'Specialists are separate agents, so each can use the model that fits its job, such as a small, cheap model for simple lookups and a stronger one for analysis.'
+
+  - id: d2-256
+    c: multi-agent-patterns
+    kind: order
+    diff: 2
+    q: 'Put the steps of a supervisor agent handling a complex request in order.'
+    steps:
+      - 'Receive the user request'
+      - 'Break it into subtasks'
+      - 'Delegate subtasks to specialist agents'
+      - 'Collect the specialists'' results'
+      - 'Combine them into one final answer'
+    why: 'The supervisor must understand and split the job before delegating, and it can only merge results after the specialists report back.'
+
+  # mcp
+  - id: d2-257
+    c: mcp
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'What problem does the Model Context Protocol (MCP) mainly solve?'
+    o:
+      - 'A standard way to connect AI apps to tools'
+      - 'Lowering the per-token price of models'
+      - 'Compressing documents before embedding'
+      - 'Training models faster on larger clusters'
+    a: 0
+    why: 'MCP is an open standard so any compatible AI app can use tools and data exposed by MCP servers, without custom glue for each pairing. It does not change pricing or training.'
+
+  - id: d2-258
+    c: mcp
+    kind: mcq
+    diff: 2
+    q: 'In MCP, which component exposes a system''s tools and data so AI applications can use them?'
+    o:
+      - 'MCP server'
+      - 'MCP client'
+      - 'Embedding model'
+      - 'Vector index'
+    a: 0
+    why: 'An MCP server wraps a system and exposes its tools, resources and prompts. The MCP client inside the AI application connects to servers and calls them.'
+
+  - id: d2-259
+    c: mcp
+    kind: mcq
+    diff: 2
+    q: 'A retailer wants its inventory REST API and several AWS Lambda functions available as MCP tools for agents, with the LEAST custom code. Which service fits BEST?'
+    o:
+      - 'Amazon Bedrock AgentCore Gateway'
+      - 'Amazon SageMaker JumpStart'
+      - 'Amazon Bedrock Guardrails'
+      - 'Amazon Bedrock Prompt Management'
+    a: 0
+    why: 'AgentCore Gateway converts existing APIs and Lambda functions into MCP-compatible tools. JumpStart is a model hub, Guardrails filters content, and Prompt Management stores and versions prompts.'
+
+  - id: d2-260
+    c: mcp
+    kind: mcq
+    diff: 3
+    q: 'An agent''s model asks to call a "delete_customer" tool. Where should the check that this user may delete customers happen?'
+    o:
+      - 'In the app or tool, before running the call'
+      - 'Inside the model, which enforces IAM policies'
+      - 'In the embedding model, during retrieval'
+      - 'Nowhere, since tool requests are pre-approved'
+    a: 0
+    why: 'The model only proposes a call. The application, tool or agent runtime must enforce permissions before executing, using controls such as IAM or AgentCore Identity and Policy.'
+
+  - id: d2-261
+    c: mcp
+    kind: multi
+    diff: 1
+    q: 'Which tasks would an agent typically perform through MCP tools? (Choose TWO.)'
+    o:
+      - 'Looking up an order in a live database'
+      - 'Creating a ticket in an issue tracker'
+      - 'Updating the model''s pre-trained weights'
+      - 'Changing the model''s temperature setting'
+      - 'Choosing the embedding vector dimension'
+    a: [0, 1]
+    why: 'MCP tools let agents reach live external systems, reading data or taking actions. Weights, temperature and embedding size are model settings, not tool calls.'
+
+  - id: d2-262
+    c: mcp
+    kind: tf
+    diff: 2
+    s: 'Agents built with Strands Agents cannot use tools from MCP servers.'
+    v: false
+    why: 'Strands Agents supports MCP natively, so an agent can load tools from any MCP server. That is the point of a shared standard: build the server once, use it everywhere.'
+
+  - id: d2-263
+    c: mcp
+    kind: hallu
+    diff: 3
+    s:
+      - 'Tool definitions tell the model each tool''s name, purpose and inputs.'
+      - 'The model replies with a structured tool request, such as JSON arguments.'
+      - 'The app returns the tool result to the model as new context.'
+      - 'I read each tool''s source code to decide how to call it.'
+    bad: 3
+    o:
+      - 'The model relies on the tool''s name, description and input schema.'
+      - 'The model runs each tool once to learn what it does.'
+      - 'The model downloads the tool and executes it itself.'
+    a: 0
+    why: 'Models only see the tool definition, so clear names, descriptions and input schemas matter. A vague description is a top cause of wrong tool choices.'
+
+  - id: d2-264
+    c: mcp
+    kind: order
+    diff: 2
+    q: 'Put the steps for an agent using tools from an MCP server in order.'
+    steps:
+      - 'The MCP client connects to the server'
+      - 'The client discovers the tools the server offers'
+      - 'The model chooses a tool and its arguments'
+      - 'The client calls the tool on the server'
+      - 'The result returns to the model'
+    why: 'Tools must be discovered before the model can choose one. The client then makes the call to the server and passes the result back into the model''s context.'
+
+  # agent-memory-orchestration
+  - id: d2-265
+    c: agent-memory-orchestration
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'An agent plans a step, calls a search tool, reads the result, and decides what to do next, again and again. What is this cycle called?'
+    o:
+      - 'The agent orchestration loop'
+      - 'Foundation model pre-training'
+      - 'Asynchronous batch inference'
+      - 'Document chunking'
+    a: 0
+    why: 'Orchestration runs the reason, act, observe loop until the task is done. Pre-training builds the model, batch inference processes bulk jobs, and chunking prepares documents.'
+
+  - id: d2-266
+    c: agent-memory-orchestration
+    kind: mcq
+    diff: 3
+    q: 'With Amazon Bedrock AgentCore Memory, how is long-term memory typically created?'
+    o:
+      - 'Insights are extracted from session events'
+      - 'The model''s weights update after each chat'
+      - 'Every raw message is copied into later prompts'
+      - 'Developers retrain the model nightly on chats'
+    a: 0
+    why: 'AgentCore Memory stores session events as short-term memory, and memory strategies extract facts, preferences or summaries into long-term memory. The model weights never change.'
+
+  - id: d2-267
+    c: agent-memory-orchestration
+    kind: mcq
+    diff: 2
+    q: 'An agent sometimes calls the same tool again and again without finishing, running up costs. What should the team add FIRST?'
+    o:
+      - 'A maximum step or iteration limit'
+      - 'A higher temperature setting'
+      - 'A larger context window'
+      - 'More tools for the agent to choose from'
+    a: 0
+    why: 'A step limit stops runaway loops and caps cost per request. A bigger window or more tools let the loop run longer, and higher temperature makes behavior less predictable.'
+
+  - id: d2-268
+    c: agent-memory-orchestration
+    kind: mcq
+    diff: 2
+    q: 'An agent can issue refunds. The company wants a person to approve any refund over $500 before it happens. Which orchestration design fits?'
+    o:
+      - 'Pause for human approval before refunds'
+      - 'Raise the temperature for refund requests'
+      - 'Store refund rules in short-term memory only'
+      - 'Let the agent retry until the refund succeeds'
+    a: 0
+    why: 'A human-in-the-loop step gates high-risk actions before they run. Memory and temperature do not enforce approval, and retrying could issue the refund without anyone checking.'
+
+  - id: d2-269
+    c: agent-memory-orchestration
+    kind: multi
+    diff: 3
+    q: 'A team must choose between an autonomous agent and a fixed AWS Step Functions workflow for a new process. Which traits favor the autonomous agent? (Choose TWO.)'
+    o:
+      - 'The next step depends on what is found along the way'
+      - 'Requests vary widely and need flexible tool choice'
+      - 'Every run must follow the same audited sequence'
+      - 'The process must be fully predictable and repeatable'
+      - 'The steps are fixed and rarely change'
+    a: [0, 1]
+    why: 'Agents shine when the path is unknown in advance and tools must be chosen on the fly. Fixed, auditable, repeatable steps favor a deterministic workflow.'
+
+  - id: d2-270
+    c: agent-memory-orchestration
+    kind: tf
+    diff: 2
+    s: 'Agent memory should be kept separate per user, so one customer''s details never show up in another customer''s conversation.'
+    v: true
+    why: 'Memory often holds personal data. Scoping it by user and session, as AgentCore Memory does with actor and session identifiers, prevents leaks between customers.'
+
+  - id: d2-271
+    c: agent-memory-orchestration
+    kind: hallu
+    diff: 2
+    s:
+      - 'Orchestration decides which tool to call next.'
+      - 'Human approval steps can gate risky agent actions.'
+      - 'Step limits help stop runaway agent loops.'
+      - 'Short-term memory automatically lasts forever across all future sessions.'
+    bad: 3
+    o:
+      - 'Short-term memory covers a session; long-term memory persists across sessions.'
+      - 'Short-term memory is stored inside the model weights.'
+      - 'Short-term memory can only hold images.'
+    a: 0
+    why: 'Short-term memory is the working context of the current session. Facts that should survive to future sessions must be saved to long-term memory.'
+
+  - id: d2-272
+    c: agent-memory-orchestration
+    kind: match
+    diff: 1
+    q: 'Match each step of the agent loop to what happens.'
+    pairs:
+      - ['Reason', 'The model plans the next action']
+      - ['Act', 'A tool is called with arguments']
+      - ['Observe', 'The tool result is added to context']
+      - ['Respond', 'The final answer goes to the user']
+    why: 'The loop repeats reason, act and observe until the model has enough to respond. Each observation becomes context for the next reasoning step.'
+
+  # genai-pros-cons
+  - id: d2-273
+    c: genai-pros-cons
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A chatbot cites a court case that does not exist, in a confident and detailed answer. What is this called?'
+    o:
+      - 'Hallucination'
+      - 'Overfitting'
+      - 'Data drift'
+      - 'Tokenization'
+    a: 0
+    why: 'A hallucination is fluent, confident output that is false or made up. Overfitting and drift are training and data problems, and tokenization just splits text.'
+
+  - id: d2-274
+    c: genai-pros-cons
+    kind: mcq
+    diff: 2
+    q: 'An airline asks its assistant the same question five times and gets five differently worded answers. Which GenAI characteristic explains this?'
+    o:
+      - 'Nondeterminism'
+      - 'Hallucination'
+      - 'Interpretability'
+      - 'Data residency'
+    a: 0
+    why: 'LLMs sample their output, so the same prompt can produce different wording. Varied answers are not necessarily wrong, so this is nondeterminism, not hallucination.'
+
+  - id: d2-275
+    c: genai-pros-cons
+    kind: mcq
+    diff: 2
+    q: 'A pharmacy''s assistant sometimes invents drug interaction details. What should the team do FIRST to reduce this?'
+    o:
+      - 'Ground answers in approved references (RAG)'
+      - 'Raise the temperature to sample more answers'
+      - 'Switch to a larger image generation model'
+      - 'Remove the system prompt instructions'
+    a: 0
+    why: 'Grounding answers in trusted, retrieved sources is the main defense against hallucination. Higher temperature adds randomness, and dropping instructions removes guidance.'
+
+  - id: d2-276
+    c: genai-pros-cons
+    kind: mcq
+    diff: 2
+    q: 'A retailer replaces dozens of separate scripts with one FM that answers product questions, drafts emails and summarizes reviews, each through a different prompt. Which GenAI advantage does this show?'
+    o:
+      - 'Adaptability'
+      - 'Determinism'
+      - 'Interpretability'
+      - 'Data residency'
+    a: 0
+    why: 'One pre-trained model handling many tasks just by changing the prompt is adaptability. GenAI is not deterministic or easy to interpret, which are its known weaknesses.'
+
+  - id: d2-277
+    c: genai-pros-cons
+    kind: multi
+    diff: 3
+    q: 'A company wants an LLM to draft replies to regulator inquiries. Which controls address GenAI limitations? (Choose TWO.)'
+    o:
+      - 'Human review before anything is sent'
+      - 'Grounding drafts in the company''s approved records'
+      - 'Raising the temperature for more creative wording'
+      - 'Trusting answers that sound confident'
+      - 'Turning off logging of prompts and outputs'
+    a: [0, 1]
+    why: 'Grounding cuts hallucinations and human review catches what slips through. Confidence is not accuracy, more creativity adds risk, and logging supports audits.'
+
+  - id: d2-278
+    c: genai-pros-cons
+    kind: tf
+    diff: 2
+    s: 'If an LLM''s answer is fluent and detailed, it is very likely to be factually correct.'
+    v: false
+    why: 'Fluency comes from language patterns, not fact checking. Hallucinations are often the most detailed answers in the room. Verify claims against trusted sources.'
+
+  - id: d2-279
+    c: genai-pros-cons
+    kind: tf
+    diff: 1
+    s: 'Holding a natural, back-and-forth conversation in plain language is one of the main business advantages of GenAI.'
+    v: true
+    why: 'Conversational capability lets customers and staff ask in their own words and follow up, without menus or query languages.'
+
+  - id: d2-280
+    c: genai-pros-cons
+    kind: hallu
+    diff: 2
+    s:
+      - 'Hallucinations can sound fluent and confident.'
+      - 'Checking outputs against trusted data helps catch errors.'
+      - 'GenAI can produce content at large scale and speed.'
+      - 'LLMs are easy to interpret, because you can read their weights.'
+    bad: 3
+    o:
+      - 'LLM weights are billions of numbers, so explaining an answer is hard.'
+      - 'LLM weights are stored as readable English sentences.'
+      - 'LLMs log the exact reason for every answer they give.'
+    a: 0
+    why: 'Billions of numeric parameters do not explain themselves. That poor interpretability is a key limitation when regulators or customers need reasons.'
+
+  # model-selection-metrics
+  - id: d2-281
+    c: model-selection-metrics
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A game studio wants to know whether a new AI feature raises how much each player spends on average. Which metric fits?'
+    o:
+      - 'Average revenue per user'
+      - 'Conversion rate'
+      - 'Token count per request'
+      - 'Model parameter count'
+    a: 0
+    why: 'Average revenue per user measures average spend. Conversion rate counts how many complete an action, and token or parameter counts are technical, not business, measures.'
+
+  - id: d2-282
+    c: model-selection-metrics
+    kind: mcq
+    diff: 1
+    q: 'A company needs one model to analyze product photos together with text reviews. Which selection factor narrows the candidates FIRST?'
+    o:
+      - 'Support for image and text input'
+      - 'Popularity among other customers'
+      - 'The newest release date available'
+      - 'The size of the provider''s company'
+    a: 0
+    why: 'A model that cannot accept images is out, whatever its other strengths. Capabilities and modality come first; popularity and release date say little about fit.'
+
+  - id: d2-283
+    c: model-selection-metrics
+    kind: mcq
+    diff: 3
+    q: 'A voice assistant must start replying within a few hundred milliseconds. Two models meet the quality bar; one is larger and slower. Which choice is BEST?'
+    o:
+      - 'The smaller, lower-latency model'
+      - 'The larger model, because bigger is better'
+      - 'Whichever has the longer context window'
+      - 'The model with the higher default temperature'
+    a: 0
+    why: 'When both meet quality, the latency requirement decides, and the smaller model is usually cheaper too. Context length and temperature do not address response time.'
+
+  - id: d2-284
+    c: model-selection-metrics
+    kind: mcq
+    diff: 2
+    q: 'A conglomerate wants one model for legal, finance and HR tasks instead of one per department. Which measure matters MOST when comparing candidates?'
+    o:
+      - 'Cross-domain performance'
+      - 'Conversion rate'
+      - 'Average revenue per user'
+      - 'Customer lifetime value'
+    a: 0
+    why: 'Cross-domain performance shows how well one model handles many different fields. The other three are customer revenue metrics, not tests of a shared model.'
+
+  - id: d2-285
+    c: model-selection-metrics
+    kind: mcq
+    diff: 3
+    q: 'A subscription service adds an AI concierge to keep members subscribed for more years. Which metric BEST shows whether it works?'
+    o:
+      - 'Customer lifetime value'
+      - 'Free-trial conversion rate'
+      - 'Tokens per request'
+      - 'Time to first token'
+    a: 0
+    why: 'Longer subscriptions raise the total revenue each customer brings over time, which is customer lifetime value. Conversion rate tracks sign-ups, not how long members stay.'
+
+  - id: d2-286
+    c: model-selection-metrics
+    kind: multi
+    diff: 2
+    q: 'A bank compares two FMs for an internal chatbot. Both meet the accuracy target. Which factors should decide between them? (Choose TWO.)'
+    o:
+      - 'Cost per request at the expected volume'
+      - 'Availability in Regions that meet data rules'
+      - 'Which model gets more social media buzz'
+      - 'Which model was released most recently'
+      - 'Which model has the most parameters'
+    a: [0, 1]
+    why: 'With quality settled, cost and compliance decide. Buzz, release date and size do not show fitness, and a bigger model usually costs more.'
+
+  - id: d2-287
+    c: model-selection-metrics
+    kind: tf
+    diff: 2
+    s: 'Efficiency gains, such as fewer minutes per support ticket, do not count as business metrics for a GenAI project.'
+    v: false
+    why: 'Efficiency is a core business metric: time or cost saved per task often drives ROI. Business value shows up in efficiency, revenue and customer metrics, not just accuracy.'
+
+  - id: d2-288
+    c: model-selection-metrics
+    kind: match
+    diff: 2
+    q: 'Match each requirement to the model selection factor it relates to.'
+    pairs:
+      - ['Answers must arrive in under a second', 'Latency']
+      - ['Patient data must stay in one country', 'Compliance']
+      - ['Must read scanned forms as well as text', 'Modality']
+      - ['The monthly budget is fixed', 'Cost']
+    why: 'Speed is latency, legal limits are compliance, data types are modality, and budget is cost. Real selections weigh all four together.'
+
+  # bedrock-vs-sagemaker
+  - id: d2-289
+    c: bedrock-vs-sagemaker
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A research team wants to train a model with its own custom algorithm and choose the training instances. Which service fits BEST?'
+    o:
+      - 'Amazon SageMaker AI'
+      - 'Amazon Bedrock'
+      - 'Amazon Quick'
+      - 'Amazon Bedrock AgentCore'
+    a: 0
+    why: 'SageMaker AI is for building and training your own models with control over code and instances. Bedrock serves existing FMs, Quick serves business users, and AgentCore runs agents.'
+
+  - id: d2-290
+    c: bedrock-vs-sagemaker
+    kind: mcq
+    diff: 2
+    q: 'A logistics company wants to add a chat feature using a third-party FM that is available in Amazon Bedrock. It wants the LEAST operational overhead. What should it do?'
+    o:
+      - 'Invoke the model through Amazon Bedrock'
+      - 'Deploy it on SageMaker AI real-time endpoints'
+      - 'Host it on self-managed Amazon EC2 GPU instances'
+      - 'Run it on Amazon EKS with custom containers'
+    a: 0
+    why: 'Bedrock is serverless: one API call, no instances, scaling or patching. The other options all leave the team running infrastructure.'
+
+  - id: d2-291
+    c: bedrock-vs-sagemaker
+    kind: mcq
+    diff: 3
+    q: 'A team fine-tuned a supported open-weight model outside AWS. It wants to serve it through the same Amazon Bedrock API as its other models. Which feature fits?'
+    o:
+      - 'Amazon Bedrock Custom Model Import'
+      - 'Amazon SageMaker JumpStart'
+      - 'Amazon Bedrock Guardrails'
+      - 'Amazon Bedrock Prompt Management'
+    a: 0
+    why: 'Custom Model Import brings weights of supported architectures into Bedrock so they are invoked like other Bedrock models. JumpStart deploys to SageMaker AI endpoints instead.'
+
+  - id: d2-292
+    c: bedrock-vs-sagemaker
+    kind: mcq
+    diff: 2
+    q: 'A product manager wants to compare answers from several FMs in a browser before any code is written. What is the BEST first step?'
+    o:
+      - 'Use the Amazon Bedrock console playgrounds'
+      - 'Launch an Amazon SageMaker AI training job'
+      - 'Deploy an agent on AgentCore Runtime'
+      - 'Write a Strands Agents script for each model'
+    a: 0
+    why: 'Bedrock playgrounds let you send prompts to different models in the console with no code. Training jobs, agent runtimes and SDK scripts are later, heavier steps.'
+
+  - id: d2-293
+    c: bedrock-vs-sagemaker
+    kind: mcq
+    diff: 3
+    q: 'A team compares hosting an open model on an Amazon SageMaker AI real-time endpoint with calling a model through Amazon Bedrock on-demand. How do the billing models differ?'
+    o:
+      - 'SageMaker AI bills instance time; Bedrock bills tokens'
+      - 'Both bill only for the output tokens generated'
+      - 'SageMaker AI is free; Bedrock bills by the hour'
+      - 'Bedrock bills per GPU; SageMaker AI bills per request'
+    a: 0
+    why: 'A real-time endpoint runs instances you pay for while they are up, busy or idle. Bedrock on-demand charges per input and output token, so idle time costs nothing.'
+
+  - id: d2-294
+    c: bedrock-vs-sagemaker
+    kind: multi
+    diff: 2
+    q: 'Which needs point to Amazon SageMaker AI rather than Amazon Bedrock? (Choose TWO.)'
+    o:
+      - 'Training a churn model with XGBoost on tabular data'
+      - 'Full control over training code and instance types'
+      - 'Calling a hosted FM through a serverless API'
+      - 'Starting with no ML infrastructure to manage'
+      - 'Trying several providers'' FMs through one API'
+    a: [0, 1]
+    why: 'Custom traditional ML and full control over training are SageMaker AI jobs. A serverless API to many providers'' FMs with nothing to manage is Bedrock.'
+
+  - id: d2-295
+    c: bedrock-vs-sagemaker
+    kind: tf
+    diff: 2
+    s: 'SageMaker JumpStart can only deploy models that were built by Amazon.'
+    v: false
+    why: 'JumpStart offers hundreds of pre-trained models, including popular open models from other publishers, plus Amazon models. You deploy them to SageMaker AI endpoints.'
+
+  - id: d2-296
+    c: bedrock-vs-sagemaker
+    kind: hallu
+    diff: 3
+    s:
+      - 'Amazon Bedrock on-demand inference needs no instances to manage.'
+      - 'SageMaker AI can host models on endpoints you configure.'
+      - 'SageMaker JumpStart offers pre-trained models you can fine-tune.'
+      - 'Amazon Bedrock is the only way to run a foundation model on AWS.'
+    bad: 3
+    o:
+      - 'FMs can also run on SageMaker AI or on self-managed EC2 instances.'
+      - 'FMs can only run on AWS Lambda functions.'
+      - 'FMs can run only on premises, never on AWS.'
+    a: 0
+    why: 'Bedrock is the most managed option, not the only one. SageMaker AI and EC2 also host FMs, trading more operational work for more control.'
+
+  # aws-agent-stack
+  - id: d2-297
+    c: aws-agent-stack
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A Python team wants to build a custom agent in code, choosing its own model and tools, using an open-source AWS SDK. Which should it use?'
+    o:
+      - 'Strands Agents'
+      - 'Amazon Quick'
+      - 'Amazon Bedrock Guardrails'
+      - 'Amazon SageMaker JumpStart'
+    a: 0
+    why: 'Strands Agents is the open-source SDK for writing agents: give it a model, a prompt and tools. Quick is for business users, Guardrails filters content, and JumpStart is a model hub.'
+
+  - id: d2-298
+    c: aws-agent-stack
+    kind: mcq
+    diff: 2
+    q: 'An agent must call a third-party calendar API on behalf of each signed-in user, using that user''s OAuth access. Which AgentCore capability handles this?'
+    o:
+      - 'AgentCore Identity'
+      - 'AgentCore Memory'
+      - 'AgentCore Observability'
+      - 'AgentCore Code Interpreter'
+    a: 0
+    why: 'AgentCore Identity manages how agents authenticate and obtain credentials, such as OAuth tokens, to reach tools and services for a user. The others store context, trace steps or run code.'
+
+  - id: d2-299
+    c: aws-agent-stack
+    kind: mcq
+    diff: 3
+    q: 'A bank needs rules that block an agent from calling a payments tool above a set amount, enforced outside the agent''s own code. Which capability fits BEST?'
+    o:
+      - 'Policy in Amazon Bedrock AgentCore'
+      - 'Amazon Bedrock Guardrails'
+      - 'Amazon Bedrock AgentCore Memory'
+      - 'A stricter system prompt for the agent'
+    a: 0
+    why: 'Policy in AgentCore checks agent tool calls against defined rules before they run. Guardrails filters harmful content, and a system prompt is guidance the model can still ignore.'
+
+  - id: d2-300
+    c: aws-agent-stack
+    kind: mcq
+    diff: 2
+    q: 'Operators need to trace each step an agent took, including tool calls and latency, to debug a bad answer. Which AgentCore capability fits?'
+    o:
+      - 'AgentCore Observability'
+      - 'AgentCore Identity'
+      - 'AgentCore Code Interpreter'
+      - 'AgentCore Memory'
+    a: 0
+    why: 'AgentCore Observability provides traces, metrics and dashboards for agent runs, integrated with Amazon CloudWatch. Code Interpreter runs code, Identity handles credentials, Memory stores context.'
+
+  - id: d2-301
+    c: aws-agent-stack
+    kind: mcq
+    diff: 3
+    q: 'A team using Kiro wants related unit tests updated automatically each time the agent saves a change to a source file. Which Kiro feature fits?'
+    o:
+      - 'Agent hooks'
+      - 'Steering files'
+      - 'Spec requirements'
+      - 'Prompt Management'
+    a: 0
+    why: 'Kiro agent hooks run actions automatically on events such as a file being saved or a tool being used. Steering files give the agent standing project guidance, and specs plan features.'
+
+  - id: d2-302
+    c: aws-agent-stack
+    kind: multi
+    diff: 2
+    q: 'A company moves a prototype agent to production on Amazon Bedrock AgentCore. It needs secure hosting and tool access to internal APIs. Which capabilities fit? (Choose TWO.)'
+    o:
+      - 'AgentCore Runtime'
+      - 'AgentCore Gateway'
+      - 'Amazon Polly'
+      - 'Amazon Quick'
+      - 'Amazon SageMaker JumpStart'
+    a: [0, 1]
+    why: 'Runtime hosts the agent in isolated sessions, and Gateway turns internal APIs into tools the agent can call. The others turn text into speech, serve business users or host models.'
+
+  - id: d2-303
+    c: aws-agent-stack
+    kind: tf
+    diff: 2
+    s: 'AgentCore Code Interpreter lets agents run code in an isolated sandbox environment.'
+    v: true
+    why: 'Code Interpreter gives agents a secure sandbox to execute code, for example for calculations or data analysis, without running it on your own servers.'
+
+  - id: d2-304
+    c: aws-agent-stack
+    kind: hallu
+    diff: 2
+    s:
+      - 'AgentCore Browser lets agents interact with websites in a managed browser.'
+      - 'AgentCore Runtime hosts agents in isolated sessions.'
+      - 'Kiro can connect to MCP servers for extra tools.'
+      - 'Strands Agents is a paid, closed-source AWS service.'
+    bad: 3
+    o:
+      - 'Strands Agents is a free, open-source SDK.'
+      - 'Strands Agents is a GPU instance type for training.'
+      - 'Strands Agents is the billing unit for AgentCore.'
+    a: 0
+    why: 'Strands Agents is open source, so anyone can use and extend it, and agents built with it can run anywhere, including on AgentCore Runtime.'
+
+  # aws-genai-advantages
+  - id: d2-305
+    c: aws-genai-advantages
+    kind: mcq
+    diff: 2
+    q: 'A hospital wants its application traffic to Amazon Bedrock to stay off the public internet. Which AWS feature fits?'
+    o:
+      - 'AWS PrivateLink VPC endpoints'
+      - 'Amazon CloudFront edge locations'
+      - 'AWS Key Management Service'
+      - 'Amazon Macie'
+    a: 0
+    why: 'PrivateLink interface endpoints keep traffic between your VPC and Bedrock on the AWS network. CloudFront is a CDN, KMS manages keys, and Macie finds sensitive data in S3.'
+
+  - id: d2-306
+    c: aws-genai-advantages
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A company wants to control the encryption keys that protect its custom model data in Amazon Bedrock. Which service fits?'
+    o:
+      - 'AWS KMS'
+      - 'AWS PrivateLink'
+      - 'Amazon Inspector'
+      - 'AWS Trusted Advisor'
+    a: 0
+    why: 'AWS KMS lets you create and control customer managed keys that Bedrock uses to encrypt resources such as custom models. Inspector scans for vulnerabilities and Trusted Advisor gives best-practice checks.'
+
+  - id: d2-307
+    c: aws-genai-advantages
+    kind: mcq
+    diff: 3
+    q: 'A European company must keep its Amazon Bedrock inference processing inside the EU. What should it do?'
+    o:
+      - 'Use an EU Region and EU-scoped inference profiles'
+      - 'Use any Region, because AWS moves data to the EU'
+      - 'Use a global cross-Region profile for all traffic'
+      - 'Turn off encryption to make audits simpler'
+    a: 0
+    why: 'Choosing EU Regions, and EU geographic cross-Region inference profiles if needed, keeps processing in the EU. A global profile can route anywhere, and AWS does not relocate data for you.'
+
+  - id: d2-308
+    c: aws-genai-advantages
+    kind: mcq
+    diff: 1
+    q: 'An auditor wants a record of who called Amazon Bedrock APIs and when. Which AWS service provides this?'
+    o:
+      - 'AWS CloudTrail'
+      - 'Amazon Nova'
+      - 'Amazon SageMaker JumpStart'
+      - 'Amazon Polly'
+    a: 0
+    why: 'CloudTrail records API activity across AWS, including Bedrock calls, for auditing. Nova is a model family, JumpStart a model hub, and Polly turns text into speech.'
+
+  - id: d2-309
+    c: aws-genai-advantages
+    kind: mcq
+    diff: 2
+    q: 'A company uses three different FMs in Amazon Bedrock and wants one consistent set of content safety rules for all of them, with the LEAST effort. What fits?'
+    o:
+      - 'Amazon Bedrock Guardrails'
+      - 'Separate prompt rules for each model'
+      - 'Amazon SageMaker JumpStart'
+      - 'AWS Trusted Advisor'
+    a: 0
+    why: 'One guardrail can be applied across different models, filtering harmful content and denied topics consistently. Hand-written rules per model drift apart and are easy to bypass.'
+
+  - id: d2-310
+    c: aws-genai-advantages
+    kind: multi
+    diff: 2
+    q: 'Under the shared responsibility model for Amazon Bedrock, which tasks are the CUSTOMER''s? (Choose TWO.)'
+    o:
+      - 'Writing IAM policies for who can invoke models'
+      - 'Deciding what sensitive data goes into prompts'
+      - 'Patching the servers that host the models'
+      - 'Securing the AWS data center buildings'
+      - 'Maintaining network hardware in each Region'
+    a: [0, 1]
+    why: 'AWS secures the cloud itself: servers, buildings and network. Customers secure what they put in it: access policies and the data they send.'
+
+  - id: d2-311
+    c: aws-genai-advantages
+    kind: tf
+    diff: 3
+    s: 'When you fine-tune a model in Amazon Bedrock, you get a private copy, and your training data is not used to improve the base model.'
+    v: true
+    why: 'Bedrock customization creates a private model copy for your account. Your data is not used to train the provider''s base model or shared with other customers.'
+
+  - id: d2-312
+    c: aws-genai-advantages
+    kind: hallu
+    diff: 2
+    s:
+      - 'AWS CloudTrail can record Amazon Bedrock API calls.'
+      - 'Customer managed AWS KMS keys can encrypt custom models.'
+      - 'AWS PrivateLink keeps Bedrock traffic on the AWS network.'
+      - 'Every Bedrock model is available in every AWS Region.'
+    bad: 3
+    o:
+      - 'Model availability varies by Region; check before you design.'
+      - 'Bedrock runs in only one Region worldwide.'
+      - 'Regions only matter for Provisioned Throughput.'
+    a: 0
+    why: 'Bedrock and individual models roll out Region by Region. Availability affects latency, residency and cost, so check the model list for your Region early.'
+
+  # provisioned-throughput-costs
+  - id: d2-313
+    c: provisioned-throughput-costs
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A team needs to summarize 2 million archived documents for a one-time project. Results can take a day. Which Amazon Bedrock option is MOST cost-effective?'
+    o:
+      - 'Batch inference'
+      - 'A 6-month Provisioned Throughput term'
+      - 'On-demand real-time calls'
+      - 'Streaming responses from a larger model'
+    a: 0
+    why: 'Batch inference processes a big file of prompts asynchronously at a lower price than on-demand for supported models. A 6-month commitment is wasteful for a one-time job.'
+
+  - id: d2-314
+    c: provisioned-throughput-costs
+    kind: mcq
+    diff: 2
+    q: 'When a company buys Provisioned Throughput in Amazon Bedrock, what does it purchase?'
+    o:
+      - 'Model units of dedicated throughput'
+      - 'A prepaid bundle of output tokens'
+      - 'Dedicated EC2 instances to manage'
+      - 'Spot capacity at variable prices'
+    a: 0
+    why: 'Provisioned Throughput is bought in model units, each giving a set throughput, billed hourly. AWS still runs the infrastructure; it is not prepaid tokens or EC2 instances.'
+
+  - id: d2-315
+    c: provisioned-throughput-costs
+    kind: order
+    diff: 2
+    q: 'A team fine-tunes a model in Amazon Bedrock and serves it with Provisioned Throughput. Put the steps in order.'
+    steps:
+      - 'Prepare the training data and upload it to Amazon S3'
+      - 'Create a model customization job'
+      - 'Purchase Provisioned Throughput for the custom model'
+      - 'Invoke the custom model from the application'
+    why: 'Training data must exist before the job runs, and the custom model must exist before capacity can be bought for it. Only then can the app send requests.'
+
+  - id: d2-316
+    c: provisioned-throughput-costs
+    kind: mcq
+    diff: 3
+    q: 'During traffic spikes, an on-demand Amazon Bedrock app is throttled in its home Region. The team wants more throughput with the least management effort. What should it use?'
+    o:
+      - 'Cross-Region inference profiles'
+      - 'Batch inference for the live chats'
+      - 'A larger maximum output token value'
+      - 'SageMaker JumpStart in one Region'
+    a: 0
+    why: 'Cross-Region inference automatically routes requests across Regions in a geography to absorb bursts. Batch is too slow for live chat, and more output tokens make throttling worse.'
+
+  - id: d2-317
+    c: provisioned-throughput-costs
+    kind: mcq
+    diff: 2
+    q: 'Which costs are added by fine-tuning a model in Amazon Bedrock, compared with using the base model as-is?'
+    o:
+      - 'Training and monthly model storage fees'
+      - 'A per-character fee on every prompt sent'
+      - 'A license fee for each IAM user'
+      - 'Extra charges on every embedding call'
+    a: 0
+    why: 'Customization bills for the training job and a monthly fee to store the custom model, on top of inference. That is why prompting and RAG are usually tried before fine-tuning.'
+
+  - id: d2-318
+    c: provisioned-throughput-costs
+    kind: multi
+    diff: 3
+    q: 'A company has a chatbot with steady, heavy, predictable traffic and a weekly report job that can wait hours. Which Amazon Bedrock pricing choices fit? (Choose TWO.)'
+    o:
+      - 'Provisioned Throughput for the chatbot'
+      - 'Batch inference for the weekly reports'
+      - 'Provisioned Throughput for the weekly reports'
+      - 'Batch inference for the live chatbot'
+      - 'Spot pricing for both workloads'
+    a: [0, 1]
+    why: 'Steady heavy traffic keeps reserved capacity busy, and batch suits delay-tolerant bulk work. Reserving capacity for a weekly job wastes idle hours, batch is too slow for live chat, and Bedrock has no Spot pricing.'
+
+  - id: d2-319
+    c: provisioned-throughput-costs
+    kind: tf
+    diff: 2
+    s: 'Provisioned Throughput is always cheaper than on-demand, so every production app should use it.'
+    v: false
+    why: 'Provisioned Throughput bills every hour, busy or idle. It pays off only when traffic is high and steady enough to keep the capacity in use.'
+
+  - id: d2-320
+    c: provisioned-throughput-costs
+    kind: tf
+    diff: 3
+    s: 'On-demand Amazon Bedrock has no throughput limits, so high-volume apps are never throttled.'
+    v: false
+    why: 'On-demand use is subject to service quotas, such as tokens and requests per minute. Heavy apps can be throttled; cross-Region inference, quota increases or Provisioned Throughput help.'
+
+facts:
+  # genai-terms
+  - id: f2-001
+    c: tokens-and-pricing
+    g: genai-terms
+    term: 'Token'
+    def: 'Small unit of text, roughly four characters, that models read and write'
+  - id: f2-002
+    c: embeddings-vectors
+    g: genai-terms
+    term: 'Chunking'
+    def: 'Splitting long documents into smaller pieces that can be retrieved separately'
+  - id: f2-003
+    c: embeddings-vectors
+    g: genai-terms
+    term: 'Embedding'
+    def: 'Numeric vector capturing the meaning of a piece of text or an image'
+  - id: f2-004
+    c: embeddings-vectors
+    g: genai-terms
+    term: 'Vector database'
+    def: 'Store that indexes number lists and returns those nearest to a query'
+  - id: f2-005
+    c: embeddings-vectors
+    g: genai-terms
+    term: 'Semantic search'
+    def: 'Finding results by meaning, even when no keywords match'
+  - id: f2-006
+    c: context-engineering
+    g: genai-terms
+    term: 'Context window'
+    def: 'Maximum amount of text, counted in tokens, a model handles per request'
+  - id: f2-007
+    c: context-engineering
+    g: genai-terms
+    term: 'Context engineering'
+    def: 'Curating everything the model sees: retrieved docs, tool results, history, memory'
+
+  # model-types
+  - id: f2-008
+    c: fm-model-types
+    g: model-types
+    term: 'Foundation model'
+    def: 'Umbrella term for large models pre-trained on broad data and reused widely'
+  - id: f2-009
+    c: fm-model-types
+    g: model-types
+    term: 'Large language model'
+    def: 'Text-focused model that writes by predicting the next token'
+  - id: f2-010
+    c: fm-model-types
+    g: model-types
+    term: 'Transformer architecture'
+    def: 'Network design using self-attention to weigh every token against the others'
+  - id: f2-011
+    c: fm-model-types
+    g: model-types
+    term: 'Diffusion model'
+    def: 'Generates images by starting from noise and removing it step by step'
+  - id: f2-012
+    c: fm-model-types
+    g: model-types
+    term: 'Multimodal model'
+    def: 'Accepts or produces more than one data type, such as text and images'
+  - id: f2-013
+    c: fm-model-types
+    g: model-types
+    term: 'Embedding model'
+    def: 'Outputs numeric vectors instead of new text, images or audio'
+
+  # fm-lifecycle-stages
+  - id: f2-014
+    c: fm-lifecycle
+    g: fm-lifecycle-stages
+    term: 'Data selection'
+    def: 'Choosing and curating the datasets a model will learn from'
+  - id: f2-015
+    c: fm-lifecycle
+    g: fm-lifecycle-stages
+    term: 'Model selection'
+    def: 'Picking an existing base model or architecture that fits the use case'
+  - id: f2-016
+    c: fm-lifecycle
+    g: fm-lifecycle-stages
+    term: 'Pre-training'
+    def: 'Costliest stage: learning general patterns from massive, broad, mostly unlabeled data'
+  - id: f2-017
+    c: fm-lifecycle
+    g: fm-lifecycle-stages
+    term: 'Fine-tuning'
+    def: 'Adapting an already-trained model with smaller, task-specific data'
+  - id: f2-018
+    c: fm-lifecycle
+    g: fm-lifecycle-stages
+    term: 'Evaluation'
+    def: 'Testing against benchmarks and business goals before release'
+  - id: f2-019
+    c: fm-lifecycle
+    g: fm-lifecycle-stages
+    term: 'Deployment'
+    def: 'Making the model available to applications for inference'
+  - id: f2-020
+    c: fm-lifecycle
+    g: fm-lifecycle-stages
+    term: 'Feedback'
+    def: 'Gathering user ratings and monitoring data to improve the next version'
+
+  # genai-use-cases
+  - id: f2-021
+    c: genai-use-cases
+    g: genai-use-cases
+    term: 'Summarization'
+    def: 'Condensing a long document into its key points'
+  - id: f2-022
+    c: genai-use-cases
+    g: genai-use-cases
+    term: 'Translation'
+    def: 'Rewriting content from one human language into another'
+  - id: f2-023
+    c: genai-use-cases
+    g: genai-use-cases
+    term: 'Code generation'
+    def: 'Producing working software from a plain-language request'
+  - id: f2-024
+    c: genai-use-cases
+    g: genai-use-cases
+    term: 'Image generation'
+    def: 'Creating new still pictures from a text description'
+  - id: f2-025
+    c: genai-use-cases
+    g: genai-use-cases
+    term: 'Customer service agent'
+    def: 'Answering customer questions and resolving issues without a human rep'
+  - id: f2-026
+    c: genai-use-cases
+    g: genai-use-cases
+    term: 'Recommendation engine'
+    def: 'Suggesting items similar to what a user already liked'
+
+  # aws-genai-services
+  - id: f2-027
+    c: bedrock-vs-sagemaker
+    g: aws-genai-services
+    term: 'Amazon Bedrock'
+    def: 'Serverless API to foundation models from Amazon and other providers'
+  - id: f2-028
+    c: bedrock-vs-sagemaker
+    g: aws-genai-services
+    term: 'Amazon SageMaker AI'
+    def: 'Platform to build, train and deploy your own ML models with full control'
+  - id: f2-029
+    c: bedrock-vs-sagemaker
+    g: aws-genai-services
+    term: 'SageMaker JumpStart'
+    def: 'Model hub inside SageMaker AI for quick deployment of pre-trained open models'
+  - id: f2-030
+    c: aws-agent-stack
+    g: aws-genai-services
+    term: 'Amazon Quick'
+    def: 'Agentic workspace for business users: BI, research and automation'
+  - id: f2-031
+    c: aws-agent-stack
+    g: aws-genai-services
+    term: 'Kiro'
+    def: 'Agentic IDE that codes from specs: requirements, design, then tasks'
+  - id: f2-032
+    c: aws-agent-stack
+    g: aws-genai-services
+    term: 'Strands Agents'
+    def: 'Open-source SDK for building agents in code with a model-driven loop'
+  - id: f2-033
+    c: aws-agent-stack
+    g: aws-genai-services
+    term: 'Amazon Bedrock AgentCore'
+    def: 'Services to deploy and operate agents from any framework securely at scale'
+  - id: f2-034
+    c: fm-model-types
+    g: aws-genai-services
+    term: 'Amazon Nova'
+    def: 'Amazon-built foundation models covering text, image and video understanding, and speech'
+
+  # agentcore-components
+  - id: f2-035
+    c: aws-agent-stack
+    g: agentcore-components
+    term: 'AgentCore Runtime'
+    def: 'Secure serverless hosting for agents, with isolated sessions'
+  - id: f2-036
+    c: agent-memory-orchestration
+    g: agentcore-components
+    term: 'AgentCore Memory'
+    def: 'Managed short- and long-term recall so agents keep context'
+  - id: f2-037
+    c: mcp
+    g: agentcore-components
+    term: 'AgentCore Gateway'
+    def: 'Turns existing APIs and Lambda functions into MCP-compatible tools'
+  - id: f2-038
+    c: aws-agent-stack
+    g: agentcore-components
+    term: 'AgentCore Identity'
+    def: 'Handles agent sign-in and credentials, such as OAuth tokens, for services'
+  - id: f2-039
+    c: aws-agent-stack
+    g: agentcore-components
+    term: 'Policy in AgentCore'
+    def: 'Rules checked on each tool call to allow or deny agent actions'
+  - id: f2-040
+    c: aws-agent-stack
+    g: agentcore-components
+    term: 'AgentCore Observability'
+    def: 'Traces, metrics and dashboards showing every step an agent took'
+  - id: f2-041
+    c: aws-agent-stack
+    g: agentcore-components
+    term: 'AgentCore Code Interpreter'
+    def: 'Isolated sandbox where agents can safely execute code'
+
+  # agentic-terms
+  - id: f2-042
+    c: mcp
+    g: agentic-terms
+    term: 'Model Context Protocol (MCP)'
+    def: 'Open standard connecting AI apps to external tools and data sources'
+  - id: f2-043
+    c: multi-agent-patterns
+    g: agentic-terms
+    term: 'Agent2Agent (A2A)'
+    def: 'Open protocol for agents to discover and message other agents'
+  - id: f2-044
+    c: mcp
+    g: agentic-terms
+    term: 'Tool use'
+    def: 'Model outputs a function name and arguments; the app executes it'
+  - id: f2-045
+    c: agent-memory-orchestration
+    g: agentic-terms
+    term: 'Short-term memory'
+    def: 'Keeps the current session''s conversation available to the agent'
+  - id: f2-046
+    c: agent-memory-orchestration
+    g: agentic-terms
+    term: 'Long-term memory'
+    def: 'Persists facts and preferences across separate sessions'
+  - id: f2-047
+    c: agent-memory-orchestration
+    g: agentic-terms
+    term: 'Orchestration'
+    def: 'Running the reason, act, observe loop until the task is done'
+  - id: f2-048
+    c: agent-memory-orchestration
+    g: agentic-terms
+    term: 'Deterministic workflow'
+    def: 'Fixed, predefined steps that run the same way every time'
+
+  # multi-agent-patterns
+  - id: f2-049
+    c: multi-agent-patterns
+    g: multi-agent-patterns
+    term: 'Supervisor pattern'
+    def: 'Lead agent splits the task, delegates subtasks, then merges results'
+  - id: f2-050
+    c: multi-agent-patterns
+    g: multi-agent-patterns
+    term: 'Sequential pipeline'
+    def: 'Each agent''s output becomes the next agent''s input, in fixed order'
+  - id: f2-051
+    c: multi-agent-patterns
+    g: multi-agent-patterns
+    term: 'Parallel fan-out'
+    def: 'Several agents tackle independent parts at the same time'
+  - id: f2-052
+    c: multi-agent-patterns
+    g: multi-agent-patterns
+    term: 'Swarm'
+    def: 'Peer agents hand off work to each other with no central lead'
+  - id: f2-053
+    c: multi-agent-patterns
+    g: multi-agent-patterns
+    term: 'Router pattern'
+    def: 'Classifies each request and sends it whole to the one best-fit agent'
+  - id: f2-054
+    c: multi-agent-patterns
+    g: multi-agent-patterns
+    term: 'Evaluator-optimizer'
+    def: 'One agent drafts, another critiques, repeating until quality passes'
+
+  # genai-traits
+  - id: f2-055
+    c: genai-pros-cons
+    g: genai-traits
+    term: 'Adaptability'
+    def: 'One model handles many different tasks just by changing the prompt'
+  - id: f2-056
+    c: genai-pros-cons
+    g: genai-traits
+    term: 'Responsiveness'
+    def: 'Produces useful output within seconds, in real time'
+  - id: f2-057
+    c: genai-pros-cons
+    g: genai-traits
+    term: 'Conversational capability'
+    def: 'Holds natural, multi-turn dialogue in plain language'
+  - id: f2-058
+    c: genai-pros-cons
+    g: genai-traits
+    term: 'Content generation'
+    def: 'Creates new text, images or code at scale'
+  - id: f2-059
+    c: genai-pros-cons
+    g: genai-traits
+    term: 'Hallucination'
+    def: 'Confidently stating fabricated information as fact'
+  - id: f2-060
+    c: genai-pros-cons
+    g: genai-traits
+    term: 'Nondeterminism'
+    def: 'The same prompt can yield different outputs on different runs'
+  - id: f2-061
+    c: genai-pros-cons
+    g: genai-traits
+    term: 'Poor interpretability'
+    def: 'Hard to explain why the model produced a given answer'
+
+  # genai-business-metrics
+  - id: f2-062
+    c: model-selection-metrics
+    g: genai-business-metrics
+    term: 'Return on investment (ROI)'
+    def: 'Gain from a project compared with what it cost'
+  - id: f2-063
+    c: model-selection-metrics
+    g: genai-business-metrics
+    term: 'Conversion rate'
+    def: 'Share of users who complete a desired action, like a purchase'
+  - id: f2-064
+    c: model-selection-metrics
+    g: genai-business-metrics
+    term: 'Average revenue per user (ARPU)'
+    def: 'Total revenue in a period divided by the number of users'
+  - id: f2-065
+    c: model-selection-metrics
+    g: genai-business-metrics
+    term: 'Customer lifetime value (CLV)'
+    def: 'Total revenue expected from one customer over the whole relationship'
+  - id: f2-066
+    c: model-selection-metrics
+    g: genai-business-metrics
+    term: 'Efficiency'
+    def: 'Output per unit of time or cost, like tickets resolved per hour'
+  - id: f2-067
+    c: model-selection-metrics
+    g: genai-business-metrics
+    term: 'Accuracy'
+    def: 'Share of model outputs that are correct'
+  - id: f2-068
+    c: model-selection-metrics
+    g: genai-business-metrics
+    term: 'Cross-domain performance'
+    def: 'How well one model handles tasks across many different fields'
+
+  # pricing-options
+  - id: f2-069
+    c: tokens-and-pricing
+    g: pricing-options
+    term: 'On-demand inference'
+    def: 'Pay per input and output token, no commitment, for variable traffic'
+  - id: f2-070
+    c: provisioned-throughput-costs
+    g: pricing-options
+    term: 'Provisioned Throughput'
+    def: 'Reserved model capacity billed hourly, used or not, with optional term discounts'
+  - id: f2-071
+    c: provisioned-throughput-costs
+    g: pricing-options
+    term: 'Batch inference'
+    def: 'Many prompts submitted as a file, processed asynchronously at a discount'
+  - id: f2-072
+    c: provisioned-throughput-costs
+    g: pricing-options
+    term: 'Cross-Region inference'
+    def: 'Routes requests across Regions in a geography to absorb traffic bursts'
+  - id: f2-073
+    c: tokens-and-pricing
+    g: pricing-options
+    term: 'Prompt caching'
+    def: 'Reuses a repeated prompt prefix to cut input cost and latency'

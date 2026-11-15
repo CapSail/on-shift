@@ -1,0 +1,1163 @@
+# Domain 1: Fundamentals of AI and ML (20%). Tasks 1.1, 1.2, 1.3.
+# Ids are stable forever: never renumber or reuse a card id.
+
+concepts:
+  # ------------------------------------------------------------ 1.1
+  - id: ai-ml-dl-genai-agentic
+    task: '1.1'
+    name: 'AI, ML, deep learning, GenAI, agents'
+    rule: 'AI contains ML, ML contains deep learning; GenAI and agents build on deep learning.'
+    learn:
+      - 'AI is any technique that lets machines do tasks needing human-like intelligence. ML is AI that learns patterns from data instead of hand-written rules.'
+      - 'Deep learning is ML using neural networks: layers of connected nodes. GenAI uses deep models, like large language models (LLMs), to create new content.'
+      - 'Agentic AI goes further: a foundation model plans steps, calls tools and takes actions toward a goal with limited human input.'
+    soc: 'AI is the whole SOC; ML is detection tuning learned from history; agentic AI is the analyst who also runs the playbook.'
+    say: 'Think nesting dolls. Artificial intelligence is the biggest doll. Machine learning sits inside it and learns from data. Deep learning sits inside that and uses neural networks. Generative AI uses deep models to create new text, images or code. Agentic AI uses those models to plan and take actions toward a goal.'
+
+  - id: model-training-inference
+    task: '1.1'
+    name: 'Algorithms, models, training, inference'
+    rule: 'An algorithm learns during training to produce a model; inference uses that model.'
+    learn:
+      - 'An algorithm is the learning procedure, like linear regression or a neural network design. Training runs it on data to produce a model.'
+      - 'A model is the trained artifact: learned parameters that map inputs to outputs. It is the thing you deploy.'
+      - 'Inference is using the trained model to predict on new data. Training is costly and occasional; inference happens on every request.'
+    soc: 'Writing and tuning a detection rule from past incidents is training; that rule firing on live logs is inference.'
+    say: 'An algorithm is the recipe for learning. Training feeds data through that recipe and produces a model, which is a file of learned numbers. Inference is when you send new data to that model and get a prediction back. Training happens now and then. Inference happens every time someone uses it.'
+
+  - id: fit-bias-fairness
+    task: '1.1'
+    name: 'Fit, bias and fairness'
+    rule: 'Overfit memorizes training data; underfit misses patterns; fairness means no group is unjustly disadvantaged.'
+    learn:
+      - 'Overfitting: great on training data, poor on new data (high variance). Underfitting: poor on both because the model is too simple (high bias).'
+      - 'A good fit generalizes: it performs about as well on unseen validation data as on training data.'
+      - 'Bias also means skewed outcomes, often from unrepresentative data. Fairness means predictions do not unjustly disadvantage groups, such as by age or gender.'
+    soc: 'An overfit rule only catches last month''s exact attack; an underfit rule alerts on everything; a biased rule over-flags one office.'
+    say: 'Fit is about how well a model generalizes. Overfitting means it memorized the training data and fails on new data. Underfitting means it is too simple and does badly everywhere. Bias can also mean skewed results from unbalanced data. Fairness means the model treats different groups of people equitably.'
+
+  - id: inference-types
+    task: '1.1'
+    name: 'Inference types'
+    rule: 'Real-time: instant. Batch: big offline jobs. Async: large, slow requests. Serverless: intermittent traffic.'
+    learn:
+      - 'Real-time inference: a persistent endpoint answers each request with low latency, for interactive apps like fraud checks at checkout.'
+      - 'Batch inference scores a whole dataset offline, no persistent endpoint. Asynchronous inference queues requests for large payloads and long processing; results arrive later.'
+      - 'Serverless inference: no instances to manage, scales automatically, even to zero between bursts. Expect a cold-start delay after idle periods.'
+    soc: 'Real-time is the live alert queue; batch is the overnight threat-hunt report; async is sandbox detonation results arriving later.'
+    say: 'There are four ways to serve predictions. Real time means an always-on endpoint answers instantly. Batch means scoring a big pile of data offline, like overnight. Asynchronous means requests wait in a queue and results come back later, good for big or slow jobs. Serverless means no servers to manage, good for traffic that comes and goes.'
+
+  - id: data-types
+    task: '1.1'
+    name: 'Data types'
+    rule: 'Labeled data has answers attached; structured fits rows and columns; unstructured does not.'
+    learn:
+      - 'Labeled data includes the target answer, like spam or not spam. Unlabeled data has no answers; it is cheaper but cannot train supervised models.'
+      - 'Structured data fits a fixed schema, like tabular rows and columns. Unstructured data, like free text, images and audio, has no fixed schema.'
+      - 'Time-series data is ordered by timestamp, such as daily sales or sensor readings. The order itself carries meaning.'
+    soc: 'A triaged alert marked true or false positive is labeled data; untriaged logs are unlabeled; a SIEM table is structured; phishing email bodies are unstructured.'
+    say: 'Labeled data comes with the answer attached, like emails tagged spam or not spam. Unlabeled data has no answers. Structured data fits neatly into rows and columns, like a spreadsheet. Unstructured data, like free text, photos and audio, does not. Time series data is a sequence of readings over time, where the order matters.'
+
+  - id: supervised-unsupervised-reinforcement
+    task: '1.1'
+    name: 'Supervised, unsupervised, reinforcement'
+    rule: 'Supervised learns from labels, unsupervised finds hidden structure, reinforcement learns from rewards.'
+    learn:
+      - 'Supervised learning trains on labeled examples to predict a known target. Classification and regression are supervised.'
+      - 'Unsupervised learning finds patterns in unlabeled data, such as clustering customers into segments or spotting anomalies.'
+      - 'Reinforcement learning: an agent acts in an environment and learns by trial and error to maximize reward, as in robot navigation or game play.'
+    soc: 'Supervised: training on tickets already marked true positive. Unsupervised: UEBA flagging behavior unlike the baseline. Reinforcement: learning which actions earn praise from Dale.'
+    say: 'Supervised learning learns from examples that already have the right answer. Unsupervised learning gets no answers and finds groups or oddities on its own. Reinforcement learning has an agent try actions, get rewards or penalties, and slowly learn the best strategy, like a game player getting better with practice.'
+
+  # ------------------------------------------------------------ 1.2
+  - id: ai-value-and-limits
+    task: '1.2'
+    name: 'When AI/ML fits, and when it does not'
+    rule: 'Use ML for patterns at scale; use plain rules when you need exact, deterministic answers.'
+    learn:
+      - 'AI/ML adds value by assisting human decisions, scaling work beyond what people can review, and automating repetitive tasks.'
+      - 'ML gives probabilistic predictions. If a task needs one exact, deterministic outcome, like applying a fixed fee, use traditional code.'
+      - 'Weigh cost against benefit: data, training, hosting and upkeep must cost less than the value delivered. Without enough quality data, ML may not pay off.'
+    soc: 'ML can help rank thousands of alerts, but blocking a known-bad hash should be a deterministic rule, not a guess.'
+    say: 'Machine learning shines when there are patterns in lots of data and you need to scale, automate, or help people decide. It is the wrong tool when you need one exact answer every time, like adding up an invoice, or when building and running it costs more than the value it brings.'
+
+  - id: regression-classification-clustering
+    task: '1.2'
+    name: 'Regression, classification, clustering'
+    rule: 'Regression predicts a number, classification predicts a category, clustering groups unlabeled data.'
+    learn:
+      - 'Regression predicts a continuous number: a house price, next week''s demand, a delivery time.'
+      - 'Classification predicts a category: spam or not, fraud or legitimate, which product type. Binary means two classes; multiclass means more.'
+      - 'Clustering groups similar items without labels, such as customer segments. Clustering is unsupervised; regression and classification are supervised.'
+    soc: 'Regression estimates a risk score number; classification says malicious or benign; clustering groups similar alerts into one campaign.'
+    say: 'Three classic techniques. Regression predicts a number, like a price or a temperature. Classification predicts a category, like spam or not spam. Clustering takes data with no labels and puts similar things into groups, like sorting customers into segments. If the answer is a number, think regression. If it is a label, think classification.'
+
+  - id: ai-real-world-applications
+    task: '1.2'
+    name: 'Real-world AI applications'
+    rule: 'Match the data to the job: images to vision, text to NLP, audio to speech.'
+    learn:
+      - 'Computer vision interprets images and video, like defect detection. Natural language processing (NLP) understands and generates text. Speech recognition turns audio into text.'
+      - 'Recommendation systems suggest items from behavior. Fraud detection flags unusual transactions. Forecasting predicts future values, like demand, from historical time-series data.'
+      - 'Knowledge bases let AI answer from company documents. Agentic AI completes multi-step tasks, such as processing a refund across several systems.'
+    soc: 'Fraud detection is your impossible-travel alert; a knowledge base is the runbook wiki an assistant searches for you.'
+    say: 'AI shows up everywhere. Computer vision reads images, like spotting defects on a production line. Natural language processing understands text. Speech recognition turns talk into text. Recommendation systems suggest products. Fraud detection flags odd transactions. Forecasting predicts demand. Knowledge bases let assistants answer from your documents, and agents complete multi-step tasks.'
+
+  - id: aws-managed-ai-services
+    task: '1.2'
+    name: 'AWS managed AI services'
+    rule: 'Transcribe hears, Polly speaks, Translate converts, Comprehend understands, Lex chats, SageMaker AI builds.'
+    learn:
+      - 'Amazon Transcribe: speech to text. Amazon Polly: text to lifelike speech. Amazon Translate: neural machine translation between languages.'
+      - 'Amazon Comprehend: NLP on text, such as sentiment, entities, key phrases, language and PII detection. Amazon Lex: chatbots that understand voice and text.'
+      - 'Amazon SageMaker AI: a fully managed service to build, train, tune and deploy your own ML models at scale.'
+    soc: 'Like your tooling stack: each service does one job well, and SageMaker AI is the lab where you build custom detections.'
+    say: 'Six services to know. Transcribe turns speech into text. Polly turns text into speech. Translate converts text between languages. Comprehend reads text and finds sentiment, names, and key phrases. Lex builds chatbots that understand voice and text. SageMaker AI is the workshop for building, training, and deploying your own custom models.'
+
+  - id: traditional-ml-vs-fm
+    task: '1.2'
+    name: 'Traditional ML vs foundation models'
+    rule: 'Pick traditional ML for explainability, tight latency, low cost; FMs for broad language tasks.'
+    learn:
+      - 'Foundation models (FMs) are large, general-purpose models pre-trained on broad data and adaptable to many tasks, often with little task-specific data.'
+      - 'Traditional ML, like a decision tree on tabular data, is smaller, cheaper and faster to run, and easier to explain.'
+      - 'Regulated decisions needing clear explanations, strict latency or edge constraints, and narrow tabular predictions often favor traditional ML over an FM.'
+    soc: 'A tuned correlation rule is cheap and auditable; an LLM copilot is flexible but harder to explain to the auditor.'
+    say: 'Foundation models are huge general models that can write, summarize, and chat with little extra training. Traditional machine learning models are smaller and focused on one job, like scoring loan risk from a table. When regulators need clear explanations, when answers must be very fast or cheap, or when the data is a simple table, traditional models often win.'
+
+  # ------------------------------------------------------------ 1.3
+  - id: ml-pipeline-stages
+    task: '1.3'
+    name: 'ML pipeline stages'
+    rule: 'Collect, explore, prepare, engineer features, train, tune, evaluate, deploy, monitor, then repeat.'
+    learn:
+      - 'Data collection gathers raw data. Exploratory data analysis (EDA) uses statistics and charts to understand it. Pre-processing cleans it: missing values, duplicates, formats.'
+      - 'Feature engineering creates or selects useful inputs. Training fits the model; hyperparameter tuning searches settings like learning rate for the best result.'
+      - 'Evaluation tests on held-out data. Deployment serves the model. Monitoring watches for drift and quality drops, which triggers retraining.'
+    soc: 'Collect logs, explore them, normalize fields, build enrichments, write the rule, tune thresholds, test, push to the SIEM, watch false positives.'
+    say: 'A machine learning pipeline runs like this. Collect data. Explore it to understand it. Clean it up. Engineer features, meaning the useful inputs. Train the model. Tune its settings, called hyperparameters. Evaluate it on data it never saw. Deploy it. Then monitor it, because the world changes and the model will need retraining.'
+
+  - id: fm-sourcing-and-serving
+    task: '1.3'
+    name: 'Model sources, hosting and AWS tools'
+    rule: 'Use pre-trained or custom models, via a managed API or your own hosted endpoint.'
+    learn:
+      - 'Model sources: open-source pre-trained models you adapt, for example from SageMaker JumpStart, or custom models you train yourself, which needs far more data and compute.'
+      - 'Managed API, like Amazon Bedrock: call FMs with no servers to manage. Self-hosted: deploy a model to an endpoint you control, like SageMaker AI.'
+      - 'SageMaker AI covers the full ML lifecycle. Amazon Quick brings BI and AI agents to business users. Kiro is an agentic IDE using spec-driven development.'
+    soc: 'A managed API is like a SaaS SIEM: just send data. Self-hosting is running your own SIEM cluster: more control, more patching.'
+    say: 'Start from an open source pre-trained model, or train your own custom model, which takes far more data and money. In production, call it through a managed service like Amazon Bedrock, or host it on your own endpoint, like SageMaker AI. Amazon Quick gives business users dashboards and AI agents. Kiro is an AI coding tool.'
+
+  - id: mlops-fundamentals
+    task: '1.3'
+    name: 'MLOps fundamentals'
+    rule: 'MLOps makes ML repeatable, scalable, monitored and retrained, like DevOps for models.'
+    learn:
+      - 'Track experiments (data, code, parameters, results) so runs can be compared and reproduced. Automate repeatable pipelines, for example with Amazon SageMaker Pipelines.'
+      - 'Production readiness: version models in a registry, test, scale serving, and avoid technical debt like untracked one-off scripts and manual steps.'
+      - 'Monitor live models for data and quality drift, for example with SageMaker Model Monitor. When performance drops, retrain on fresh data and redeploy.'
+    soc: 'Like detection-as-code: version-controlled rules, automated tests, a deploy pipeline, and re-tuning when false positives creep up.'
+    say: 'MLOps is DevOps for machine learning. Track every experiment so you can repeat it. Automate the pipeline so training is the same every time. Version your models. Design for scale. Avoid messy one-off scripts, which are technical debt. Then watch the live model, because data drifts, and retrain it when quality drops.'
+
+  - id: precision-recall-f1
+    task: '1.3'
+    name: 'Model metrics and business metrics'
+    rule: 'Precision: flagged items that are real. Recall: real cases caught. F1 balances both.'
+    learn:
+      - 'Accuracy: share of all predictions that are correct; misleading on imbalanced data. Precision: of the items flagged positive, how many truly were.'
+      - 'Recall: of all real positives, how many the model caught. F1 score is the harmonic mean of precision and recall.'
+      - 'Business metrics judge value: cost per user, development costs, customer feedback and ROI. A great F1 means little if ROI is negative.'
+    soc: 'Low precision floods the queue with false positives; low recall means real intrusions slip by with no alert.'
+    say: 'Accuracy is how often the model is right overall, but it misleads when one class is rare. Precision asks: of everything flagged, how much was real? Recall asks: of everything real, how much did we catch? F1 balances the two. Then check business metrics, like cost per user, development cost, customer feedback, and return on investment.'
+
+cards:
+  # ------------------------------------------------ ai-ml-dl-genai-agentic
+  - id: d1-001
+    c: ai-ml-dl-genai-agentic
+    kind: tf
+    diff: 1
+    pre: true
+    s: 'Every machine learning system is a kind of AI, but not every AI system uses machine learning.'
+    v: true
+    why: 'ML is a subset of AI. A rule-based expert system is AI that follows hand-written rules without learning from data.'
+
+  - id: d1-002
+    c: ai-ml-dl-genai-agentic
+    kind: mcq
+    diff: 1
+    q: 'A company wants a system that writes first drafts of marketing emails from a short product description. Which category of AI does this describe?'
+    o:
+      - 'Generative AI'
+      - 'Reinforcement learning'
+      - 'Clustering'
+      - 'Computer vision'
+    a: 0
+    why: 'Creating new content such as text is generative AI. Clustering groups existing data, reinforcement learning learns from rewards, and computer vision interprets images.'
+
+  - id: d1-003
+    c: ai-ml-dl-genai-agentic
+    kind: hallu
+    diff: 2
+    s:
+      - 'Deep learning uses neural networks with many layers.'
+      - 'Large language models are a type of deep learning model.'
+      - 'Generative AI is a separate field that does not use machine learning at all.'
+      - 'Agentic AI can plan steps and call tools to reach a goal.'
+    bad: 2
+    o:
+      - 'Generative AI is a subset of deep learning, which is part of ML.'
+      - 'Generative AI is a type of hand-written rule-based expert system.'
+      - 'Generative AI only creates images, never text or code.'
+    a: 0
+    why: 'GenAI models such as LLMs and diffusion models are deep neural networks trained on data, so GenAI sits inside ML, not outside it.'
+
+  - id: d1-004
+    c: ai-ml-dl-genai-agentic
+    kind: multi
+    diff: 3
+    q: 'A team is comparing agentic AI with a basic LLM chatbot that only answers questions. Which capabilities are characteristic of agentic AI? (Choose TWO.)'
+    o:
+      - 'Breaking a goal into multiple steps and planning them'
+      - 'Calling external tools or APIs to take actions'
+      - 'Guaranteeing identical output for every request'
+      - 'Learning a task without any training data'
+      - 'Working without any underlying foundation model'
+    a: [0, 1]
+    why: 'Agents use a foundation model to reason, plan multi-step work and act through tools. They are still nondeterministic and still rely on a model trained on data.'
+
+  - id: d1-005
+    c: ai-ml-dl-genai-agentic
+    kind: tf
+    diff: 1
+    s: 'Deep learning is a separate branch of AI that does not count as machine learning.'
+    v: false
+    why: 'Deep learning is a subset of ML that uses multi-layer neural networks. It learns from data like any other ML.'
+
+  # ------------------------------------------------ model-training-inference
+  - id: d1-006
+    c: model-training-inference
+    kind: tf
+    diff: 1
+    pre: true
+    s: 'Inference is the step where a trained model makes predictions on new data it has not seen before.'
+    v: true
+    why: 'Training builds the model from historical data. Inference applies the finished model to new inputs, such as scoring a live transaction.'
+
+  - id: d1-007
+    c: model-training-inference
+    kind: mcq
+    diff: 1
+    q: 'A data scientist runs the XGBoost algorithm on two years of labeled sales data and saves the resulting artifact to Amazon S3. What is the saved artifact?'
+    o:
+      - 'A trained model'
+      - 'A feature store'
+      - 'An inference endpoint'
+      - 'A training dataset'
+    a: 0
+    why: 'Running an algorithm on data during training produces a model artifact of learned parameters. An endpoint is where a model is later hosted for inference.'
+
+  - id: d1-008
+    c: model-training-inference
+    kind: hallu
+    diff: 2
+    s:
+      - 'An algorithm is the method used to learn from data.'
+      - 'A model is the output of training an algorithm on data.'
+      - 'Inference updates the model weights every time it makes a prediction.'
+      - 'Training usually needs far more compute than one inference request.'
+    bad: 2
+    o:
+      - 'Inference uses fixed weights; changing them requires training or retraining.'
+      - 'Inference only happens while the model is still being trained.'
+      - 'Inference deletes the old model and builds a new one each time.'
+    a: 0
+    why: 'Serving a prediction does not change the model. New learning only happens when you train or retrain, then redeploy.'
+
+  - id: d1-009
+    c: model-training-inference
+    kind: match
+    diff: 1
+    q: 'Match each term to its description.'
+    pairs:
+      - ['Algorithm', 'The learning procedure applied to data']
+      - ['Model', 'The trained artifact holding learned parameters']
+      - ['Training', 'Fitting parameters using historical data']
+      - ['Inference', 'Using the trained artifact on new inputs']
+    why: 'An algorithm plus data, through training, gives a model. The model is then used for inference on new data.'
+
+  - id: d1-010
+    c: model-training-inference
+    kind: tf
+    diff: 2
+    s: 'A neural network is a fixed set of if-then rules that an expert writes by hand.'
+    v: false
+    why: 'A neural network is layers of connected nodes whose weights are learned from data during training. Hand-written if-then rules describe a traditional expert system.'
+
+  # ------------------------------------------------ fit-bias-fairness
+  - id: d1-011
+    c: fit-bias-fairness
+    kind: tf
+    diff: 1
+    pre: true
+    s: 'A model that scores 99 percent on training data but 60 percent on new data is most likely overfitting.'
+    v: true
+    why: 'A large gap between training and unseen-data performance is the classic sign of overfitting: the model memorized noise instead of general patterns.'
+
+  - id: d1-012
+    c: fit-bias-fairness
+    kind: mcq
+    diff: 2
+    q: 'A model performs poorly on both its training data and its validation data. Which issue is the MOST likely cause?'
+    o:
+      - 'Underfitting'
+      - 'Overfitting'
+      - 'Data leakage'
+      - 'Model drift'
+    a: 0
+    why: 'Poor results on both sets mean the model is too simple to capture the pattern (high bias). Overfitting shows strong training scores but weak validation scores.'
+
+  - id: d1-013
+    c: fit-bias-fairness
+    kind: hallu
+    diff: 2
+    s:
+      - 'Overfitting means the model memorized noise in the training data.'
+      - 'Underfitting often means the model is too simple.'
+      - 'More diverse training data can help reduce overfitting.'
+      - 'A model is fair as long as its overall accuracy is high.'
+    bad: 3
+    o:
+      - 'High overall accuracy can hide much worse results for specific groups.'
+      - 'Fairness only matters for image models, not tabular ones.'
+      - 'A model is fair as long as the dataset is very large.'
+    a: 0
+    why: 'A model can be accurate on average yet systematically worse for a subgroup. Checking fairness needs per-group analysis, not one overall score.'
+
+  - id: d1-014
+    c: fit-bias-fairness
+    kind: multi
+    diff: 3
+    q: 'A loan approval model rejects applicants from one region far more often than others. The training data contains few examples from that region. Which actions would help address this? (Choose TWO.)'
+    o:
+      - 'Collect more representative data from the underrepresented region'
+      - 'Measure model performance separately for each subgroup'
+      - 'Train for more epochs on the same dataset'
+      - 'Remove the validation dataset to use more training data'
+      - 'Switch the endpoint from real-time to batch inference'
+    a: [0, 1]
+    why: 'Unrepresentative data causes the bias. More representative data and subgroup metrics tackle it. More epochs on the same skewed data can deepen overfitting, and inference mode does not change fairness.'
+
+  - id: d1-015
+    c: fit-bias-fairness
+    kind: tf
+    diff: 2
+    s: 'Underfitting happens when a model is so complex that it memorizes the training data.'
+    v: false
+    why: 'That describes overfitting. Underfitting is the opposite: the model is too simple and misses real patterns, so it does poorly even on training data.'
+
+  # ------------------------------------------------ inference-types
+  - id: d1-016
+    c: inference-types
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A retailer needs product recommendations for all 2 million customers once every night. Results are not needed until the next morning. Which inference type is MOST cost-effective?'
+    o:
+      - 'Batch inference'
+      - 'Real-time inference'
+      - 'Serverless inference'
+      - 'Asynchronous inference'
+    a: 0
+    why: 'Scoring a full dataset on a schedule with no latency requirement is batch inference. No endpoint has to stay running, which keeps cost low.'
+
+  - id: d1-017
+    c: inference-types
+    kind: mcq
+    diff: 2
+    q: 'A company runs a document-analysis model. Each request has a large payload and can take several minutes to process. Users can wait for results. Which Amazon SageMaker AI inference option fits BEST?'
+    o:
+      - 'Asynchronous inference'
+      - 'Real-time inference'
+      - 'Serverless inference'
+      - 'SageMaker AI batch transform'
+    a: 0
+    why: 'Asynchronous inference queues requests, accepts large payloads and long processing times, and returns results later. Real-time and serverless target quick responses; batch transform suits whole offline datasets, not individual user requests.'
+
+  - id: d1-018
+    c: inference-types
+    kind: hallu
+    diff: 2
+    s:
+      - 'Real-time inference keeps an endpoint ready for low-latency responses.'
+      - 'Batch inference processes many records at once, offline.'
+      - 'Serverless inference requires you to choose and manage the server instances.'
+      - 'Asynchronous inference queues requests and returns results later.'
+    bad: 2
+    o:
+      - 'Serverless inference provisions and scales compute for you, even down to zero.'
+      - 'Serverless inference can only run scheduled batch jobs.'
+      - 'Serverless inference requires a GPU cluster that you patch.'
+    a: 0
+    why: 'With serverless inference, AWS manages the compute and scales with traffic. The tradeoff is a possible cold start after idle time.'
+
+  - id: d1-019
+    c: inference-types
+    kind: tf
+    diff: 2
+    s: 'Serverless inference suits an app with long idle periods between bursts of traffic, if it can tolerate occasional cold starts.'
+    v: true
+    why: 'Serverless scales to zero when idle, so you do not pay for an idle endpoint. The first request after idle time may see a cold-start delay.'
+
+  - id: d1-020
+    c: inference-types
+    kind: match
+    diff: 3
+    q: 'Match each workload to the best inference type.'
+    pairs:
+      - ['Fraud score during card checkout', 'Real-time inference']
+      - ['Monthly churn scores for every customer', 'Batch inference']
+      - ['One large file per request, minutes to process', 'Asynchronous inference']
+      - ['Internal tool used a few times a day', 'Serverless inference']
+    why: 'Instant answers need real-time. Whole datasets on a schedule are batch. Big, slow single requests are async. Rare, spiky use suits serverless.'
+
+  # ------------------------------------------------ data-types
+  - id: d1-021
+    c: data-types
+    kind: tf
+    diff: 1
+    pre: true
+    s: 'A spreadsheet of customer records with columns for age, region and monthly spend is structured, tabular data.'
+    v: true
+    why: 'Rows and columns with a fixed schema are the definition of structured, tabular data.'
+
+  - id: d1-022
+    c: data-types
+    kind: mcq
+    diff: 1
+    q: 'A manufacturer records each machine''s temperature every 10 seconds and wants to predict failures from recent trends. Which type of data is this?'
+    o:
+      - 'Time-series data'
+      - 'Unstructured image data'
+      - 'Unlabeled text data'
+      - 'Graph data'
+    a: 0
+    why: 'Readings captured at regular time intervals, where order and trend matter, are time-series data.'
+
+  - id: d1-023
+    c: data-types
+    kind: hallu
+    diff: 2
+    s:
+      - 'Photos and audio recordings are unstructured data.'
+      - 'Labeled data includes the correct answer for each example.'
+      - 'Free-text customer reviews are structured data once stored in a database.'
+      - 'Time-series data is ordered by time.'
+    bad: 2
+    o:
+      - 'Free-text reviews are unstructured, even when stored in a database column.'
+      - 'Free-text reviews are time-series data by definition.'
+      - 'Free-text reviews are always labeled data.'
+    a: 0
+    why: 'Structure is about the content, not where it is stored. The review text has no fixed schema, so it is unstructured, while a star-rating column is structured.'
+
+  - id: d1-024
+    c: data-types
+    kind: multi
+    diff: 2
+    q: 'A company is preparing data for an ML project. Which of the following are examples of unstructured data? (Choose TWO.)'
+    o:
+      - 'Scanned images of paper invoices'
+      - 'Recorded customer support calls'
+      - 'A table of order IDs and order totals'
+      - 'A CSV file of daily stock prices'
+      - 'A relational table of employee records'
+    a: [0, 1]
+    why: 'Images and audio have no fixed schema, so they are unstructured. Tables and CSV files with defined columns are structured.'
+
+  - id: d1-025
+    c: data-types
+    kind: tf
+    diff: 2
+    s: 'Unlabeled data is useless for machine learning, because every ML algorithm needs the correct answers to learn.'
+    v: false
+    why: 'Unsupervised methods such as clustering and anomaly detection learn from unlabeled data. Only supervised learning requires labels.'
+
+  # ------------------------------------------------ supervised-unsupervised-reinforcement
+  - id: d1-026
+    c: supervised-unsupervised-reinforcement
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A bank has five years of transactions, each labeled as fraudulent or legitimate. It wants to flag fraud in new transactions. Which learning type fits BEST?'
+    o:
+      - 'Supervised learning'
+      - 'Unsupervised learning'
+      - 'Reinforcement learning'
+      - 'Semi-supervised learning'
+    a: 0
+    why: 'Fully labeled historical examples and a known target (fraud or not) point to supervised learning, specifically classification.'
+
+  - id: d1-027
+    c: supervised-unsupervised-reinforcement
+    kind: mcq
+    diff: 2
+    q: 'A company wants a warehouse robot to learn the fastest route by trying moves and receiving a reward when it reaches the goal quickly. Which approach fits BEST?'
+    o:
+      - 'Reinforcement learning'
+      - 'Supervised learning'
+      - 'Unsupervised learning'
+      - 'Semi-supervised learning'
+    a: 0
+    why: 'An agent taking actions in an environment and learning from rewards through trial and error is reinforcement learning. No labeled answers are given.'
+
+  - id: d1-028
+    c: supervised-unsupervised-reinforcement
+    kind: hallu
+    diff: 2
+    s:
+      - 'Supervised learning needs labeled training data.'
+      - 'Clustering is an unsupervised technique.'
+      - 'Reinforcement learning needs a large labeled dataset of correct actions.'
+      - 'In reinforcement learning, an agent learns from rewards.'
+    bad: 2
+    o:
+      - 'Reinforcement learning learns from reward signals by trial and error, not labels.'
+      - 'Reinforcement learning is a kind of clustering on unlabeled data.'
+      - 'Reinforcement learning only works on image data.'
+    a: 0
+    why: 'Reinforcement learning gets feedback as rewards or penalties for its actions. It does not need examples labeled with the right action.'
+
+  - id: d1-029
+    c: supervised-unsupervised-reinforcement
+    kind: tf
+    diff: 1
+    s: 'Grouping customers into segments by purchase behavior, with no predefined segment labels, is unsupervised learning.'
+    v: true
+    why: 'With no labels, the model discovers the groups itself. That is clustering, a classic unsupervised technique.'
+
+  - id: d1-030
+    c: supervised-unsupervised-reinforcement
+    kind: tf
+    diff: 3
+    s: 'Anomaly detection on unlabeled network traffic is supervised learning, because the model predicts whether traffic is anomalous.'
+    v: false
+    why: 'Without labels, the model learns what normal looks like and flags outliers, which is unsupervised. It would be supervised only if trained on traffic already labeled attack or benign.'
+
+  # ------------------------------------------------ ai-value-and-limits
+  - id: d1-031
+    c: ai-value-and-limits
+    kind: tf
+    diff: 1
+    pre: true
+    s: 'If a business rule must always give the same exact result, like a fixed shipping fee, traditional code usually beats ML.'
+    v: true
+    why: 'ML outputs are probabilistic predictions. When the outcome is fully defined and must be exact, a deterministic rule is cheaper, explainable and always correct.'
+
+  - id: d1-032
+    c: ai-value-and-limits
+    kind: mcq
+    diff: 2
+    q: 'A company is reviewing four project ideas. Which one is LEAST appropriate for an ML solution?'
+    o:
+      - 'Computing payroll deductions from a tax table'
+      - 'Predicting which customers are likely to cancel'
+      - 'Spotting unusual logins across millions of events'
+      - 'Routing support tickets based on their free text'
+    a: 0
+    why: 'Payroll deductions from a fixed table need an exact, deterministic answer, so plain code fits. The others involve patterns in large or messy data, where ML adds value.'
+
+  - id: d1-033
+    c: ai-value-and-limits
+    kind: multi
+    diff: 2
+    q: 'A company is deciding where AI/ML could add business value. Which are typical benefits of AI/ML? (Choose THREE.)'
+    o:
+      - 'Assisting human decisions with predictions'
+      - 'Scaling analysis beyond what people can review'
+      - 'Automating repetitive, high-volume tasks'
+      - 'Guaranteeing fully accurate outputs every time'
+      - 'Removing the need for any training data'
+      - 'Producing exact results for rule-based calculations'
+    a: [0, 1, 2]
+    why: 'AI/ML assists decisions, scales and automates. It never guarantees accuracy, it needs data, and exact rule-based calculations are better done in code.'
+
+  - id: d1-034
+    c: ai-value-and-limits
+    kind: hallu
+    diff: 3
+    s:
+      - 'ML helps when patterns are too complex to write as rules.'
+      - 'ML can automate high-volume, repetitive decisions.'
+      - 'Once deployed, ML is always cheaper than a rule-based system.'
+      - 'ML predictions are probabilistic, not guaranteed.'
+    bad: 2
+    o:
+      - 'ML has ongoing costs for data, hosting, monitoring and retraining, so weigh cost against benefit.'
+      - 'ML has no costs at all once training has finished.'
+      - 'ML is always more expensive, so it should never be used.'
+    a: 0
+    why: 'ML carries ongoing costs: hosting, monitoring, retraining and data work. It only makes sense when the value outweighs them.'
+
+  - id: d1-035
+    c: ai-value-and-limits
+    kind: duel
+    diff: 2
+    q: 'Dale wants to apply a fixed 10 percent discount to every order over 100 dollars. Which design is better?'
+    A: 'Train a classification model on past orders to predict which orders should get the discount.'
+    B: 'Write a simple rule in code: if the order total is over 100 dollars, apply 10 percent off.'
+    a: 1
+    why: 'The outcome is fully defined and must be exact every time. A deterministic rule is cheaper, explainable and never wrong; a model would only approximate it.'
+
+  # ------------------------------------------------ regression-classification-clustering
+  - id: d1-036
+    c: regression-classification-clustering
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A real estate company wants to predict the sale price of a house from its size, location and age. Which ML technique should it use?'
+    o:
+      - 'Regression'
+      - 'Classification'
+      - 'Clustering'
+      - 'Dimensionality reduction'
+    a: 0
+    why: 'Sale price is a continuous number, so this is regression. Classification predicts a category; clustering groups unlabeled data.'
+
+  - id: d1-037
+    c: regression-classification-clustering
+    kind: mcq
+    diff: 1
+    q: 'An email provider wants to tag each incoming message as spam or not spam, using historical emails that users already labeled. Which technique fits?'
+    o:
+      - 'Binary classification'
+      - 'Linear regression'
+      - 'K-means clustering'
+      - 'Time-series forecasting'
+    a: 0
+    why: 'Two possible categories with labeled examples is binary classification. Regression predicts numbers and k-means clusters unlabeled data.'
+
+  - id: d1-038
+    c: regression-classification-clustering
+    kind: hallu
+    diff: 2
+    s:
+      - 'Classification predicts a category.'
+      - 'Regression predicts a continuous value.'
+      - 'Clustering needs every record labeled with its group first.'
+      - 'Clustering can segment customers by behavior.'
+    bad: 2
+    o:
+      - 'Clustering discovers groups in unlabeled data on its own.'
+      - 'Clustering predicts a continuous number for each record.'
+      - 'Clustering is another name for linear regression.'
+    a: 0
+    why: 'If every record already had its group label, you would use classification. Clustering is unsupervised: it finds the groups itself.'
+
+  - id: d1-039
+    c: regression-classification-clustering
+    kind: match
+    diff: 2
+    q: 'Match each business problem to the technique.'
+    pairs:
+      - ['Estimate next month''s electricity use in kWh', 'Regression']
+      - ['Decide whether a transaction is fraud or legitimate', 'Classification']
+      - ['Find natural groups of shoppers without labels', 'Clustering']
+    why: 'A numeric target is regression, a category is classification, and grouping without labels is clustering.'
+
+  - id: d1-040
+    c: regression-classification-clustering
+    kind: tf
+    diff: 3
+    s: 'Predicting whether a customer will churn, yes or no, is a regression problem because the model outputs a probability.'
+    v: false
+    why: 'The target is a category, churn or stay, so it is classification. Many classifiers output a probability and then apply a threshold to pick the class.'
+
+  # ------------------------------------------------ ai-real-world-applications
+  - id: d1-041
+    c: ai-real-world-applications
+    kind: match
+    diff: 1
+    pre: true
+    q: 'Match each application to the AI area it relies on.'
+    pairs:
+      - ['Spotting scratches on parts in camera images', 'Computer vision']
+      - ['Detecting the sentiment of product reviews', 'Natural language processing']
+      - ['Converting recorded calls into text', 'Speech recognition']
+      - ['Suggesting movies based on viewing history', 'Recommendation system']
+    why: 'Images point to computer vision, text meaning to NLP, audio-to-text to speech recognition, and behavior-based suggestions to recommendation systems.'
+
+  - id: d1-042
+    c: ai-real-world-applications
+    kind: mcq
+    diff: 2
+    q: 'An online retailer wants to predict how many units of each product it will sell over the next 12 weeks, using three years of sales history. Which application is this?'
+    o:
+      - 'Forecasting'
+      - 'Recommendation'
+      - 'Computer vision'
+      - 'Speech recognition'
+    a: 0
+    why: 'Predicting future values from historical time-series data is forecasting. Recommendation suggests items to individual users.'
+
+  - id: d1-043
+    c: ai-real-world-applications
+    kind: hallu
+    diff: 2
+    s:
+      - 'Computer vision can count people in camera footage.'
+      - 'Fraud detection often flags transactions unlike normal patterns.'
+      - 'Speech recognition converts written text into spoken audio.'
+      - 'Recommendation systems use past behavior to suggest items.'
+    bad: 2
+    o:
+      - 'Speech recognition turns spoken audio into text; text-to-speech does the reverse.'
+      - 'Speech recognition translates text from one language to another.'
+      - 'Speech recognition identifies objects in images.'
+    a: 0
+    why: 'Speech recognition (speech-to-text) listens and transcribes. Turning text into audio is speech synthesis, or text-to-speech.'
+
+  - id: d1-044
+    c: ai-real-world-applications
+    kind: tf
+    diff: 2
+    s: 'An assistant that answers employee questions by searching the company''s internal policy documents is a knowledge base use case.'
+    v: true
+    why: 'A knowledge base lets an AI system find and answer from an organization''s own documents instead of relying only on what a model learned in training.'
+
+  - id: d1-045
+    c: ai-real-world-applications
+    kind: multi
+    diff: 3
+    q: 'A company wants an AI solution that receives a refund request, checks the order system, applies the refund policy, issues the refund and emails the customer. Which statements are correct? (Choose TWO.)'
+    o:
+      - 'It suits agentic AI because it spans multiple steps and systems'
+      - 'It needs access to external systems through tools or APIs'
+      - 'A single clustering model can perform every step'
+      - 'It is mainly a computer vision problem'
+      - 'It must be trained from scratch with reinforcement learning'
+    a: [0, 1]
+    why: 'Multi-step work that reads and changes other systems is the agentic AI pattern, and agents act through tools or APIs. Clustering and vision do not fit, and agents build on existing models.'
+
+  # ------------------------------------------------ aws-managed-ai-services
+  - id: d1-046
+    c: aws-managed-ai-services
+    kind: match
+    diff: 1
+    pre: true
+    q: 'Match each AWS service to what it does.'
+    pairs:
+      - ['Amazon Transcribe', 'Converts speech to text']
+      - ['Amazon Polly', 'Converts text to lifelike speech']
+      - ['Amazon Translate', 'Translates text between languages']
+      - ['Amazon Lex', 'Builds conversational chatbots']
+    why: 'Transcribe listens, Polly speaks, Translate converts languages, and Lex powers voice and text chatbots.'
+
+  - id: d1-047
+    c: aws-managed-ai-services
+    kind: mcq
+    diff: 1
+    q: 'A company wants to analyze thousands of customer emails to find the overall sentiment and extract product names mentioned, without building a custom model. Which AWS service should it use?'
+    o:
+      - 'Amazon Comprehend'
+      - 'Amazon Transcribe'
+      - 'Amazon Polly'
+      - 'Amazon Lex'
+    a: 0
+    why: 'Amazon Comprehend is the managed NLP service for sentiment, entities and key phrases. Transcribe handles audio, Polly speaks text and Lex builds chatbots.'
+
+  - id: d1-048
+    c: aws-managed-ai-services
+    kind: mcq
+    diff: 3
+    q: 'A call center wants to turn recorded customer calls into text and then detect the sentiment of each conversation, using managed services and no ML expertise. Which combination should it use?'
+    o:
+      - 'Amazon Transcribe, then Amazon Comprehend'
+      - 'Amazon Polly, then Amazon Comprehend'
+      - 'Amazon Transcribe, then Amazon Translate'
+      - 'Amazon Lex, then Amazon Polly'
+    a: 0
+    why: 'Transcribe converts the audio to text; Comprehend then analyzes that text for sentiment. Polly goes the wrong way (text to speech), and Translate changes language, not sentiment.'
+
+  - id: d1-049
+    c: aws-managed-ai-services
+    kind: hallu
+    diff: 2
+    s:
+      - 'Amazon Polly turns text into lifelike speech.'
+      - 'Amazon Lex builds chatbots that understand voice and text.'
+      - 'Amazon Translate detects sentiment and key phrases in documents.'
+      - 'Amazon SageMaker AI helps build, train and deploy custom models.'
+    bad: 2
+    o:
+      - 'Amazon Comprehend finds sentiment and key phrases; Translate converts languages.'
+      - 'Amazon Polly finds sentiment and key phrases; Translate converts languages.'
+      - 'Amazon Lex finds sentiment and key phrases; Translate converts languages.'
+    a: 0
+    why: 'Sentiment and key phrase extraction belong to Amazon Comprehend. Amazon Translate only translates text between languages.'
+
+  - id: d1-050
+    c: aws-managed-ai-services
+    kind: tf
+    diff: 1
+    s: 'Amazon Polly converts recorded customer phone calls into searchable text transcripts.'
+    v: false
+    why: 'Polly is text-to-speech. Speech-to-text transcription of calls is Amazon Transcribe.'
+
+  - id: d1-051
+    c: aws-managed-ai-services
+    kind: tf
+    diff: 1
+    s: 'Amazon SageMaker AI lets a team build, train and deploy its own custom ML model when no pre-built AI service fits.'
+    v: true
+    why: 'Pre-built services like Comprehend solve common tasks. When the problem is unique, SageMaker AI provides the managed tools to build, train and host a custom model.'
+
+  # ------------------------------------------------ traditional-ml-vs-fm
+  - id: d1-052
+    c: traditional-ml-vs-fm
+    kind: mcq
+    diff: 2
+    pre: true
+    q: 'A bank must explain to regulators exactly which factors led to each credit decision. The input data is tabular. Which approach is MOST appropriate?'
+    o:
+      - 'An interpretable model such as a decision tree'
+      - 'A large language model prompted to approve or deny'
+      - 'A diffusion model trained on applicant documents'
+      - 'A general multimodal foundation model as-is'
+    a: 0
+    why: 'Regulated decisions on tabular data need clear, traceable reasons. A decision tree shows which factors drove each outcome; large foundation models are much harder to explain.'
+
+  - id: d1-053
+    c: traditional-ml-vs-fm
+    kind: tf
+    diff: 2
+    s: 'Foundation models are the best choice for every prediction task, because they are the most capable models available.'
+    v: false
+    why: 'FMs cost more, run slower and are harder to explain. For narrow tabular tasks, strict latency or regulated decisions, traditional ML is often the better fit.'
+
+  - id: d1-054
+    c: traditional-ml-vs-fm
+    kind: hallu
+    diff: 3
+    s:
+      - 'Foundation models are pre-trained on very large, broad datasets.'
+      - 'One foundation model can handle many tasks, like summarizing and answering questions.'
+      - 'Foundation models are easier to explain than a small decision tree.'
+      - 'Traditional ML can be cheaper to run for narrow tabular tasks.'
+    bad: 2
+    o:
+      - 'Small models like decision trees are generally easier to explain than large FMs.'
+      - 'Foundation models explain every output using exact if-then rules.'
+      - 'Decision trees cannot be explained by any method.'
+    a: 0
+    why: 'A decision tree''s logic can be read step by step. A foundation model has billions of parameters, so its reasoning is far less transparent.'
+
+  - id: d1-055
+    c: traditional-ml-vs-fm
+    kind: multi
+    diff: 3
+    q: 'A factory needs a model that predicts machine failure from sensor tables. It must run on a low-power device on the factory floor with millisecond latency. Which factors favor traditional ML over a foundation model? (Choose TWO.)'
+    o:
+      - 'Tight latency and limited compute at the edge'
+      - 'The task is a narrow prediction on structured data'
+      - 'The task needs open-ended text generation'
+      - 'Operators want to chat with it in many languages'
+      - 'The team wants to avoid having any training data'
+    a: [0, 1]
+    why: 'Operational constraints like low latency and small hardware, plus a narrow tabular task, favor a small traditional model. Open-ended text and multilingual chat are FM strengths.'
+
+  - id: d1-056
+    c: traditional-ml-vs-fm
+    kind: duel
+    diff: 1
+    q: 'A support team wants to draft personalized replies to free-text customer emails. Which approach is better?'
+    A: 'Use a foundation model through a managed API, with prompts that include the company''s tone guidelines.'
+    B: 'Train a linear regression model on past ticket numbers and use it to generate the reply text.'
+    a: 0
+    why: 'Generating open-ended natural language is exactly what foundation models do well. Linear regression predicts a number and cannot write text.'
+
+  # ------------------------------------------------ ml-pipeline-stages
+  - id: d1-057
+    c: ml-pipeline-stages
+    kind: order
+    diff: 2
+    pre: true
+    q: 'Put these early ML pipeline stages in order.'
+    steps:
+      - 'Data collection'
+      - 'Exploratory data analysis'
+      - 'Data pre-processing'
+      - 'Feature engineering'
+      - 'Model training'
+    why: 'You gather data, explore it to understand it, clean it, build useful features from it, and only then train a model.'
+
+  - id: d1-058
+    c: ml-pipeline-stages
+    kind: order
+    diff: 2
+    q: 'Put these later ML pipeline stages in order.'
+    steps:
+      - 'Model training'
+      - 'Hyperparameter tuning'
+      - 'Model evaluation'
+      - 'Deployment'
+      - 'Monitoring'
+    why: 'Train, tune settings for the best version, evaluate it on held-out data, deploy it, then monitor it in production for drift.'
+
+  - id: d1-059
+    c: ml-pipeline-stages
+    kind: mcq
+    diff: 2
+    q: 'A data scientist creates a new input called "days since last purchase" from raw transaction dates to improve a churn model. Which pipeline stage is this?'
+    o:
+      - 'Feature engineering'
+      - 'Exploratory data analysis'
+      - 'Hyperparameter tuning'
+      - 'Model monitoring'
+    a: 0
+    why: 'Creating or transforming inputs to make patterns easier for the model to learn is feature engineering. EDA only examines the data; tuning adjusts training settings.'
+
+  - id: d1-060
+    c: ml-pipeline-stages
+    kind: hallu
+    diff: 3
+    s:
+      - 'EDA uses statistics and charts to understand the data.'
+      - 'Hyperparameters are learned automatically from the data during training.'
+      - 'Evaluation should use data the model did not train on.'
+      - 'Monitoring can detect drift after deployment.'
+    bad: 1
+    o:
+      - 'Hyperparameters, like learning rate, are set before training and adjusted by tuning.'
+      - 'Hyperparameters are the predictions the model outputs.'
+      - 'Hyperparameters are only used after deployment.'
+    a: 0
+    why: 'Model parameters, the weights, are learned in training. Hyperparameters such as learning rate, batch size or tree depth are chosen by you or by a tuning job.'
+
+  - id: d1-061
+    c: ml-pipeline-stages
+    kind: tf
+    diff: 1
+    s: 'Exploratory data analysis happens before training and helps you understand distributions, correlations and missing values.'
+    v: true
+    why: 'EDA comes early so you know what the data looks like, which shapes cleaning and feature engineering decisions.'
+
+  # ------------------------------------------------ fm-sourcing-and-serving
+  - id: d1-062
+    c: fm-sourcing-and-serving
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A startup wants to add text summarization to its app using a foundation model, without provisioning or managing any servers. Which AWS service fits BEST?'
+    o:
+      - 'Amazon Bedrock'
+      - 'Amazon EC2'
+      - 'Amazon Polly'
+      - 'Amazon Transcribe'
+    a: 0
+    why: 'Amazon Bedrock offers foundation models through a fully managed API, so there is no infrastructure to run. EC2 means self-hosting, and Polly and Transcribe handle speech.'
+
+  - id: d1-063
+    c: fm-sourcing-and-serving
+    kind: mcq
+    diff: 2
+    q: 'A company wants to run an open-source model with its own inference code and full control over instance types and scaling. Which approach fits BEST?'
+    o:
+      - 'Host it on a SageMaker AI endpoint'
+      - 'Call a model through the Amazon Bedrock API'
+      - 'Use Amazon Comprehend custom classification'
+      - 'Build an Amazon Lex bot around the model'
+    a: 0
+    why: 'Self-hosting on a SageMaker AI endpoint gives control over code, instances and scaling. A managed API like Bedrock trades that control for simplicity.'
+
+  - id: d1-064
+    c: fm-sourcing-and-serving
+    kind: hallu
+    diff: 2
+    s:
+      - 'Amazon Bedrock offers foundation models through a managed API.'
+      - 'Kiro is an agentic AI IDE built around spec-driven development.'
+      - 'Training a custom FM from scratch is usually cheaper than adapting a pre-trained one.'
+      - 'SageMaker AI can host a model on an endpoint you control.'
+    bad: 2
+    o:
+      - 'Training from scratch needs far more data, compute and time than adapting a pre-trained model.'
+      - 'Training from scratch is free when you use AWS services.'
+      - 'Pre-trained models cannot be adapted, so you must train from scratch.'
+    a: 0
+    why: 'Pre-training a foundation model needs huge datasets and compute. Starting from an open-source pre-trained model is far cheaper and faster for most teams.'
+
+  - id: d1-065
+    c: fm-sourcing-and-serving
+    kind: match
+    diff: 3
+    q: 'Match each AWS offering to the need it serves.'
+    pairs:
+      - ['Amazon SageMaker AI', 'Build, train, tune and deploy custom ML models']
+      - ['Amazon Bedrock', 'Call foundation models through a managed API']
+      - ['Kiro', 'Write application code in an agentic IDE from specs']
+      - ['Amazon Quick', 'Business users explore data with BI and AI agents']
+    why: 'SageMaker AI is the full ML workbench, Bedrock is managed FM access, Kiro is the agentic coding IDE, and Amazon Quick gives business users BI and AI assistants.'
+
+  - id: d1-066
+    c: fm-sourcing-and-serving
+    kind: tf
+    diff: 2
+    s: 'With a managed API service such as Amazon Bedrock, you must choose, patch and scale the servers that host the model.'
+    v: false
+    why: 'That describes self-hosting. With a managed API, AWS runs the infrastructure; you send requests and pay for usage.'
+
+  - id: d1-067
+    c: fm-sourcing-and-serving
+    kind: tf
+    diff: 2
+    s: 'Amazon SageMaker JumpStart only offers models built by Amazon, so open-source models must be trained from scratch.'
+    v: false
+    why: 'SageMaker JumpStart provides many pre-trained models, including popular open-source ones, that you can deploy or fine-tune instead of training from scratch.'
+
+  # ------------------------------------------------ mlops-fundamentals
+  - id: d1-068
+    c: mlops-fundamentals
+    kind: tf
+    diff: 1
+    pre: true
+    s: 'A model that performed well at launch can lose accuracy over time as real-world data changes, so it needs monitoring.'
+    v: true
+    why: 'Data and concept drift erode performance after deployment. Monitoring catches the drop so the team can retrain.'
+
+  - id: d1-069
+    c: mlops-fundamentals
+    kind: mcq
+    diff: 2
+    q: 'A fraud model''s accuracy has dropped because customer spending patterns changed after it was trained. What should the team do?'
+    o:
+      - 'Retrain the model on recent data and redeploy'
+      - 'Move the endpoint to a larger instance size'
+      - 'Switch from real-time to batch inference'
+      - 'Raise the auto scaling limits on the model endpoint'
+    a: 0
+    why: 'The problem is drift: the data changed, not the hardware. Retraining on recent data restores accuracy; bigger instances or more scaling only change speed and capacity.'
+
+  - id: d1-070
+    c: mlops-fundamentals
+    kind: hallu
+    diff: 2
+    s:
+      - 'MLOps applies DevOps-style automation to the ML lifecycle.'
+      - 'Tracking experiments makes results reproducible.'
+      - 'Once a model is deployed, it never needs retraining.'
+      - 'Manual one-off scripts add technical debt.'
+    bad: 2
+    o:
+      - 'Deployed models need monitoring and retraining as data drifts.'
+      - 'Deployed models retrain themselves on every inference request.'
+      - 'Models only need retraining when the application code changes.'
+    a: 0
+    why: 'Real-world data shifts over time. MLOps builds in monitoring and retraining so production models stay accurate.'
+
+  - id: d1-071
+    c: mlops-fundamentals
+    kind: multi
+    diff: 2
+    q: 'A team wants its ML workflow to follow MLOps best practices. Which actions support this? (Choose THREE.)'
+    o:
+      - 'Automate training and deployment with a repeatable pipeline'
+      - 'Version models in a model registry'
+      - 'Monitor deployed models for drift'
+      - 'Retrain by hand on a laptop when someone remembers'
+      - 'Skip evaluation so models deploy faster'
+      - 'Keep experiment results only in personal notes'
+    a: [0, 1, 2]
+    why: 'Repeatable pipelines, versioned models and monitoring are core MLOps. Manual retraining, skipped evaluation and untracked experiments create technical debt.'
+
+  - id: d1-072
+    c: mlops-fundamentals
+    kind: duel
+    diff: 3
+    q: 'Which approach is better for keeping a production churn model reliable?'
+    A: 'A data scientist retrains the model by hand whenever customers complain, copying files between folders.'
+    B: 'An automated pipeline retrains, evaluates and registers a new model version when monitoring detects drift.'
+    a: 1
+    why: 'B is repeatable, versioned and triggered by monitoring, which is MLOps. A is manual, reactive and untracked, which builds technical debt.'
+
+  - id: d1-073
+    c: mlops-fundamentals
+    kind: tf
+    diff: 3
+    s: 'Experiment tracking only matters during research; once a model is in production, nobody needs to know which data and parameters built it.'
+    v: false
+    why: 'Knowing the data, code and parameters behind a production model is needed to reproduce, audit, debug and retrain it.'
+
+  # ------------------------------------------------ precision-recall-f1
+  - id: d1-074
+    c: precision-recall-f1
+    kind: tf
+    diff: 2
+    pre: true
+    s: 'If only 1 percent of transactions are fraud, a model that labels everything legitimate scores 99 percent accuracy yet catches no fraud.'
+    v: true
+    why: 'Accuracy misleads on imbalanced data. Here recall for fraud is zero, which is why precision, recall and F1 matter.'
+
+  - id: d1-075
+    c: precision-recall-f1
+    kind: mcq
+    diff: 2
+    q: 'A medical screening model must miss as few real disease cases as possible, even if some healthy patients get extra tests. Which metric should the team prioritize?'
+    o:
+      - 'Recall'
+      - 'Precision'
+      - 'Accuracy'
+      - 'Mean squared error'
+    a: 0
+    why: 'Missed cases are false negatives. Recall measures the share of real positives caught, so maximizing it minimizes misses, at the cost of more false positives.'
+
+  - id: d1-076
+    c: precision-recall-f1
+    kind: mcq
+    diff: 3
+    q: 'A spam filter often sends legitimate customer emails to the spam folder. The business says this is worse than letting some spam through. Which metric should the team improve?'
+    o:
+      - 'Precision'
+      - 'Recall'
+      - 'Training accuracy'
+      - 'R-squared'
+    a: 0
+    why: 'Legitimate emails flagged as spam are false positives. Precision measures how many flagged items are truly spam, so raising it cuts false positives.'
+
+  - id: d1-077
+    c: precision-recall-f1
+    kind: hallu
+    diff: 2
+    s:
+      - 'Precision measures how many flagged positives were truly positive.'
+      - 'Recall measures how many actual positives the model found.'
+      - 'F1 score is the simple average of accuracy and recall.'
+      - 'Accuracy can be misleading when classes are imbalanced.'
+    bad: 2
+    o:
+      - 'F1 score is the harmonic mean of precision and recall.'
+      - 'F1 score is the product of accuracy and precision.'
+      - 'F1 score is the count of false negatives.'
+    a: 0
+    why: 'F1 combines precision and recall with a harmonic mean, so it stays low if either one is low. Accuracy is not part of it.'
+
+  - id: d1-078
+    c: precision-recall-f1
+    kind: multi
+    diff: 2
+    q: 'A company has deployed a recommendation model and wants to know if it is worth the investment. Which are business metrics rather than model metrics? (Choose TWO.)'
+    o:
+      - 'Return on investment (ROI)'
+      - 'Cost per user'
+      - 'F1 score'
+      - 'Recall'
+      - 'Precision'
+    a: [0, 1]
+    why: 'ROI and cost per user measure business value. F1, recall and precision measure how well the model predicts, not whether it pays off.'
+
+  - id: d1-079
+    c: precision-recall-f1
+    kind: tf
+    diff: 2
+    s: 'A higher F1 score always means the project delivers more business value.'
+    v: false
+    why: 'F1 measures model quality only. Business value depends on ROI, cost per user, development cost and customer feedback; a better model can still lose money.'

@@ -1,0 +1,1140 @@
+# Domain 4 content drop 2: more cards and facts for existing D4 concepts.
+# Card ids d4-201+, fact ids f4-001+. No concepts here.
+
+cards:
+  # --- responsible-ai-dimensions ---
+  - id: d4-201
+    c: responsible-ai-dimensions
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A hiring model rejects qualified applicants over 50 at twice the rate of younger applicants with similar resumes. Which responsible AI dimension is MOST directly violated?'
+    o:
+      - 'Fairness'
+      - 'Robustness'
+      - 'Veracity'
+      - 'Controllability'
+    a: 0
+    why: 'Similar applicants getting different outcomes by age group is a fairness failure. Nothing here involves noisy input (robustness), false facts (veracity) or human steering (controllability).'
+
+  - id: d4-202
+    c: responsible-ai-dimensions
+    kind: mcq
+    diff: 2
+    q: 'A travel company''s assistant tells customers that no visa is needed for a country that actually requires one. Which responsible AI dimension does this failure fall under?'
+    o:
+      - 'Veracity'
+      - 'Fairness'
+      - 'Inclusivity'
+      - 'Privacy and security'
+    a: 0
+    why: 'A confidently false statement is a veracity failure. Every customer gets the same wrong answer, so it is not about unequal treatment of groups.'
+
+  - id: d4-203
+    c: responsible-ai-dimensions
+    kind: mcq
+    diff: 2
+    q: 'A city transit app offers only a voice assistant, so riders with speech impairments cannot use it. Which responsible AI dimension needs the MOST attention?'
+    o:
+      - 'Inclusivity'
+      - 'Veracity'
+      - 'Controllability'
+      - 'Transparency'
+    a: 0
+    why: 'Inclusivity means designing for users of diverse backgrounds and abilities. A voice-only design shuts out a whole group of riders before accuracy even comes up.'
+
+  - id: d4-204
+    c: responsible-ai-dimensions
+    kind: mcq
+    diff: 3
+    q: 'A manufacturer requires that plant operators can monitor, pause and override an AI scheduling system''s actions at any time. Which responsible AI dimension does this requirement address?'
+    o:
+      - 'Controllability'
+      - 'Transparency'
+      - 'Veracity'
+      - 'Fairness'
+    a: 0
+    why: 'Controllability means having mechanisms to monitor and steer the system''s behavior. Transparency is about disclosing how it works, which does not by itself let anyone stop it.'
+
+  - id: d4-205
+    c: responsible-ai-dimensions
+    kind: multi
+    diff: 2
+    q: 'A wildlife nonprofit''s image classifier fails when photos are slightly blurred or rotated. Which actions improve its robustness? (Choose TWO.)'
+    o:
+      - 'Train on augmented images with blur and rotation'
+      - 'Test against noisy and adversarial inputs before release'
+      - 'Add a disclaimer to every prediction'
+      - 'Lower the inference temperature'
+      - 'Report only the overall accuracy score'
+    a: [0, 1]
+    why: 'Robustness comes from exposing the model to messy inputs in training and testing against them. A disclaimer changes nothing about the model, and temperature does not apply to an image classifier.'
+
+  - id: d4-206
+    c: responsible-ai-dimensions
+    kind: tf
+    diff: 2
+    s: 'Transparency in responsible AI includes telling users about a system''s intended use and known limitations.'
+    v: true
+    why: 'Transparency means being open about how a system works, what it is for and where it falls short, so people can decide how far to trust it.'
+
+  - id: d4-207
+    c: responsible-ai-dimensions
+    kind: hallu
+    diff: 2
+    s:
+      - 'Controllability means humans can monitor and steer the system.'
+      - 'Explainability means giving reasons for a specific output.'
+      - 'Robustness means outputs are free of demographic bias.'
+      - 'Governance means defining and enforcing responsible AI practices.'
+    bad: 2
+    o:
+      - 'Robustness means staying reliable on noisy or adversarial input.'
+      - 'Robustness means outputs are always factually correct.'
+      - 'Robustness means the model trains faster.'
+    a: 0
+    why: 'Freedom from group bias is fairness. Robustness is about holding up under typos, noise and attacks. I am robust to everything except Dale''s spelling.'
+
+  - id: d4-208
+    c: responsible-ai-dimensions
+    kind: match
+    diff: 3
+    q: 'Match each AI failure to the responsible AI dimension it violates.'
+    pairs:
+      - ['Safety', 'Gives dangerous instructions for mixing chemicals']
+      - ['Privacy and security', 'Reveals another customer''s order history']
+      - ['Veracity', 'Cites a court case that does not exist']
+      - ['Robustness', 'Breaks when users add emojis to their questions']
+    why: 'Harmful content is safety, exposing someone else''s data is privacy and security, invented facts are veracity, and failing on unusual input is robustness.'
+
+  # --- bedrock-guardrails ---
+  - id: d4-209
+    c: bedrock-guardrails
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A gaming company wants its chatbot to block 40 specific slang terms and the code names of unreleased titles. Which Amazon Bedrock Guardrails policy is the simplest fit?'
+    o:
+      - 'Word filters'
+      - 'Denied topics'
+      - 'Contextual grounding check'
+      - 'Automated reasoning checks'
+    a: 0
+    why: 'A fixed list of exact words and phrases is exactly what word filters match. Denied topics are for whole subjects described in plain language, which is overkill here.'
+
+  - id: d4-210
+    c: bedrock-guardrails
+    kind: mcq
+    diff: 2
+    q: 'A telecom''s support bot should replace account numbers in its replies with placeholders instead of refusing the whole answer. Which Guardrails setting does this?'
+    o:
+      - 'Sensitive information filter set to mask'
+      - 'Sensitive information filter set to block'
+      - 'Content filter at high strength'
+      - 'A denied topic for account numbers'
+    a: 0
+    why: 'Sensitive information filters can either block a reply or mask the detected entity with a placeholder tag. Mask keeps the useful answer and hides the number.'
+
+  - id: d4-211
+    c: bedrock-guardrails
+    kind: mcq
+    diff: 2
+    q: 'What happens when an Amazon Bedrock guardrail blocks a user''s prompt?'
+    o:
+      - 'The model is skipped and a set blocked message returns'
+      - 'The model answers, then the reply is removed from logs'
+      - 'The request is routed to a human reviewer queue'
+      - 'The account is suspended pending admin review'
+    a: 0
+    why: 'If the input check intervenes, the foundation model is not invoked and the guardrail returns the blocked message you configured. No human queue or account action is involved.'
+
+  - id: d4-212
+    c: bedrock-guardrails
+    kind: multi
+    diff: 3
+    q: 'A bank''s RAG assistant answers questions about its fee schedule. The team wants to catch answers not supported by the retrieved fee documents and answers that ignore the question asked. Which settings apply? (Choose TWO.)'
+    o:
+      - 'A grounding threshold in the contextual grounding check'
+      - 'A relevance threshold in the contextual grounding check'
+      - 'A word filter for the word "fee"'
+      - 'A denied topic for banking questions'
+      - 'A higher content filter strength for insults'
+    a: [0, 1]
+    why: 'The contextual grounding check scores two things: grounding in the source and relevance to the query, each with its own threshold. Word filters, denied topics and insult filters would block legitimate fee answers.'
+
+  - id: d4-213
+    c: bedrock-guardrails
+    kind: mcq
+    diff: 3
+    q: 'Which task is NOT something Amazon Bedrock Guardrails is designed to do?'
+    o:
+      - 'Scan S3 buckets for stored PII'
+      - 'Mask PII in model responses'
+      - 'Block prompt attack attempts'
+      - 'Filter violent content in replies'
+    a: 0
+    why: 'Guardrails inspect prompts and responses in flight. Finding PII sitting in S3 buckets is Amazon Macie''s job. Classic trap: both deal with PII, at different stages.'
+
+  - id: d4-214
+    c: bedrock-guardrails
+    kind: tf
+    diff: 2
+    s: 'In Amazon Bedrock Guardrails, content filter strength can be set separately for user prompts and for model responses.'
+    v: true
+    why: 'Each content filter category has its own input and output strength, so you can, for example, be strict on what users send and lighter on what the model returns.'
+
+  - id: d4-215
+    c: bedrock-guardrails
+    kind: tf
+    diff: 2
+    s: 'Automated reasoning checks decide whether an answer is valid by asking a second LLM if it sounds plausible.'
+    v: false
+    why: 'Automated reasoning checks use formal logic: your policy document becomes rules, and answers are mathematically verified against them. That is the point; "sounds plausible" is how I got here.'
+
+  - id: d4-216
+    c: bedrock-guardrails
+    kind: hallu
+    diff: 3
+    s:
+      - 'Denied topics are defined with a name and a natural-language description.'
+      - 'Word filters can include a managed profanity list.'
+      - 'Contextual grounding checks need no source text to work.'
+      - 'The ApplyGuardrail API can check text from models outside Bedrock.'
+    bad: 2
+    o:
+      - 'Contextual grounding checks compare a response with a reference source and the query.'
+      - 'Contextual grounding checks only work on image inputs.'
+      - 'Contextual grounding checks replace the need for retrieval.'
+    a: 0
+    why: 'Grounding is measured against something: the check needs the grounding source and the user query to score a response. No source, nothing to be grounded in.'
+
+  # --- sustainable-model-selection ---
+  - id: d4-217
+    c: sustainable-model-selection
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'Which AWS chip is purpose-built to run machine learning inference with high performance per watt?'
+    o:
+      - 'AWS Inferentia'
+      - 'AWS Trainium'
+      - 'AWS Graviton'
+      - 'AWS Nitro'
+    a: 0
+    why: 'Inferentia is the inference accelerator. Trainium targets training, Graviton is a general-purpose Arm CPU, and Nitro is the virtualization system under EC2.'
+
+  - id: d4-218
+    c: sustainable-model-selection
+    kind: mcq
+    diff: 2
+    q: 'A retailer needs real-time product tagging with at least 90% accuracy. A large FM scores 94% and a distilled model scores 93%. Which choice BEST balances sustainability and requirements?'
+    o:
+      - 'The distilled model'
+      - 'The large FM'
+      - 'Both models voting together'
+      - 'A new model pre-trained from scratch'
+    a: 0
+    why: 'Both clear the bar, so the smaller distilled model wins: less compute and energy on every request. Ensembles and pre-training multiply energy for no required gain.'
+
+  - id: d4-219
+    c: sustainable-model-selection
+    kind: mcq
+    diff: 2
+    q: 'A research lab must train a large deep learning model on AWS and wants to cut energy use and cost per training run. Which option fits BEST?'
+    o:
+      - 'Instances powered by AWS Trainium'
+      - 'Instances powered by AWS Inferentia'
+      - 'Larger instances left running between jobs'
+      - 'General-purpose burstable instances'
+    a: 0
+    why: 'Trainium chips are built for efficient deep learning training. Inferentia targets inference, idle instances waste energy, and burstable instances are not designed for heavy training.'
+
+  - id: d4-220
+    c: sustainable-model-selection
+    kind: multi
+    diff: 2
+    q: 'A company wants to cut the carbon footprint of its GenAI chatbot without losing needed quality. Which actions help? (Choose TWO.)'
+    o:
+      - 'Use the smallest model that meets the quality bar'
+      - 'Distill a large model into a smaller one for production'
+      - 'Route every request to the largest available model'
+      - 'Retrain the model from scratch each month'
+      - 'Keep oversized instances running idle for spikes'
+    a: [0, 1]
+    why: 'Right-sizing and distillation both cut compute per request while keeping quality. The other three burn energy without improving results.'
+
+  - id: d4-221
+    c: sustainable-model-selection
+    kind: tf
+    diff: 1
+    s: 'AWS Trainium chips are designed for training deep learning models, while AWS Inferentia chips are designed for inference.'
+    v: true
+    why: 'The names give it away: Trainium trains, Inferentia infers. Both aim for better performance per watt than general-purpose hardware.'
+
+  - id: d4-222
+    c: sustainable-model-selection
+    kind: tf
+    diff: 2
+    s: 'Running a small model on an oversized, mostly idle instance has no sustainability cost, because the model itself is small.'
+    v: false
+    why: 'Idle capacity still draws power and money. Sustainability covers the infrastructure too: right-size instances and scale them with demand.'
+
+  - id: d4-223
+    c: sustainable-model-selection
+    kind: hallu
+    diff: 2
+    s:
+      - 'AWS Inferentia is built for efficient inference.'
+      - 'Model distillation trains a small student to mimic a large teacher.'
+      - 'Sustainability only matters during training, never at inference.'
+      - 'Right-sizing avoids paying for idle compute.'
+    bad: 2
+    o:
+      - 'Inference runs on every request, so its energy adds up over time.'
+      - 'Inference uses no energy once a model is deployed.'
+      - 'Sustainability applies only to on-premises hardware.'
+    a: 0
+    why: 'Training is a big one-time bill, but a popular model answers millions of requests. Inference energy keeps adding up for the model''s whole life.'
+
+  - id: d4-224
+    c: sustainable-model-selection
+    kind: duel
+    diff: 3
+    q: 'Which plan is the more sustainable way to add a support-ticket classifier?'
+    A: 'Fine-tune a small pre-trained model on labeled tickets and deploy it on a right-sized endpoint.'
+    B: 'Pre-train a new large model on all company data so it can also handle any future task.'
+    a: 0
+    why: 'A reuses existing training and right-sizes the hardware. B pays the huge pre-training energy bill for tasks nobody has asked for yet.'
+
+  # --- genai-legal-risks ---
+  - id: d4-225
+    c: genai-legal-risks
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A law firm files a brief drafted with an AI assistant that cites three court cases that do not exist. Which GenAI risk caused this?'
+    o:
+      - 'Hallucination'
+      - 'Intellectual property infringement'
+      - 'Model drift'
+      - 'Prompt injection'
+    a: 0
+    why: 'Invented but confident citations are hallucinations, and in a legal filing they create real liability. Nothing was copied (IP), no data shifted (drift), and no one attacked the prompt.'
+
+  - id: d4-226
+    c: genai-legal-risks
+    kind: mcq
+    diff: 2
+    q: 'A music app''s generator produces a melody almost identical to a copyrighted song. What is the BEST mitigation before release?'
+    o:
+      - 'Check outputs for similarity to protected works'
+      - 'Raise the temperature for more novel outputs'
+      - 'Remove content filters to speed generation'
+      - 'Encrypt every generated audio file with an AWS KMS key'
+    a: 0
+    why: 'Screening outputs against protected works, plus checking the training data''s licensing, targets IP risk directly. Higher temperature adds randomness, not legal safety; encryption does not change what was copied.'
+
+  - id: d4-227
+    c: genai-legal-risks
+    kind: mcq
+    diff: 2
+    q: 'A credit-advice chatbot suggests lower credit limits to users from certain neighborhoods with otherwise similar profiles. Which legal risk is MOST direct?'
+    o:
+      - 'Biased outputs'
+      - 'IP infringement from training data'
+      - 'Data residency violation'
+      - 'Trademark infringement claims'
+    a: 0
+    why: 'Neighborhood can act as a proxy for protected characteristics, so unequal outcomes invite discrimination claims. That is the biased outputs risk.'
+
+  - id: d4-228
+    c: genai-legal-risks
+    kind: multi
+    diff: 3
+    q: 'A health app plans to publish AI-generated wellness tips. Which measures BEST reduce end-user harm and legal exposure? (Choose TWO.)'
+    o:
+      - 'Have qualified staff review high-risk tips before publishing'
+      - 'Clearly disclose that the tips are AI-generated'
+      - 'Remove disclaimers so tips sound more authoritative'
+      - 'Train on scraped forum posts without review'
+      - 'Raise the output length so tips feel complete'
+    a: [0, 1]
+    why: 'Expert human review catches harmful advice, and disclosure keeps users informed and trusting. Sounding authoritative while unchecked is how a wellness tip becomes a lawsuit.'
+
+  - id: d4-229
+    c: genai-legal-risks
+    kind: mcq
+    diff: 3
+    q: 'A media company is choosing a foundation model to generate marketing images and wants to limit IP risk. What is the BEST first step?'
+    o:
+      - 'Review the provider''s data sources and license terms'
+      - 'Pick the model with the highest benchmark score'
+      - 'Choose the model with the lowest price per generated image'
+      - 'Pick the model with the largest context window'
+    a: 0
+    why: 'IP risk starts with what the model was trained on and what the license lets you do with outputs. Benchmarks, price and context size say nothing about rights.'
+
+  - id: d4-230
+    c: genai-legal-risks
+    kind: tf
+    diff: 1
+    s: 'Telling users that content was AI-generated can help preserve customer trust.'
+    v: true
+    why: 'Disclosure sets honest expectations. Customers who find out later that a "person" was a bot tend to lose trust in the whole brand.'
+
+  - id: d4-231
+    c: genai-legal-risks
+    kind: tf
+    diff: 2
+    s: 'Biased AI outputs are only an ethics issue and cannot create legal risk for a business.'
+    v: false
+    why: 'Biased decisions in areas like lending, hiring or housing can break anti-discrimination laws. The exam lists biased outputs as a legal risk, not just a moral one.'
+
+  - id: d4-232
+    c: genai-legal-risks
+    kind: hallu
+    diff: 2
+    s:
+      - 'Generated images can infringe trademarks.'
+      - 'Hallucinated answers can mislead customers into costly decisions.'
+      - 'A short disclaimer removes all liability for harmful AI output.'
+      - 'Lost customer trust is a business risk of bad AI output.'
+    bad: 2
+    o:
+      - 'Disclaimers help, but harmful outputs can still create liability.'
+      - 'Disclaimers move all liability to the model provider.'
+      - 'Disclaimers are not allowed on AI content.'
+    a: 0
+    why: 'A disclaimer is one layer, not a force field. Harmful or false outputs can still create liability, so pair it with review and guardrails. Dale''s email footer did not save him either.'
+
+  # --- dataset-characteristics ---
+  - id: d4-233
+    c: dataset-characteristics
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A team trains a medical-image model only on scans from one hospital''s single scanner model. Which dataset characteristic is MOST lacking?'
+    o:
+      - 'Diversity'
+      - 'Consistency'
+      - 'Freshness'
+      - 'Compactness'
+    a: 0
+    why: 'One site and one scanner means the data misses other equipment, patients and settings. The model will likely stumble on scans from anywhere else.'
+
+  - id: d4-234
+    c: dataset-characteristics
+    kind: mcq
+    diff: 2
+    q: 'A fraud dataset is 99.5% legitimate and 0.5% fraudulent transactions. The model labels everything legitimate and reports 99.5% accuracy. What is the core problem?'
+    o:
+      - 'Class imbalance in the training data'
+      - 'Too many input features in the training dataset'
+      - 'Encryption of the dataset at rest'
+      - 'A learning rate that is too low'
+    a: 0
+    why: 'With heavy imbalance, always guessing the majority class scores high accuracy while catching zero fraud. Rebalancing and metrics like recall expose and fix it.'
+
+  - id: d4-235
+    c: dataset-characteristics
+    kind: multi
+    diff: 3
+    q: 'A national bank''s voice assistant will serve customers of all ages and many regional accents. Which steps make its training data more inclusive? (Choose TWO.)'
+    o:
+      - 'Record speakers across age groups and regions'
+      - 'Include speech from people with speech impairments'
+      - 'Use only studio-quality recordings from staff'
+      - 'Drop accents that are rare in the sample'
+      - 'Remove older speakers to simplify the data'
+    a: [0, 1]
+    why: 'Inclusive data covers the full range of real users, including ages, regions and abilities. The other options shrink coverage and guarantee the model fails those groups.'
+
+  - id: d4-236
+    c: dataset-characteristics
+    kind: mcq
+    diff: 3
+    q: 'A recruiting firm removed the gender column from its data, yet its model still favors one gender. What is the MOST likely reason?'
+    o:
+      - 'Other features act as proxies for gender'
+      - 'The model''s sampling temperature is set too high'
+      - 'The data was encrypted with a KMS key'
+      - 'The dataset has too few columns'
+    a: 0
+    why: 'Features like hobbies, college names or career gaps can correlate with gender, so the model relearns the bias through proxies. Deleting one column is not a fix.'
+
+  - id: d4-237
+    c: dataset-characteristics
+    kind: tf
+    diff: 2
+    s: 'Removing a sensitive attribute such as age from the data always removes age bias from the model.'
+    v: false
+    why: 'Other features, like graduation year, can stand in for age. Check outcomes per group instead of assuming a dropped column solved it.'
+
+  - id: d4-238
+    c: dataset-characteristics
+    kind: tf
+    diff: 2
+    s: 'Synthetic or augmented data can help fill gaps for underrepresented groups, as long as it is validated.'
+    v: true
+    why: 'Generated or augmented examples can add coverage where real data is scarce. Validate them, because synthetic data can carry its own errors and biases.'
+
+  - id: d4-239
+    c: dataset-characteristics
+    kind: hallu
+    diff: 2
+    s:
+      - 'Diverse data covers the range of users the model will serve.'
+      - 'Curated data comes from vetted, properly licensed sources.'
+      - 'High overall accuracy proves a dataset is balanced.'
+      - 'Underrepresented groups often see higher error rates.'
+    bad: 2
+    o:
+      - 'Balance is checked by comparing class and group proportions in the data.'
+      - 'Balance only matters for image datasets.'
+      - 'Balance is guaranteed once a dataset has a million rows.'
+    a: 0
+    why: 'Accuracy is a model result, and a skewed dataset can produce a great-looking average. Balance is a property of the data: count the classes and groups.'
+
+  - id: d4-240
+    c: dataset-characteristics
+    kind: match
+    diff: 2
+    q: 'Match each dataset problem to the practice that addresses it.'
+    pairs:
+      - ['Scraped pages with unknown licenses', 'Use curated, vetted sources']
+      - ['98% of rows belong to one class', 'Rebalance the dataset']
+      - ['Only urban drivers in a traffic dataset', 'Add diverse coverage']
+      - ['Annotators labeled the same item differently', 'Run a label quality review']
+    why: 'Unknown rights call for curation, a dominant class for rebalancing, missing conditions for diversity, and inconsistent labels for label quality analysis.'
+
+  # --- bias-variance-fit ---
+  - id: d4-241
+    c: bias-variance-fit
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'A demand forecast uses a straight line for strongly seasonal sales and is inaccurate on both training and test data. What is the problem?'
+    o:
+      - 'Underfitting'
+      - 'Overfitting'
+      - 'Data leakage'
+      - 'Concept drift'
+    a: 0
+    why: 'A straight line cannot capture seasonal swings, so the model misses everywhere. Poor on training and test alike is underfitting, also called high bias.'
+
+  - id: d4-242
+    c: bias-variance-fit
+    kind: mcq
+    diff: 2
+    q: 'A model overfits its training data. Which change is MOST likely to help?'
+    o:
+      - 'Use regularization'
+      - 'Train for more epochs'
+      - 'Remove the validation set'
+      - 'Add more parameters'
+    a: 0
+    why: 'Regularization penalizes complexity so the model stops memorizing noise. More epochs and more parameters deepen overfitting, and dropping validation just hides it.'
+
+  - id: d4-243
+    c: bias-variance-fit
+    kind: multi
+    diff: 2
+    q: 'Which signs point to overfitting? (Choose TWO.)'
+    o:
+      - 'Training error keeps falling while validation error rises'
+      - 'Very high training accuracy with much lower test accuracy'
+      - 'High error on both training and test data'
+      - 'Similar, low error on training and test data'
+      - 'The model is too simple for the pattern'
+    a: [0, 1]
+    why: 'Overfitting shows as a widening gap: training keeps improving, unseen data gets worse. High error everywhere and "too simple" describe underfitting; low error everywhere is a good fit.'
+
+  - id: d4-244
+    c: bias-variance-fit
+    kind: mcq
+    diff: 2
+    q: 'Which of these is NOT a typical fix for overfitting?'
+    o:
+      - 'Increasing model complexity'
+      - 'Early stopping'
+      - 'Regularization'
+      - 'Adding more varied training data'
+    a: 0
+    why: 'A more complex model can memorize even more. Early stopping, regularization and more varied data all push the model toward patterns that generalize.'
+
+  - id: d4-245
+    c: bias-variance-fit
+    kind: mcq
+    diff: 3
+    q: 'A model shows 70% training accuracy and 69% validation accuracy on a task where experts reach 95%. What should the team try FIRST?'
+    o:
+      - 'A more expressive model or better features'
+      - 'Stronger regularization on the current model'
+      - 'Early stopping at fewer epochs'
+      - 'Removing half the training data'
+    a: 0
+    why: 'Training and validation are both low and close together: high bias, underfitting. Give the model more capacity or better features. Regularization and early stopping would make it simpler still.'
+
+  - id: d4-246
+    c: bias-variance-fit
+    kind: tf
+    diff: 2
+    s: 'In the bias-variance tradeoff, high bias means the model makes overly simple assumptions and tends to underfit.'
+    v: true
+    why: 'High bias equals underfitting, high variance equals overfitting. Not to be confused with demographic bias, which is about unfair group outcomes.'
+
+  - id: d4-247
+    c: bias-variance-fit
+    kind: tf
+    diff: 1
+    s: 'A model with low training error and similarly low test error is overfitting.'
+    v: false
+    why: 'Low error on both, with a small gap, is the good fit you want. Overfitting shows low training error but much higher test error.'
+
+  - id: d4-248
+    c: bias-variance-fit
+    kind: hallu
+    diff: 2
+    s:
+      - 'Early stopping halts training when validation error starts rising.'
+      - 'Regularization penalizes overly complex models.'
+      - 'Underfit models score well on training data but badly on test data.'
+      - 'Cross-validation helps estimate how well a model generalizes.'
+    bad: 2
+    o:
+      - 'Underfit models score poorly on both training and test data.'
+      - 'Underfit models are too complex for the data.'
+      - 'Underfit models have high variance.'
+    a: 0
+    why: 'Great training and poor test is overfitting. Underfit models are too simple, so they are bad at both. I underfit my first epoch. And my second.'
+
+  # --- bias-detection ---
+  - id: d4-249
+    c: bias-detection
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'Which technique compares a model''s accuracy, false positive rate and other metrics separately for each demographic group?'
+    o:
+      - 'Subgroup analysis'
+      - 'Hyperparameter tuning'
+      - 'Feature engineering'
+      - 'Data augmentation'
+    a: 0
+    why: 'Subgroup analysis slices metrics by group so gaps hidden in the average show up. The others are model-building techniques, not bias checks.'
+
+  - id: d4-250
+    c: bias-detection
+    kind: mcq
+    diff: 2
+    q: 'A team suspects that annotators labeled resumes inconsistently, with some favoring certain schools. Which check should come first?'
+    o:
+      - 'Label quality analysis'
+      - 'Hyperparameter tuning'
+      - 'Endpoint load testing'
+      - 'Prompt template review'
+    a: 0
+    why: 'If labels are biased, the model learns that bias. Check label accuracy and agreement between annotators before training on them.'
+
+  - id: d4-251
+    c: bias-detection
+    kind: mcq
+    diff: 2
+    q: 'A lender wants to know whether its deployed model has become less fair since launch, with the LEAST operational overhead. Which AWS approach fits?'
+    o:
+      - 'SageMaker Clarify bias drift with Model Monitor'
+      - 'Manual monthly spreadsheet reviews of all predictions'
+      - 'AWS Config rules on the endpoint settings'
+      - 'Amazon Inspector scans of the container'
+    a: 0
+    why: 'SageMaker Model Monitor runs Clarify bias drift checks on a schedule against live traffic. Config and Inspector check settings and vulnerabilities, not fairness; spreadsheets are pure overhead.'
+
+  - id: d4-252
+    c: bias-detection
+    kind: mcq
+    diff: 3
+    q: 'Before training, SageMaker Clarify reports a large difference in proportions of labels (DPL) between two groups. What does this indicate?'
+    o:
+      - 'The training labels favor one group'
+      - 'The model overfits its training data'
+      - 'The endpoint is under-provisioned'
+      - 'Feature attributions are all zero'
+    a: 0
+    why: 'DPL is a pre-training bias metric: one group gets positive labels far more often than another. No model exists yet, so it cannot be overfitting or an endpoint issue.'
+
+  - id: d4-253
+    c: bias-detection
+    kind: multi
+    diff: 2
+    q: 'Which practices help detect bias or untruthful outputs in a GenAI assistant? (Choose TWO.)'
+    o:
+      - 'Human audits of sampled responses'
+      - 'Comparing results across user subgroups'
+      - 'Raising the maximum output tokens'
+      - 'Switching to a larger instance type'
+      - 'Turning off model invocation logging'
+    a: [0, 1]
+    why: 'Humans reviewing real outputs catch bias and falsehoods, and subgroup comparison finds uneven quality. Token limits and instance size do not detect anything, and no logs means nothing to audit.'
+
+  - id: d4-254
+    c: bias-detection
+    kind: tf
+    diff: 2
+    s: 'Amazon SageMaker Ground Truth is the AWS service that computes bias metrics for trained models.'
+    v: false
+    why: 'Ground Truth helps you label data. SageMaker Clarify computes bias metrics and explanations. Similar shelf, different tool.'
+
+  - id: d4-255
+    c: bias-detection
+    kind: tf
+    diff: 1
+    s: 'Human audits are useful for checking GenAI outputs for truthfulness, not only for bias.'
+    v: true
+    why: 'Reviewers sampling real outputs catch hallucinations and errors as well as biased wording. The exam groups bias and truthfulness monitoring together.'
+
+  - id: d4-256
+    c: bias-detection
+    kind: hallu
+    diff: 3
+    s:
+      - 'Clarify reports pre-training and post-training bias metrics.'
+      - 'Model Monitor can track bias drift on a live endpoint.'
+      - 'Subgroup analysis is only needed when overall accuracy is low.'
+      - 'Human audits sample real outputs for review.'
+    bad: 2
+    o:
+      - 'Subgroup gaps can hide behind high overall accuracy.'
+      - 'Subgroup analysis is only for unsupervised models.'
+      - 'Subgroup analysis replaces all human review.'
+    a: 0
+    why: 'A strong average is exactly where a struggling group hides. Run subgroup analysis even when, especially when, the headline number looks great.'
+
+  # --- transparent-explainable ---
+  - id: d4-257
+    c: transparent-explainable
+    kind: mcq
+    diff: 1
+    pre: true
+    q: 'Which model type is MOST transparent by design?'
+    o:
+      - 'Linear regression'
+      - 'Deep neural network'
+      - 'Large language model'
+      - 'Diffusion model'
+    a: 0
+    why: 'Linear regression''s coefficients show exactly how each input moves the output. The others spread their logic over huge numbers of weights.'
+
+  - id: d4-258
+    c: transparent-explainable
+    kind: mcq
+    diff: 2
+    q: 'A claims team uses a black-box gradient-boosted model and must show which inputs drove each decision. Which AWS capability helps?'
+    o:
+      - 'Feature attributions from SageMaker Clarify'
+      - 'Amazon SageMaker Model Cards for the claims model'
+      - 'Amazon Bedrock Guardrails denied topics'
+      - 'AWS Artifact compliance reports'
+    a: 0
+    why: 'Clarify computes SHAP-based feature attributions per prediction, which explains a black box without opening it. Model Cards document a model; they do not explain individual decisions.'
+
+  - id: d4-259
+    c: transparent-explainable
+    kind: mcq
+    diff: 2
+    q: 'A company must choose among three FMs for summarizing support calls and wants automatic accuracy and robustness scores plus human ratings, with the LEAST effort. Which service fits?'
+    o:
+      - 'Amazon Bedrock Model Evaluation'
+      - 'Amazon SageMaker Model Cards'
+      - 'AWS Trusted Advisor'
+      - 'Amazon CloudWatch dashboards'
+    a: 0
+    why: 'Bedrock Model Evaluation runs automatic metrics such as accuracy, robustness and toxicity, and supports human evaluation jobs. Model Cards record results; they do not produce them.'
+
+  - id: d4-260
+    c: transparent-explainable
+    kind: mcq
+    diff: 3
+    q: 'Which statement BEST distinguishes AWS AI Service Cards from Amazon SageMaker Model Cards?'
+    o:
+      - 'Service Cards describe AWS AI services; Model Cards document your models'
+      - 'Model Cards describe AWS AI services; Service Cards document your models'
+      - 'Both are the same feature sold under two different names'
+      - 'Service Cards measure bias; Model Cards measure endpoint latency'
+    a: 0
+    why: 'AWS publishes AI Service Cards about its own services, such as intended uses and limits. SageMaker Model Cards are where you document the models you build.'
+
+  - id: d4-261
+    c: transparent-explainable
+    kind: multi
+    diff: 2
+    q: 'Which items does an Amazon SageMaker Model Card typically record? (Choose TWO.)'
+    o:
+      - 'Intended uses and risk rating'
+      - 'Training details and evaluation results'
+      - 'Live CPU usage of the endpoint'
+      - 'The raw training dataset files'
+      - 'Customer IAM access keys'
+    a: [0, 1]
+    why: 'Model Cards are documentation: purpose, risk, how the model was trained and how it scored. They describe data rather than store it, and live metrics belong in CloudWatch.'
+
+  - id: d4-262
+    c: transparent-explainable
+    kind: tf
+    diff: 2
+    s: 'Open-source models with published weights and training details can offer more transparency than closed models.'
+    v: true
+    why: 'Published weights, data details and licenses let others inspect and test the model. The exam lists open-source models, data and licensing as transparency tools.'
+
+  - id: d4-263
+    c: transparent-explainable
+    kind: tf
+    diff: 3
+    s: 'A large deep neural network becomes a transparent model once its weights are available for download.'
+    v: false
+    why: 'Open weights make a model inspectable, but billions of numbers still do not show how it reasons. Openness and interpretability are different things.'
+
+  - id: d4-264
+    c: transparent-explainable
+    kind: hallu
+    diff: 2
+    s:
+      - 'A decision tree''s splits can be read directly.'
+      - 'Feature attributions explain a single prediction.'
+      - 'Model Cards automatically make a black-box model transparent.'
+      - 'Bedrock Model Evaluation can use human reviewers.'
+    bad: 2
+    o:
+      - 'Model Cards document a model; they do not change how it works inside.'
+      - 'Model Cards convert a neural network into a decision tree.'
+      - 'Model Cards only store the model''s source code.'
+    a: 0
+    why: 'Documentation adds transparency about the model, not inside it. A black box with a great Model Card is a well-labeled black box.'
+
+  # --- explainability-tradeoffs ---
+  - id: d4-265
+    c: explainability-tradeoffs
+    kind: mcq
+    diff: 2
+    pre: true
+    q: 'A bank will publish how its fraud detection model works. Which detail is MOST risky to disclose?'
+    o:
+      - 'Exact feature thresholds that trigger a fraud flag'
+      - 'That AI assists the team with fraud review'
+      - 'The general categories of customer data the model uses'
+      - 'How customers can appeal a flagged transaction'
+    a: 0
+    why: 'Exact thresholds are a how-to guide for fraudsters. Disclosing AI use, data categories and appeal paths gives transparency without handing attackers the evasion recipe.'
+
+  - id: d4-266
+    c: explainability-tradeoffs
+    kind: mcq
+    diff: 2
+    q: 'An image-recognition team needs top accuracy, and no simple model comes close. Auditors still require explanations. What is the BEST approach?'
+    o:
+      - 'Use the complex model with post-hoc explanation tools'
+      - 'Ship the simple model despite missing the accuracy bar'
+      - 'Skip explanations because the model is accurate'
+      - 'Average the outputs of a simple and a complex model'
+    a: 0
+    why: 'When performance must win, keep the complex model and add explanation tools such as feature attributions. Skipping explanations fails the audit; the simple model fails the requirement.'
+
+  - id: d4-267
+    c: explainability-tradeoffs
+    kind: mcq
+    diff: 2
+    q: 'Which is NOT a human-centered explainable AI practice?'
+    o:
+      - 'Hiding AI involvement to avoid confusing users'
+      - 'Offering affected users a way to contest a decision'
+      - 'Showing the key factors behind a decision'
+      - 'Collecting user ratings on explanations'
+    a: 0
+    why: 'Human-centered design discloses AI use, explains decisions and gives users feedback and appeal paths. Hiding the AI removes the transparency the whole approach is about.'
+
+  - id: d4-268
+    c: explainability-tradeoffs
+    kind: multi
+    diff: 3
+    q: 'A public benefits agency uses AI to prioritize applications. Which steps support decision transparency without making the system easy to game? (Choose TWO.)'
+    o:
+      - 'Tell applicants AI assists the review and list the main factors'
+      - 'Offer a human review path for contested decisions'
+      - 'Publish the exact scoring weights and thresholds online'
+      - 'Release the full training data with applicant names'
+      - 'Hide AI involvement to avoid complaints'
+    a: [0, 1]
+    why: 'Disclosure of AI use and main factors, plus a human appeal path, gives transparency and recourse. Exact weights invite gaming, and releasing names is a privacy breach.'
+
+  - id: d4-269
+    c: explainability-tradeoffs
+    kind: mcq
+    diff: 3
+    q: 'A lender shows loan applicants a short plain-language reason for a decision, while its model auditors get detailed feature attributions. Why is this good design?'
+    o:
+      - 'Different audiences need different levels of detail'
+      - 'Auditors must never see applicant-facing text'
+      - 'Applicants are legally required to see raw weights'
+      - 'Detailed explanations reduce model accuracy'
+    a: 0
+    why: 'Human-centered explainability fits the explanation to the person. Applicants need an understandable reason and a next step; auditors need depth to verify the model.'
+
+  - id: d4-270
+    c: explainability-tradeoffs
+    kind: tf
+    diff: 1
+    s: 'Showing a confidence level next to an AI recommendation can help users decide how much to rely on it.'
+    v: true
+    why: 'Signaling uncertainty is part of decision transparency. Users can double-check low-confidence suggestions instead of trusting every output equally.'
+
+  - id: d4-271
+    c: explainability-tradeoffs
+    kind: tf
+    diff: 2
+    s: 'If a model is highly accurate, explaining its decisions to the people affected is no longer necessary.'
+    v: false
+    why: 'Accurate is not the same as accountable. People affected by a decision still need reasons and a way to appeal, and the rare errors matter most to them.'
+
+  - id: d4-272
+    c: explainability-tradeoffs
+    kind: hallu
+    diff: 2
+    s:
+      - 'Interpretable models can be less accurate on complex tasks.'
+      - 'Explanations should match what the audience needs.'
+      - 'Post-hoc explanation tools only work on decision trees.'
+      - 'Users should be able to flag bad AI decisions.'
+    bad: 2
+    o:
+      - 'Post-hoc tools such as SHAP can explain black-box models.'
+      - 'Post-hoc tools retrain the model to be simpler.'
+      - 'Post-hoc tools only work on text models.'
+    a: 0
+    why: 'Decision trees barely need post-hoc help. Tools like SHAP exist precisely to explain opaque models from the outside, without retraining them.'
+
+facts:
+  # --- responsible-ai-dimensions ---
+  - id: f4-001
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Fairness'
+    def: 'Outcomes do not unfairly differ across demographic groups'
+  - id: f4-002
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Inclusivity'
+    def: 'Designed to serve users of diverse backgrounds and abilities'
+  - id: f4-003
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Robustness'
+    def: 'Keeps working reliably on noisy, unexpected or adversarial input'
+  - id: f4-004
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Safety'
+    def: 'Avoids producing harmful or dangerous outputs'
+  - id: f4-005
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Veracity'
+    def: 'Outputs are truthful and factually accurate'
+  - id: f4-006
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Explainability'
+    def: 'Can give understandable reasons for a specific output'
+  - id: f4-007
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Transparency'
+    def: 'Openly discloses how the system works, its intended use and limits'
+  - id: f4-008
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Privacy and security'
+    def: 'Data and models are protected from misuse and unauthorized access'
+  - id: f4-009
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Controllability'
+    def: 'Mechanisms exist for humans to monitor and steer system behavior'
+  - id: f4-010
+    c: responsible-ai-dimensions
+    g: responsible-ai-dimensions
+    term: 'Governance'
+    def: 'Organization-wide processes that define, enforce and audit responsible AI practices'
+
+  # --- guardrails-policies ---
+  - id: f4-011
+    c: bedrock-guardrails
+    g: guardrails-policies
+    term: 'Content filters'
+    def: 'Block hate, insults, sexual, violence and misconduct at tunable strengths'
+  - id: f4-012
+    c: bedrock-guardrails
+    g: guardrails-policies
+    term: 'Prompt attack filter'
+    def: 'Detects jailbreaks and prompt injection attempts in user input'
+  - id: f4-013
+    c: bedrock-guardrails
+    g: guardrails-policies
+    term: 'Denied topics'
+    def: 'Block whole subjects described in natural language, catching paraphrases'
+  - id: f4-014
+    c: bedrock-guardrails
+    g: guardrails-policies
+    term: 'Word filters'
+    def: 'Block exact words, phrases or a managed profanity list'
+  - id: f4-015
+    c: bedrock-guardrails
+    g: guardrails-policies
+    term: 'Sensitive information filters'
+    def: 'Block or mask PII entities and custom regex patterns'
+  - id: f4-016
+    c: bedrock-guardrails
+    g: guardrails-policies
+    term: 'Contextual grounding check'
+    def: 'Flags responses unsupported by source content or irrelevant to the query'
+  - id: f4-017
+    c: bedrock-guardrails
+    g: guardrails-policies
+    term: 'Automated reasoning checks'
+    def: 'Verify answers against formal logic rules built from policy documents'
+  - id: f4-018
+    c: bedrock-guardrails
+    g: guardrails-policies
+    term: 'ApplyGuardrail API'
+    def: 'Evaluates any text against a guardrail without invoking a Bedrock model'
+
+  # --- bias-variance-terms ---
+  - id: f4-019
+    c: bias-variance-fit
+    g: bias-variance-terms
+    term: 'Overfitting'
+    def: 'Great on training data, poor on new data; memorized the noise'
+  - id: f4-020
+    c: bias-variance-fit
+    g: bias-variance-terms
+    term: 'Underfitting'
+    def: 'Too simple, so it performs poorly on training and new data'
+  - id: f4-021
+    c: bias-variance-fit
+    g: bias-variance-terms
+    term: 'Good fit'
+    def: 'Low error on training and new data alike; generalizes well'
+  - id: f4-022
+    c: bias-variance-fit
+    g: bias-variance-terms
+    term: 'Regularization'
+    def: 'Penalizes model complexity during training to curb memorization'
+  - id: f4-023
+    c: bias-variance-fit
+    g: bias-variance-terms
+    term: 'Early stopping'
+    def: 'Halts training once validation error starts to rise'
+  - id: f4-024
+    c: bias-variance-fit
+    g: bias-variance-terms
+    term: 'Cross-validation'
+    def: 'Rotates training and validation splits to estimate generalization'
+  - id: f4-025
+    c: bias-variance-fit
+    g: bias-variance-terms
+    term: 'Validation set'
+    def: 'Held-out data checked during training to tune settings and spot overfitting'
+
+  # --- rai-tools ---
+  - id: f4-026
+    c: bias-detection
+    g: rai-tools
+    term: 'Amazon SageMaker Clarify'
+    def: 'Computes pre- and post-training bias metrics and SHAP feature attributions'
+  - id: f4-027
+    c: transparent-explainable
+    g: rai-tools
+    term: 'Amazon SageMaker Model Cards'
+    def: 'Documents your model''s intended use, risk rating and evaluation results'
+  - id: f4-028
+    c: bias-detection
+    g: rai-tools
+    term: 'Amazon SageMaker Model Monitor'
+    def: 'Watches deployed endpoints on a schedule and flags data and model quality drift'
+  - id: f4-029
+    c: transparent-explainable
+    g: rai-tools
+    term: 'Amazon Bedrock Model Evaluation'
+    def: 'Compares FMs on a task with automatic metrics or human reviewers'
+  - id: f4-030
+    c: bias-detection
+    g: rai-tools
+    term: 'Amazon Augmented AI (Amazon A2I)'
+    def: 'Routes low-confidence ML predictions to human reviewers for checking'
+  - id: f4-031
+    c: bias-detection
+    g: rai-tools
+    term: 'Amazon SageMaker Ground Truth'
+    def: 'Builds labeled training datasets using human labelers'
+  - id: f4-032
+    c: bedrock-guardrails
+    g: rai-tools
+    term: 'Amazon Bedrock Guardrails'
+    def: 'Filters prompts and responses for harmful content, denied topics and PII'
+  - id: f4-033
+    c: transparent-explainable
+    g: rai-tools
+    term: 'AWS AI Service Cards'
+    def: 'AWS documents the intended uses and limits of its own AI services'
+
+  # --- genai-legal-risks ---
+  - id: f4-034
+    c: genai-legal-risks
+    g: genai-legal-risks
+    term: 'Intellectual property infringement'
+    def: 'Output reproduces copyrighted or trademarked work without the rights'
+  - id: f4-035
+    c: genai-legal-risks
+    g: genai-legal-risks
+    term: 'Biased outputs'
+    def: 'Systematically unfair results for a group, inviting discrimination claims'
+  - id: f4-036
+    c: genai-legal-risks
+    g: genai-legal-risks
+    term: 'Hallucinations'
+    def: 'Fabricated facts or citations presented confidently as true'
+  - id: f4-037
+    c: genai-legal-risks
+    g: genai-legal-risks
+    term: 'Loss of customer trust'
+    def: 'Repeated bad AI experiences drive customers away from the brand'
+  - id: f4-038
+    c: genai-legal-risks
+    g: genai-legal-risks
+    term: 'Privacy violation'
+    def: 'Personal data exposed or processed without a lawful basis'
+
+  # --- sustainable-levers ---
+  - id: f4-039
+    c: sustainable-model-selection
+    g: sustainable-levers
+    term: 'AWS Inferentia'
+    def: 'AWS chip built for efficient, low-cost ML inference'
+  - id: f4-040
+    c: sustainable-model-selection
+    g: sustainable-levers
+    term: 'AWS Trainium'
+    def: 'AWS chip built for efficient deep learning training'
+  - id: f4-041
+    c: sustainable-model-selection
+    g: sustainable-levers
+    term: 'Model distillation'
+    def: 'Trains a smaller student model to mimic a larger teacher'
+  - id: f4-042
+    c: sustainable-model-selection
+    g: sustainable-levers
+    term: 'Right-sizing'
+    def: 'Choosing the smallest instance or model that meets the requirement'
+  - id: f4-043
+    c: sustainable-model-selection
+    g: sustainable-levers
+    term: 'Fine-tuning a pre-trained model'
+    def: 'Adapts existing weights instead of training from scratch, saving energy'
