@@ -20,9 +20,13 @@ Status at the end of 2026-11-15
 - Committed to `main` (5e5e01b) and **deployed**: https://capsail.github.io/on-shift/ serves the merged app (checked live: `#shifty-1` opens the AI school). Not yet checked on Cap's phone with his real save.
 - Deploying: this repo's Pages site comes from the **`gh-pages` branch**, so a push to `main` deploys nothing. Run `npm run deploy` (builds, then force-pushes `dist/` to `gh-pages`). The Actions workflow in `.github/` does not run here; the tests are the local `npm test`.
 
-## Still to do: forward the old link (needs Cap's OK in chat)
+## 2026-11-15 (later): old link forwarded, merge finished
 
-Everything is prepared in `cutover/` (the page, its service worker, the exact steps in `cutover/README.md`) and tested by `tests/shell/forward.spec.ts`. The `shifty_1` folder and the CapSail/shifty-1 repo have **not** been touched. After the forward they stay as the archive; never delete them without Cap's say-so.
+- Cap confirmed his progress and said "Yes, forward it". https://capsail.github.io/shifty-1/ now serves the forwarding page (checked live: a browser tab lands on ON SHIFT's AI school). An installed old SHIFTY-1 shows "New version ready", then the "moved" page with an Open button.
+- In the shifty-1 repo: tag `v1-final-standalone` = the last standalone app; `forward/` is the site; the workflow only deploys that folder; README and HANDOFF say it is the archive. Roll-back: restore the workflow from the tag and push.
+- `C:\Users\jrsjo\Desktop\Projects & Code\shifty_1` and CapSail/shifty-1 stay as the archive. Never delete without Cap's say-so. All SHIFTY-1 work now happens here (`src/ai/`, `content/ai/`).
+- The SHIFTY-1 save format is no longer tied to the old app, so it may change from now on, with a migration in `src/ai/state.ts` and a bumped `SAVE_VERSION`.
+- If the forwarding page ever needs a change: edit `cutover/shifty-1/` here (tests: `tests/shell/forward.spec.ts`), copy it to `shifty_1/forward/`, push that repo.
 
 ## Requests from other apps
 (none)
