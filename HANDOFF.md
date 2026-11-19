@@ -39,6 +39,7 @@ Cap asked (2026-11-18) for a CISSP module, as quirky as the others, with a story
 - Also fixed in SHIFTY-1: quitting a benchmark right after an answer no longer draws the next question over home (save format untouched).
 - Left for later (in the review docs): the "key is the multi-part option" cue is still ~41%; a few non-option scenes have no story reaction; the board exam score is a difficulty-weighted %, labelled as such, not an IRT estimate.
 - Writer agents hit the Pro 5-hour limit once overnight; resumed after the reset with SendMessage.
+- **Deployed 2026-11-19 ~09:15 UTC** (`main` 04dff87, `npm run deploy` to gh-pages). Checked live in a fresh browser: `#cissp` opens the Ghost CISO, `#scene=k3-02.1` loads, `#shifty-1` and `#soc` fine, no page errors. Installed copies get it via "New version ready". Not yet checked on Cap's phone.
 
 ## Requests from other apps
 (none)
