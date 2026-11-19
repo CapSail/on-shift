@@ -41,5 +41,18 @@ Cap asked (2026-11-18) for a CISSP module, as quirky as the others, with a story
 - Writer agents hit the Pro 5-hour limit once overnight; resumed after the reset with SendMessage.
 - **Deployed 2026-11-19 ~09:15 UTC** (`main` 04dff87, `npm run deploy` to gh-pages). Checked live in a fresh browser: `#cissp` opens the Ghost CISO, `#scene=k3-02.1` loads, `#shifty-1` and `#soc` fine, no page errors. Installed copies get it via "New version ready". Not yet checked on Cap's phone.
 
+## 2026-11-19 (later): Ghost CISO answer giveaway fixed, a story for every scene
+
+- **Answer cues:** the multi-part answer cue dropped from 41.5% to 18.8% (chance is 25%).
+  - Every cue is at or below 25% in every domain: length, words, process words, step lists and the reverse cues.
+  - No answer key changed.
+  - Measure with `node scripts/check-cues-cissp.mjs`. The build warns if a cue drifts above 28%.
+- **Stories:** the 91 rank, sort, spot and calc scenes now have story reactions (`rr`, or `r` for calc).
+- **Checks:**
+  - Two independent accuracy reviews covered all changed scenes and fixed 6 distractors.
+  - Details are in `docs/cissp/review-learning.md` (third addendum) and `review-cues-*.md`.
+  - The full suite passed, including the test that SOC and SHIFTY-1 saves stay byte-identical.
+- **Shipped:** commit 92465ee, deployed to gh-pages (93b94a9) and verified live. main is pushed. Content is version 1.2.0.
+
 ## Requests from other apps
 (none)
