@@ -170,6 +170,9 @@ cases:
           links: [[inet, outer], [outer, dmz], [dmz, inner], [inner, lan], [lan, printers], [lan, payroll]]
           caption: 'HQ network, redesigned'
         a: dmz
+        rr:
+          - 'The portal moves into the screened subnet. When a scanner pokes it that night, the inner firewall still stands between it and payroll. Tomás exhales.'
+          - 'Anywhere else, the portal is either unreachable for customers or one hop from the internal LAN. Last spring, all over again.'
         why: >-
           Public-facing servers go in a screened subnet (DMZ) between the outer and inner firewalls. Internet users
           reach only the DMZ; if the web server is compromised, the inner firewall still blocks the way to the
@@ -191,6 +194,9 @@ cases:
           - ['The portal web server queries the internal database', 1]
           - ['A file server replicates to a backup server nearby', 1]
           - ['An infected PC scans other internal PCs', 1]
+        rr:
+          - 'Kim''s firewalls now tag every flow by direction. An internal PC scanning its neighbors shows up as east-west, exactly where last spring''s attacker used to roam.'
+          - 'Kim''s dashboards file internal scans as boundary traffic, so the east-west view stays empty. The next attacker strolls between servers unwatched, like last spring.'
         why: >-
           North-south traffic crosses the boundary, into or out of the data center or network. East-west traffic
           moves laterally between internal systems, where attackers spread after getting in, so it needs internal
@@ -241,6 +247,9 @@ cases:
           links: [[laptop, switch], [switch, radius], [radius, dir], [radius, ca], [switch, core], [printer, switch]]
           caption: '802.1X at a headquarters switch port'
         a: switch
+        rr:
+          - 'Right: the access switch holds the port shut and relays EAP to RADIUS, which decides. Dale starts calling the switch "the bouncer".'
+          - 'Wrong box. The laptop is the supplicant and RADIUS is the authentication server; the switch is the authenticator that guards the port. Tomás fixes the diagram.'
         why: >-
           In 802.1X the supplicant (the laptop) requests access, the authenticator (the switch or wireless access
           point) controls the port and relays EAP messages, and the authentication server (RADIUS) decides.
@@ -279,7 +288,7 @@ cases:
           data center and spot unusual patterns.
         ask: 'Which capability BEST meets Kim''s goal?'
         o:
-          - 'Ping and uptime checks on every server every minute'
+          - 'Ping and uptime checks on every single server'
           - 'Flow records (such as IPFIX) for internal traffic'
           - 'A larger internet link to reduce congestion'
           - 'Traffic shaping to give the portal priority'
@@ -349,6 +358,9 @@ cases:
           - ['Delivery photos are pulled off a tablet over Bluetooth', 1]
           - ['Someone places calls from a driver''s phone remotely', 2]
           - ['An attacker turns on a phone''s microphone to listen in', 2]
+        rr:
+          - 'Kim''s briefing lands: drivers can now tell a prank message from a stolen contact list from a hijacked phone, and report the last two at once.'
+          - 'Bo shrugs off a phone that is placing calls by itself as "just bluejacking". Taking control of the device is bluebugging, and it needed reporting that day.'
         why: >-
           Bluejacking sends unsolicited messages (annoying, little harm). Bluesnarfing steals data such as contacts,
           calendars and files. Bluebugging takes control of the device, for example making calls or listening
@@ -364,7 +376,7 @@ cases:
         ask: 'What is the MAIN security concern with this configuration?'
         o:
           - 'The VPN tunnel uses too much hotel bandwidth'
-          - 'Drivers can no longer reach the dispatch system from hotels'
+          - 'Drivers can''t reach dispatch from hotels'
           - 'The VPN encrypts the dispatch traffic twice'
           - 'Internet traffic bypasses company security controls'
         a: 3
@@ -399,6 +411,9 @@ cases:
           links: [[home, inet], [inet, vpn], [vpn, jump], [jump, mgmt], [mgmt, routers], [routers, users], [jump, siem]]
           caption: 'Remote administration path to the depot routers'
         a: jump
+        rr:
+          - 'Admin sessions now pass through the jump host: MFA, a recording, then the routers. Kim can replay exactly who changed Depot 12''s router and when.'
+          - 'Engineers keep going straight from the VPN to the routers. Nobody can say who changed the Depot 12 router last week, because nothing was recorded.'
         why: >-
           Network administrative functions should pass through a hardened jump host (bastion) that enforces MFA,
           limits who reaches the management network and records sessions. The VPN gateway only lets a user join the
@@ -440,13 +455,13 @@ cases:
         o:
           - 'A shared admin password for the vendor, to keep it simple'
           - 'A signed agreement on security terms, scope and monitoring'
-          - 'Connect now, and review security at contract renewal'
+          - 'Connect now with MFA and logging, then add a security policy at contract renewal'
           - 'A permanent block on all vendor remote access'
         a: 1
         r:
           - 'Every vendor technician now shares one password, forever. When one leaves, nobody knows.'
           - 'The agreement sets scope, MFA, logging, time-limited access and breach notice. Then the connection goes in, on Halvorsen''s terms.'
-          - 'The connection goes live with no rules. At renewal, two years later, there is nothing to enforce.'
+          - 'The connection goes live with no agreed scope or terms. At renewal, two years later, there is nothing to enforce and nobody knows what the vendor touched.'
           - 'The vendor can''t support the tablets at all. A real business need goes unmet.'
         why: >-
           Third-party connectivity starts with an agreement (such as an interconnection security agreement) that
@@ -478,7 +493,7 @@ cases:
         ask: 'Which technology BEST fits this requirement?'
         o:
           - 'A single leased line with static routing'
-          - 'Network address translation on the branch router'
+          - 'NAT on the branch router'
           - 'A wireless mesh between the two offices'
           - 'Software-defined wide area networking (SD-WAN)'
         a: 3
@@ -501,13 +516,13 @@ cases:
           personal data passes through it.
         ask: 'Which configuration is BEST?'
         o:
-          - 'Keep all versions so no customer is locked out'
-          - 'Allow TLS 1.2 and TLS 1.3 only'
+          - 'Keep all versions enabled, and log which ones customers use'
+          - 'Allow only TLS 1.2 and TLS 1.3 on the load balancer'
           - 'Allow SSL 3.0 only, since it is the most tested'
           - 'Allow TLS 1.0 and 1.1 but disable TLS 1.3'
         a: 1
         r:
-          - 'An attacker on café Wi-Fi forces a downgrade to SSL 3.0. Compatibility wins; the customer loses.'
+          - 'The logs fill up nicely while an attacker on café Wi-Fi forces a downgrade to SSL 3.0. Compatibility wins; the customer loses.'
           - 'Old protocols switched off, modern ones on. A handful of ancient browsers complain; the data stays safe.'
           - 'SSL 3.0 is "the most tested" in the sense that it has been thoroughly broken.'
           - 'Turning off the newest, strongest version to keep deprecated ones is the exact reverse of the goal.'
@@ -554,6 +569,9 @@ cases:
           - ['Uneven packet arrival that makes video stutter', 1]
           - ['Data actually delivered per second on the link', 2]
           - ['Only 300 Mbps arrives over a 1 Gbps link', 2]
+        rr:
+          - 'Jonas walks into the carrier meeting fluent: the stutter is jitter, the slow transfer is throughput. The carrier, used to confused customers, talks QoS instead of upsells.'
+          - 'Jonas complains about "latency" when the stutter is jitter. The carrier sells him more bandwidth, and the video still stutters.'
         why: >-
           Latency is delay; jitter is variation in that delay, which makes voice and video choppy; throughput is
           what actually gets through, often less than bandwidth, the link's rated capacity. Jitter buffers and QoS
@@ -570,13 +588,13 @@ cases:
         o:
           - 'Encrypt it end to end, for example in an IPsec tunnel'
           - 'Trust the carrier, since the circuit is private'
-          - 'Ask the carrier to promise not to look at it'
+          - 'Add a confidentiality clause to the contract, and audit the carrier''s process yearly'
           - 'Buy a faster circuit so data spends less time in transit'
         a: 0
         r:
           - 'The carrier''s network now carries only ciphertext. Jonas adds security terms to the contract renewal too.'
           - '"Private" means routed separately, not confidential. A carrier technician with a tap sees everything.'
-          - 'A promise is not a control. The auditor asks for evidence and gets a pinky swear.'
+          - 'A clause is a promise with a signature. A technician with a tap still reads cleartext, and next year''s audit won''t see it.'
           - 'Faster cleartext is still cleartext.'
         why: >-
           Backhaul and carrier networks are third-party infrastructure that Halvorsen doesn't control, so encrypt
@@ -592,14 +610,14 @@ cases:
           spoof caller identities.
         ask: 'Which measures BEST address both concerns?'
         o:
-          - 'A separate VLAN for the phones and nothing else'
+          - 'A separate voice VLAN, with QoS and ACLs to keep laptops out'
           - 'SIP over TLS for signaling and SRTP for the media'
           - 'Plain RTP with stronger SIP passwords'
           - 'Disabling call recording on the phone system'
         a: 1
         trap: 0
         r:
-          - 'The voice VLAN helps quality and containment, but the calls still travel unencrypted. Anyone on that VLAN can record them.'
+          - 'The voice VLAN helps quality and keeps laptops out, but calls still travel unencrypted and caller IDs can still be faked. Anyone who reaches that VLAN can record them.'
           - 'SRTP encrypts and authenticates the audio, and SIP over TLS protects call setup. Recording a call now captures noise.'
           - 'Stronger passwords for setup, but the audio itself is still readable by anyone who captures it.'
           - 'Halvorsen stops recording calls. Attackers don''t.'
@@ -635,7 +653,7 @@ cases:
           - 'Move iSCSI to an unusual TCP port number'
           - 'Isolate iSCSI on a dedicated network and require CHAP'
           - 'Rely on the internet-edge firewall to protect it'
-          - 'Rename the storage targets with long random names that are hard to guess'
+          - 'Rename the storage targets with long, random, hard-to-guess names'
         a: 1
         r:
           - 'A port scan finds it in seconds. Obscurity is not isolation.'
@@ -687,6 +705,9 @@ cases:
           - ['Buffers the entire frame before forwarding', 1]
           - ['Checks the frame check sequence (CRC) first', 1]
           - ['Drops frames that fail the error check', 1]
+        rr:
+          - 'Tomás picks store-and-forward for the dispatch room: frames that fail the CRC check are dropped, not passed on. A little latency, a lot less garbage.'
+          - 'Tomás mixes up the modes and buys cut-through for speed. The corrupted frames keep flowing straight into dispatch.'
         why: >-
           Cut-through switching forwards after reading the destination MAC address: lower latency, but no error
           check, so corrupted frames pass. Store-and-forward buffers the whole frame and checks its frame check
@@ -750,13 +771,13 @@ cases:
           security side effects.
         ask: 'What is the GREATEST security implication of running this multilayer protocol over TCP/IP?'
         o:
-          - 'It gains encryption automatically by running over TCP'
-          - 'It is exposed to IP attacks and can slip past filters'
+          - 'It gains encryption and authentication automatically, just by running over TCP'
+          - 'It is exposed to IP attacks and can evade filters'
           - 'It can no longer be routed between different networks'
           - 'It stops working on ordinary layer 2 switches'
         a: 1
         r:
-          - 'TCP adds no encryption at all. The DNP3 commands still travel in the clear.'
+          - 'TCP adds no encryption and no authentication. The DNP3 commands still travel in the clear.'
           - 'Right: anything that can reach it over IP can now talk to the controllers. Kim adds DNP3-aware filtering at the OT boundary.'
           - 'The whole point of wrapping it in TCP/IP was to make it routable.'
           - 'Switches forward the frames without caring what is inside them.'
@@ -799,6 +820,9 @@ cases:
           links: [[inet, lb], [inet, nat], [lb, app], [app, db], [app, nat], [app, logs], [db, backup]]
           caption: 'Route platform VPC: public subnet above, private subnets below'
         a: lb
+        rr:
+          - 'Only the load balancer faces the internet now. The app servers and database lose their public IPs, and Kim crosses out the first "allow any".'
+          - 'Rafa opens the wrong component to inbound traffic, and scanners find it by lunch. Only the load balancer belongs in the public subnet; everything else stays private.'
         why: >-
           Only the load balancer in the public subnet should face the internet; app servers and the database sit in
           private subnets with no public addresses. The NAT gateway lets private hosts reach out for updates but
@@ -813,10 +837,10 @@ cases:
           workload itself, even within the same subnet.
         ask: 'Which approach BEST meets this requirement?'
         o:
-          - 'One larger subnet with a stronger perimeter firewall'
+          - 'One larger subnet behind a stronger perimeter firewall, with a stricter policy'
           - 'A VLAN for each department'
           - 'An IDS sensor at the internet gateway'
-          - 'Micro-segmentation with workload-level firewall policy'
+          - 'Micro-segmentation enforced at each workload'
         a: 3
         trap: 0
         r:
@@ -864,7 +888,7 @@ cases:
         ask: 'Which control BEST meets this goal?'
         o:
           - 'A second perimeter firewall at headquarters'
-          - 'A network IDS on the headquarters core'
+          - 'A network IDS on the headquarters core, with alerts to the SOC'
           - 'MAC address filtering on the office Wi-Fi'
           - 'Host-based firewall and EDR on each machine'
         a: 3
@@ -888,7 +912,7 @@ cases:
           customer, with the origin servers hidden behind something that can absorb floods.
         ask: 'Which service BEST fits Rafa''s needs?'
         o:
-          - 'A content delivery network (CDN)'
+          - 'A CDN in front of the tracking page'
           - 'A larger origin server with more bandwidth'
           - 'A site-to-site VPN'
           - 'Network access control'
@@ -913,7 +937,7 @@ cases:
           quickly.
         ask: 'Which pair of practices BEST addresses both problems?'
         o:
-          - 'A stronger firewall plus longer passwords'
+          - 'A stronger firewall policy plus a longer password policy'
           - 'More encryption plus shorter log retention'
           - 'Capacity management plus automated fault detection'
           - 'Network address translation plus static IP addresses'
@@ -954,7 +978,7 @@ cases:
           - 'Tape over the camera and leave the rest as it is'
           - 'Unplug the microphone only during board meetings'
           - 'Patch it, set named admin accounts and privacy controls'
-          - 'Swap it for the same model from another reseller'
+          - 'Swap it for the same model, from another reseller, with the same setup'
         a: 2
         r:
           - 'The camera sees tape. The microphone still hears the merger talks.'
@@ -979,7 +1003,7 @@ cases:
           - 'Staff promise to keep children away from the laptop'
           - 'Company-managed, patched devices with MFA for access'
           - 'Using incognito browser mode for company work'
-          - 'Working only between 9 and 5 local time'
+          - 'Working only from 9 to 5, on weekdays, and only from home'
         a: 1
         r:
           - 'The children are very sorry. The game they installed with a keylogger is not.'
@@ -1004,7 +1028,7 @@ cases:
           - 'Higher bandwidth than 4G'
           - 'Lower latency for video calls'
           - 'Subscriber identity concealment (SUCI)'
-          - 'Network slicing to isolate driver traffic'
+          - 'Network slicing'
         a: 2
         r:
           - 'Faster downloads, same exposure. Speed isn''t a privacy feature.'
@@ -1036,6 +1060,9 @@ cases:
             - { id: stairs, label: 'Stairwell', x: 39, y: 80 }
           caption: 'Halvorsen HQ, third floor'
         a: idf
+        rr:
+          - 'Tomás locks the IDF, logs who holds the key, and Kim bags the unknown device as possible evidence. The fire extinguisher goes back on its hook.'
+          - 'Shifty worries about the visitor lounge while the IDF door stays propped open. By morning a second unknown device is plugged into the patch panel.'
         why: >-
           Wiring closets hold the patch panels and switches the whole floor depends on; an open IDF lets anyone tap
           the network or plug in a device. It must stay locked, access-logged and checked, and the unknown device
@@ -1076,7 +1103,7 @@ cases:
           - 'Stricter ingress filtering on inbound traffic'
           - 'Egress filtering to approved destinations only'
           - 'A faster internet link to make uploads noticeable'
-          - 'An IPS signature for the video system''s known exploits'
+          - 'An IPS policy that blocks known exploits, per the vendor''s advisory'
         a: 1
         r:
           - 'The recordings left through a connection the box itself opened outward. Inbound rules never saw them.'

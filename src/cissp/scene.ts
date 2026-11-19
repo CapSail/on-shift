@@ -199,7 +199,8 @@ export function answerText(s: Scene): string {
 /** Verdict, what happened in the story, the rule, the why, the briefing on a first meeting or a miss, the source. */
 export function feedback(el: HTMLElement, s: Scene, ok: boolean, partial: boolean, picked: number | null, eng: boolean, fresh: boolean): HTMLElement {
   const con = conceptById.get(s.c)!;
-  const story = s.r && picked !== null ? `<div class="story ${ok ? 'ok' : 'no'}"><b>WHAT HAPPENED</b><p>${esc(s.r[picked])}</p></div>` : '';
+  const line = s.r && picked !== null ? s.r[picked] : s.rr ? s.rr[ok ? 0 : 1] : '';
+  const story = line ? `<div class="story ${ok ? 'ok' : 'no'}"><b>WHAT HAPPENED</b><p>${esc(line)}</p></div>` : '';
   const briefBody = `<ul class="learn">${con.learn.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>${con.ghost ? `<p class="note ghostline">👻 ${esc(con.ghost)}</p>` : ''}`;
   const brief = fresh ? `<div class="sk brief"><h3>New concept · ${esc(con.name)}</h3>${briefBody}</div>`
     : `<details class="sk brief"${ok ? '' : ''}><summary>Briefing · ${esc(con.name)}</summary>${briefBody}</details>`;

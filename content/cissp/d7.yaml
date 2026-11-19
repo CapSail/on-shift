@@ -369,8 +369,8 @@ cases:
           incident. Kim Osei asks Shifty whether to wait for the CIO, who is on a plane.
         ask: 'What should happen FIRST?'
         o:
-          - 'Wait for the CIO to land and approve the response'
-          - 'Isolate the routing VLAN as the IR plan authorizes'
+          - 'Wait for the CIO to land, then follow the normal approval process'
+          - 'Isolate the routing VLAN now: the SOC lead has that authority'
           - 'Restore the encrypted servers from last night''s backup'
           - 'Contact the attackers to negotiate the ransom'
         a: 1
@@ -423,6 +423,9 @@ cases:
           - 'Temporary file systems'
           - 'The server''s disk'
           - 'Backup tapes in the archive'
+        rr:
+          - 'Kim collects from the top down. When the FBI liaison gets the memory image, it still holds the running ransomware process and its network connections.'
+          - 'The disk goes first because it feels important. By the time Kim gets to memory, the server has rebooted and the running processes are gone for good.'
         why: >-
           RFC 3227 collects from most to least volatile: registers and cache; routing and ARP tables, process table,
           memory; temporary file systems; disk; then remote logs, physical configuration and archival media. Shutting
@@ -447,6 +450,9 @@ cases:
             - { id: tape, label: 'Offsite tape vault', x: 74, y: 60 }
           links: [[prod, nas], [prod, dr], [nas, cloud], [nas, tape], [adm, nas]]
         a: cloud
+        rr:
+          - 'Kim restores from the object-locked bucket. The stolen admin account could not touch it, and Halvorsen loses only the hours since 23:00. Routing is back Monday evening.'
+          - 'That copy is either encrypted by the stolen admin account or two weeks old. Kim points at the object-locked bucket: the newest copy the attackers could not touch.'
         why: >-
           The object-locked cloud copy is immutable, so the stolen admin account could not encrypt or delete it, and
           it is the newest clean copy. The tapes survived too, but lose two weeks of data. The NAS and replica shared
@@ -463,6 +469,11 @@ cases:
         ask: 'How many backup sets are needed for the most recent restore?'
         o: ['6', '2', '5', '1']
         a: 0
+        r:
+          - 'Kim pulls Sunday''s full and all five incrementals, applies them in order, and the routing database comes back as of Friday 01:00.'
+          - 'Full plus Friday only is how a differential works. With incrementals, Monday to Thursday''s changes are missing and the routes are four days stale.'
+          - 'Five incrementals and no full backup to apply them to. Kim has a pile of changes and nothing to change.'
+          - 'Only Sunday''s full: the database comes back as it was six days ago. Every shipment booked since then is gone.'
         why: >-
           Incremental backups hold only changes since the previous backup, so a restore needs the last full plus every
           incremental since: Sunday full + Monday, Tuesday, Wednesday, Thursday, Friday = 6 sets. Two sets (full plus
@@ -478,10 +489,10 @@ cases:
           family until we know more".
         ask: 'What should Shifty do FIRST about reporting?'
         o:
-          - 'Keep it internal until the investigation is complete'
+          - 'Keep it internal until the investigation process is complete'
           - 'Post a statement on social media to get ahead of it'
-          - 'Brief Ines so legal can start any required notices'
-          - 'Email every EU customer directly from the SOC'
+          - 'Brief Ines so she can start any required notices'
+          - 'Email every EU customer directly from the SOC, with full details'
         a: 2
         r:
           - 'Three weeks later the regulator finds out from a journalist. The 72-hour clock ran out long ago.'
@@ -502,9 +513,9 @@ cases:
           running.
         ask: 'What is the BEST remediation step now?'
         o:
-          - 'Patch the VPN appliance and close the case'
+          - 'Patch the VPN appliance, rescan it, and close the case'
           - 'Replace the VPN appliance with a different vendor''s product this month'
-          - 'Fix inventory and patch management for every device'
+          - 'Fix asset inventory and patching for every device'
           - 'Block all remote access until next year'
         a: 2
         trap: 0
@@ -567,8 +578,8 @@ cases:
         o:
           - 'Confront Viktor and take the laptop before he leaves'
           - 'Image the laptop remotely using the EDR agent'
-          - 'Fire Viktor today to limit the damage'
-          - 'Follow legal''s direction and procedure'
+          - 'Fire Viktor today, per HR policy, to limit the damage'
+          - 'Let legal direct the next steps'
         a: 3
         trap: 1
         r:
@@ -590,8 +601,8 @@ cases:
           everything".
         ask: 'Which evidence should the examiner collect FIRST?'
         o:
-          - 'A capture of system memory and running processes'
-          - 'A full forensic image of the laptop''s hard disk'
+          - 'A live capture of system memory'
+          - 'A full forensic image of the laptop''s disk, with hashes'
           - 'The contents of the USB stick'
           - 'The MedLink backup tapes from last week'
         a: 0
@@ -615,7 +626,7 @@ cases:
         o:
           - 'Open the USB stick on Rafa''s laptop, read-only, to save some time'
           - 'Copy the files off with drag and drop'
-          - 'Write-blocked images, hashed, with analysis on the copies'
+          - 'Analyze hashed images taken through a write blocker'
           - 'Run antivirus on the originals first'
         a: 2
         trap: 0
@@ -646,6 +657,9 @@ cases:
             - { id: hr, label: 'HR interview room', x: 27, y: 70 }
           links: [[desk, safe], [safe, office], [office, lab]]
         a: office
+        rr:
+          - 'Shifty points at Tomás''s office: no entry, no signature, no proof the laptop was untouched. Ines documents the gap before the defense finds it, and the safe gets a charger.'
+          - 'Every other step has a name, a time and a signature. The unlogged night in Tomás''s office is the gap, and the defense will find it first.'
         why: >-
           A chain of custody must record who held the evidence, when, where and how it was transferred. The overnight
           stay in Tomás's office has no entry, so nobody can show the laptop was not altered. The HR room was never in
@@ -689,6 +703,9 @@ cases:
           - ['Firewall flow records to a file-sharing host', 1]
           - ['Messages on Viktor''s company phone', 2]
           - ['Photos of screens on the company phone''s camera roll', 2]
+        rr:
+          - 'Ines gets three neat piles: the laptop, the network logs and the phone. Each goes to the right expert, and the report reads like a timeline instead of a junk drawer.'
+          - 'Phone photos filed as network evidence, proxy logs under the laptop. Ines sends the report back. The defense would have enjoyed the confusion.'
         why: >-
           Computer artifacts live on the host (registry, file lists). Network artifacts come from traffic records
           (proxy logs, flows, captures). Mobile device artifacts come from phones (messages, call logs, photos, app
@@ -719,8 +736,8 @@ cases:
         o:
           - 'Switch off every rule that has ever produced a false positive'
           - 'Hire ten more analysts to read every alert'
-          - 'Tune rules and correlation to the environment, regularly'
-          - 'Raise every alert to high severity so none are missed'
+          - 'Keep tuning rules to the environment'
+          - 'Raise every alert to high severity, and page the team for each'
         a: 2
         r:
           - 'The noise stops, along with the detection of real attacks hidden in those rules.'
@@ -742,7 +759,7 @@ cases:
         ask: 'Which tool BEST reduces this workload?'
         o:
           - 'A SOAR platform running a phishing playbook'
-          - 'A second SIEM to collect more email logs'
+          - 'A second SIEM to collect and store more email logs'
           - 'A honeypot to attract phishers'
           - 'A stricter acceptable use policy'
         a: 0
@@ -770,6 +787,9 @@ cases:
           - ['Sits inline in the traffic path', 1]
           - ['Drops packets that match an attack signature', 1]
           - ['A false positive can block legitimate traffic', 1]
+        rr:
+          - 'Tomás puts an IPS inline at the warehouse edge and an IDS on a SPAN port inside. He tunes the IPS before letting it block anything.'
+          - 'Tomás buys an "IDS" expecting it to drop attacks. It watches a copy of the traffic, alerts politely, and lets every attack through.'
         why: >-
           An IDS is passive: it monitors a copy of traffic and alerts. An IPS is inline, so it can block, but it can
           also block good traffic on a false positive and can become a bottleneck.
@@ -783,10 +803,10 @@ cases:
           accounts and living-off-the-land tools that raise no alerts. Kim Osei has no alert on Halvorsen for it.
         ask: 'What should the SOC do FIRST?'
         o:
-          - 'Wait, since the SIEM has raised no alert for this group'
-          - 'Block all traffic from the country the group is based in'
+          - 'Wait until the SIEM raises an alert'
+          - 'Block all traffic from the group''s home country'
           - 'Subscribe to a second feed to confirm the report'
-          - 'Run a threat hunt for that group''s known techniques'
+          - 'Run a threat hunt, guided by that group''s known techniques'
         a: 3
         r:
           - 'The group was in Halvorsen''s network for months, raising no alerts. That was the point of the report.'
@@ -810,7 +830,7 @@ cases:
           - 'Any user who fails a login once'
           - 'Admin use outside change windows, or logging disabled'
           - 'Every web page that any employee visits during work hours'
-          - 'Large file downloads by any user from the intranet'
+          - 'Large downloads by any user, from any intranet site, at any hour'
         a: 1
         r:
           - 'Thousands of typos a day. The analysts go back to ignoring alerts.'
@@ -834,6 +854,9 @@ cases:
           - 'Mitigation'
           - 'Recovery'
           - 'Lessons learned'
+        rr:
+          - 'Dale follows along: detect, respond, mitigate, recover, learn. He even asks where reporting and remediation went. Shifty is briefly proud.'
+          - 'In Dale''s version, recovery comes before mitigation. The VPN account is restored with the attacker still logged in to it.'
         why: >-
           ISC2's seven steps: detection, response, mitigation, reporting, recovery, remediation, lessons learned.
           Contain (mitigate) before you restore (recover); lessons learned comes last and feeds improvement.
@@ -847,7 +870,7 @@ cases:
           thrilled: "So if we get breached, it's their problem now." Ines Albescu is reviewing the contract.
         ask: 'Which statement about the MSSP is MOST accurate?'
         o:
-          - 'The MSSP becomes legally responsible for any breach'
+          - 'The MSSP becomes legally responsible for any breach, and any fines'
           - 'Halvorsen stays accountable; the SLA sets the MSSP''s duties'
           - 'Halvorsen no longer needs its own incident response plan or team'
           - 'The MSSP should hold all of Halvorsen''s admin passwords'
@@ -886,7 +909,7 @@ cases:
         o:
           - 'Add firewall rules to block the attacking IP addresses'
           - 'Pay the ransom to stop the attack quickly'
-          - 'Activate the scrubbing service as the runbook says'
+          - 'Activate the scrubbing service per the runbook'
           - 'Order a bigger internet link from the ISP'
         a: 2
         trap: 0
@@ -911,7 +934,7 @@ cases:
         o:
           - 'A rule on the network firewall blocking port 443'
           - 'A web application firewall inspecting HTTP requests'
-          - 'An IDS on a SPAN port that alerts on SQL injection'
+          - 'An IDS on a SPAN port that alerts on SQL injection strings'
           - 'A honeypot with a fake portal'
         a: 1
         r:
@@ -932,7 +955,7 @@ cases:
           are breaking up because staff are streaming video and downloading updates on the same link.
         ask: 'Which measure BEST keeps the dispatch voice calls clear?'
         o:
-          - 'Add a second RAID array to the dispatch server'
+          - 'Add a second RAID array, mirrored, to the dispatch server'
           - 'Quality of Service that prioritizes dispatch voice'
           - 'Build a hot site so dispatch can fail over'
           - 'Turn on full-disk encryption for dispatch laptops'
@@ -956,6 +979,11 @@ cases:
         ask: 'What is the cluster''s expected availability?'
         o: ['99.0%', '98.99%', '99.9%', '90.0%']
         a: 0
+        r:
+          - 'Marcus gets 99.0%: MTBF over MTBF plus MTTR. Now he can price faster repairs against fewer failures.'
+          - 'Used 1 minus MTTR over MTBF, the wrong denominator. The report is off by a hair, and the auditor who checks the formula notices.'
+          - '99.9% is the number someone wished for, not the one the records support. An SLA signed on it is broken within the first month.'
+          - '90% would mean the cluster is down one hour in ten. Marcus nearly cancels Black Friday. The formula is MTBF over MTBF plus MTTR.'
         why: >-
           Availability = MTBF / (MTBF + MTTR) = 990 / (990 + 10) = 990 / 1,000 = 99.0%. 98.99% comes from 1 - MTTR/MTBF,
           the wrong denominator. Raising MTBF or cutting MTTR both raise availability.
@@ -971,7 +999,7 @@ cases:
         o:
           - 'TLS protects data in transit, not at rest in the database'
           - 'TLS protects the data in transit and at rest'
-          - 'The data is safe at rest because the server is behind a firewall'
+          - 'The firewall keeps the data safe at rest'
           - 'Encrypting the database would also protect data in use'
         a: 0
         r:
@@ -993,7 +1021,7 @@ cases:
         ask: 'What is the BEST way to analyze the file?'
         o:
           - 'Open it on Kim''s laptop with macros disabled'
-          - 'Email it to the claims team to ask whether they expected the invoice'
+          - 'Email it to the claims team, and ask whether they expected the invoice'
           - 'Detonate it in an isolated sandbox and watch its behavior'
           - 'Delete it and forget about it'
         a: 2
@@ -1017,9 +1045,9 @@ cases:
         ask: 'What is the MAIN purpose of the lessons learned meeting?'
         o:
           - 'Assign blame for the outage'
-          - 'Close the ticket so the incident count looks better'
+          - 'Close the ticket, per the process, so the count looks better'
           - 'Calculate the bonus cuts for the SOC team'
-          - 'Improve the plan, controls and training'
+          - 'Improve how Halvorsen responds next time'
         a: 3
         r:
           - 'Nobody admits anything. The real gaps stay hidden until next Black Friday.'
@@ -1079,10 +1107,10 @@ cases:
           review afterward.
         ask: 'What is the BEST way to apply the patch?'
         o:
-          - 'Wait for Thursday''s change board, as normal process requires'
+          - 'Wait for Thursday''s change board, as the normal policy and process require'
           - 'Rafa patches production from his phone right now'
           - 'Skip change control because this is a security fix'
-          - 'Use the emergency change procedure, then document and review'
+          - 'Use the emergency change procedure'
         a: 3
         trap: 1
         r:
@@ -1108,6 +1136,9 @@ cases:
           - 'Change board approves or rejects it'
           - 'Test, schedule and implement with a rollback plan'
           - 'Document the change and update the baseline'
+        rr:
+          - 'Tomás walks Dale through it: request, review, approve, implement with a way back, document. The baseline stays accurate and nobody patches from a phone.'
+          - 'In this order the change goes live before anyone has approved it, the exact failure the process exists to stop. The baseline no longer matches reality.'
         why: >-
           A change is requested, reviewed for impact, approved (or rejected), then tested and implemented with a way
           back, and finally documented so configuration records stay accurate. Implementing before approval is the
@@ -1124,9 +1155,9 @@ cases:
         ask: 'What is the BEST long-term approach?'
         o:
           - 'Fix each server by hand whenever someone notices a problem'
-          - 'An automated secure baseline, with monitoring for drift'
+          - 'An automated secure baseline, monitored for drift'
           - 'Leave them alone, since they pass the monthly scans'
-          - 'Ask each admin to write down how they built their servers'
+          - 'Ask each admin to document, step by step, how they built their servers'
         a: 1
         r:
           - 'Ten more years of snowflakes. Each one hand-patched differently.'
@@ -1145,9 +1176,9 @@ cases:
           support a newer one, and no patch exists for the file transfer flaw on it. The warehouse needs it.
         ask: 'What is the BEST way to handle this vulnerability?'
         o:
-          - 'Upgrade the OS anyway and accept losing vendor support'
+          - 'Upgrade the OS anyway, accept losing vendor support, and retest'
           - 'Accept the risk with no other action'
-          - 'Isolate it, restrict what it runs, and monitor it'
+          - 'Isolate it, allowlist its software, monitor it'
           - 'Unplug the forklifts permanently'
         a: 2
         r:
@@ -1193,7 +1224,7 @@ cases:
         o:
           - 'Rafa is too slow to deploy changes'
           - 'Rafa''s code is probably low quality because he works alone and fast'
-          - 'No separation of duties: one person can make and hide a change'
+          - 'No separation of duties, so one person can make and hide a change'
           - 'Rafa may be deploying changes outside business hours'
         a: 2
         r:
@@ -1275,6 +1306,11 @@ cases:
         ask: 'How many hours of margin does this plan leave against the RTO?'
         o: ['8 hours', '14 hours', '28 hours', '0 hours']
         a: 0
+        r:
+          - '40 hours of work against a 48-hour RTO: 8 hours of margin. The warm site fits, with little room for surprises, and Priya writes that down.'
+          - '14 hours forgets the 6 hours of testing. Priya plans on a cushion that does not exist.'
+          - '28 hours counts only activation. Restore and test eat 20 of those hours, and the board hears a story that is far too relaxed.'
+          - '0 hours would mean the plan exactly hits the RTO. But 20 plus 14 plus 6 is 40, not 48: there are 8 hours to spare.'
         why: >-
           Recovery time = 20 + 14 + 6 = 40 hours. Margin = RTO 48 - 40 = 8 hours. 28 forgets restore and test
           (48 - 20); 14 forgets testing (48 - 34). Testing before go-live is part of the recovery time.
@@ -1290,6 +1326,11 @@ cases:
         ask: 'What is the most data Halvorsen could lose with this schedule?'
         o: ['6 hours', '4 hours', '2 hours', '24 hours']
         a: 0
+        r:
+          - 'Six hours of data lost in the worst case, two more than the RPO allows. Priya moves the backups to every 4 hours.'
+          - '4 hours is the RPO, the target, not what this schedule delivers. The gap goes unnoticed until the storm proves it.'
+          - '2 hours is the gap between the RPO and the interval, not the loss. Drivers find six hours of bookings missing.'
+          - '24 hours would be a daily backup. Halvorsen backs up four times a day, so the worst case is the 6-hour interval.'
         why: >-
           Data written since the last backup is lost, so the worst case is the full interval: 6 hours. That exceeds the
           4-hour RPO; backups must run at least every 4 hours. 2 hours is the gap between RPO and interval, not the loss.
@@ -1308,6 +1349,9 @@ cases:
           - 'Restore critical services at the warm site by priority'
           - 'Return operations to the repaired depot'
           - 'Hold a lessons learned review and update the plan'
+        rr:
+          - 'People first, then the damage check, then routing from the warm site, then home to the repaired depot. The lessons learned review moves backups to every 4 hours.'
+          - 'The team restores before anyone has assessed the damage, so recovery chases the wrong systems. The lessons learned review has a long first page.'
         why: >-
           DR runs response (people, activation), assessment, restoration by business priority, return to the primary
           site, then lessons learned. Assessment comes before restoration because it decides what must be recovered
@@ -1325,7 +1369,7 @@ cases:
           - 'Report the three missing people to emergency services now'
           - 'Send everyone home and check tomorrow'
           - 'Send Tomás back in to look for them'
-          - 'Wait another hour at the assembly point for them to turn up'
+          - 'Wait another hour at the assembly point'
         a: 0
         r:
           - 'Firefighters find one driver sheltering in the cab of a truck. The other two had left early. Everyone is safe.'
@@ -1387,6 +1431,9 @@ cases:
           - 'Simulation'
           - 'Parallel'
           - 'Full interruption'
+        rr:
+          - 'Priya''s program climbs gently: read-through, walkthrough, simulation, parallel. Full interruption waits until the board trusts everything else.'
+          - 'Full interruption lands in year one. Dale finally gets to switch the company off, and Marcus Webb has to explain the lost Saturday to customers.'
         why: >-
           Read-through and walkthrough are discussion only. Simulation acts out a scenario. Parallel brings up the
           recovery site while production runs. Full interruption shuts production down and is the most disruptive.
@@ -1425,7 +1472,7 @@ cases:
           touching any system.
         ask: 'Which exercise BEST fits this first session?'
         o:
-          - 'A full-scale exercise at the warm site'
+          - 'A full-scale exercise at the warm site, with live failover'
           - 'A functional exercise with live systems'
           - 'A tabletop exercise with the executives'
           - 'A full interruption test'
@@ -1450,7 +1497,7 @@ cases:
         o:
           - 'Let each manager talk to whoever calls them'
           - 'Say nothing to anyone until recovery is complete'
-          - 'Post full technical details online, with hourly updates, so people stop guessing'
+          - 'Post every technical detail online, hourly'
           - 'Planned channels and priorities, with one spokesperson'
         a: 3
         r:
@@ -1473,7 +1520,7 @@ cases:
         ask: 'Which pairing of metrics to numbers is MOST accurate?'
         o:
           - '50,000 hours is MTBF; 2 and 8 hours are MTTR'
-          - '50,000 hours is MTTR; 2 and 8 hours are MTBF'
+          - '50,000 hours is the MTTR; 2 and 8 hours are the MTBF'
           - '50,000 hours is RPO; 2 and 8 hours are RTO'
           - '50,000 hours is RTO; 2 and 8 hours are RPO'
         a: 0
@@ -1502,6 +1549,9 @@ cases:
           - ['Drill of the call tree', 1]
           - ['Functional exercise at the warm site', 1]
           - ['Full-scale exercise with emergency services', 1]
+        rr:
+          - 'Year one is seminars, workshops and a tabletop; later years bring drills and live exercises. Priya''s program starts with talk and ends with action.'
+          - 'The tabletop gets booked as a live operation, with hard hats. Executives who never learned their roles are sent to the warm site anyway.'
         why: >-
           HSEEP: discussion-based exercises (seminars, workshops, tabletops, games) explore plans and roles.
           Operations-based exercises (drills, functional and full-scale) carry out actions with real people and
@@ -1518,7 +1568,7 @@ cases:
         o:
           - 'It is free, so there is no paperwork'
           - 'The partner may lack capacity and share the same disaster'
-          - 'Reciprocal agreements are illegal for logistics companies'
+          - 'Reciprocal agreements are illegal for logistics firms'
           - 'The partner would be too fast to recover'
         a: 1
         r:
@@ -1565,6 +1615,9 @@ cases:
             - { id: srv, label: 'Server room (PIN)', x: 76, y: 56 }
           links: [[gate, lot], [lot, lobby], [dock, floor], [lobby, floor], [floor, srv]]
         a: dock
+        rr:
+          - 'Shifty points at the propped dock gate and its sky-watching camera. Jonas shuts the gate and turns the camera down. The fence works again.'
+          - 'That control is doing its job. The propped dock gate, with its camera filming clouds, is the hole in the fence the thieves use.'
         why: >-
           External controls protect the perimeter: fences, gates, lighting, guards, perimeter cameras. The propped dock
           gate with a useless camera defeats the fence. The lobby reader and server room PIN are internal controls,
@@ -1585,6 +1638,9 @@ cases:
           - ['Access control vestibule (mantrap) into the server room', 1]
           - ['Visitor escort on the warehouse floor', 1]
           - ['Locked cage for high-value pallets inside', 1]
+        rr:
+          - 'Jonas gets two clean budget lines: the perimeter (bollards, lights, fence cameras) and the inside (vestibule, escorts, the cage).'
+          - 'The locked cage lands in the fence budget and the fence lights in the indoor one. Jonas''s budget is confusing, and the perimeter gap stays open.'
         why: >-
           External controls deter and delay at the perimeter: bollards, fence lighting, perimeter cameras. Internal
           controls restrict movement inside: vestibules, escorts, locked cages and internal zones.
@@ -1598,7 +1654,7 @@ cases:
           countdown. Jonas wants to save the backup drives in the server room.
         ask: 'What should happen FIRST?'
         o:
-          - 'Retrieve the backup drives before the gas discharges'
+          - 'Retrieve the backup drives, then leave before the gas discharges'
           - 'Evacuate everyone and call the fire service'
           - 'Abort the gas discharge to protect the equipment'
           - 'Try to find the fire with an extinguisher'
@@ -1621,7 +1677,7 @@ cases:
           different, independent layers.
         ask: 'Which plan BEST applies defense in depth?'
         o:
-          - 'A fence twice as tall around the whole site, with nothing else changed'
+          - 'A fence twice as tall, with barbed wire, around the whole site and nothing else'
           - 'Four identical locks on the dock door'
           - 'Fixed dock gate, monitored cameras, locked cage, inventory checks'
           - 'One guard who covers the entire site alone'
@@ -1646,7 +1702,7 @@ cases:
           - 'Buy higher-capacity tapes so there are fewer of them to lose'
           - 'Label, log every check-in and check-out, store securely'
           - 'Stop making backups until the tapes are found'
-          - 'Remind staff, by email and at team meetings, to be careful with tapes'
+          - 'Remind staff by email to be careful with tapes'
         a: 1
         r:
           - 'Fewer tapes, the same chaos. The next one goes missing just as easily.'
@@ -1706,7 +1762,7 @@ cases:
           Kim Osei wants to know whether anything was installed on it before it goes near Halvorsen's network.
         ask: 'What is the BEST way to handle the returned laptop?'
         o:
-          - 'Plug it into the office network and run an antivirus scan'
+          - 'Scan it with antivirus on the office network'
           - 'Keep it offline and examine a forensic image of it'
           - 'Use it normally, since it is only a loaner'
           - 'Wipe and reimage it before anyone uses it again'
@@ -1734,7 +1790,7 @@ cases:
           - 'Train couriers to resist robbers physically'
           - 'A duress code that opens the lock and silently alerts'
           - 'A louder alarm on every van'
-          - 'Forbid couriers to open vans at night under any condition'
+          - 'Forbid couriers to open vans at night, under any condition, even if threatened'
         a: 1
         r:
           - 'Resisting an armed robber is how couriers get hurt. MedLink''s insurer agrees.'
@@ -1760,6 +1816,9 @@ cases:
           - ['TLS for the email app', 1]
           - ['Privacy screen filter against shoulder surfing', 2]
           - ['Memory protection for the app processing the quote', 2]
+        rr:
+          - 'Kim''s briefing is clear: encryption on the disks, tunnels on the wire, privacy screens on the train. The sales team protects the data wherever it is.'
+          - 'Kim''s slide says the VPN protects the laptop''s disk. It does not: a tunnel guards data moving, and a stolen laptop is not moving anywhere.'
         why: >-
           At rest: stored data (disk and drive encryption). In transit: data moving over networks (VPN, TLS). In use:
           data being processed or viewed, decrypted in memory or on screen (memory protection, privacy filters).
@@ -1773,10 +1832,10 @@ cases:
           Rotterdam team for other work. Tomás Reyes wants to reuse them safely.
         ask: 'What is the BEST step before the laptops are reused?'
         o:
-          - 'Delete all the users'' files, empty the recycle bin and reboot'
+          - 'Delete all users'' files, empty the recycle bin, and then reboot'
           - 'Quick-format the drives'
-          - 'Sanitize per NIST SP 800-88, then verify the result'
-          - 'Reinstall the OS over the existing data'
+          - 'Sanitize them to NIST SP 800-88, then verify'
+          - 'Reinstall the OS over the existing data, per the build process'
         a: 2
         r:
           - 'Deleted files are easy to recover. Rotterdam finds the sales team''s price lists.'
@@ -1796,8 +1855,8 @@ cases:
           webmail account "to work on it in the hotel". Halvorsen has DLP at its email gateway.
         ask: 'What should DLP MOST appropriately do here?'
         o:
-          - 'Block the email and alert the SOC, per policy'
-          - 'Allow it, because the salesperson is an employee'
+          - 'Block the email and alert the SOC'
+          - 'Allow it, since the salesperson is an employee with access'
           - 'Delete the salesperson''s account'
           - 'Encrypt the email and send it anyway'
         a: 0
@@ -1834,7 +1893,7 @@ cases:
           using the account of Bas, a payment system administrator. Bas is on shift tonight. Ines Albescu is aware.
         ask: 'What should Kim do FIRST?'
         o:
-          - 'Ask Bas directly why logging keeps stopping on Friday nights'
+          - 'Ask Bas directly, tonight on his shift, why logging keeps stopping every Friday'
           - 'Send the logs to the SIEM, where admins cannot alter them'
           - 'Delete Bas''s account immediately'
           - 'Reinstall the payment server tonight'
@@ -1860,9 +1919,9 @@ cases:
         ask: 'What is the BEST fix to make the logs reliable for the timeline?'
         o:
           - 'Correct each timestamp by hand in the report'
-          - 'Sync all systems to one authoritative time source'
-          - 'Ignore the firewall logs and use only the server''s'
-          - 'Collect fewer logs so the times are easier to compare'
+          - 'Set all of the systems to sync to one authoritative time source'
+          - 'Ignore the firewall logs, use the server''s'
+          - 'Collect fewer logs to make comparing easier'
         a: 1
         r:
           - 'Hand corrections invite the defense to ask what else was edited.'
@@ -1881,13 +1940,13 @@ cases:
           payment, all by himself. Marcus Webb asks for the control that would have prevented this.
         ask: 'Which control would BEST have prevented the fraud?'
         o:
-          - 'A longer password and a lockout policy for Bas''s account'
+          - 'A longer password, MFA, and a lockout policy for his account'
           - 'Separating vendor setup, approval and payment duties'
           - 'Encrypting the payment database and its backups'
           - 'A yearly security awareness course'
         a: 1
         r:
-          - 'A longer password, the same unlimited power.'
+          - 'Stronger logins, same unlimited power: Bas was the rightful user of that account.'
           - 'Vendor setup moves to purchasing, approval to finance, release to treasury. Fraud now needs three people.'
           - 'The data is encrypted. Bas can still decrypt and use it.'
           - 'Bas aced the course.'
@@ -1907,7 +1966,7 @@ cases:
           - 'Relevance, reliability and a complete chain of custody'
           - 'Having the CISO sign a statement that it is accurate'
           - 'Printing every log so the court has paper'
-          - 'Collecting as much data as possible, from every system'
+          - 'Collecting as much data as possible'
         a: 0
         r:
           - 'Every item has a custody record, a hash and a reason it matters. The defense finds nothing to attack.'
@@ -1930,7 +1989,7 @@ cases:
         o:
           - 'Comparing servers to baselines, alerting on drift'
           - 'Reading every admin''s email'
-          - 'Running a full external penetration test every three years'
+          - 'Running a full external penetration test, with a report, every three years'
           - 'Asking admins to report their own changes'
         a: 0
         r:
@@ -1950,8 +2009,8 @@ cases:
           Tomás Reyes asks what the change management process should require for it now.
         ask: 'What should happen FIRST with the unauthorized change?'
         o:
-          - 'Approve it retroactively, since it has been running fine for a year'
-          - 'Treat it as an incident, then remove it via change control'
+          - 'Approve it retroactively and close the ticket, since it has run fine for a year'
+          - 'Treat it as an incident and remove it via the change process'
           - 'Leave it, because removing it might break something'
           - 'Let Bas remove it himself, since he knows the setup'
         a: 1
@@ -1976,7 +2035,7 @@ cases:
         o:
           - 'Background-check administrators more thoroughly before hiring'
           - 'Buy the most expensive payment software available'
-          - 'Rely on the yearly external audit, with its payment sampling and management letter'
+          - 'Rely on the yearly external audit and its payment sampling'
           - 'SoD, protected logs, drift monitoring and reconciliations'
         a: 3
         r:
@@ -2014,8 +2073,8 @@ cases:
         o:
           - 'Add Dale''s banner so more attackers come'
           - 'Fill it with real customer data so it looks convincing to them'
-          - 'Use it to launch attacks back at the intruders'
-          - 'Make it available, not inviting, with legal approval'
+          - 'Use it to trace the intruders, then launch attacks back at them'
+          - 'Make it available but not inviting, cleared by Ines'
         a: 3
         r:
           - 'Inducing someone to commit a crime is entrapment. Ines kills the banner and nearly the project.'
@@ -2038,7 +2097,7 @@ cases:
         o:
           - 'The free list, because it has the most indicators'
           - 'The bank attack feed, because banks are attacked most'
-          - 'The vetted logistics sector feed, with tactics'
+          - 'The vetted logistics sector feed'
           - 'All three loaded as automatic blocks with no review'
         a: 2
         r:
@@ -2085,7 +2144,7 @@ cases:
         o:
           - 'Automate every action, including shutting down payments'
           - 'Automate nothing; analysts do every step by hand'
-          - 'Let the playbook decide which business systems to shut down'
+          - 'Let the playbook decide, case by case, which business systems to shut down'
           - 'Automate routine steps; humans approve high-impact actions'
         a: 3
         r:
@@ -2107,7 +2166,7 @@ cases:
         ask: 'What is the BEST way to treat this ML/AI tool?'
         o:
           - 'Disable the accounts of everyone it flags as risky'
-          - 'Turn it off until the vendor can stop its false positives entirely'
+          - 'Turn it off, and keep it off until the vendor stops all false positives'
           - 'Tune its baselines and have analysts review its findings'
           - 'Trust it fully, since it learns by itself'
         a: 2
@@ -2130,8 +2189,8 @@ cases:
         ask: 'What is the GREATEST problem with this key arrangement?'
         o:
           - 'Encryption makes the backups too slow'
-          - 'Encrypted backups cannot be stored in cloud object storage'
-          - 'The key is lost or exposed along with the backup server'
+          - 'Encrypted backups cannot be stored in any cloud object storage'
+          - 'Losing the server also loses or exposes the key'
           - 'Cloud providers do not allow encryption keys'
         a: 2
         r:
@@ -2160,6 +2219,9 @@ cases:
           - ['Blocks only items already known to be bad', 1]
           - ['Misses a malicious domain registered this morning', 1]
           - ['Practical for general web browsing across the company', 1]
+        rr:
+          - 'Dale finally gets it: the forklift PC runs only what is approved, while the DNS denylist blocks five known domains. A brand-new domain needs the hunt.'
+          - 'Dale''s notes say the denylist stops brand-new malware. Tomorrow the visitor registers a sixth domain, and it sails straight through.'
         why: >-
           An allowlist permits only approved items and blocks everything else, so it stops the unknown but needs
           upkeep and suits fixed-function systems. A denylist blocks known-bad items: easy for broad use, blind to
@@ -2213,9 +2275,9 @@ cases:
           are left behind, and one courier goes back for her lunch. She asks Shifty what to fix first.
         ask: 'Which improvement MOST helps protect people next time?'
         o:
-          - 'Train routes and wardens, with visitors in the headcount'
+          - 'Staff trained on routes and wardens; visitors in the headcount'
           - 'More fire extinguishers and exit signs on every floor'
-          - 'Hold future drills, with wardens, only on days when no visitors are present'
+          - 'Hold future drills only on days when no visitors are present'
           - 'Fine the courier who went back for lunch'
         a: 0
         r:
@@ -2261,8 +2323,8 @@ cases:
         ask: 'What should Dr. Cole do FIRST with the results?'
         o:
           - 'File the results and schedule next year''s exercises'
-          - 'Write an after-action report and update the plans'
-          - 'Run a full interruption test to see if it is worse'
+          - 'Write an after-action report, then update each plan'
+          - 'Run a full interruption test, with real power cuts, to see if it is worse'
           - 'Ask the hospitals to accept longer delays'
         a: 1
         r:

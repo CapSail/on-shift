@@ -221,7 +221,7 @@ cases:
         o:
           - 'Add one-time codes sent by SMS to every login'
           - 'Require longer passwords with special characters'
-          - 'Move drivers to FIDO2 passkeys for the app'
+          - 'Move drivers to FIDO2 passkeys for the driver app login'
           - 'Add three security questions after the password'
         a: 2
         r:
@@ -249,6 +249,9 @@ cases:
           - ['She unlocks the passkey with her fingerprint', 1]
           - ['The app lets her see only her own routes', 2]
           - ['She is allowed to mark deliveries done, not edit pay', 2]
+        rr:
+          - 'Dale finally gets it: claim, prove, permit. He tries it on Shifty, who claims to be a CISO, proves nothing, and is permitted anyway.'
+          - 'Dale decides the fingerprint is what lets Sanne see her routes. It only unlocks the passkey that proves who she is; the app''s permissions decide what she may do.'
         why: >-
           Identification is the claim (an ID or username). Authentication proves it (the passkey signature, unlocked
           locally by the fingerprint). Authorization decides what the proven identity may do. Accounting, the fourth
@@ -288,8 +291,8 @@ cases:
         ask: 'What should the help desk do FIRST?'
         o:
           - 'Register the new phone, since the caller knows Sanne''s badge number'
-          - 'Verify the caller''s identity per the account recovery procedure'
-          - 'Email a new passkey link to the address the caller gives'
+          - 'Verify the caller is really Sanne before enrolling anything'
+          - 'Email a new passkey link to the address the caller gives, to save time'
           - 'Disable the app for all drivers until the theft is investigated'
         a: 1
         trap: 3
@@ -358,6 +361,9 @@ cases:
             - { id: fw, label: 'Office firewall', x: 37, y: 40 }
           links: [[user, fw], [fw, sp], [fw, idp], [sp, dir]]
         a: idp
+        rr:
+          - 'Right: the Halvorsen IdP checks the credentials and signs the assertion. The HR app never sees a password, which is the whole point.'
+          - 'That box never checks the employee''s credentials. Only the IdP authenticates and vouches; the HR app just validates the signature on the assertion.'
         why: >-
           In SAML web SSO the identity provider authenticates the user and issues a signed assertion. The service
           provider (the HR app) never sees the password; it validates the assertion's signature and trusts it. The
@@ -400,6 +406,9 @@ cases:
           - 'The client presents the TGT to the Ticket-Granting Service for the file server'
           - 'The TGS issues a service ticket for the file server'
           - 'The client presents the service ticket to the file server'
+        rr:
+          - 'Dale follows the tickets from the Authentication Service to the file server and never once sees a password on the wire. He calls it "the ticket booth".'
+          - 'Out of order, the file server is asked before any ticket exists, and says no. TGT first, then the service ticket, then the server.'
         why: >-
           Kerberos: the Authentication Service issues a TGT; the client uses the TGT to ask the Ticket-Granting
           Service for a service ticket; the service ticket is presented to the target service. The password itself
@@ -414,7 +423,7 @@ cases:
           wrong tool.
         ask: 'Which protocol choice BEST authenticates the customer to the portal?'
         o:
-          - 'OAuth 2.0 access tokens, since the API accepted them'
+          - 'OAuth 2.0 access tokens, since the partner''s API already accepts and checks them'
           - 'OpenID Connect, which adds an ID token about the user'
           - 'RADIUS, since it was built for authentication'
           - 'Kerberos tickets issued by the partner''s KDC'
@@ -439,7 +448,7 @@ cases:
           session to browse payroll right now.
         ask: 'What should Kim do FIRST?'
         o:
-          - 'Force a password reset for the clerk and wait for the next login'
+          - 'Force a password reset for the clerk, then wait for the next login'
           - 'Revoke the clerk''s active sessions and tokens at the IdP'
           - 'Rebuild the clerk''s laptop from the gold image'
           - 'Email all staff a warning about cookie theft'
@@ -484,6 +493,9 @@ cases:
           - ['Block all file uploads larger than 50 MB', 1]
           - ['Nurses may view results for their own hospital, on managed devices', 2]
           - ['Contractors may edit only records tagged with their project', 2]
+        rr:
+          - 'Tomás builds what Dr. Cole meant: roles for jobs, blanket rules for everyone, attributes for context. The auditors find each rule in the right place.'
+          - 'Tomás builds the own-hospital, managed-device rule as a plain role, and every nurse sees every hospital''s results. That rule needs attributes.'
         why: >-
           RBAC grants by job role. Rule-based applies the same rule to every user, like a firewall or a time window.
           ABAC combines attributes of the subject, the object and the environment (hospital, device, tag), which is
@@ -533,6 +545,9 @@ cases:
             - { id: ti, label: 'Threat intel feed', x: 62, y: 80 }
           links: [[tab, pep], [pep, rec], [pe, pa], [pa, pep], [cdm, pe], [ti, pe]]
         a: pep
+        rr:
+          - 'Right: the access gateway sits in the data path and enforces the decision. When a courier''s tablet fails its health check, the gateway cuts the session.'
+          - 'That box decides or informs; it doesn''t enforce. In SP 800-207 the PEP is the gateway in the data path, between the tablet and the lab results.'
         why: >-
           In SP 800-207 the PEP sits in the data path between subject and resource and enables, monitors and
           terminates the connection. The policy engine and policy administrator together form the PDP: they decide,
@@ -571,7 +586,7 @@ cases:
         ask: 'What should Shifty do FIRST?'
         o:
           - 'Revoke everyone''s access and let people reapply'
-          - 'Buy an identity governance tool to automate it'
+          - 'Buy an identity management tool, and automate the review process'
           - 'Have each asset owner review who has access today'
           - 'Change the fridge room lock code tonight'
         a: 2
@@ -635,7 +650,7 @@ cases:
         ask: 'What should Shifty have Kim do FIRST?'
         o:
           - 'Disable Lars''s account and kill its sessions'
-          - 'Ask HR why the leaver notice was never sent'
+          - 'Ask HR why the leaver notice was never sent, and fix the process'
           - 'Start a full review of every account in the company'
           - 'Call Lars and ask whether he logged in'
         a: 0
@@ -661,7 +676,7 @@ cases:
         o:
           - 'Remove Noor''s Treasury access and leave the rest'
           - 'Have the transfer process revoke old access'
-          - 'Tell Noor in writing not to use her old Accounts Payable rights again'
+          - 'Tell Noor in writing, per policy, not to use her old Accounts Payable rights'
           - 'Ask the auditors to check every one of Noor''s payments at year end'
         a: 1
         r:
@@ -683,16 +698,16 @@ cases:
           if it stops working.
         ask: 'What is the BEST action for svc_routing?'
         o:
-          - 'Delete it today, because nobody owns it'
+          - 'Delete it today per the account policy, since it has no owner'
           - 'Leave it alone, because the routing platform depends on it'
           - 'Give it an owner, least privilege and a vaulted, rotated password'
-          - 'Change its password and email the new one to the routing team'
+          - 'Change its password, then email it to the routing team, and keep its rights'
         a: 2
         r:
           - 'The routing platform stops. 400 trucks have no routes. Priya Nair finds Shifty in the boardroom ceiling.'
           - 'The account sits there with Domain Admin and a 2019 password. Attackers love an account like this.'
           - 'Rafa''s team confirms what it needs. Rights drop to two servers, interactive logon is blocked, the vault rotates the secret.'
-          - 'The new password now lives in twelve inboxes. That is not an improvement.'
+          - 'The new password now lives in twelve inboxes, and the account keeps Domain Admin. That is not an improvement.'
         why: >-
           Service accounts need a named owner, least privilege, no interactive logon, secrets in a vault with
           rotation, and inclusion in reviews. Deleting it breaks the business; leaving it keeps a critical exposure.
@@ -705,7 +720,7 @@ cases:
           the fix is a bigger firewall. Marcus Webb asks what Halvorsen should treat as the thing to protect.
         ask: 'Which statement BEST reflects how the 2027 CISSP outline frames this risk?'
         o:
-          - 'Identities are assets to be managed and protected'
+          - 'Identities themselves are assets to be managed and protected'
           - 'The network perimeter is the main asset to protect'
           - 'Only systems and data are assets; identities are just labels'
           - 'Stolen logins are an HR issue, not a security asset issue'
@@ -736,6 +751,9 @@ cases:
           - ['Every planner is in the sudoers file with ALL privileges', 1]
           - ['A shared root password is taped under the keyboard', 1]
           - ['Interns were added to the admin group "temporarily" in 2022', 1]
+        rr:
+          - 'Kim''s list is clean: logged one-command sudo stays, and the taped root password goes in the shredder. Shifty feels lighter, which for a ghost is saying something.'
+          - 'The blanket sudoers entry survives the review as "fine". The next phished planner account gets root on every routing server.'
         why: >-
           PoLP gives only the rights a job needs, with escalation limited, logged and reviewed. Blanket sudo, shared
           root and stale admin membership all grant far more than needed and break accountability.
@@ -834,7 +852,7 @@ cases:
         o:
           - 'Remove the Domain Admins membership and open an incident'
           - 'Wait for the monthly access review to catch it'
-          - 'Ask the intern''s manager to approve it after the fact'
+          - 'Ask the intern''s manager to approve it, with a documented change request after the fact'
           - 'Reinstall the domain controllers over the weekend'
         a: 0
         trap: 3
@@ -880,7 +898,7 @@ cases:
           (krbtgt) and are issuing themselves valid-looking tickets for any user. Rafa Lind asks why this is so bad.
         ask: 'What is the MAIN reason a stolen KDC key is so damaging?'
         o:
-          - 'It lets attackers forge tickets for any identity'
+          - 'It lets attackers forge valid tickets for any user or service in the realm'
           - 'It reveals every user''s password in clear text to the attacker'
           - 'It disables time synchronization across the domain'
           - 'It only affects the one server where it was stolen'
@@ -945,7 +963,7 @@ cases:
           - 'Discretionary access control'
           - 'Risk-Adaptable Access Control'
           - 'Mandatory access control'
-          - 'Role-based access control'
+          - 'Role-based access control, with a policy per role'
         a: 1
         r:
           - 'DAC lets file owners share as they like. It says nothing about country or time.'
@@ -967,7 +985,7 @@ cases:
           which part "makes the call".
         ask: 'In NIST SP 800-207 terms, which component is the MAIN access decision-maker?'
         o:
-          - 'The policy enforcement point, the gateway in front of the suite'
+          - 'The policy enforcement point, which enforces each decision per session, at the gateway'
           - 'The policy engine, part of the policy decision point'
           - 'The device health system that feeds it data'
           - 'The cloud suite itself, after the session starts'
@@ -990,7 +1008,7 @@ cases:
         ask: 'What should Kim do FIRST?'
         o:
           - 'Wait until Jonas is back to ask him about the rule'
-          - 'Delete the forwarding rule and force a reset of Jonas''s password'
+          - 'Delete the forwarding rule, reset Jonas''s password, and then check his mailbox'
           - 'Disable the identity, revoke its sessions, then investigate'
           - 'Report the address to the email provider'
         a: 2
@@ -1099,8 +1117,8 @@ cases:
         o:
           - 'It slows the system down for everyone'
           - 'Nobody can tell who did what: no accountability'
-          - 'It uses up a software licence that could go elsewhere'
-          - 'Its password is too easy to remember'
+          - 'It uses up a software licence'
+          - 'Its password is old, short, and weak'
         a: 1
         r:
           - 'The system is fast enough. The problem is who did what.'
@@ -1128,6 +1146,9 @@ cases:
           - ['A FIDO2 hardware security key', 1]
           - ['A fingerprint scan', 2]
           - ['A face scan on the lab tablet', 2]
+        rr:
+          - 'Tomás pairs a smart card with a PIN: two different factors. Dr. Cole''s auditor nods, and the PIN-plus-security-question idea goes quietly in the bin.'
+          - 'Tomás pairs a PIN with a security question and calls it MFA. Two things you know are still one factor, and the auditor writes it up.'
         why: >-
           Knowledge (PIN, security answers), possession (smart card, hardware key) and inherence (fingerprint, face).
           True MFA combines different types: a smart card plus a PIN is two factors; a password plus a security
@@ -1144,7 +1165,7 @@ cases:
         ask: 'Which statement about this passkey login is MOST accurate?'
         o:
           - 'The fingerprint unlocks a key on the phone; the server sees a signature'
-          - 'The fingerprint template is sent to the server, encrypted, at each login'
+          - 'The fingerprint template is sent, encrypted, to the server and checked at each login'
           - 'The server stores each technician''s private key for backup'
           - 'The phone sends a hash of the fingerprint as a password'
         a: 0
@@ -1192,7 +1213,7 @@ cases:
         o:
           - 'Keep the permanent account, with MFA, logging and a yearly password change'
           - 'Disable it permanently and do upgrades without the vendor'
-          - 'Share a technician''s account with the vendor on upgrade nights'
+          - 'Share a technician''s account with the vendor, per the upgrade plan'
           - 'Approved access for each upgrade window, logged, then expired'
         a: 3
         r:

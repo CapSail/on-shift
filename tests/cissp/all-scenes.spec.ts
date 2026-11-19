@@ -8,14 +8,19 @@ import { SCENES, answer } from './helpers';
 test('every scene: the right answer is graded right', async ({ page }) => {
   test.setTimeout(30 * 60_000);
   await page.goto('./#scene=' + SCENES[0].id);
-  const bad: string[] = [];
+  const bad: string[] = [], noStory: string[] = [];
   for (const s of SCENES) {
     await page.evaluate((id) => { location.hash = 'scene=' + id; location.reload(); }, s.id);
     await page.locator('.scene .cid').waitFor();
     await answer(page, true);
     if ((await page.locator('#slot').getAttribute('data-result')) !== 'ok') bad.push(`${s.id} (${s.kind})`);
+    // the story reacts to every scene kind: the line for the chosen option, or the "if right" line
+    const want = s.r ? s.r[s.a as number] : s.rr?.[0];
+    const got = (await page.locator('.story p').textContent().catch(() => null))?.trim();
+    if (!want || got !== want.trim()) noStory.push(s.id);
   }
   expect(bad, 'scenes whose right answer was graded wrong').toEqual([]);
+  expect(noStory, 'scenes whose story did not react to a right answer').toEqual([]);
 });
 
 test('one scene of every kind: a wrong answer is graded wrong, with the rule, the why and the source', async ({ page }) => {
@@ -26,6 +31,8 @@ test('one scene of every kind: a wrong answer is graded wrong, with the rule, th
     await page.reload();
     await answer(page, false);
     await expect(page.locator('#slot')).toHaveAttribute('data-result', 'no');
+    await expect(page.locator('.story.no')).toBeVisible();
+    if (s.rr) await expect(page.locator('.story p')).toHaveText(s.rr[1].trim());
     await expect(page.locator('.rule')).toBeVisible();
     await expect(page.locator('.srcline')).toContainText('Source:');
     await page.screenshot({ path: `tests/shots/cissp_kind_${kind}_wrong.png`, fullPage: true });

@@ -179,3 +179,36 @@ multi-part answer too.
 - Bumped `content_version` to 1.1.0.
 
 In total, 138 scenes differ from HEAD, 0 keys changed, and the validator shows 0 errors and 0 warnings.
+
+## Addendum: third content pass, the multi-part cue (2026-11-19)
+
+Measured as in the second pass (283 FIRST/BEST scenes, ties count 1/k, chance 25%), now with
+`node scripts/check-cues-cissp.mjs`. Before means git HEAD `7af4d9a`.
+
+| Cue | Before | After |
+|---|---|---|
+| Most clauses (the multi-part / step-list cue) | 41.5% | **18.8%** |
+| Longest | 21.3% | 17.3% |
+| Shortest | 14.8% | 14.3% |
+| Most words | 17.4% | 13.5% |
+| Most process/hedge words | 34.0% | 22.1% |
+
+Every domain is at or below 25% on every cue (D7's multi-part cue went from 57.0% to 24.2%). The reverse strategies
+were checked too, so plain keys don't become the new tell: fewest clauses 17.6%, fewest words 28.5%, and "rule out
+the most detailed option, then guess" 27–30% (chance among the remaining three is 25–33%).
+
+**What changed:**
+- 170 scenes have reworded options; 65 keys were reworded only (shorter or plainer). A script compared every scene
+  with HEAD: 0 keys, traps, rank orders, sort answers or map answers changed.
+- Distractors were written to be as detailed as the key (multi-part, with process words) wherever the key was the
+  list. Some keys were made short.
+- Story reactions were added to all 91 scenes that lacked one: `r` for the 17 calc scenes, and the new `rr`
+  ([if right, if wrong]) for rank, sort and spot. The validator now requires them, and `all-scenes.spec.ts` checks
+  that every scene's story shows.
+- Two independent accuracy reviewers checked all 261 changed scenes against their sources. They fixed 6
+  distractors where padding like "per policy" or "per GDPR" made a wrong action sound sanctioned, or blurred PEP/PDP.
+  They found no wrong keys and re-checked all the calc arithmetic. I tightened 2 reworded keys myself: k1-05.1 (a
+  BIA ranks by impact, not only cost) and k4-05.5.
+- The build now warns when any cue goes over 28% overall, or when the multi-part cue goes over 35% in a domain.
+- Per-domain change logs with sources: `review-cues-d1-d2-d3.md`, `review-cues-d4-d5-d6.md`, `review-cues-d7-d8.md`.
+- `content_version` 1.2.0.

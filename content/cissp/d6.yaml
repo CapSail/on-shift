@@ -132,7 +132,7 @@ cases:
           "go ahead, I'm a chief officer".
         ask: 'What must happen FIRST?'
         o:
-          - 'Let them start, since Dale is an executive and has approved it'
+          - 'Let them start, since Dale is an executive and has approved the plan'
           - 'Written authorization and rules of engagement from the owner'
           - 'Have them run only a light scan until the paperwork arrives'
           - 'Tell the SOC to turn off alerting so the test is not interrupted'
@@ -185,6 +185,9 @@ cases:
           - 'Discovery: information gathering and vulnerability analysis'
           - 'Attack: verifying vulnerabilities by exploiting them'
           - 'Reporting: findings, risks and mitigations'
+        rr:
+          - 'Dale''s slides are back in order: plan, discover, attack, report. The board sees that the attack phase starts only after the rules are signed.'
+          - 'Out of order, the board thinks Redline attacks before anyone agreed the scope. Planning comes first, reporting last, and attack can loop back to discovery.'
         why: >-
           NIST SP 800-115 describes four phases: planning, discovery, attack and reporting. The attack phase can loop
           back to discovery when new access reveals more; reporting delivers the results at the end.
@@ -250,7 +253,7 @@ cases:
         o:
           - 'Keep testing to see how far the real attacker got'
           - 'Remove the web shell to protect Halvorsen'
-          - 'Note it in the final report, due in three weeks'
+          - 'Note it in the final report, as a key finding, due in three weeks'
           - 'Stop testing that system and notify Kim right away'
         a: 3
         trap: 1
@@ -288,13 +291,13 @@ cases:
         ask: 'What should Shifty do FIRST?'
         o:
           - 'Have Legal send her a cease-and-desist letter'
-          - 'Ignore the email, since she was not authorized to test the app'
+          - 'Block her account, ignore the email, and log it, since she wasn''t authorized'
           - 'Acknowledge it, start triage and agree a timeline with her'
           - 'Publish a statement that the app is secure'
         a: 2
         r:
           - 'She publishes the flaw the next day, with the letter attached. The press prefers that story.'
-          - 'Silence. Thirty days later she publishes, as her email said she would.'
+          - 'Silence, and a blocked account. Thirty days later she publishes, as her email said she would, with a paragraph about being blocked.'
           - 'Rafa confirms the bug within an hour. She agrees to wait for the fix and gets thanked on the security page.'
           - 'The statement is disproved within hours by anyone who reads her proof.'
         why: >-
@@ -318,6 +321,9 @@ cases:
           - ['DAST scanner probing the staging site', 1]
           - ['Fuzzing the API with malformed requests', 1]
           - ['Load test of the booking service', 1]
+        rr:
+          - 'Rafa''s pipeline now has both kinds: SAST and reviews on the code, DAST, fuzzing and load tests on the running app. Each catches what the other misses.'
+          - 'Rafa files fuzzing as static and decides he has no dynamic gap. Static means the code isn''t running; fuzzing, DAST and load tests all need it running.'
         why: >-
           Static testing examines code or designs without executing them, as SAST and code reviews do. Dynamic testing
           exercises the running software, as DAST, fuzzing and load tests do. Each finds flaws the other misses.
@@ -336,6 +342,9 @@ cases:
           - 'Inspection: the team meets to find defects'
           - 'Rework: the author fixes the defects'
           - 'Follow-up: the moderator confirms every fix'
+        rr:
+          - 'The payment module gets the full Fagan treatment: overview, preparation, the meeting, rework and the moderator''s follow-up. Two defects die before release.'
+          - 'Out of order, the team meets before anyone has studied the code, and nobody confirms the fixes. Overview and preparation come first; follow-up closes it.'
         why: >-
           Fagan inspection runs overview, preparation, inspection, rework and follow-up; the Sybex guide adds a
           planning step at the start. Defined roles and a moderator make it the most formal and thorough type of code
@@ -351,6 +360,11 @@ cases:
         ask: 'What is the test coverage?'
         o: ['52%', '65%', '35%', '154%']
         a: 1
+        r:
+          - 'Rafa writes 52%, the count of tested cases rather than a share of 80. The release report undersells the suite, and Dale asks who lost 13%.'
+          - 'Right: 52 of 80 use cases is 65%. The report also lists the 28 untested cases, and Rafa schedules tests for them before the next release.'
+          - '35% is the untested share. The report says most of the app is untested, and Dale cancels the launch party for nothing.'
+          - 'Rafa divides 80 by 52 and reports 154% coverage. Dale tells the board the app is more than fully tested. Shifty quietly corrects the slide.'
         why: >-
           Coverage = use cases tested / total use cases x 100 = 52 / 80 x 100 = 65%. 35% is the untested share, 52%
           mistakes the count for a percentage, and 154% divides the wrong way round.
@@ -433,6 +447,9 @@ cases:
           - ['Internet-facing systems with known exploited flaws', 1]
           - ['Active accounts that belong to leavers', 1]
           - ['Growth in privileged accounts this quarter', 1]
+        rr:
+          - 'Marcus gets two clean lists: KPIs for how well the processes run, KRIs for where risk is rising. The audit committee reads the KRIs first.'
+          - 'Marcus reports leftover leaver accounts as a performance score. A KRI warns that exposure is rising, and the audit committee misses the warning.'
         why: >-
           A KPI measures how well a process meets its goals, such as patch speed or training completion. A KRI signals
           exposure, such as exploitable systems or leftover accounts, giving early warning that risk is moving towards
@@ -448,6 +465,11 @@ cases:
         ask: 'What percentage of the reviewed accounts were orphaned?'
         o: ['0.7%', '7%', '8.4%', '14%']
         a: 1
+        r:
+          - 'A slipped decimal: 0.7% sits under the 2% threshold, the KRI shows green, and 84 leavers'' accounts stay active another quarter.'
+          - 'Right: 84 of 1,200 is 7%, over three times the 2% threshold. The KRI goes red, and Kim''s team disables the 84 accounts that week.'
+          - 'Dividing by 1,000 instead of 1,200 gives 8.4%. The KRI is red either way, but Marcus spots the wrong figure and asks what else is off.'
+          - 'Doubling the count gives 14%. The audit committee panics at twice the real exposure, and Kim spends the meeting correcting the slide.'
         why: >-
           84 / 1,200 = 0.07 = 7%, more than three times the 2% threshold, so the KRI is red. 8.4% treats 84 as a share
           of 1,000, 0.7% slips a decimal place, and 14% doubles the count.
@@ -645,6 +667,9 @@ cases:
           links: [[users, app], [app, iam], [app, db], [app, vpn], [vpn, onprem], [app, dc], [db, dc]]
           caption: 'Hybrid portal. The provider runs the physical data center and its hardware.'
         a: dc
+        rr:
+          - 'Right: the provider''s data center is covered by its SOC 2 Type II report. Halvorsen''s testers stick to what Halvorsen configures, and nobody breaks the provider''s rules.'
+          - 'That part is Halvorsen''s to configure or run, so Halvorsen must test it itself. Only the provider''s data center rests on the attestation.'
         why: >-
           Under shared responsibility, the customer tests what it configures and operates: its app, IAM settings,
           database configuration, VPN and on-premises systems. The provider's data center is outside the customer's
@@ -662,7 +687,7 @@ cases:
           - 'Cancel the contract, since on-site audits are refused'
           - 'Accept the provider''s marketing page as the evidence'
           - 'Review the provider''s independent attestations'
-          - 'Send the provider Halvorsen''s own security questionnaire instead'
+          - 'Send the provider Halvorsen''s own risk questionnaire, per policy, instead'
         a: 2
         r:
           - 'Every major provider has the same policy. Halvorsen would move to another provider that also says no.'
@@ -714,6 +739,9 @@ cases:
           - ['A vendor''s confidentiality and availability controls, under NDA', 1]
           - ['A public summary of security controls for a website', 2]
           - ['A general-use report that anyone may read', 2]
+        rr:
+          - 'Each request gets the right report: SOC 1 for the financial auditors, SOC 2 under NDA for detail, SOC 3 for the public website. Nobody is offered biscuits instead.'
+          - 'The financial auditors get a SOC 3 summary and send it straight back. SOC 1 covers financial reporting controls; SOC 3 is the public summary.'
         why: >-
           SOC 1 covers controls relevant to clients' financial reporting. SOC 2 gives detailed tests against the trust
           services criteria to restricted users. SOC 3 covers the same criteria in a general-use summary without the
@@ -744,7 +772,7 @@ cases:
         ask: 'What is the BEST response under responsible disclosure?'
         o:
           - 'Offer a reward in exchange for her never publishing'
-          - 'Tell her to publish now, since the fix is close'
+          - 'Tell her to publish now, since the fix is close, and credit her'
           - 'Agree she publishes once the fix is out, with credit'
           - 'Ask her to wait for next year''s major release to publish'
         a: 2
@@ -843,8 +871,8 @@ cases:
         o:
           - 'Run it as a total surprise, as Dale suggests'
           - 'Run real ransomware on a few test servers, with backups ready, to make it convincing'
-          - 'Get management approval, an agreed scope and a stop procedure'
-          - 'Cancel it, since attack simulations on production are never allowed'
+          - 'Get Priya''s sign-off, an agreed scope and a stop word'
+          - 'Cancel it, since risk policy never allows attack simulations on production'
         a: 2
         trap: 1
         r:

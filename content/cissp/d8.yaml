@@ -185,7 +185,7 @@ cases:
           launch by two months.
         ask: 'What is the BEST change to the plan?'
         o:
-          - 'Hire a much bigger test team for an intensive final week'
+          - 'Hire a bigger test team, with more tools, for an intensive final week'
           - 'Skip testing and fix whatever bugs users report'
           - 'Shift left: security from requirements and sprint one'
           - 'Move the security test to a month after launch'
@@ -241,6 +241,9 @@ cases:
           - ['Attacks the running app from outside, like a user', 1]
           - ['Finds server misconfigurations on the staging site', 1]
           - ['Needs no access to the source code', 1]
+        rr:
+          - 'Rafa wires SAST into every commit and DAST against staging. One points at the faulty line; the other finds a misconfigured server. Both bugs die before launch.'
+          - 'Rafa expects the DAST tool to point at the broken line of code. It cannot see code at all, and the sprint review runs long.'
         why: >-
           SAST is white box: it reads source or binaries without executing them, early, and can point to the line.
           DAST is black box: it probes the running application from outside and finds runtime and configuration
@@ -354,6 +357,9 @@ cases:
           links: [[dev, repo], [repo, build], [build, registry], [build, logs], [secrets, build], [registry, staging], [registry, prod]]
           caption: 'Halvorsen Labs CI/CD pipeline'
         a: repo
+        rr:
+          - 'Branch protection goes on the repository: nothing reaches main without review. The next stolen token can propose a change but never merge it alone.'
+          - 'That box only runs or stores what the repository hands it. The unreviewed script got in at the code repository, and that is where the rule belongs.'
         why: >-
           Branch protection and required reviews in the code repository stop unreviewed changes, including pipeline
           scripts, from being merged and built. The build server only runs what the repository gives it; pipeline
@@ -368,7 +374,7 @@ cases:
           storage in the production account.
         ask: 'What should Shifty have the team do FIRST?'
         o:
-          - 'Delete the build logs so nobody else sees the key'
+          - 'Delete the build logs, and any cached copies, so nobody sees the key'
           - 'Find out which developer account changed the script'
           - 'Revoke and rotate the exposed key'
           - 'Write a policy banning keys in build logs'
@@ -394,7 +400,7 @@ cases:
         o:
           - 'Push it now with no record, since it is urgent'
           - 'Use the emergency change process'
-          - 'Hold the fix until Tuesday''s board meeting'
+          - 'Hold the fix until Tuesday''s board, per the normal process'
           - 'Let the developer who wrote it approve it alone'
         a: 1
         r:
@@ -419,7 +425,7 @@ cases:
           - 'Individual accounts and tamper-protected change logs'
           - 'A shared account with a much stronger password'
           - 'Weekly backups of the code repository'
-          - 'Faster build servers to shorten the window for tampering'
+          - 'Faster build servers, and a shorter window for tampering'
         a: 0
         r:
           - 'Every change now carries a named person, and the logs can''t be edited by the people they describe. The next mystery takes minutes.'
@@ -535,6 +541,9 @@ cases:
           - ['Archive each release with its provenance data', 1]
           - ['Identify and confirm vulnerabilities in released software', 2]
           - ['Analyze root causes so vulnerabilities do not recur', 2]
+        rr:
+          - 'Rafa''s map matches SP 800-218: requirements and training under PO, code protection and signed releases under PS, finding and fixing flaws under RV. The auditor nods.'
+          - 'Signing releases ends up under Respond to Vulnerabilities. The customer''s auditor marks the map "creative" and asks for another one.'
         why: >-
           SP 800-218 groups practices as PO (people, processes, requirements), PS (protect code and releases from
           tampering), PW (produce well-secured software) and RV (respond to vulnerabilities). Signing releases is
@@ -550,7 +559,7 @@ cases:
         ask: 'What is the BEST approach?'
         o:
           - 'Assume it is secure because many companies use it'
-          - 'Decompile and audit the binaries without telling the vendor'
+          - 'Decompile, scan and audit the binaries, without telling the vendor'
           - 'Review vendor evidence, test it, set contract terms'
           - 'Replace it with in-house software right away'
         a: 2
@@ -624,7 +633,7 @@ cases:
           change how new work is done.
         ask: 'Which approach BEST follows CISA and NSA guidance on memory safety?'
         o:
-          - 'Rewrite the whole engine in Rust by summer, pausing other work'
+          - 'Rewrite the whole engine in Rust by summer'
           - 'Keep writing new modules in C, with more code review'
           - 'A roadmap: new code memory-safe, old C hardened, then migrated'
           - 'Leave the engine alone, since it has run for years'
@@ -676,6 +685,9 @@ cases:
           links: [[partner, gateway], [gateway, idp], [gateway, booking], [gateway, tracking], [gateway, pricing], [booking, bdb], [tracking, tdb], [pricing, pdb]]
           caption: 'Halvorsen partner API'
         a: gateway
+        rr:
+          - 'Rate limits go on the gateway, per partner. The noisy script gets politely throttled, and tracking is fast again for everyone else.'
+          - 'A limit there protects one box at best. The partner script still floods the rest; the one shared front door is the API gateway.'
         why: >-
           An API gateway is the single entry point, so it can authenticate each partner and enforce quotas and rate
           limits before requests reach any service (OWASP API4, unrestricted resource consumption). Limits inside one
@@ -767,7 +779,7 @@ cases:
           - 'After the first penetration test'
           - 'After launch, once real attacks show up'
           - 'During design, before code is written'
-          - 'Only if a partner asks for it'
+          - 'Only if a partner asks, and then only for the riskiest parts'
         a: 2
         r:
           - 'The pentest finds the design flaws, and now they are built into the code. Expensive.'
@@ -795,6 +807,9 @@ cases:
           - ['Security testing', 1]
           - ['Incident management', 2]
           - ['Environment management', 2]
+        rr:
+          - 'Each practice lands under its business function. Halvorsen Labs'' SAMM scorecard finally reads like the model, not like Dale''s slide.'
+          - 'Threat assessment ends up under Operations, after launch. SAMM puts it in Design, where it can still shape the architecture.'
         why: >-
           SAMM v2 has five business functions with three practices each. Design: threat assessment, security
           requirements, security architecture. Verification: architecture assessment, requirements-driven testing,
@@ -827,6 +842,9 @@ cases:
           - 'Defined: a standard, documented process across the organization'
           - 'Managed: the process is measured and controlled with metrics'
           - 'Optimizing: continuous process improvement'
+        rr:
+          - 'The board sees the ladder: Initial, Repeatable, Defined, Managed, Optimizing. Halvorsen Labs sits at Defined and aims for Managed.'
+          - 'In this order the levels do not climb. Dale nods along; the board cannot tell where Halvorsen Labs sits or what comes next.'
         why: >-
           SW-CMM runs 1 Initial, 2 Repeatable, 3 Defined, 4 Managed, 5 Optimizing. CMMI renames level 2 Managed and
           level 4 Quantitatively Managed. Organizations climb one level at a time.
@@ -869,6 +887,9 @@ cases:
           - 'Approve or reject the change'
           - 'Test the approved change'
           - 'Schedule, implement and document the change'
+        rr:
+          - 'Rafa walks the auditor through request, review, approval, testing, then release with a record. The auditor traces one change end to end and finds it all there.'
+          - 'In this order a change is tested or released before anyone approves it, or goes live unrecorded. The auditor writes a finding instead.'
         why: >-
           The ISC2 study guide's order: request, review, approve or reject, test, then schedule, implement and
           document. Security reviews the impact before approval, and nothing reaches production untested or

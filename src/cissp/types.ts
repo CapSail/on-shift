@@ -30,7 +30,8 @@ export interface Scene {
   // first / best / calc
   o?: string[];           // exactly 4 options
   a?: number | string;    // index of the right option (first/best/calc) or node id (spot)
-  r?: string[];           // first/best: what happens in the story for each option
+  r?: string[];           // first/best/calc: what happens in the story for each option
+  rr?: [string, string];  // rank/sort/spot: what happens in the story if right, if wrong
   trap?: number;          // the "engineer answer" option, if one is there
   // rank: items in the CORRECT order (shuffled at runtime)
   items?: string[];

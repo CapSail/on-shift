@@ -126,8 +126,17 @@ for (const k of cases) {
         if (!opts()) break;
         if (!s.o!.every((x) => /\d/.test(x))) err(`${sat}: calc options must be numbers or contain numbers`);
         if (s.trap !== undefined) err(`${sat}: calc scenes have no trap`);
+        if (!Array.isArray(s.r) || s.r.length !== 4 || !s.r.every(isStr)) err(`${sat}: r needs a story reaction for each of the 4 options`);
+        else s.r.forEach((x, j) => { if (words(x) > 35) err(`${sat}: r[${j}] is ${words(x)} words (max 35)`); });
         break;
       }
+      case 'rank': case 'sort': case 'spot':
+        if (!Array.isArray(s.rr) || s.rr.length !== 2 || !s.rr.every(isStr)) err(`${sat}: rr needs two story reactions [if right, if wrong]`);
+        else s.rr.forEach((x, j) => { if (words(x) > 35) err(`${sat}: rr[${j}] is ${words(x)} words (max 35)`); });
+        if (s.r !== undefined) err(`${sat}: r is for option scenes; use rr`);
+        break;
+    }
+    switch (s.kind) {
       case 'rank': {
         if (!Array.isArray(s.items) || s.items.length < 4 || s.items.length > 5 || !s.items.every(isStr)) err(`${sat}: rank needs 4-5 items in the correct order`);
         else {
@@ -189,6 +198,29 @@ for (const c of concepts) {
 for (const o of OBJ) if ((byObj[o] ?? 0) < 2) err(`objective ${o}: has ${byObj[o] ?? 0} scene(s) (min 2): ${meta.objectives[o]}`);
 for (const d of meta.domains) if (cases.filter((k) => k.d === d.n).length < 4) err(`domain ${d.n}: has ${cases.filter((k) => k.d === d.n).length} case(s) (min 4)`);
 if (lenN && rightLongest / lenN > 0.2) warn(`the right answer is clearly the longest option in ${rightLongest}/${lenN} scenes (a test-wise guesser would exploit it; aim ≤20%)`);
+// Test-wiseness: a guesser who always taps the option with the most of some surface feature must not beat chance
+// (25%) by much. Same metric as scripts/check-cues-cissp.mjs (ties count 1/k). Per domain for clauses, the multi-part cue.
+{
+  const fb = scenes.filter((s) => (s.kind === 'first' || s.kind === 'best') && Array.isArray(s.o) && s.o.length === 4);
+  const HEDGE = /\b(per|policy|plan|approved|owner|legal|procedure|process|risk|management|agreed|documented)\b/gi;
+  const cues: Record<string, (o: string) => number> = {
+    longest: (o) => o.length, shortest: (o) => -o.length, words: (o) => words(o),
+    hedge: (o) => (o.match(HEDGE) ?? []).length, clauses: (o) => (o.match(/[,;:]|\band\b|\bthen\b|\bwith\b/gi) ?? []).length,
+  };
+  const hit = (s: Scene, f: (o: string) => number) => {
+    const v = s.o!.map(f), m = Math.max(...v), t = v.flatMap((x, i) => (x === m ? [i] : []));
+    return t.includes(s.a as number) ? 1 / t.length : 0;
+  };
+  const rate = (ss: Scene[], f: (o: string) => number) => ss.reduce((n, s) => n + hit(s, f), 0) / Math.max(1, ss.length);
+  if (fb.length >= 40) for (const [name, f] of Object.entries(cues)) {
+    const r = rate(fb, f);
+    if (r > 0.28) warn(`answer cue '${name}' picks the key in ${(100 * r).toFixed(1)}% of FIRST/BEST scenes (chance 25%; keep ≤28%). See scripts/check-cues-cissp.mjs`);
+  }
+  for (const d of meta.domains) {
+    const ss = fb.filter((s) => s.d === d.n), r = rate(ss, cues.clauses);
+    if (ss.length >= 10 && r > 0.35) warn(`domain ${d.n}: the multi-part cue picks the key in ${(100 * r).toFixed(1)}% of FIRST/BEST scenes (keep ≤35%)`);
+  }
+}
 const posN = aPos.reduce((x, y) => x + y, 0);
 if (posN >= 20 && aPos.some((p) => p / posN > 0.4)) warn(`right-answer positions ${aPos.join('/')} (options are shuffled at runtime, but spread them anyway)`);
 const trapN = scenes.filter((s) => s.trap !== undefined).length;

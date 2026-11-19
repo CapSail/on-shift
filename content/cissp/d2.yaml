@@ -153,7 +153,7 @@ cases:
         ask: 'What should Shifty do FIRST?'
         o:
           - 'Start labelling the most important-looking files today'
-          - 'Buy a tool that classifies and labels files automatically'
+          - 'Buy a tool that classifies, labels and encrypts files automatically, per a default policy'
           - 'Encrypt every file server, so classification matters less'
           - 'Inventory the information assets and assign each an owner'
         a: 3
@@ -178,9 +178,9 @@ cases:
           the data is Confidential or Internal.
         ask: 'Who is the BEST person to decide the classification of the route-planning data?'
         o:
-          - 'Tomás Reyes, who runs the servers'
-          - 'Priya Nair, the data owner'
-          - 'Shifty, as CISO'
+          - 'Tomás Reyes, the custodian who runs the servers and backups'
+          - 'Priya Nair, as the accountable data owner'
+          - 'Shifty, as CISO and owner of the security policy'
           - 'The analysts who use the data most'
         a: 1
         r:
@@ -208,6 +208,9 @@ cases:
           - ['Sets the permissions the owner approved', 1]
           - ['Uses payroll data only for assigned tasks', 2]
           - ['Reports a misdirected payslip to security', 2]
+        rr:
+          - 'Marcus decides, Tomás''s team carries it out, and the clerks use the data and report problems. The payroll roles fit on one page.'
+          - 'The custodian ends up deciding who sees salaries. Tomás grants access to whoever asks nicely, and Marcus finds out in the audit.'
         why: >-
           The owner is accountable for the data and decides its classification and who gets access. The custodian
           carries out day-to-day protection such as backups and permissions. Users work with the data under policy and
@@ -222,7 +225,7 @@ cases:
           customer's contract terms. Halvorsen's scheme has four levels: Public, Internal, Confidential and Restricted.
         ask: 'How should the laptop BEST be classified?'
         o:
-          - 'Public, because most of its files are public'
+          - 'Public, because most of the files on it are public brochures'
           - 'Internal, the average level of its files'
           - 'Restricted, the level of its most sensitive data'
           - 'Not at all, because a laptop is hardware'
@@ -272,8 +275,8 @@ cases:
         o:
           - 'Sealed, marked Confidential, by signed-for tracked courier'
           - 'Dale drops them off on his way home, in a plain folder'
-          - 'Scanned and emailed to the auditors'' general office inbox'
-          - 'By ordinary post, which is cheaper and saves a little time'
+          - 'Scanned and emailed to the auditors'' general office inbox, per their request'
+          - 'By ordinary post, in a plain envelope, which is cheaper and nearly as fast'
         a: 0
         r:
           - 'The courier logs each hand-off and the auditors sign on receipt. The chain of custody is unbroken.'
@@ -307,7 +310,7 @@ cases:
         ask: 'What is the MAIN security significance of the EOS date?'
         o:
           - 'After it, the servers stop working'
-          - 'After it, the vendor stops issuing security patches'
+          - 'After it, the vendor stops issuing security patches for the product'
           - 'After it, the vendor stops selling the model'
           - 'After it, the law requires the servers to be destroyed'
         a: 1
@@ -331,10 +334,10 @@ cases:
           run is scheduled for next week.
         ask: 'What is the BEST action for the records about that customer?'
         o:
-          - 'Destroy them on schedule, since the retention policy says 7 years'
+          - 'Destroy them on schedule, since the approved retention policy says 7 years'
           - 'Destroy them early, before the lawsuit is filed'
           - 'Place them under legal hold and suspend their destruction'
-          - 'Move them to a personal drive, outside the schedule'
+          - 'Move them to a personal drive, outside the schedule, just in case'
         a: 2
         r:
           - 'Destroying records after you know of likely litigation can look like destroying evidence. Ines does not want to explain it to a judge.'
@@ -357,7 +360,7 @@ cases:
         o:
           - 'Hold the drives until they are sanitized and verified'
           - 'Let the van go, since formatted drives are empty'
-          - 'Ask the recycler to promise not to read the drives'
+          - 'Ask the recycler to sign a promise, with penalties, not to read the drives'
           - 'Delete all the files again, just to be sure'
         a: 0
         r:
@@ -402,7 +405,7 @@ cases:
           finance team as its owner. Nobody has asked Marcus, and the array is still mounted on two servers.
         ask: 'What should happen FIRST, before the array is retired?'
         o:
-          - 'Retire it now, since Tomás manages all the storage hardware'
+          - 'Retire it now per the IT asset management process, since Tomás runs storage'
           - 'Unplug it for a week and wait to see who complains'
           - 'Get the owner''s approval and confirm its data is not needed'
           - 'Copy everything to a spare array first, then retire it'
@@ -431,13 +434,13 @@ cases:
           - 'An acceptable use policy'
           - 'A data management policy'
           - 'A disaster recovery plan'
-          - 'A server hardening standard'
+          - 'A risk management policy'
         a: 1
         r:
           - 'An acceptable use policy tells staff how to use systems. It does not govern the data''s lifecycle.'
           - 'The policy names an owner for each data set and the rules for keeping and disposing of it. Six copies become one.'
           - 'A DR plan restores systems after a disaster. It does not say who owns the data.'
-          - 'A hardening standard configures servers. The data on them still has no rules.'
+          - 'A risk management policy sets how risk is assessed and accepted. It does not say who owns each data set or how long it is kept.'
         why: >-
           A data management policy sets organization-wide rules for data across its lifecycle: ownership, quality,
           retention, location and disposal. The other documents govern system use, recovery or configuration.
@@ -453,7 +456,7 @@ cases:
         ask: 'Which classification should BEST decide how the array is sanitized?'
         o:
           - 'Confidential, because of the payroll volume'
-          - 'Public, since most of its volumes were public'
+          - 'Public, since most of its volumes, and most of its data, were public'
           - 'Whatever level the recycler recommends'
           - 'None, since the array is being retired'
         a: 0
@@ -517,6 +520,9 @@ cases:
           links: [[form, hr], [hr, pay], [hr, hq], [hr, bak], [hr, ana]]
           caption: 'HQ transfer: SCCs signed. Backup vendor: no contract on file.'
         a: bak
+        rr:
+          - 'Ines pauses the Singapore backups until a transfer safeguard is signed. Driver data stops leaving the EU without one.'
+          - 'Shifty flags a lawful flow. The Singapore backups keep running with no safeguards, and the auditor finds them first.'
         why: >-
           GDPR Chapter V allows transfers outside the EEA only with an adequacy decision or appropriate safeguards. The
           US flow has standard contractual clauses; the Singapore backups have none, so that is the unlawful transfer.
@@ -531,7 +537,7 @@ cases:
           blood type and "favourite football club". Jonas Vries says "more data is always useful".
         ask: 'Which principle BEST guides what the form should collect?'
         o:
-          - 'Collect everything now, since deleting it later is easy'
+          - 'Collect everything now, then delete what is unused, since deleting later is easy'
           - 'Data minimization: collect only what the purpose needs'
           - 'Collect everything, as long as it is encrypted'
           - 'Collect whatever the drivers agree to provide'
@@ -562,6 +568,9 @@ cases:
           - ['Enforce policy between staff and the approved SaaS apps', 1]
           - ['Stop a shared contract from being printed', 2]
           - ['Revoke a customer''s access to a file already sent', 2]
+        rr:
+          - 'Each need goes to the right tool: DLP for outgoing data, a CASB for cloud apps, DRM for files already sent. Jonas crosses off his whole list.'
+          - 'Jonas buys a DLP tool to revoke a file already sent. It can''t, and the customer keeps the contract forever.'
         why: >-
           DLP inspects content to find sensitive data and stop it leaving. A CASB sits between users and cloud services
           to discover shadow IT and enforce policy. DRM attaches usage rules to the file itself, so they apply wherever
@@ -576,10 +585,10 @@ cases:
           an internal drive that has stored images of every page scanned and copied, including driver contracts.
         ask: 'What is the BEST action before the copiers are returned?'
         o:
-          - 'Return them as they are, since copiers are not computers'
+          - 'Return them as is, since a copier is not a computer'
           - 'Print a test page to overwrite the stored images'
           - 'Ask the leasing company to clear the job list'
-          - 'Sanitize or keep the internal drives, as the lease allows'
+          - 'Sanitize or keep the internal drives as the lease allows'
         a: 3
         trap: 1
         r:
@@ -663,6 +672,9 @@ cases:
           - ['The driver app uploading a scan to the API', 1]
           - ['Results open on a nurse''s screen', 2]
           - ['A function processing results in memory', 2]
+        rr:
+          - 'Amara sees three states and three protections: encryption at rest, TLS in transit, access control in use. She signs off the design.'
+          - 'The TLS upload gets filed as data at rest. The design review stops asking how uploads are protected on the way in.'
         why: >-
           Data at rest is stored; data in transit is moving across a network; data in use is being processed or
           displayed. Each state needs its own protection: storage encryption, transport encryption, and access control
@@ -677,10 +689,10 @@ cases:
           setup time, Rafa Lind proposes plain HTTP, restricted to the hospital's allowlisted addresses.
         ask: 'Which is the BEST protection for the results in transit?'
         o:
-          - 'Plain HTTP, since only allowlisted addresses can connect'
-          - 'A password-protected zip, with the password in the same message'
-          - 'TLS 1.2 or later, with both sides authenticated'
-          - 'A hash of each result, so that changes can be spotted'
+          - 'Plain HTTP, limited to allowlisted addresses'
+          - 'A password-protected zip with the password in the same message'
+          - 'TLS 1.2 or later, with both ends mutually authenticated'
+          - 'A hash of each result, so that any changes can be spotted'
         a: 2
         r:
           - 'An allowlist limits who connects. Anyone on the path can still read plain HTTP.'
@@ -704,7 +716,7 @@ cases:
           - 'Ask the provider to shred the physical disks'
           - 'Delete the volume and destroy its keys, keeping records'
           - 'Overwrite the volume three times, then delete it'
-          - 'Delete the volume and rely on the provider''s own disposal process'
+          - 'Delete the volume, then rely on the provider''s own disposal process'
         a: 1
         r:
           - 'The disks are shared with other customers, and the provider will not shred them for one volume.'
@@ -727,6 +739,11 @@ cases:
         ask: 'Under HIPAA, until when at least must MedLink keep the old policy?'
         o: ['January 15, 2025', 'June 30, 2028', 'January 15, 2029', 'June 30, 2031']
         a: 3
+        r:
+          - 'That counts from creation only. The policy is shredded while it still has to be kept, and an investigator later asks for it.'
+          - 'Three years is not six. The old policy goes into the shredder in 2028, three years early.'
+          - 'January 2029 counts from the wrong date. The rule is six years from creation or last in effect, whichever is later.'
+          - 'Six years from June 30, 2025, the later date. Amara files the old policy with a keep-until date of June 30, 2031.'
         why: >-
           HIPAA documentation must be kept for 6 years from its creation or from the date it was last in effect,
           whichever is later. Creation plus 6 is January 2025; last in effect June 30, 2025, plus 6 is June 30, 2031.
@@ -781,7 +798,7 @@ cases:
           - 'Let the sale go ahead and track down the buyers later'
           - 'Start writing a new, stricter media handling policy'
           - 'Secure the tapes and return them under chain of custody'
-          - 'Report Dale to HR for a policy breach before anything else'
+          - 'Report Dale to HR and his manager for a policy breach, before anything else'
         a: 2
         r:
           - 'Three tapes leave in a stranger''s car. Nobody knows which three until the audit.'
@@ -808,6 +825,9 @@ cases:
           - ['Cryptographic erase of a self-encrypting drive', 1]
           - ['Incinerating a high-sensitivity SSD', 2]
           - ['Disintegrating a drive at an approved facility', 2]
+        rr:
+          - 'Kim''s chart matches NIST SP 800-88. Each tape and drive now gets the method its sensitivity calls for, and a record to prove it.'
+          - 'A single overwrite gets filed as purge. Sensitive drives leave the building with data a lab could still recover.'
         why: >-
           Clear uses logical techniques against simple recovery. Purge makes recovery infeasible even in a lab, as with
           degaussing legacy magnetic media or a valid cryptographic erase. Destroy leaves the media unusable, as with
@@ -822,10 +842,10 @@ cases:
           Another 200 of them are still in use in Halvorsen's warehouses. Replacements are budgeted for next year.
         ask: 'What is the BEST way to handle the 200 scanners still in use?'
         o:
-          - 'Keep using them normally until they break'
+          - 'Keep using them normally until they break, as the budget plan assumes'
           - 'Isolate them and schedule their retirement'
           - 'Keep them as they are, since EOS only stops new sales'
-          - 'Replace them all tonight with staff''s personal phones'
+          - 'Replace them all tonight with staff''s personal phones, and wipe the old ones'
         a: 1
         r:
           - 'An unpatched device in daily use is a door that only gets wider. The next scanner exploit finds them.'
@@ -850,6 +870,9 @@ cases:
           - 'Secret: serious damage to national security'
           - 'Confidential: damage to national security'
           - 'Unclassified'
+        rr:
+          - 'Top Secret on top, Unclassified at the bottom. Dale''s whiteboard is right for once, and the bid goes in on time.'
+          - 'The bid lists Secret above Top Secret. The agency''s reviewer stops reading at page two.'
         why: >-
           Executive Order 13526 defines Top Secret (exceptionally grave damage), Secret (serious damage) and
           Confidential (damage). Unclassified information is not classified, although some of it still needs
@@ -872,6 +895,9 @@ cases:
           - ['The Halvorsen brand and trademark', 1]
           - ['The route-optimisation algorithm', 1]
           - ['The company''s internet domain name', 1]
+        rr:
+          - 'The inventory now lists the brand, the customer list and the algorithm, each with an owner. Dale is amazed the most valuable assets would never fit on his garage sale table.'
+          - 'The algorithm lands with the trucks, so it gets an asset tag and a parking space but no access control.'
         why: >-
           Tangible assets are physical things; intangible assets have no physical form but still have value, such as
           data, intellectual property, brands and domain names. Both belong in the inventory, each with an owner.

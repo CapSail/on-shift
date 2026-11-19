@@ -282,14 +282,14 @@ cases:
           - 'Meet the executives to learn business goals and risk appetite'
           - 'Approve the next-gen firewall so there is a visible win by Friday'
           - 'Run a full vulnerability scan of every server tonight'
-          - 'Write a complete security policy set over the weekend'
+          - 'Draft a full policy set, then get it approved by management on Monday'
         a: 0
         trap: 2
         r:
           - 'The COO lights up: "Nobody ever asked what keeps the trucks moving." Shifty leaves with a list of crown jewels and a risk appetite.'
           - 'A very expensive box arrives. It protects a network segment the business is about to retire. Dale loves the blinking lights.'
           - 'The scan finds 4,000 issues and crashes the dispatch system at 2 a.m. Nobody knows which 40 issues matter.'
-          - 'Ninety pages of policy that match nothing the business does. Legal asks who approved them. Nobody did.'
+          - 'Ninety pages of policy that match nothing the business does. Management signs them on Monday without reading, and nobody follows them.'
         why: >-
           Governance starts from the business: its mission, critical services and the risk management will accept.
           Only then can controls, scans and policy be chosen and prioritized. Scanning first is the engineer answer:
@@ -310,6 +310,9 @@ cases:
           - ['Turn on MFA for every remote login', 1]
           - ['Patch the dispatch servers on the agreed schedule', 1]
           - ['Publish and enforce the acceptable use policy', 1]
+        rr:
+          - 'The board''s lawyers nod at every bin. Priya puts both lists in the minutes: what Halvorsen checked, and what it did about it.'
+          - 'Shifty files the SOC 2 review under "act on it". The lawyers point out that reading a report is checking, not doing. Dale writes both words on a napkin.'
         why: >-
           Due diligence is the investigating and verifying: assessments, audits, vendor reviews. Due care is doing
           what a prudent organization would do with what it learned: implementing and maintaining the controls.
@@ -324,6 +327,11 @@ cases:
         ask: 'What is the Annualized Loss Expectancy (ALE)?'
         o: ['$25,000', '$50,000', '$100,000', '$12,500']
         a: 0
+        r:
+          - 'SLE times ARO: $50,000 x 0.5 = $25,000 a year. The board finally has a number it can compare with the price of a control.'
+          - 'That is the SLE, one hit''s loss. Shown as a yearly figure, it doubles the risk and makes every control look like a bargain.'
+          - 'Using an ARO of 2 turns "once every two years" into twice a year. The CFO asks why ransomware got four times worse overnight.'
+          - 'That applies the 25% exposure factor twice. The board underfunds the backups, and Marcus later asks where the other $12,500 a year went.'
         why: >-
           SLE = asset value x exposure factor = $200,000 x 0.25 = $50,000. ARO = once every two years = 0.5.
           ALE = SLE x ARO = $50,000 x 0.5 = $25,000 a year. $50,000 is the SLE, a one-event loss, not a yearly one.
@@ -336,9 +344,9 @@ cases:
           expected ransomware loss from $25,000 a year to $5,000 a year. Dale wants to sign today.
         ask: 'What is the BEST recommendation to the board?'
         o:
-          - 'Buy it, because any reduction in ransomware risk is worth the cost'
+          - 'Buy it: any cut in ransomware risk is worth paying for, and the board wants action'
           - 'Decline as offered: it costs $20,000 a year more than it saves'
-          - 'Buy it, because the $20,000 it saves each year covers its cost'
+          - 'Buy it, since the $20,000 it saves each year covers its cost'
           - 'Skip the decision and let IT choose whatever backup tool they prefer'
         a: 1
         r:
@@ -361,8 +369,8 @@ cases:
         o:
           - 'Decline the trip and disclose the offer under the gift policy'
           - 'Accept, since a ghost does not need flights and the vendor might be good'
-          - 'Accept quietly and recuse himself from the vendor decision later'
-          - 'Ignore the call and keep evaluating the vendor as if nothing happened'
+          - 'Accept quietly, then recuse himself from the vendor decision after the trip'
+          - 'Ignore the call and say nothing about it'
         a: 0
         r:
           - 'The gift policy turns out to cap gifts at $50. Management thanks him and adds the vendor to a watch list.'
@@ -385,6 +393,9 @@ cases:
           - 'Act honorably, honestly, justly, responsibly, and legally'
           - 'Provide diligent and competent service to principals'
           - 'Advance and protect the profession'
+        rr:
+          - 'The canons go up in order: society on top, the profession last. Dale hangs the frame upside down anyway, but the board can still read it.'
+          - 'With principals above society, the wall now says the client comes before public safety. The first auditor to visit takes a photo.'
         why: >-
           Society first, then personal honor, then service to principals (employer or client), then the profession.
           That order settles conflicts: a client's wishes never outrank public safety.
@@ -412,14 +423,14 @@ cases:
           makes final refund decisions for a pilot group of live customers. Dale says the numbers are "probably noise".
         ask: 'What should Shifty do FIRST?'
         o:
-          - 'Have Rafa retrain the model tonight without the postcode field'
+          - 'Have Rafa retrain the model tonight without postcodes, then log it with the change management process'
           - 'Suspend Halvie''s automated refunds and report the bias to its owner'
           - 'Add a notice that refund decisions are made by an AI system'
           - 'Get a larger sample first, so the owner sees solid numbers'
         a: 1
         trap: 0
         r:
-          - 'The new model finds the same pattern through street names. Nobody approved the change, and the customers already rejected are never reviewed.'
+          - 'The change ticket is filed after the fact. The new model finds the same pattern through street names, and the customers already rejected are never reviewed.'
           - 'Priya, the system owner, sends pilot refunds to human agents and orders a bias review. Rafa looks relieved.'
           - 'Customers now know an AI rejected them unfairly. Ines calls this "documenting the problem for the plaintiffs".'
           - 'Three more weeks of skewed rejections pile up. The bigger sample confirms it, at the customers'' expense.'
@@ -444,6 +455,9 @@ cases:
           - ['An attacker alters tracking records so parcels look delivered', 1]
           - ['A flood of requests makes Halvie stop answering', 2]
           - ['The model host''s outage takes the portal chat offline', 2]
+        rr:
+          - 'The board sees three columns and three kinds of harm. Priya funds the prompt-injection fix first: a refund changed by chat is money out the door.'
+          - 'The altered refund lands under confidentiality, so the board treats it as a privacy issue. Nobody fixes the database writes, and Halvie keeps changing refunds on request.'
         why: >-
           Confidentiality is about who can see data, integrity about unauthorized change, availability about access
           when needed. A prompt injection that alters records is an integrity failure, even though it starts as a chat
@@ -466,6 +480,9 @@ cases:
           - ['AI prompts and outputs are kept for 90 days in the approved log', 1]
           - ['Tip: remove names before asking an AI to summarize a document', 2]
           - ['Consider asking a colleague to check AI-written customer emails', 2]
+        rr:
+          - 'The policy fits on one page, the standard names the approved AI service, and the tips go in a guideline. Ines signs the policy without reading forty product settings.'
+          - 'The service name ends up in the policy, so swapping AI vendors now needs senior management''s approval. Dale schedules three meetings about a settings change.'
         why: >-
           A policy states management's intent and assigns responsibility; a standard sets specific, mandatory
           requirements (which service, which settings); a guideline is optional advice. Mixing them means every
@@ -483,7 +500,7 @@ cases:
         o:
           - 'Act honorably, honestly, justly, responsibly and legally'
           - 'Provide diligent and competent service to principals'
-          - 'Protect society, the common good, public trust and the infrastructure'
+          - 'Protect society and the common good'
           - 'Advance and protect the profession'
         a: 2
         r:
@@ -505,10 +522,10 @@ cases:
           it. Halvorsen Labs built the system, and Shifty is asked to approve the launch.
         ask: 'Which is the BEST condition for approving the launch?'
         o:
-          - 'Keep the persona, but disclose the AI in the website''s terms and conditions'
+          - 'Keep the persona and the name, but disclose the AI in the website''s terms and conditions'
           - 'Keep the persona, because customers rate Hannah highly in surveys'
           - 'Drop the human name but keep the human tone, with no notice'
-          - 'Tell customers at the start that it is an AI, and offer a human'
+          - 'Disclose at the start that it is an AI, and offer a human'
         a: 3
         r:
           - 'Nobody reads the terms. Customers still think Hannah is real, and Ines reads Article 50 aloud, slowly.'
@@ -587,6 +604,11 @@ cases:
         ask: 'Where feasible, by when must the supervisory authority be notified at the latest?'
         o: ['Wednesday 09:00', 'Friday 09:00', 'Tuesday 09:00 next week', 'Within 60 days']
         a: 1
+        r:
+          - 'Wednesday counts 24 hours, not 72. Filing early is allowed, but the breach plan now carries the wrong deadline.'
+          - 'Tuesday 09:00 plus 72 hours is Friday 09:00. Ines files on Thursday with what she knows, and adds the rest later.'
+          - 'A week is not 72 hours. The notice arrives four days late, and the authority asks why, in writing.'
+          - 'Sixty days is HIPAA, not GDPR. The Dutch authority hears about the laptop from the drivers first.'
         why: >-
           GDPR Art. 33(1): notify without undue delay and, where feasible, within 72 hours of becoming aware. Tuesday
           09:00 plus 72 hours is Friday 09:00. Sixty days is HIPAA's outer limit for telling individuals, a different
@@ -623,7 +645,7 @@ cases:
           applies. Jonas Vries suggests adding a consent tick box to the drivers' employment contracts.
         ask: 'Which is the BEST lawful basis for this transfer?'
         o:
-          - 'Standard contractual clauses between the Rotterdam company and HQ'
+          - 'Standard contractual clauses between the Rotterdam company and Chicago HQ'
           - 'The drivers'' consent, collected through their employment contracts'
           - 'Encrypting the files first, which takes them outside the GDPR'
           - 'No basis is needed, because HQ owns the Rotterdam company'
@@ -650,7 +672,7 @@ cases:
         o:
           - 'Leave it, since Anouk is trusted and may help finance'
           - 'Remove all of her access and make her re-request it'
-          - 'Remove the finance access that her new role does not need'
+          - 'Remove the old payment system access that her new warehouse role does not need'
           - 'Ask Anouk which of her old finance rights she still needs to keep'
         a: 2
         r:
@@ -780,8 +802,8 @@ cases:
         o:
           - 'MedLink notifies the patients directly, and the hospital never needs to be told'
           - 'The hospital notifies the patients only, and HHS later through the annual log'
-          - 'MedLink notifies HHS within 72 hours, and patients are told if HHS agrees'
-          - 'MedLink notifies the hospital, which notifies patients, HHS and the state''s media'
+          - 'MedLink notifies HHS within 72 hours, and then the patients, if HHS agrees'
+          - 'MedLink notifies the hospital, which notifies patients, HHS and state media'
         a: 3
         r:
           - 'The hospital, which owns the patient relationship, learns about it from the local news. Its lawyers call Amara. Twice.'
@@ -804,6 +826,11 @@ cases:
         ask: 'What is the LATEST date the hospital may notify the affected patients?'
         o: ['March 6', 'April 2', 'May 2', 'June 1']
         a: 2
+        r:
+          - 'March 6 is GDPR''s 72 hours, not HIPAA''s rule. Early letters are fine, but the breach log now cites the wrong law.'
+          - 'April 2 counts 30 days, not 60. Dale calls it "the deadline" anyway, and the letters are rushed out with half the facts.'
+          - 'Sixty days from March 3 is May 2, the outer limit. Amara still sends the letters in April, because "without unreasonable delay" comes first.'
+          - 'June 1 counts about 90 days. The letters go out late, and the delay ends up in HHS''s findings.'
         why: >-
           Notice is due without unreasonable delay and no later than 60 days after discovery. March 3 plus
           28 days is March 31; plus 30 days of April is April 30; plus 2 more is May 2. March 6 is GDPR's 72 hours.
@@ -846,8 +873,8 @@ cases:
         o:
           - 'Leave them out, since MedLink cannot control them'
           - 'Record them as dependencies and assess their impact and recovery'
-          - 'Replace each one with an in-house system before finishing the BIA'
-          - 'Mention them in an appendix to the BIA without any analysis'
+          - 'Replace each one with an in-house system, then finish the BIA'
+          - 'Note them in an appendix per the BIA template, without analysis'
         a: 1
         r:
           - 'The carrier has an outage in May. The BIA said the driver app would be fine. It was not.'
@@ -890,8 +917,8 @@ cases:
           matters.
         ask: 'When is threat modeling MOST effective for this app?'
         o:
-          - 'During design, before the code is written'
-          - 'After launch, using real attack data'
+          - 'During design, before coding starts'
+          - 'After launch, using real attack data and logs'
           - 'During the annual penetration test'
           - 'After the first security incident'
         a: 0
@@ -931,7 +958,7 @@ cases:
           - 'Sign the hot-site contract while the price is good'
           - 'Start configuring replication of the dispatch servers to the cloud tonight'
           - 'Ask each department to buy its own backup equipment'
-          - 'Run a business impact analysis of the critical processes'
+          - 'Run a business impact analysis to rank the critical processes by outage impact'
         a: 3
         trap: 1
         r:
@@ -955,6 +982,11 @@ cases:
         ask: 'What is the longest recovery time objective (RTO) the dispatch system can have?'
         o: ['18 hours', '24 hours', '30 hours', '6 hours']
         a: 0
+        r:
+          - '24 minus 6 is 18. The hosting contract brings dispatch back within 18 hours, leaving staff the 6 they need to catch up.'
+          - 'An RTO of 24 hours uses up the whole MTD. Dispatch comes back on the deadline, then staff need six more hours. The trucks wait.'
+          - 'Thirty hours adds the WRT instead of subtracting it. The recovery plan blows past the MTD before anyone re-enters an order.'
+          - 'Six hours is the WRT, not the RTO. Marcus pays for a far faster recovery than the BIA ever asked for.'
         why: >-
           In CISSP terms, RTO plus WRT must not exceed the MTD, so RTO is at most 24 - 6 = 18 hours. An RTO of 24 hours
           uses the whole MTD before work can resume; 30 hours adds instead of subtracting.
@@ -970,6 +1002,11 @@ cases:
         ask: 'What is the Annualized Loss Expectancy (ALE) for a major flood?'
         o: ['$800,000', '$80,000', '$32,000', '$12,800']
         a: 2
+        r:
+          - '$800,000 is the SLE of one flood. Shown as a yearly loss, it makes every flood defence look cheap. Marcus is not fooled.'
+          - '$80,000 uses an ARO of 0.1, a flood every ten years instead of every 25. The board overspends on flood defences.'
+          - '$800,000 x 0.04 = $32,000 a year. Marcus can now weigh insurance and barriers against a real number.'
+          - '$12,800 applies the 40% exposure factor twice. The flood risk looks small, and the server room stays on the ground floor.'
         why: >-
           SLE = $2,000,000 x 0.40 = $800,000. ARO = 1/25 = 0.04. ALE = $800,000 x 0.04 = $32,000 a year. $800,000
           is the SLE of one flood; $80,000 uses an ARO of 0.1; $12,800 applies the exposure factor twice.
@@ -990,6 +1027,9 @@ cases:
           - ['Make the landlord''s contract cover flood repair costs', 1]
           - ['Close the riverside site and stop using it', 2]
           - ['Cancel the plan to build a new depot on the floodplain', 2]
+        rr:
+          - 'Priya sees each proposal for what it is. The board raises the servers, buys the insurance and quietly cancels the floodplain depot.'
+          - 'Insurance lands under mitigate, so the board thinks a policy stops water. The next high water reaches the ground-floor servers anyway.'
         why: >-
           Mitigation lowers likelihood or impact with controls; transfer shifts the financial impact to an insurer or
           another party by contract; avoidance stops the activity that creates the risk. Insurance pays for damage but
@@ -1006,6 +1046,11 @@ cases:
         ask: 'How much downtime per 30-day month does a 99.9% availability SLA allow?'
         o: ['4.32 minutes', '43.2 minutes', '7.2 hours', '8.76 hours']
         a: 1
+        r:
+          - '4.32 minutes is 99.99%, one more nine than the SLA promises. Marcus signs, sure the SLA is plenty. It is not.'
+          - '0.1% of 43,200 minutes is 43.2, more than the 30 the BIA allows. Marcus goes back to the provider for a better SLA or a fallback.'
+          - '7.2 hours is 99%. Marcus rejects the SLA for the right outcome and the wrong reason, and the provider''s salesperson corrects him in front of the board.'
+          - '8.76 hours is 99.9% of a whole year, not a month. Compared with a monthly tolerance, the number means nothing.'
         why: >-
           30 days x 24 hours x 60 minutes = 43,200 minutes; 0.1% of that is 43.2 minutes, more than the 30-minute
           tolerance, so the SLA is not good enough. 4.32 minutes is 99.99%; 7.2 hours is 99%; 8.76 hours is 99.9% of a
@@ -1023,13 +1068,13 @@ cases:
         o:
           - 'The Privacy Rule''s minimum necessary standard'
           - 'The Security Rule''s risk analysis'
-          - 'The Breach Notification Rule'
+          - 'The Breach Notification Rule''s risk assessment'
           - 'The Enforcement Rule''s penalty tiers'
         a: 1
         r:
           - 'Minimum necessary limits how much PHI is used or shared. It does not ask about floods.'
           - 'MedLink runs the Security Rule risk analysis. The flood goes on the list, next to ransomware and a very old UPS.'
-          - 'That rule applies after a breach. Amara wants to stop the freezer room becoming one.'
+          - 'That four-factor risk assessment applies after a possible breach. Amara wants to stop the freezer room becoming one.'
           - 'Penalties are what happens when you skip the risk analysis. They do not require one.'
         why: >-
           The Security Rule's administrative safeguards require an accurate and thorough assessment of risks to the
@@ -1051,6 +1096,9 @@ cases:
           - 'Implement the controls'
           - 'Assess the controls'
           - 'Authorize the system to operate'
+        rr:
+          - 'The federal customer''s auditor follows the sticky notes from Categorize to Authorize and finds nothing out of order. Dale keeps one note as a souvenir.'
+          - 'Controls get selected before anyone knows the system''s impact level. Half of them are the wrong controls, and the authorizing official refuses to sign.'
         why: >-
           NIST SP 800-37 Rev. 2 orders the RMF as Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor.
           Controls cannot be selected before the system's impact is known, and the authorizing official accepts the
@@ -1080,7 +1128,7 @@ cases:
           onto them himself and install them by Monday.
         ask: 'What should Shifty do FIRST?'
         o:
-          - 'Let Tomás flash the official firmware and install them on schedule'
+          - 'Let Tomás flash the official firmware, test them, and install them per the change plan'
           - 'Quarantine the routers and verify them with the manufacturer'
           - 'Install them on a test network to see whether they misbehave'
           - 'Send them back to the reseller and ask for a refund'
@@ -1138,6 +1186,9 @@ cases:
           links: [[mfr, dist], [dist, recv], [unk, broker], [broker, recv], [recv, bench], [bench, wh]]
           caption: 'How network hardware reaches Halvorsen'
         a: broker
+        rr:
+          - 'Shifty floats over the broker''s box. Procurement drops the broker and buys only through the authorized distributor. The next routers arrive with traceable serials.'
+          - 'Shifty haunts the wrong box. The unvetted broker keeps selling to Halvorsen, and another pallet of fakes reaches receiving.'
         why: >-
           Authorized distributors buy directly from the manufacturer and can trace each unit. An unvetted broker can
           mix in parts from unknown sources, so the chain of custody breaks there. Buying only through authorized
@@ -1152,7 +1203,7 @@ cases:
           genuine and unmodified before it joins the network, so that a tampered unit cannot quietly boot.
         ask: 'Which mitigation BEST meets Kim''s requirement?'
         o:
-          - 'A software bill of materials for the router firmware'
+          - 'A software bill of materials for each firmware release, reviewed on delivery'
           - 'An SLA with penalties for late delivery'
           - 'A third-party SOC 2 report on the vendor'
           - 'A silicon root of trust that verifies firmware at boot'
@@ -1176,9 +1227,9 @@ cases:
           conduct requires conflicts of interest to be disclosed.
         ask: 'What should Shifty do FIRST?'
         o:
-          - 'Tell Dale privately and give him a week to disclose it himself'
+          - 'Tell Dale privately and give him a week to disclose it to management'
           - 'Keep quiet, since the routers are going back anyway'
-          - 'Report the conflict through the code of conduct process'
+          - 'Report the undisclosed conflict through the code of conduct process'
           - 'Have Kim search Dale''s email to confirm it before reporting'
         a: 2
         trap: 3
@@ -1203,7 +1254,7 @@ cases:
         o:
           - 'Have legal check the EAR and sanctions rules before any sale'
           - 'Sell them, since used equipment is exempt from export controls'
-          - 'Wipe the configurations first, which removes any export issue'
+          - 'Wipe the configurations per the disposal procedure, then sell, since that removes the export issue'
           - 'Ship them through a third country to avoid the paperwork'
         a: 0
         r:
@@ -1227,6 +1278,11 @@ cases:
         ask: 'What is the annual value of the supplier assurance program?'
         o: ['$50,000', '$60,000', '-$10,000', '$20,000']
         a: 3
+        r:
+          - '$50,000 is the loss reduction before the program''s $30,000 cost. The board thinks it is getting far more than it is.'
+          - '$60,000 subtracts the cost from the ALE before only, forgetting the $40,000 of loss that remains. The program looks three times better than it is.'
+          - 'A negative value would kill a program that pays for itself. Marcus rechecks: $90,000 minus $40,000 minus $30,000 is positive.'
+          - '$90,000 - $40,000 - $30,000 = $20,000 a year. Marcus approves Kim''s program, and the board gets a number it can defend.'
         why: >-
           Value = ALE before - ALE after - annual cost = $90,000 - $40,000 - $30,000 = $20,000 a year, so it is
           cost-justified. $50,000 is the loss reduction before the cost is subtracted; $60,000 subtracts the cost from
@@ -1278,10 +1334,10 @@ cases:
           right now. Kim has the laptop locked away.
         ask: 'What should Shifty do FIRST?'
         o:
-          - 'Report the theft to the police now, since it is a crime'
+          - 'Do as Dale says: call the police now, and hand them the laptop and Kim''s notes'
           - 'Brief legal counsel, who decide on police and evidence handling'
           - 'Have Kim log in to Vic''s personal server and delete the code'
-          - 'Close the case, since Vic no longer works at Halvorsen'
+          - 'Close the HR case per policy, since Vic no longer works at Halvorsen'
         a: 1
         trap: 2
         r:
@@ -1302,7 +1358,7 @@ cases:
           Halvorsen's route-optimisation algorithm is its biggest competitive advantage. Priya Nair wants it protected
           for as long as possible without publishing how it works. Ines Albescu sets out the options.
         ask: 'Which protection BEST fits Priya''s goal?'
-        o: ['A patent', 'Copyright registration', 'Trade secret protection', 'A trademark']
+        o: ['A patent', 'Copyright registration', 'Trade secret', 'A trademark']
         a: 2
         r:
           - 'A patent publishes the method for everyone to read and expires about 20 years after filing. Not what Priya asked for.'
@@ -1322,7 +1378,7 @@ cases:
           After Vic's exit, Kim Osei wants a document that tells the help desk exactly how to disable a leaver's
           accounts: which systems, in what order, and who signs off each step. Every leaver must be handled this way.
         ask: 'Which type of document is this MOST accurately?'
-        o: ['Policy', 'Procedure', 'Guideline', 'Baseline']
+        o: ['Policy statement', 'Procedure', 'Guideline', 'Baseline']
         a: 1
         r:
           - 'A policy says leavers'' access must be removed promptly. It does not list the clicks.'
@@ -1343,7 +1399,7 @@ cases:
           cover.
         ask: 'What should the contract BEST include for security?'
         o:
-          - 'Hourly billing terms and a monthly invoice schedule'
+          - 'Hourly rates, overtime terms and a monthly invoice schedule'
           - 'A promise that the contractors are experienced, honest and well trained'
           - 'Permission for contractors to work on their own laptops'
           - 'Screening, NDAs, Halvorsen''s policies and a right to audit'
@@ -1374,6 +1430,9 @@ cases:
           - ['Alert when one account clones many repositories at once', 1]
           - ['Restoring the repositories Vic deleted from backup', 2]
           - ['Rolling back the code change Vic pushed on his last day', 2]
+        rr:
+          - 'The board sees the balance: two controls that stop, two that find, two that fix. Priya asks for more of the first kind.'
+          - 'The log review lands under preventive, so the board thinks reading logs stops theft. The next leaver clones the repos while the logs politely record it.'
         why: >-
           Preventive controls stop an incident before it happens, detective controls discover it during or after,
           and corrective controls repair the damage. Disabling access on time prevents misuse; restoring from backup
@@ -1389,9 +1448,9 @@ cases:
         ask: 'Who is MOST accountable, in the end, for protecting Halvorsen''s information?'
         o:
           - 'Shifty, as CISO'
-          - 'Tomás Reyes, as IT Director'
+          - 'Tomás Reyes, as IT Director and system custodian'
           - 'Senior management and the board'
-          - 'Each employee who handles the data'
+          - 'Each employee who handles data, per the acceptable use policy'
         a: 2
         r:
           - 'Shifty runs the program and advises, but he cannot accept risk for the board. Accountability stays at the top.'
@@ -1427,8 +1486,8 @@ cases:
           Priya Nair asks whether the program works.
         ask: 'Which measure BEST shows whether the program is effective?'
         o:
-          - 'The 98% completion rate for the online module'
-          - 'Staff satisfaction and confidence scores from the end-of-module survey'
+          - 'The 98% completion rate for the online policy module'
+          - 'Staff satisfaction and confidence scores from the end-of-module survey each quarter'
           - 'The trend in staff reporting simulated phishing over the year'
           - 'The number of phishing simulations sent during the year'
         a: 2
@@ -1458,6 +1517,9 @@ cases:
           - ['Teaching SOC analysts to use the new SIEM', 1]
           - ['Funding Kim Osei''s master''s degree in security', 2]
           - ['Sponsoring a security professional''s certification studies', 2]
+        rr:
+          - 'Posters for everyone, hands-on courses for the people who need the skill, and Kim''s degree as education. Priya approves the plan in one meeting.'
+          - 'Kim''s master''s degree is filed as awareness, next to the posters. Priya wonders why one "poster" needs two years and a tuition bill.'
         why: >-
           Awareness makes people notice an issue; training teaches a skill needed for a job; education builds deeper
           understanding of why, often through degrees or professional certifications.
@@ -1473,7 +1535,7 @@ cases:
         ask: 'Which approach is MOST likely to raise engagement at the warehouses?'
         o:
           - 'A champion at each site, running short game-style challenges'
-          - 'Double the module length and make it compulsory for everyone'
+          - 'Double the module length, make it compulsory and track completion weekly'
           - 'Email every warehouse worker the full security policy each month'
           - 'Fine anyone who has not finished the module by Friday'
         a: 0
@@ -1497,7 +1559,7 @@ cases:
           produced.
         ask: 'What is the BEST position for Shifty to take?'
         o:
-          - 'Use the scores, since the vendor is accountable for any errors'
+          - 'Use the scores as planned: the vendor is accountable for errors and appeals'
           - 'No automatic penalties: human review, transparency, privacy check'
           - 'Use the scores, but only for warehouse staff at first'
           - 'Ban all AI tools from the security program from now on'
@@ -1523,7 +1585,7 @@ cases:
         ask: 'What should be the MAIN basis of the plan?'
         o:
           - 'The 40 tools, ranked by Kim''s team'
-          - 'Matching what competitors say they spend'
+          - 'Matching what similar logistics competitors say they spend on security'
           - 'Last year''s audit findings, and nothing else'
           - 'The security needs of the growth goals'
         a: 3
@@ -1547,9 +1609,9 @@ cases:
         ask: 'Which security task is MOST important for this divestiture?'
         o:
           - 'Give departing staff read-only access for a smooth handover'
-          - 'Let the buyer''s IT team decide what to do with Halvorsen accounts'
-          - 'Cut departing staff''s access and wipe Halvorsen data from lockers'
-          - 'Wait until after closing to inventory what data the lockers hold'
+          - 'Let the buyer''s IT team decide, after closing, what to do with Halvorsen accounts'
+          - 'Cut their access and wipe Halvorsen data from the lockers'
+          - 'Wait until after closing to inventory the lockers'' data, per the transition plan'
         a: 2
         r:
           - 'Read-only access to every customer record, for staff who now work for someone else. Ines winces.'
@@ -1609,9 +1671,9 @@ cases:
           funding decisions.
         ask: 'What should be the MAIN content of the board report?'
         o:
-          - 'The full vulnerability export, so the board sees everything'
+          - 'The full vulnerability export, sorted by severity, with every finding and fix date'
           - 'A list of the security tools bought this quarter'
-          - 'Only good news, to keep confidence in the program'
+          - 'Only good news, to keep management confidence in the program'
           - 'Top risks against appetite, trends and decisions needed'
         a: 3
         r:
@@ -1638,6 +1700,9 @@ cases:
           - 'Defined: a standard process across the organization'
           - 'Quantitatively managed: measured and controlled with data'
           - 'Optimizing: continuous, data-driven improvement'
+        rr:
+          - 'The slide climbs from Initial to Optimizing, and Halvorsen sits honestly at level 2. The board asks what level 3 would take. A good question.'
+          - 'Defined lands below Managed, so the slide suggests Halvorsen can skip a step. The board funds a statistics tool for a process nobody has written down.'
         why: >-
           CMMI levels run Initial, Managed, Defined, Quantitatively Managed, Optimizing. Each builds on the one below:
           a process cannot be managed with statistics before it is defined and used across the organization.
@@ -1655,7 +1720,7 @@ cases:
           - 'Encrypt all the data shared with the supplier'
           - 'Ask the supplier for its software bill of materials'
           - 'Assess and monitor suppliers'' conduct, with contract duties'
-          - 'Treat it as a public relations issue for communications, outside security'
+          - 'Treat it as a PR issue for communications and legal, outside security'
         a: 2
         r:
           - 'Encryption protects data. The headline was about how the supplier treats people.'
@@ -1678,6 +1743,11 @@ cases:
         ask: 'What percentage of recipients reported the email?'
         o: ['15%', '27.5%', '30%', '45%']
         a: 2
+        r:
+          - '15% is the click rate. Reported as the report rate, it makes the awareness program look worse than it is.'
+          - '27.5% drops the 10 who reported after clicking. They still reported, and the SOC still got their warning.'
+          - '120 of 400 reported: 30%. The board tracks it each quarter, and Kim finally has a number that measures behaviour.'
+          - '45% adds clickers and reporters together. The board celebrates a metric that counts the clicks as successes.'
         why: >-
           Report rate = reporters / recipients = 120 / 400 = 30%. 15% is the click rate (60 / 400); 27.5% wrongly drops
           the 10 who clicked first, though they still reported; 45% adds clickers and reporters together.
@@ -1694,7 +1764,7 @@ cases:
           - 'It shares the financial impact; the board still owns the risk'
           - 'It eliminates the risk, so no further controls are needed'
           - 'It is risk avoidance, since Halvorsen no longer bears the loss'
-          - 'It hands Halvorsen''s security decisions to the insurer'
+          - 'It hands Halvorsen''s risk management decisions, and accountability, to the insurer'
         a: 0
         r:
           - 'Marcus keeps the insurance and funds MFA. The board minutes say "transfer, not removal".'

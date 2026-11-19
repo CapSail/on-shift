@@ -34,11 +34,12 @@ All fictional. Real organizations may only be named as authorities (ISC2, NIST, 
 - Case id `k<domain>-NN` (two digits), stable forever. 4 to 7 scenes per case, mixing kinds. `open` ≤ 80 words, `close` ≤ 60.
 - Scene `text` ≤ 75 words and must **make sense alone** (it will be shown outside the case): name the people and facts it needs. `ask` ≤ 30 words, `why` ≤ 50 words and says why the right answer is right *and* why the tempting wrong one is wrong.
 - `first`: ask contains "FIRST". `best`: ask contains BEST, MOST, LEAST, PRIMARY, GREATEST or MAIN (capitals). Exactly 4 options, `a` = index, `r` = 4 story reactions (≤ 35 words each: what happens if Shifty does that; the right one moves the story on). Optional `trap` = the engineer-answer index.
+- Every other kind gets a story too: `calc` has `r` (4 reactions, one per number), and `rank`, `sort` and `spot` have `rr: ['if right', 'if wrong']` (≤ 35 words each).
 - `calc`: 4 numeric options, `a`; show the working in `why`. Distractors are the classic mistakes (forgot ARO, used SLE, wrong formula).
 - `rank`: `items` in the CORRECT order, 4 or 5, ≤ 18 words each; `ask` says what the order means (e.g. "first step at the top"). Only for orders that are genuinely fixed by the source (process steps, canon order, test types by disruption).
 - `sort`: `bins` (2 or 3) and `pairs` [text, bin index], 4 to 8 items, ≤ 14 words each, every item belongs in exactly one bin by the source's definitions.
 - `spot`: `map` with 4 to 12 `nodes` {id, label ≤ 22 chars, x, y on a 0-100 grid, optional w (default 22), h (default 12)}, optional `links` [[id, id]], optional `caption`; boxes must not overlap or run off the grid; `a` = the node id to tap. Use for network diagrams, floor plans, data flows, trust boundaries.
-- Options: same category, similar length (the right one must not be the longest by habit), no "all/none of the above", no trick wording, no absolutes that give the answer away.
+- Options: same category, similar length and detail. If the key is a multi-part list, make the most tempting distractor a multi-part list too, and keep some keys short; `node scripts/check-cues-cissp.mjs` must show every cue at or below about 25% (the right one must not be the longest by habit), no "all/none of the above", no trick wording, no absolutes that give the answer away.
 - Spread right answers across positions (they are shuffled at runtime anyway).
 - Concept: id kebab-case, `obj` its objective, `name` ≤ 40 chars, `rule` ≤ 15 words, `learn` exactly 3 bullets ≤ 28 words, optional `ghost` ≤ 30 words (Shifty's angle), `src`.
 

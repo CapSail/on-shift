@@ -341,10 +341,10 @@ cases:
           developers ask how the portal should behave when the authorization check gets no answer.
         ask: 'What is the BEST behavior when the authorization service does not respond?'
         o:
-          - 'Deny the request and show an error until the service answers'
-          - 'Allow the request if the user logged in successfully earlier'
+          - 'Deny the request and show an error until the service answers again'
+          - 'Allow the request if the user logged in earlier, per the session policy'
           - 'Allow read-only access to shipments until the service recovers'
-          - 'Retry silently in a loop so the user never notices a problem'
+          - 'Retry silently in a loop, again and again, so the user never notices a problem'
         a: 0
         r:
           - 'A few customers see "try again in a minute". Nobody sees anyone else''s shipments. Rafa writes FAIL CLOSED on the whiteboard in letters a ghost could read.'
@@ -366,8 +366,8 @@ cases:
         o:
           - 'Security through obscurity: hide the database so attackers cannot find it'
           - 'Keep it simple: fewer controls always mean a more secure design'
-          - 'Defense in depth: independent layers, so one failure does not expose data'
-          - 'Fail securely: the perimeter firewall blocks all traffic if it crashes'
+          - 'Defense in depth: independent layers, so one failure is not a breach'
+          - 'Fail securely: the perimeter firewall blocks all traffic, and alerts, if it crashes'
         a: 2
         r:
           - 'The database is "hidden" on port 54321. An attacker''s scanner finds it in four seconds. Dale asks if four seconds is good.'
@@ -396,6 +396,9 @@ cases:
           - ['Root key changes need two admins approving the same session', 1]
           - ['Payroll clerks move to accounts payable every six months', 2]
           - ['SOC analysts cover a different team''s duties each quarter', 2]
+        rr:
+          - 'The board sees which controls split a process, which need two people at once, and which move people around. The gap list fits on one slide.'
+          - 'The key safe lands under separation of duties, so the board thinks one admin can open it alone. Nobody notices the gap until an audit.'
         why: >-
           Separation of duties splits one process across different people. Two-person integrity needs two
           authorized people acting together on the same action. Rotation of duties moves people between jobs,
@@ -423,6 +426,9 @@ cases:
           links: [[pdp, idp], [pdp, mdm], [pdp, intel], [pdp, siem], [phone, pep], [pep, api], [pep, pdp]]
           caption: 'Zero Trust access to the route API'
         a: pdp
+        rr:
+          - 'Rafa labels the policy decision point. The enforcement point only carries out its grant or deny, and the driver''s phone gets its route.'
+          - 'Shifty points at the wrong box. Rafa explains, patiently, that it feeds signals in or carries the decision out; the policy decision point is what decides.'
         why: >-
           In NIST SP 800-207 the policy decision point (policy engine plus policy administrator) decides, using
           identity, device and threat signals. The policy enforcement point only enables or blocks the session as
@@ -440,7 +446,7 @@ cases:
           - 'A next-generation firewall appliance installed at headquarters'
           - 'A wireless security protocol that replaces WPA3 in depots'
           - 'A standard for encrypting data at rest on depot servers'
-          - 'Cloud-delivered SD-WAN plus security services near each user'
+          - 'Cloud-delivered SD-WAN plus security services close to each user'
         a: 3
         trap: 0
         r:
@@ -464,9 +470,9 @@ cases:
         ask: 'What is the BEST design choice?'
         o:
           - 'Collect location all the time but encrypt it in the database'
-          - 'Collect location all the time and let drivers request deletion'
+          - 'Collect location all the time, and let drivers request deletion of old data'
           - 'Collect location all the time but restrict access to managers'
-          - 'Collect location only on shift, for routing and proof'
+          - 'Collect location only during shifts, for routing and proof of each delivery'
         a: 3
         r:
           - 'Encrypted, the off-duty data still exists. A works council in Rotterdam asks why Halvorsen knows where drivers spend Sundays.'
@@ -558,6 +564,9 @@ cases:
           - ['No read down', 1]
           - ['No write up', 1]
           - ['Stops low-trust data corrupting high-trust data', 1]
+        rr:
+          - 'Two cards, two goals: secrets on one, clean data on the other. Dr. Cole pins them above her desk.'
+          - 'No write up lands on the Bell-LaPadula card. Dr. Cole designs a rule that protects integrity and calls it confidentiality.'
         why: >-
           Bell-LaPadula protects confidentiality: no read up (simple security), no write down (star). Biba protects
           integrity and flips the arrows: no read down (simple integrity), no write up (star integrity).
@@ -583,6 +592,9 @@ cases:
           links: [[courier, intake], [intake, app], [tech, app], [app, db], [check, db], [auditor, check]]
           caption: 'MedLink lab results, Clark-Wilson view'
         a: check
+        rr:
+          - 'The nightly job is the IVP: it checks that every stored result is valid. Dr. Cole adds its report to the morning checklist.'
+          - 'Shifty taps the wrong box. The auditor asks which part checks that stored results are valid. It was the nightly job all along.'
         why: >-
           The IVP confirms constrained data items (the stored results) are in a valid state. The result-entry app
           is the transformation procedure, the database holds the CDIs, and raw uploads are unconstrained data
@@ -622,7 +634,7 @@ cases:
         ask: 'Which database security problem does this MOST clearly show?'
         o:
           - 'SQL injection'
-          - 'Inference'
+          - 'Inference attack'
           - 'Data remanence'
           - 'A covert timing channel'
         a: 1
@@ -648,7 +660,7 @@ cases:
           - 'Job rotation for the records team every quarter'
           - 'Two-person integrity: two approvers on each export'
           - 'A mandatory vacation policy for export staff'
-          - 'Monthly review of export logs by the privacy office'
+          - 'Monthly review of export logs by the privacy office, with sign-off and follow-up'
         a: 1
         r:
           - 'Rotation helps uncover long-running misuse. It does nothing to stop one person sending an export tonight.'
@@ -685,6 +697,11 @@ cases:
         ask: 'How many symmetric keys are needed?'
         o: ['435', '870', '60', '900']
         a: 0
+        r:
+          - '30 x 29 / 2 = 435 keys. Tomás shows the board why 435 secret keys to manage is a good reason to use asymmetric key exchange.'
+          - '870 forgets that one key serves both depots in a pair. Tomás plans to store twice the keys the design needs.'
+          - '60 is the asymmetric count, two keys per depot. With symmetric keys only, 375 depot pairs would be left without a key.'
+          - '900 is 30 x 30, as if every depot needed a key with itself and every pair twice. The key vault fills with nonsense.'
         why: >-
           Symmetric keys for n parties = n(n-1)/2 = 30 x 29 / 2 = 435. 870 forgets to divide by 2 (each key serves
           a pair). 60 is the asymmetric count, 2n: one key pair per depot.
@@ -698,10 +715,10 @@ cases:
           and HMAC-SHA-256 on API messages. Shifty must say where the real quantum risk is.
         ask: 'Which is MOST threatened by a large-scale quantum computer?'
         o:
-          - 'AES-256 encryption of the backups'
+          - 'AES-256 encryption of the nightly backups'
           - 'SHA-384 hashes of shipping files'
           - 'HMAC-SHA-256 tags on API messages'
-          - 'RSA and elliptic-curve key exchange'
+          - 'RSA/elliptic-curve key exchange in TLS'
         a: 3
         r:
           - 'Tomás points out that Grover''s algorithm only roughly halves AES''s effective strength. AES-256 stays strong. Dale''s plan to re-encrypt every backup is cancelled.'
@@ -722,8 +739,8 @@ cases:
           removed it from the repo. Shifty wants the problem fixed for good.
         ask: 'What is the BEST long-term key management fix?'
         o:
-          - 'Keep the key in the repo but encrypt it with a strong password'
-          - 'Keep it in a key vault or HSM, logged and rotated'
+          - 'Keep the key in the repo, but encrypt it with a strong password and rotate it'
+          - 'Store it in a key vault or HSM, access-logged and rotated on schedule'
           - 'Move the key to a file only the database admins can read'
           - 'Rename the key file so it is harder to find in the repo'
         a: 1
@@ -758,6 +775,9 @@ cases:
           links: [[root, issuing], [issuing, ra], [issuing, ocsp], [issuing, web], [issuing, truck], [issuing, laptop]]
           caption: 'Halvorsen internal PKI'
         a: root
+        rr:
+          - 'The root CA signs the issuing CA''s certificate, then goes into a safe, powered off. Ines likes keys that nobody can reach from the internet.'
+          - 'The root CA stays online. If its key ever leaks, every certificate in Halvorsen''s PKI becomes suspect at once.'
         why: >-
           The root CA anchors the whole chain: if its key leaks, every certificate below it is suspect. So it signs
           the issuing CA's certificate and then stays offline. The issuing CA and OCSP responder must be online to
@@ -799,6 +819,11 @@ cases:
         ask: 'How long would a worst-case brute force of a 64-bit key take?'
         o: ['8 hours', '64 hours', '256 hours', '16 hours']
         a: 2
+        r:
+          - 'Eight hours treats bits as linear, which is Dale''s mistake. The board hears "eight times safer" and believes it.'
+          - 'Sixty-four hours confuses the key length with the work. Each extra bit doubles the work; it does not add an hour.'
+          - 'Two to the eighth power: 256 hours. Shifty adds that eleven days is still far too short, so 64 bits is no fix.'
+          - 'Sixteen hours doubles only four times, not eight. The maths is off, and either way the key stays far too short.'
         why: >-
           Each extra bit doubles the key space. 64 - 56 = 8 extra bits, so 2^8 = 256 times the work: 256 hours.
           "Eight times" treats bits as linear. Both are far too short anyway; NIST requires at least 112-bit
@@ -827,7 +852,7 @@ cases:
           them. Earlier, the attacker dumped credentials from a domain controller.
         ask: 'Which attack do these tickets MOST likely indicate?'
         o:
-          - 'A silver ticket forged with one service account''s hash'
+          - 'A silver ticket, forged with one service account''s NTLM hash'
           - 'Kerberoasting of service tickets cracked offline'
           - 'A golden ticket forged with the KRBTGT account''s hash'
           - 'Pass the hash using a captured NTLM password hash'
@@ -852,7 +877,7 @@ cases:
           phone, wants to "wait until Monday so we don't upset anyone".
         ask: 'What should Shifty have Kim do FIRST?'
         o:
-          - 'Restore the encrypted shares from last night''s backup right away'
+          - 'Restore the shares from last night''s backup right away, per the recovery plan, and then isolate'
           - 'Isolate the infected servers from the network, as the IR plan says'
           - 'Wait until Monday so management can meet and decide'
           - 'Contact the attackers to ask how much the ransom will be'
@@ -878,8 +903,8 @@ cases:
         ask: 'Which key management practice would MOST have prevented this problem?'
         o:
           - 'Using a longer, stronger key for the backup encryption'
-          - 'Rotating the backup key every month'
-          - 'Keeping an escrowed key copy off the backup server'
+          - 'Rotating the backup key every month, per the key management policy'
+          - 'Escrowing a key copy off the backup server'
           - 'Switching the backups from AES to RSA encryption'
         a: 2
         r:
@@ -902,9 +927,9 @@ cases:
           somewhere to store the drives until the investigation ends.
         ask: 'Where is the BEST place to keep the drives?'
         o:
-          - 'An evidence locker with logged access and custody forms'
+          - 'An evidence locker with logged access and signed custody forms'
           - 'Dale''s locked desk drawer, since it is close to the SOC'
-          - 'The server room shelf, since it already has badge access'
+          - 'The server room shelf, since it has badge access, cameras and a lock'
           - 'Kim''s home safe, so only one trusted person has the key'
         a: 0
         r:
@@ -927,7 +952,7 @@ cases:
           that kind of lateral movement next time.
         ask: 'Which design change BEST addresses the root cause?'
         o:
-          - 'A stronger perimeter firewall at the internet edge'
+          - 'A stronger perimeter firewall with IPS at the internet edge'
           - 'Zero Trust: verify every session, wherever it comes from'
           - 'A faster SIEM so alerts reach the SOC sooner'
           - 'Longer passwords on all the warehouse PCs'
@@ -954,7 +979,7 @@ cases:
           - 'Full-disk encryption and secure boot'
           - 'Account lockout and password complexity'
           - 'Hashing and digital signatures on log files'
-          - 'Data Execution Prevention and ASLR'
+          - 'Data Execution Prevention (DEP) and ASLR'
         a: 3
         r:
           - 'Great for a stolen laptop or a tampered bootloader. The overflow happened in running memory, long after boot.'
@@ -990,10 +1015,10 @@ cases:
           policy requires a call-back on a known number for every new payee.
         ask: 'What should Shifty tell the clerk to do FIRST?'
         o:
-          - 'Send the wire, since the clerk recognized his face and voice'
+          - 'Send the wire, since the face and voice match Marcus'
           - 'Ask the caller a personal question only the real Marcus would know'
           - 'Verify through a known channel, per the call-back policy'
-          - 'Send the video to the SOC to check it for deepfake artifacts'
+          - 'Send the video to the SOC for deepfake analysis, per the approved incident process'
         a: 2
         trap: 3
         r:
@@ -1042,7 +1067,7 @@ cases:
           - 'The supplier''s private key'
           - 'Halvorsen''s own private key'
           - 'A secret key shared with the supplier'
-          - 'The supplier''s public key'
+          - 'The supplier''s own public key'
         a: 3
         r:
           - 'Only the supplier ever holds its private key. If finance had it, the signature would prove nothing.'
@@ -1063,7 +1088,7 @@ cases:
           a valid key character by character.
         ask: 'Which attack is this MOST accurately called?'
         o:
-          - 'A chosen ciphertext attack'
+          - 'An adaptive chosen ciphertext attack'
           - 'A timing side-channel attack'
           - 'A frequency analysis attack'
           - 'A brute force attack'
@@ -1094,6 +1119,9 @@ cases:
           - ['Knows every message begins with the same standard header', 1]
           - ['Can submit ciphertexts to the server and read the decryptions', 2]
           - ['Uses a padding oracle that reacts to chosen ciphertexts', 2]
+        rr:
+          - 'The SOC names each attack by what the attacker holds. Kim adds the padding oracle to the chosen-ciphertext slide, where it belongs.'
+          - 'The padding oracle lands under ciphertext-only. The SOC underrates an attacker who can make the server decrypt for him.'
         why: >-
           Name the attack by what the attacker has: only ciphertext (ciphertext-only), some plaintext with its
           ciphertext (known plaintext), or the power to get chosen ciphertexts decrypted (chosen ciphertext).
@@ -1137,7 +1165,7 @@ cases:
           - 'Encrypt all telemetry with RSA, since public keys are easy to share'
           - 'Give every truck the same AES key, installed at the factory'
           - 'Hash the telemetry with SHA-256 so nobody can read it'
-          - 'Agree a session key with asymmetric crypto, then encrypt with AES'
+          - 'Use asymmetric key exchange to agree a session key, AES for bulk telemetry'
         a: 3
         r:
           - 'RSA chews through the telemetry so slowly that trucks report yesterday''s position. Public keys were the easy part.'
@@ -1172,9 +1200,9 @@ cases:
           clock. Jonas Vries says the OT engineers have never been asked about scanning.
         ask: 'What should Shifty do FIRST?'
         o:
-          - 'Run the scan tonight while the warehouse is quieter'
-          - 'Patch every PLC to the newest firmware before scanning'
-          - 'Agree a safe, tested approach with the OT engineers'
+          - 'Run the scan tonight, while the warehouse is quiet'
+          - 'Patch every PLC to the newest firmware, then scan, with the vendor on call'
+          - 'Plan the assessment with the OT engineers'
           - 'Exclude the OT network from security assessment entirely'
         a: 2
         trap: 0
@@ -1210,6 +1238,9 @@ cases:
           links: [[vendor, inet], [inet, corp], [corp, erp], [corp, dmz], [dmz, hmi], [eng, hmi], [hmi, plc], [hmi, safety]]
           caption: 'Warehouse 9 networks, IT at the top, OT at the bottom'
         a: dmz
+        rr:
+          - 'The jump server sits in the IT/OT DMZ, monitored and behind MFA. The vendor never touches the control network directly.'
+          - 'Placed there, vendor sessions land too close to the PLCs. Jonas asks why the conveyor vendor can see the safety controller.'
         why: >-
           Remote access to OT should end in the IT/OT DMZ, on a monitored jump host with MFA, so no session crosses
           straight from outside into the control network. On the corporate LAN or the HMI's own network, that buffer
@@ -1224,8 +1255,8 @@ cases:
           sensor data stops making sense while dock workers are walking nearby.
         ask: 'Which behavior is BEST?'
         o:
-          - 'Stop safely in place and raise an alert'
-          - 'Keep driving its last planned route until the link returns'
+          - 'Stop safely in place, hold position and raise an alert'
+          - 'Keep driving its last planned route, slowly, and reconnect when the link returns'
           - 'Speed up to finish the job before the fault spreads'
           - 'Accept commands from any nearby controller to stay productive'
         a: 0
@@ -1279,6 +1310,9 @@ cases:
           - ['A hidden backdoor trigger planted in fine-tuning data', 1]
           - ['Repeated queries rebuild photos from the training set', 2]
           - ['Testing whether a customer''s images were used in training', 2]
+        rr:
+          - 'The Rotterdam team now knows which attacks hit training and which hit the deployed model. Kim plans defences for each.'
+          - 'The stickers get filed as poisoning. The team guards the training set while attackers fool the live camera with a roll of stickers.'
         why: >-
           NIST AI 100-2: evasion alters inputs to a deployed model; poisoning corrupts training data or the model
           itself; privacy attacks extract training data or membership. Poisoning happens before deployment, evasion
@@ -1293,10 +1327,10 @@ cases:
           The HMI must keep running the conveyors.
         ask: 'What is the BEST response until a patch ships?'
         o:
-          - 'Wait for the patch, since nothing can be done about a zero-day'
+          - 'Wait for the patch per the patch management policy, since nothing else works on a zero-day'
           - 'Apply the vendor workaround, limit access and monitor'
           - 'Shut down the conveyors until the patch is released'
-          - 'Reverse-engineer the HMI and write an in-house patch'
+          - 'Reverse-engineer the HMI and write an in-house patch this weekend'
         a: 1
         trap: 3
         r:
@@ -1364,6 +1398,9 @@ cases:
           - ['Patching the guest operating systems', 1]
           - ['Configuring virtual network firewall rules', 1]
           - ['Managing user identities and access to the data', 1]
+        rr:
+          - 'Dale finally sees it: the provider runs the building and the hypervisor, Halvorsen runs everything it builds on top. He deletes his "cloud does it all" slide.'
+          - 'Guest OS patching lands with the provider. Nobody patches the route platform''s virtual machines, and the provider politely says it never offered to.'
         why: >-
           In IaaS the provider secures facilities, hardware and the virtualization layer; the customer secures what
           it builds on top: guest OS, applications, network rules, identities and data. PaaS and SaaS shift more to
@@ -1379,8 +1416,8 @@ cases:
         ask: 'What is the BEST fix?'
         o:
           - 'Leave it, since the provider secures serverless functions'
-          - 'Turn on logging so deletions can be investigated later'
-          - 'Scope the function''s role to read only that rate table'
+          - 'Turn on full audit logging so any deletions can be investigated later'
+          - 'Scope its role to read only that table'
           - 'Move the function onto a virtual machine instead'
         a: 2
         r:
@@ -1479,7 +1516,7 @@ cases:
           - 'A full-tunnel VPN that sends all traffic through HQ'
           - 'A new on-premises proxy cluster in the HQ data center'
           - 'SASE from cloud points of presence near users'
-          - 'Separate small firewalls installed in every truck'
+          - 'Small firewalls in every truck'
         a: 2
         r:
           - 'Every SaaS request now travels to HQ and back. Drivers in Rotterdam wait for a server in another country to approve a map tile.'
@@ -1548,6 +1585,9 @@ cases:
             - { id: parking, label: 'Parking lot', x: 76, y: 76 }
           caption: 'Building C, candidate server room locations'
         a: core
+        rr:
+          - 'The server room goes in the windowless second-floor core: no street view, no water main, no roof to leak. Shifty floats through the wall to check.'
+          - 'That spot has water, windows, public traffic or a roof to leak. The first storm or burst pipe takes the servers with it.'
         why: >-
           Server rooms belong in the middle of the building: no windows, away from water pipes and roof leaks,
           away from public areas and loading-dock traffic, with layered access. The basement risks flooding; the top
@@ -1595,6 +1635,9 @@ cases:
           - ['Brownout', 1]
           - ['Spike', 2]
           - ['Surge', 2]
+        rr:
+          - 'The board learns that a UPS and conditioning handle short dips and spikes, and generators cover long outages. Tomás orders both.'
+          - 'Brownout lands under high voltage. Tomás buys protection against too much power for a problem that is really too little.'
         why: >-
           Fault (momentary) and blackout (prolonged) are losses of power. Sag (momentary) and brownout (prolonged) are
           low voltage. Spike (momentary) and surge (prolonged) are high voltage. A UPS and conditioning handle short
@@ -1612,7 +1655,7 @@ cases:
         o:
           - 'Fail secure: stay locked to protect the servers'
           - 'Stay locked until a guard arrives with a key'
-          - 'Fail safe: unlock so people can get out'
+          - 'Fail safe: unlock so everyone inside can get out'
           - 'Unlock only for badges with data center access'
         a: 2
         r:
@@ -1678,6 +1721,9 @@ cases:
           - 'Implement the controls'
           - 'Assess whether the controls work as intended'
           - 'Authorize the system to operate'
+        rr:
+          - 'Priya follows the RMF from Categorize to Authorize. The route brain gets controls that match its impact, and an official accepts the remaining risk.'
+          - 'Authorization comes before assessment. Someone signs for a risk nobody has measured, and the auditor circles it twice.'
         why: >-
           NIST SP 800-37 runs Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor. Categorization sets
           the impact level that drives control selection; an authorizing official accepts the remaining risk only
@@ -1694,7 +1740,7 @@ cases:
         o:
           - 'A network HSM in headquarters'
           - 'A USB drive holding the key'
-          - 'A strong BIOS password on each laptop'
+          - 'A strong BIOS password, set by IT, on each laptop'
           - 'A Trusted Platform Module in each laptop'
         a: 3
         trap: 0
@@ -1766,7 +1812,7 @@ cases:
           website". Jonas Vries, Rotterdam ops manager, is alarmed.
         ask: 'What should be the PRIMARY consideration for changes reaching the conveyor controllers?'
         o:
-          - 'Confidentiality of the conveyor commands and settings'
+          - 'Confidentiality of conveyor commands and settings, per the IT encryption policy'
           - 'Speed of deploying new features'
           - 'Safety and availability of the physical process'
           - 'Keeping the cost of updates low'
@@ -1790,8 +1836,8 @@ cases:
           containers share the same hosts.
         ask: 'What is the GREATEST risk in this setup?'
         o:
-          - 'A compromised container taking over the shared host'
-          - 'Containers starting more slowly than virtual machines'
+          - 'A container escape onto the shared host'
+          - 'Containers starting more slowly than virtual machines do at boot'
           - 'Higher storage costs from duplicated image layers'
           - 'Developers losing track of container versions'
         a: 0
@@ -1814,8 +1860,8 @@ cases:
           library upgrade have shipped.
         ask: 'What is the BEST response to Dale?'
         o:
-          - 'Agree, since the authorization stays valid until retirement'
-          - 'Keep reviewing continuously and reassess on change'
+          - 'Agree, since the authorization, once granted, stays valid until retirement'
+          - 'Review continuously, reassess on change'
           - 'Repeat the full assessment only if a breach occurs'
           - 'Replace all reviews with one penetration test a year'
         a: 1
@@ -1858,6 +1904,9 @@ cases:
           - 'Development and integration'
           - 'Operations and maintenance'
           - 'Retirement and secure disposal'
+        rr:
+          - 'The slide runs from requirements to retirement, with security in every phase. Priya uses it at the next project kickoff.'
+          - 'Development lands before design. Rafa''s team builds first and draws the architecture afterward, and security gets bolted on at the end.'
         why: >-
           Requirements come first, then design, then building and integrating, then running and sustaining, then
           retirement. Security belongs in each step, not a test bolted on at the end.
@@ -1870,7 +1919,7 @@ cases:
           agreed to sell them to a scrap dealer as they are. The drives will not be reused inside the company.
         ask: 'What is the BEST way to handle the drives?'
         o:
-          - 'Delete the files and sell them as Dale arranged'
+          - 'Delete the files and sell them as Dale arranged, per the agreed scrap process'
           - 'Reformat each drive, then sell them'
           - 'Sanitize them per NIST SP 800-88 and record it'
           - 'Keep them in a storeroom indefinitely, just in case'
@@ -1901,6 +1950,9 @@ cases:
           - ['Gasoline cans in the generator shed', 1]
           - ['A burning power supply in a live server', 2]
           - ['An energized electrical distribution panel', 2]
+        rr:
+          - 'Each extinguisher goes where its class of fire can happen. The safety officer passes Shifty, who could not hold one anyway.'
+          - 'The live server fire lands with the cardboard, as Class A. Someone reaches for water next to energized equipment.'
         why: >-
           In the US system (NFPA 10): Class A is ordinary combustibles (paper, wood, cardboard), Class B flammable
           liquids and gases, Class C energized electrical equipment. Once the power is cut, a fire is treated by the
@@ -1964,9 +2016,9 @@ cases:
           support signed firmware and a hardware root of trust.
         ask: 'What is the BEST decision?'
         o:
-          - 'Buy authorized units with signed firmware, verified on arrival'
+          - 'Buy authorized units and verify signed firmware'
           - 'Buy from the reseller and change default passwords on arrival'
-          - 'Buy from the reseller but put the sensors on a separate VLAN'
+          - 'Buy from the reseller, then isolate the sensors on a separate VLAN with monitoring'
           - 'Buy from the reseller and scan the firmware with antivirus'
         a: 0
         r:
