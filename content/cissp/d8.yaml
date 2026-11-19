@@ -185,9 +185,9 @@ cases:
           launch by two months.
         ask: 'What is the BEST change to the plan?'
         o:
-          - 'Hire a much bigger test team for the final week'
+          - 'Hire a much bigger test team for an intensive final week'
           - 'Skip testing and fix whatever bugs users report'
-          - 'Shift left: add security from requirements and sprint one'
+          - 'Shift left: security from requirements and sprint one'
           - 'Move the security test to a month after launch'
         a: 2
         r:
@@ -255,7 +255,7 @@ cases:
           delivery in the system.
         ask: 'What is the BEST fix in the code?'
         o:
-          - 'Strip single quotes from the search text'
+          - 'Strip quotes and SQL keywords from the search text'
           - 'Use parameterized queries (prepared statements)'
           - 'Hide database error messages from the screen'
           - 'Limit the search box to 50 characters'
@@ -282,7 +282,7 @@ cases:
         o:
           - 'A SOC 2 Type II report for Halvorsen Labs'
           - 'A software bill of materials in SPDX or CycloneDX'
-          - 'Read access to the app''s source code repository'
+          - 'Read access to the app''s source code repository and build files'
           - 'A penetration test summary letter'
         a: 1
         r:
@@ -416,10 +416,10 @@ cases:
           changes through one shared service account.
         ask: 'Which improvement is MOST important for future investigations?'
         o:
-          - 'Individual accounts, with change logs protected from tampering'
+          - 'Individual accounts and tamper-protected change logs'
           - 'A shared account with a much stronger password'
           - 'Weekly backups of the code repository'
-          - 'Faster build servers to shorten the exposure window'
+          - 'Faster build servers to shorten the window for tampering'
         a: 0
         r:
           - 'Every change now carries a named person, and the logs can''t be edited by the people they describe. The next mystery takes minutes.'
@@ -502,7 +502,7 @@ cases:
         ask: 'What should Shifty have the team do FIRST?'
         o:
           - 'Patch every server in the company tonight'
-          - 'Wait for each vendor to call Halvorsen about it'
+          - 'Wait for each vendor to contact Halvorsen with its own advisory'
           - 'Remove logging from every application'
           - 'Query the SBOMs and SCA data for affected products'
         a: 3
@@ -550,7 +550,7 @@ cases:
         ask: 'What is the BEST approach?'
         o:
           - 'Assume it is secure because many companies use it'
-          - 'Decompile and audit it without telling the vendor'
+          - 'Decompile and audit the binaries without telling the vendor'
           - 'Review vendor evidence, test it, set contract terms'
           - 'Replace it with in-house software right away'
         a: 2
@@ -596,23 +596,23 @@ cases:
         text: >-
           A scan of the vendor routing engine finds 40 vulnerabilities. Rafa Lind's team can fix 10 this month. Some
           are in internet-facing components with public exploits; others are in an internal-only reporting module.
-          Dale wants them fixed in alphabetical order.
+          Kim Osei suggests going strictly by CVSS base score.
         ask: 'How should the team BEST decide which to fix first?'
         o:
           - 'Rank them by risk: exploitability, exposure and impact'
-          - 'Fix them in alphabetical order, as Dale suggests'
+          - 'Fix them by CVSS base score, highest first, then by age'
           - 'Fix the ten easiest so the count drops fastest'
           - 'Fix the most recently found ones first'
         a: 0
         r:
           - 'The internet-facing, publicly exploited flaws go first. The rest get dates, and the risk owner signs off on what waits.'
-          - 'The first fix is in "Admin-report-export", internal only. The internet-facing exploit is under "W".'
+          - 'Two 9.8s in the internal-only reporting module go first. The internet-facing 7.5 with a public exploit waits.'
           - 'The count looks great on a slide. The ones attackers are using are still open.'
           - 'Newest is not riskiest. Last year''s exploited flaw is still sitting there.'
         why: >-
           Risk analysis ranks weaknesses by likelihood (exploit available, internet exposure) and business impact,
-          so limited effort removes the most risk. Easiest-first improves the count, not the risk; what waits gets a
-          documented decision by the risk owner.
+          so limited effort removes the most risk. A base score alone ignores exposure and active exploitation;
+          easiest-first improves the count, not the risk. What waits gets the risk owner's documented decision.
         src: 'CISSP 2027 outline 8.3 (risk analysis and mitigation); NIST SP 800-218 v1.1, RV.2.1 (analyze each vulnerability to plan its remediation)'
 
       - c: memory-safe
@@ -624,9 +624,9 @@ cases:
           change how new work is done.
         ask: 'Which approach BEST follows CISA and NSA guidance on memory safety?'
         o:
-          - 'Rewrite everything in Rust by summer, pausing all else'
+          - 'Rewrite the whole engine in Rust by summer, pausing other work'
           - 'Keep writing new modules in C, with more code review'
-          - 'Adopt a roadmap: new code memory-safe, old C hardened and migrated'
+          - 'A roadmap: new code memory-safe, old C hardened, then migrated'
           - 'Leave the engine alone, since it has run for years'
         a: 2
         r:
@@ -693,7 +693,7 @@ cases:
         o:
           - 'Adding more fields to the v2 API'
           - 'Rate limiting the v2 API more tightly'
-          - 'Encrypting v2 API traffic with TLS 1.3'
+          - 'Encrypting all v1 and v2 API traffic with TLS 1.3'
           - 'Inventory all API versions; retire old ones'
         a: 3
         r:
@@ -885,13 +885,13 @@ cases:
         o:
           - 'Add a cover letter signed by the CEO to the PDF'
           - 'Add the required data fields, in a machine-readable format'
-          - 'Turn the PDF table into a shorter slide deck'
+          - 'Add each component''s licence, risk rating and latest scan results'
           - 'Leave out open-source parts to keep it short'
         a: 1
         r:
           - 'A very official PDF that still lists only names. The hospital''s tools can''t read it.'
           - 'Supplier, version, unique IDs, dependencies, author and timestamp, in CycloneDX. The hospital''s scanner ingests it in seconds.'
-          - 'Shorter and prettier, and still useless to a machine.'
+          - 'Useful extras, but still no supplier, version or unique ID, and still a PDF no tool can read.'
           - 'The open-source parts are where most known vulnerabilities live. Leaving them out defeats the purpose.'
         why: >-
           NTIA's minimum elements need data fields (supplier, component, version, unique identifiers, dependency
@@ -910,7 +910,7 @@ cases:
           - 'Source code escrow, released if the vendor fails'
           - 'A longer warranty period on the engine'
           - 'A discount on future license renewals'
-          - 'A higher uptime SLA with service credits'
+          - 'A higher uptime SLA with large service credits for any outage'
         a: 0
         r:
           - 'The code sits with a neutral escrow agent, released to Halvorsen on bankruptcy or end of support. Ines files it under "sleeps better".'
@@ -933,17 +933,17 @@ cases:
           - 'Rename each file with the release date'
           - 'Host the downloads on a faster server'
           - 'Sign each release in the pipeline'
-          - 'Email hospitals a list of file sizes'
+          - 'Publish SHA-256 hashes on the same download page'
         a: 2
         r:
           - 'A date in the file name tells you when, not who, and anyone can rename a file.'
           - 'Faster tampered downloads are still tampered.'
           - 'Releases are signed by a key the pipeline keeps in an HSM. Hospitals verify the signature before installing. The auditor ticks the box.'
-          - 'An attacker who can change the file can pad it to the right size.'
+          - 'An attacker who can swap the file on that site can swap the hash beside it.'
         why: >-
           Code signing in a protected pipeline lets customers verify that a release is authentic and unchanged (SSDF
-          PS.2). File names, sizes and server speed prove nothing about origin; an attacker who can alter a file can
-          match its listed size.
+          PS.2). File names and server speed prove nothing about origin, and an attacker who can alter a file can
+          replace a hash posted beside it.
         src: 'NIST SP 800-218 v1.1, PS.2 (provide a mechanism for verifying software release integrity); NIST SP 800-204D'
     close: >-
       The hospital group renews. Halvorsen Labs scores "Defined" and has a plan for "Managed". Releases are signed,

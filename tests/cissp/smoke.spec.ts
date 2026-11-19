@@ -51,7 +51,7 @@ test('wrong answers: the story reacts, the engineer answer is flagged and counte
   if (first.trap !== undefined) await expect(page.locator('.enganswer')).toBeVisible();
   await expect(page.locator('.srcline')).toContainText(first.src);
   await expect(page.locator('.brief li')).toHaveCount(3);
-  await expect(page.locator('.conf')).toContainText('85');
+  await expect(page.locator('.bconf')).toContainText('85');
   await shot(page, '06_wrong_feedback');
   await page.locator('.dock button').click();
   await playThrough(page, { right: false });

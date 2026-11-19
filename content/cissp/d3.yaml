@@ -466,7 +466,7 @@ cases:
           - 'Collect location all the time but encrypt it in the database'
           - 'Collect location all the time and let drivers request deletion'
           - 'Collect location all the time but restrict access to managers'
-          - 'Collect location only during shifts, for routing and delivery proof'
+          - 'Collect location only on shift, for routing and proof'
         a: 3
         r:
           - 'Encrypted, the off-duty data still exists. A works council in Rotterdam asks why Halvorsen knows where drivers spend Sundays.'
@@ -488,7 +488,7 @@ cases:
           performance and cost, not just a scan of the finished code.
         ask: 'Which activity BEST meets Rafa''s goal?'
         o:
-          - 'Review the design against the provider''s well-architected framework'
+          - 'A well-architected framework review of the design'
           - 'Read the provider''s latest SOC 2 Type II report'
           - 'Run a vulnerability scan of the portal after launch'
           - 'Ask the provider to sign a stronger uptime SLA'
@@ -701,7 +701,7 @@ cases:
           - 'AES-256 encryption of the backups'
           - 'SHA-384 hashes of shipping files'
           - 'HMAC-SHA-256 tags on API messages'
-          - 'RSA and elliptic-curve key exchange in TLS'
+          - 'RSA and elliptic-curve key exchange'
         a: 3
         r:
           - 'Tomás points out that Grover''s algorithm only roughly halves AES''s effective strength. AES-256 stays strong. Dale''s plan to re-encrypt every backup is cancelled.'
@@ -723,7 +723,7 @@ cases:
         ask: 'What is the BEST long-term key management fix?'
         o:
           - 'Keep the key in the repo but encrypt it with a strong password'
-          - 'Store it in a key vault or HSM, with logged access and rotation'
+          - 'Keep it in a key vault or HSM, logged and rotated'
           - 'Move the key to a file only the database admins can read'
           - 'Rename the key file so it is harder to find in the repo'
         a: 1
@@ -877,7 +877,7 @@ cases:
           backup server that has just been encrypted.
         ask: 'Which key management practice would MOST have prevented this problem?'
         o:
-          - 'Using a longer key for the backup encryption'
+          - 'Using a longer, stronger key for the backup encryption'
           - 'Rotating the backup key every month'
           - 'Keeping an escrowed key copy off the backup server'
           - 'Switching the backups from AES to RSA encryption'
@@ -902,7 +902,7 @@ cases:
           somewhere to store the drives until the investigation ends.
         ask: 'Where is the BEST place to keep the drives?'
         o:
-          - 'A dedicated evidence locker with logged access and custody forms'
+          - 'An evidence locker with logged access and custody forms'
           - 'Dale''s locked desk drawer, since it is close to the SOC'
           - 'The server room shelf, since it already has badge access'
           - 'Kim''s home safe, so only one trusted person has the key'
@@ -928,7 +928,7 @@ cases:
         ask: 'Which design change BEST addresses the root cause?'
         o:
           - 'A stronger perimeter firewall at the internet edge'
-          - 'Zero Trust access: verify each session, never trust by location'
+          - 'Zero Trust: verify every session, wherever it comes from'
           - 'A faster SIEM so alerts reach the SOC sooner'
           - 'Longer passwords on all the warehouse PCs'
         a: 1
@@ -992,7 +992,7 @@ cases:
         o:
           - 'Send the wire, since the clerk recognized his face and voice'
           - 'Ask the caller a personal question only the real Marcus would know'
-          - 'Verify through a known channel, per the call-back policy, before paying'
+          - 'Verify through a known channel, per the call-back policy'
           - 'Send the video to the SOC to check it for deepfake artifacts'
         a: 2
         trap: 3
@@ -1174,7 +1174,7 @@ cases:
         o:
           - 'Run the scan tonight while the warehouse is quieter'
           - 'Patch every PLC to the newest firmware before scanning'
-          - 'Agree a safe, tested assessment approach with the OT engineers'
+          - 'Agree a safe, tested approach with the OT engineers'
           - 'Exclude the OT network from security assessment entirely'
         a: 2
         trap: 0
@@ -1294,7 +1294,7 @@ cases:
         ask: 'What is the BEST response until a patch ships?'
         o:
           - 'Wait for the patch, since nothing can be done about a zero-day'
-          - 'Apply the vendor workaround, restrict access and monitor closely'
+          - 'Apply the vendor workaround, limit access and monitor'
           - 'Shut down the conveyors until the patch is released'
           - 'Reverse-engineer the HMI and write an in-house patch'
         a: 1
@@ -1453,7 +1453,7 @@ cases:
         ask: 'Which privacy-enhancing technology BEST fits?'
         o:
           - 'Removing names but keeping all other fields'
-          - 'Differential privacy on the published statistics'
+          - 'Differential privacy on published statistics'
           - 'Encrypting the dataset before sending it'
           - 'Requiring the researchers to sign an NDA'
         a: 1
@@ -1478,7 +1478,7 @@ cases:
         o:
           - 'A full-tunnel VPN that sends all traffic through HQ'
           - 'A new on-premises proxy cluster in the HQ data center'
-          - 'Secure Access Service Edge from cloud points of presence'
+          - 'SASE from cloud points of presence near users'
           - 'Separate small firewalls installed in every truck'
         a: 2
         r:
@@ -1638,13 +1638,13 @@ cases:
           - 'Dedicated HVAC with positive pressure and humidity control'
           - 'Shared office HVAC, plus a ceiling fan in the server room'
           - 'Dedicated HVAC with negative pressure to pull air inward'
-          - 'Opening windows for cooling, with insect screens'
+          - 'Dedicated HVAC at full cooling, with humidity left uncontrolled'
         a: 0
         r:
           - 'Air flows out of the room whenever the door opens, so dust and kitchen smoke stay outside. Humidity holds steady.'
           - 'Kitchen smoke now circulates nicely around rack 3. The fan helps it reach every server.'
           - 'Negative pressure pulls the warehouse dust in every time the door opens. Exactly backwards.'
-          - 'The server room no longer has walls worth guarding. Or a temperature worth mentioning.'
+          - 'Cold, yes. But air that is too dry builds static, and air that is too humid condenses on the racks.'
         why: >-
           A dedicated system keeps the server room's temperature and humidity under its own control, and positive
           pressure pushes air out when doors open, keeping dust and smoke out. Negative pressure does the opposite
@@ -1766,7 +1766,7 @@ cases:
           website". Jonas Vries, Rotterdam ops manager, is alarmed.
         ask: 'What should be the PRIMARY consideration for changes reaching the conveyor controllers?'
         o:
-          - 'Confidentiality of the conveyor commands'
+          - 'Confidentiality of the conveyor commands and settings'
           - 'Speed of deploying new features'
           - 'Safety and availability of the physical process'
           - 'Keeping the cost of updates low'
@@ -1815,7 +1815,7 @@ cases:
         ask: 'What is the BEST response to Dale?'
         o:
           - 'Agree, since the authorization stays valid until retirement'
-          - 'Keep continuous security review and reassess when things change'
+          - 'Keep reviewing continuously and reassess on change'
           - 'Repeat the full assessment only if a breach occurs'
           - 'Replace all reviews with one penetration test a year'
         a: 1
@@ -1964,7 +1964,7 @@ cases:
           support signed firmware and a hardware root of trust.
         ask: 'What is the BEST decision?'
         o:
-          - 'Buy authorized units with signed firmware and verify them on arrival'
+          - 'Buy authorized units with signed firmware, verified on arrival'
           - 'Buy from the reseller and change default passwords on arrival'
           - 'Buy from the reseller but put the sensors on a separate VLAN'
           - 'Buy from the reseller and scan the firmware with antivirus'
@@ -1990,7 +1990,7 @@ cases:
         ask: 'What does the higher EAL MOST accurately tell Shifty?'
         o:
           - 'The product has twice as many security features'
-          - 'The product was evaluated more rigorously against its claims'
+          - 'It was evaluated more rigorously against its claims'
           - 'The product uses stronger encryption algorithms'
           - 'The product has no known vulnerabilities'
         a: 1

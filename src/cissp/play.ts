@@ -97,18 +97,21 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
   const kase = items.find((x): x is Extract<Item, { t: 'open' }> => x.t === 'open')?.k;
   const pickExam = mode === 'exam' ? examPicker(examN) : null;
   if (pickExam) { const s = pickExam(null); if (s) items.push({ t: 'scene', s, mode: 'exam' }); }
+  // `live` goes false when the player leaves (✕, back, a deep link): a pending timer must not draw this run over home
+  let live = true;
   setRunActive(true);
-  setLeaving(() => { stopDock(); setRunActive(false); });
+  setLeaving(() => { live = false; stopDock(); setRunActive(false); });
 
   const total = () => (mode === 'exam' ? examN : items.filter((x) => x.t === 'scene').length);
   function bar(): string {
     const pct = Math.round((100 * res.length) / Math.max(1, total()));
     const right = mode === 'exam' ? `<span class="benchq">Q${Math.min(res.length + 1, examN)}/${examN}</span>`
-      : mode === 'case' || mode === 'daily' ? `<span class="conf" title="Board confidence">🏛 ${conf}</span>` : `<span class="combo" id="combo">${combo >= 2 ? `x${combo}` : ''}</span>`;
+      : mode === 'case' || mode === 'daily' ? `<span class="bconf" title="Board confidence">🏛 ${conf}</span>` : `<span class="combo" id="combo">${combo >= 2 ? `x${combo}` : ''}</span>`;
     return `<div class="bar"><button class="x" id="quit" aria-label="Quit">✕</button>${shiftyHtml('dead', 30, 'sm', true)}<div class="prog"><i style="width:${pct}%"></i></div>${right}</div>`;
   }
 
   function step(): void {
+    if (!live) return;
     stopDock();
     if (i >= items.length) return end();
     const it = items[i];
@@ -118,7 +121,8 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
     app.innerHTML = `<div class="scr run cissp">${bar()}<div id="slot"></div></div>`;
     app.scrollTop = 0;
     $('#quit').onclick = () => history.back();
-    const fresh = !introduced(s.c);
+    // never graded = first real meeting (a concept first seen in the board exam got no feedback there)
+    const fresh = (S.cs[s.c]?.n ?? 0) === 0;
     renderScene($('#slot'), s, {
       mode: it.mode,
       sure: null,
@@ -164,7 +168,7 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
       return;
     }
     shiftyReact(p.ok ? 'happy' : 'shock');
-    const cf = document.querySelector('.conf');
+    const cf = document.querySelector('.bconf');
     if (cf) cf.textContent = `🏛 ${conf}`;
     if (fb) setTimeout(() => fb.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
     dock(i >= items.length ? (kase ? 'Close the case' : 'See results') : 'Next', step);

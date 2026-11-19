@@ -280,7 +280,7 @@ cases:
         ask: 'Which capability BEST meets Kim''s goal?'
         o:
           - 'Ping and uptime checks on every server every minute'
-          - 'Flow-based observability (such as IPFIX) on internal traffic'
+          - 'Flow records (such as IPFIX) for internal traffic'
           - 'A larger internet link to reduce congestion'
           - 'Traffic shaping to give the portal priority'
         a: 1
@@ -364,7 +364,7 @@ cases:
         ask: 'What is the MAIN security concern with this configuration?'
         o:
           - 'The VPN tunnel uses too much hotel bandwidth'
-          - 'Drivers can no longer reach the dispatch system'
+          - 'Drivers can no longer reach the dispatch system from hotels'
           - 'The VPN encrypts the dispatch traffic twice'
           - 'Internet traffic bypasses company security controls'
         a: 3
@@ -439,7 +439,7 @@ cases:
         ask: 'What should Shifty require FIRST, before any connection is set up?'
         o:
           - 'A shared admin password for the vendor, to keep it simple'
-          - 'A written agreement defining security terms, scope and monitoring'
+          - 'A signed agreement on security terms, scope and monitoring'
           - 'Connect now, and review security at contract renewal'
           - 'A permanent block on all vendor remote access'
         a: 1
@@ -635,7 +635,7 @@ cases:
           - 'Move iSCSI to an unusual TCP port number'
           - 'Isolate iSCSI on a dedicated network and require CHAP'
           - 'Rely on the internet-edge firewall to protect it'
-          - 'Rename the storage targets so they are hard to guess'
+          - 'Rename the storage targets with long random names that are hard to guess'
         a: 1
         r:
           - 'A port scan finds it in seconds. Obscurity is not isolation.'
@@ -704,13 +704,13 @@ cases:
         o:
           - 'Unshielded twisted pair (Cat 6)'
           - 'Shielded twisted pair (Cat 6A)'
-          - 'Coaxial cable'
-          - 'Fiber-optic cable in a protected conduit'
+          - 'Coaxial cable with a grounded shield'
+          - 'Fiber-optic cable in a conduit'
         a: 3
         r:
           - 'At 350 meters, Cat 6 is over three times the Ethernet limit, and the welders turn the signal to static.'
           - 'Shielding helps with the welders, but 350 meters is still far beyond twisted pair''s 100-meter limit.'
-          - 'Coax is old, EMI-sensitive and easy to tap with the right connector.'
+          - 'The shield helps with interference, but coax is easy to tap and is not used for modern Ethernet runs.'
           - 'Light ignores the welders, the run fits easily, and a tap would show up. The conduit keeps stairwell visitors off it.'
         why: >-
           Fiber carries light, so it is immune to electromagnetic interference, runs far beyond the 100-meter limit
@@ -727,7 +727,7 @@ cases:
         ask: 'Which action BEST reduces the operational risk?'
         o:
           - 'Keep it as is, since it has never failed'
-          - 'Label it "do not touch" and lock the closet'
+          - 'Label it "do not touch", lock the closet and log who enters'
           - 'Add redundant power and renew warranty and support'
           - 'Turn off its logging to reduce the load on it'
         a: 2
@@ -751,7 +751,7 @@ cases:
         ask: 'What is the GREATEST security implication of running this multilayer protocol over TCP/IP?'
         o:
           - 'It gains encryption automatically by running over TCP'
-          - 'It is exposed to IP-borne attacks and can slip past filters'
+          - 'It is exposed to IP attacks and can slip past filters'
           - 'It can no longer be routed between different networks'
           - 'It stops working on ordinary layer 2 switches'
         a: 1
@@ -889,7 +889,7 @@ cases:
         ask: 'Which service BEST fits Rafa''s needs?'
         o:
           - 'A content delivery network (CDN)'
-          - 'A bigger origin server'
+          - 'A larger origin server with more bandwidth'
           - 'A site-to-site VPN'
           - 'Network access control'
         a: 0
@@ -1003,8 +1003,8 @@ cases:
         o:
           - 'Higher bandwidth than 4G'
           - 'Lower latency for video calls'
-          - 'Concealing the permanent subscriber identity (SUCI)'
-          - 'Network slicing for IoT traffic'
+          - 'Subscriber identity concealment (SUCI)'
+          - 'Network slicing to isolate driver traffic'
         a: 2
         r:
           - 'Faster downloads, same exposure. Speed isn''t a privacy feature.'
@@ -1074,15 +1074,15 @@ cases:
         ask: 'Which control would BEST have stopped the recordings leaving?'
         o:
           - 'Stricter ingress filtering on inbound traffic'
-          - 'Egress filtering that allows only approved destinations'
+          - 'Egress filtering to approved destinations only'
           - 'A faster internet link to make uploads noticeable'
-          - 'Turning off firewall logging to save space'
+          - 'An IPS signature for the video system''s known exploits'
         a: 1
         r:
           - 'The recordings left through a connection the box itself opened outward. Inbound rules never saw them.'
           - 'Meeting-room gear may now reach only its vendor''s update service. The overseas server gets nothing more.'
           - 'Faster uploads are harder to notice, not easier.'
-          - 'The logs were the only reason anyone found out. Keep them.'
+          - 'No exploit signature fires on an ordinary outbound upload. The recordings leave as normal-looking traffic.'
         why: >-
           Egress filtering controls what leaves: allow only approved destinations and ports for each device class. A
           meeting-room system has no reason to talk to random overseas servers. Ingress rules alone don't stop data

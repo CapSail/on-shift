@@ -221,7 +221,7 @@ cases:
         o:
           - 'Add one-time codes sent by SMS to every login'
           - 'Require longer passwords with special characters'
-          - 'Move drivers to FIDO2 passkeys bound to the app''s domain'
+          - 'Move drivers to FIDO2 passkeys for the app'
           - 'Add three security questions after the password'
         a: 2
         r:
@@ -263,7 +263,7 @@ cases:
           AAL3 for these accounts.
         ask: 'Which authenticator BEST meets AAL3 for the dispatch admins?'
         o:
-          - 'Synced passkeys in each admin''s phone password manager'
+          - 'Synced passkeys in each admin''s phone password manager, with biometrics'
           - 'A password plus a one-time code sent by SMS'
           - 'A password plus an authenticator app push approval'
           - 'A hardware security key with a non-exportable private key'
@@ -312,7 +312,7 @@ cases:
         ask: 'Which session rule MOST closely matches the AAL2 limits in SP 800-63B-4?'
         o:
           - 'Keep 30 days, but log the dispatcher out when the browser closes'
-          - 'Reauthenticate at least every 24 hours, and after 1 hour of inactivity'
+          - 'Reauthenticate at least every 24 hours and after 1 hour idle'
           - 'Reauthenticate every 12 hours, and after 15 minutes of inactivity'
           - 'Reauthenticate every 5 minutes for every dispatcher'
         a: 1
@@ -344,9 +344,9 @@ cases:
       - c: federation-sso
         kind: spot
         text: >-
-          Halvorsen staff will log in to a cloud HR app through SAML 2.0. An employee opens the HR app, is redirected
-          to Halvorsen's identity provider, logs in there, and is sent back with a signed assertion. Tomás Reyes asks
-          which box actually checks the employee's credentials.
+          Halvorsen staff will log in to a cloud HR app through SAML 2.0 web single sign-on, with no separate HR
+          password. Tomás Reyes asks which box actually checks the employee's credentials and vouches for the employee
+          to the HR app.
         ask: 'Tap the component that authenticates the user and issues the SAML assertion.'
         map:
           caption: 'SAML 2.0 web SSO, cloud HR app'
@@ -660,7 +660,7 @@ cases:
         ask: 'What is the BEST fix to prevent this from recurring?'
         o:
           - 'Remove Noor''s Treasury access and leave the rest'
-          - 'Make the transfer process remove old access when new access is granted'
+          - 'Have the transfer process revoke old access'
           - 'Tell Noor in writing not to use her old Accounts Payable rights again'
           - 'Ask the auditors to check every one of Noor''s payments at year end'
         a: 1
@@ -685,7 +685,7 @@ cases:
         o:
           - 'Delete it today, because nobody owns it'
           - 'Leave it alone, because the routing platform depends on it'
-          - 'Assign an owner, cut it to needed rights, vault and rotate its password'
+          - 'Give it an owner, least privilege and a vaulted, rotated password'
           - 'Change its password and email the new one to the routing team'
         a: 2
         r:
@@ -705,7 +705,7 @@ cases:
           the fix is a bigger firewall. Marcus Webb asks what Halvorsen should treat as the thing to protect.
         ask: 'Which statement BEST reflects how the 2027 CISSP outline frames this risk?'
         o:
-          - 'Identities are assets whose access must be managed and protected'
+          - 'Identities are assets to be managed and protected'
           - 'The network perimeter is the main asset to protect'
           - 'Only systems and data are assets; identities are just labels'
           - 'Stolen logins are an HR issue, not a security asset issue'
@@ -751,8 +751,8 @@ cases:
         ask: 'Which change BEST closes both gaps for future leavers?'
         o:
           - 'Ask every leaver to hand in their badge and laptop at the exit interview'
-          - 'Tie badge and logical accounts to one identity, deprovisioned by one HR trigger'
-          - 'Audit the badge system once a year'
+          - 'One identity for badge and login, revoked by one HR trigger'
+          - 'Compare badge holders with the HR staff list once a year'
           - 'Change all door codes every month'
         a: 1
         r:
@@ -788,8 +788,8 @@ cases:
         o:
           - 'Keep standing admin, but require longer passwords'
           - 'Remove admin rights from everyone, including the deploy team'
-          - 'Give admin only to Rafa, who runs every deployment for the team'
-          - 'Use Just-In-Time elevation: requested, approved, time-limited, logged'
+          - 'Give admin only to Rafa, with MFA, a strong password and a yearly review'
+          - 'Just-In-Time elevation: approved, time-limited and logged'
         a: 3
         r:
           - 'Forty-one standing admin accounts remain. A longer password does not stop a stolen session.'
@@ -808,13 +808,13 @@ cases:
           share. Kim Osei wants a credential management system instead.
         ask: 'Which feature of a password vault MOST reduces the risk the spreadsheet creates?'
         o:
-          - 'It shows passwords in a nicer interface'
-          - 'It encrypts secrets, controls checkout, logs use and rotates passwords'
-          - 'It lets everyone see every password, but only from the office'
+          - 'It fills in passwords automatically, so admins never see them'
+          - 'Encrypted storage, controlled checkout, logging and rotation'
+          - 'It shares every password with the team, encrypted, from the office only'
           - 'It prints a backup copy of all passwords each week'
         a: 1
         r:
-          - 'A pretty interface over the same uncontrolled secrets. Kim is not amused.'
+          - 'Autofill is convenient, but nobody controls who may check out what, or records who used it.'
           - 'Each checkout is approved and logged, and the vault rotates the password afterward. The spreadsheet is deleted, for real.'
           - 'Everyone still sees everything. An attacker inside the office does too.'
           - 'A weekly printout of every admin password. Shifty floats over to the printer to make sure it is shredded.'
@@ -832,7 +832,7 @@ cases:
           still a member.
         ask: 'What should Kim do FIRST?'
         o:
-          - 'Remove the account from Domain Admins and treat it as an incident'
+          - 'Remove the Domain Admins membership and open an incident'
           - 'Wait for the monthly access review to catch it'
           - 'Ask the intern''s manager to approve it after the fact'
           - 'Reinstall the domain controllers over the weekend'
@@ -880,7 +880,7 @@ cases:
           (krbtgt) and are issuing themselves valid-looking tickets for any user. Rafa Lind asks why this is so bad.
         ask: 'What is the MAIN reason a stolen KDC key is so damaging?'
         o:
-          - 'It lets attackers forge ticket-granting tickets for any identity'
+          - 'It lets attackers forge tickets for any identity'
           - 'It reveals every user''s password in clear text to the attacker'
           - 'It disables time synchronization across the domain'
           - 'It only affects the one server where it was stolen'
@@ -920,7 +920,7 @@ cases:
         o:
           - 'Create separate cloud accounts with their own passwords'
           - 'Export all passwords to the cloud provider in a file'
-          - 'Federate the cloud suite to Halvorsen''s identity provider (hybrid)'
+          - 'Federate the cloud suite to Halvorsen''s own IdP'
           - 'Share one cloud admin login for the whole branch'
         a: 2
         r:
@@ -990,18 +990,20 @@ cases:
         ask: 'What should Kim do FIRST?'
         o:
           - 'Wait until Jonas is back to ask him about the rule'
-          - 'Delete the forwarding rule and keep watching'
+          - 'Delete the forwarding rule and force a reset of Jonas''s password'
           - 'Disable the identity, revoke its sessions, then investigate'
           - 'Report the address to the email provider'
         a: 2
+        trap: 1
         r:
           - 'A week of Jonas''s mail flows to the attacker, including a payment approval. Marcus Webb is not on holiday any more.'
-          - 'The attacker, still logged in as Jonas, makes a new rule five minutes later.'
+          - 'The password changes, but the attacker''s session token does not. A new rule appears five minutes later.'
           - 'The attacker is cut off. Kim finds how the identity was taken over and resets its authenticators with Jonas''s verified help.'
           - 'Worth doing later. The attacker is still inside Jonas''s identity meanwhile.'
         why: >-
           A compromised identity is a live incident: contain it by disabling the account and revoking sessions and
-          tokens, then investigate and recover it. Deleting only the rule leaves the attacker holding the identity.
+          tokens, then investigate and recover it. Deleting the rule and resetting the password is the engineer
+          answer: existing sessions survive a password reset.
         src: 'CISSP 2027 outline 5.1 (identities) and 7.6 (incident management); NIST SP 800-61 Rev. 3'
 
       - c: identity-proofing
@@ -1014,7 +1016,7 @@ cases:
         o:
           - 'A longer and more complex password chosen at enrollment'
           - 'Two pieces of evidence instead of one'
-          - 'An on-site attended session with a trained proofing agent'
+          - 'An on-site session with a trained proofing agent'
           - 'A credit-history check'
         a: 2
         r:
@@ -1096,7 +1098,7 @@ cases:
         ask: 'What is the MAIN problem the shared "lab1" account causes?'
         o:
           - 'It slows the system down for everyone'
-          - 'Nobody can tell which person did what: no accountability'
+          - 'Nobody can tell who did what: no accountability'
           - 'It uses up a software licence that could go elsewhere'
           - 'Its password is too easy to remember'
         a: 1
@@ -1142,7 +1144,7 @@ cases:
         ask: 'Which statement about this passkey login is MOST accurate?'
         o:
           - 'The fingerprint unlocks a key on the phone; the server sees a signature'
-          - 'The fingerprint template is sent to the server at each login'
+          - 'The fingerprint template is sent to the server, encrypted, at each login'
           - 'The server stores each technician''s private key for backup'
           - 'The phone sends a hash of the fingerprint as a password'
         a: 0
@@ -1166,7 +1168,7 @@ cases:
         ask: 'What is the BEST way to give emergency admin access?'
         o:
           - 'Put the password in a locked drawer instead of on the monitor'
-          - 'Check it out from a password vault that logs use and rotates it afterward'
+          - 'Vault checkout that logs each use and rotates the password'
           - 'Give every technician permanent admin rights'
           - 'Email the password to the technicians each month'
         a: 1
@@ -1188,10 +1190,10 @@ cases:
           twice a year, for upgrades. The next upgrade is Thursday from 20:00 to 22:00.
         ask: 'What is the BEST way to manage the vendor''s access?'
         o:
-          - 'Keep the permanent account, but change its password yearly'
+          - 'Keep the permanent account, with MFA, logging and a yearly password change'
           - 'Disable it permanently and do upgrades without the vendor'
           - 'Share a technician''s account with the vendor on upgrade nights'
-          - 'Grant time-limited access for the window, approved and logged, then expire it'
+          - 'Approved access for each upgrade window, logged, then expired'
         a: 3
         r:
           - 'The account is still live 363 days a year for anyone who steals it.'
@@ -1235,7 +1237,7 @@ cases:
         o:
           - 'The admin who created the accounts'
           - 'Each user, confirming their own access'
-          - 'The data owner of the patient results system'
+          - 'The patient results system''s data owner'
           - 'The external HIPAA auditor'
         a: 2
         r:

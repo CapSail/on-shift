@@ -31,6 +31,12 @@ export default defineConfig({
     },
     // the shell: switching shifts, deep links, progress carry-over from the standalone SHIFTY-1
     { name: 'shell', testDir: './tests/shell' },
+    // stress: hostile tapping, quitting, back, reloads, offline, broken saves and storage (the Ghost CISO first)
+    {
+      name: 'stress',
+      testDir: './tests/stress',
+      use: { storageState: { cookies: [], origins: [{ origin: ORIGIN, localStorage: [{ name: 'onshift.shift', value: 'cissp' }] }] } },
+    },
   ],
   webServer: {
     command: 'node ./node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173 --strictPort',

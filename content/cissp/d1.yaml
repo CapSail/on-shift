@@ -359,7 +359,7 @@ cases:
           Shifty has not read yet.
         ask: 'What should Shifty do FIRST?'
         o:
-          - 'Decline the trip and tell management about the offer, following the gift policy'
+          - 'Decline the trip and disclose the offer under the gift policy'
           - 'Accept, since a ghost does not need flights and the vendor might be good'
           - 'Accept quietly and recuse himself from the vendor decision later'
           - 'Ignore the call and keep evaluating the vendor as if nothing happened'
@@ -413,9 +413,9 @@ cases:
         ask: 'What should Shifty do FIRST?'
         o:
           - 'Have Rafa retrain the model tonight without the postcode field'
-          - 'Suspend Halvie''s automated refund decisions and report the bias to the system owner'
+          - 'Suspend Halvie''s automated refunds and report the bias to its owner'
           - 'Add a notice that refund decisions are made by an AI system'
-          - 'Wait for a larger sample before telling anyone about it'
+          - 'Get a larger sample first, so the owner sees solid numbers'
         a: 1
         trap: 0
         r:
@@ -425,8 +425,8 @@ cases:
           - 'Three more weeks of skewed rejections pile up. The bigger sample confirms it, at the customers'' expense.'
         why: >-
           Harmful bias in a live automated decision is a present harm: stop the automated decisions and escalate to
-          the owner, who decides the fix. Retraining tonight is the engineer answer: an unreviewed change that may not
-          remove the proxy and ignores customers already affected.
+          the owner, who decides the fix. Retraining tonight is the engineer answer: unreviewed, and blind to
+          customers already affected. Waiting for more data lets the harm continue.
         src: 'NIST AI 100-1 (AI RMF 1.0), sec. 3 (fair, with harmful bias managed) and MANAGE function; CISSP 2027 outline 1.1'
 
       - c: cia-authenticity
@@ -651,7 +651,7 @@ cases:
           - 'Leave it, since Anouk is trusted and may help finance'
           - 'Remove all of her access and make her re-request it'
           - 'Remove the finance access that her new role does not need'
-          - 'Ask Anouk which of her access rights she wants to keep'
+          - 'Ask Anouk which of her old finance rights she still needs to keep'
         a: 2
         r:
           - 'Trust is not a control. Six months later her account is phished, and the payment system is the prize.'
@@ -694,10 +694,10 @@ cases:
           what would let Halvorsen prove who sent an order in future.
         ask: 'Which control would BEST provide non-repudiation for future orders?'
         o:
-          - 'Keep the HMAC, but rotate the shared keys every month'
+          - 'Keep the HMAC, but give each customer a longer, rotated key'
           - 'Encrypt each order with AES before it is sent'
           - 'Store a SHA-256 hash of every order in the portal'
-          - 'Require each order to be signed with the customer''s private key'
+          - 'Have customers sign each order with their own private key'
         a: 3
         r:
           - 'Both sides still hold the same key. The customer can say Halvorsen made the tag, and a judge might agree.'
@@ -819,7 +819,7 @@ cases:
           vendor says that makes it "not a business associate".
         ask: 'Which BEST describes what HIPAA requires before the backups move to the vendor?'
         o:
-          - 'Nothing, because the vendor cannot read the encrypted data'
+          - 'Nothing, because the vendor never holds the keys and cannot read the data'
           - 'Written approval from HHS for this particular cloud vendor'
           - 'A business associate agreement between MedLink and the vendor'
           - 'Signed consent from every patient whose data is backed up'
@@ -845,7 +845,7 @@ cases:
         ask: 'What is the BEST way to treat these in the BIA?'
         o:
           - 'Leave them out, since MedLink cannot control them'
-          - 'List them as dependencies and assess their impact and recovery capability'
+          - 'Record them as dependencies and assess their impact and recovery'
           - 'Replace each one with an in-house system before finishing the BIA'
           - 'Mention them in an appendix to the BIA without any analysis'
         a: 1
@@ -868,12 +868,12 @@ cases:
           Until then, Kim Osei's plan keeps the scanners on an isolated network segment that can reach only the
           tracking portal, with extra monitoring.
         ask: 'What type of control is Kim''s plan MOST accurately?'
-        o: ['Deterrent', 'Directive', 'Recovery', 'Compensating']
+        o: ['Deterrent', 'Directive', 'Corrective', 'Compensating']
         a: 3
         r:
           - 'Nothing here warns an attacker off. It protects in a different way.'
           - 'Directive controls tell people what to do, like a policy. This is a network design.'
-          - 'Recovery controls restore operations after an incident. This one works before anything goes wrong.'
+          - 'Corrective controls repair damage after an incident. This one works before anything goes wrong.'
           - 'The segment stands in for the encryption the scanners cannot do. The auditor writes "compensating control, expires in six months".'
         why: >-
           A compensating control gives alternative protection when the primary control cannot be used, here
@@ -929,7 +929,7 @@ cases:
         ask: 'What should Shifty do FIRST?'
         o:
           - 'Sign the hot-site contract while the price is good'
-          - 'Start configuring replication to the cloud tonight'
+          - 'Start configuring replication of the dispatch servers to the cloud tonight'
           - 'Ask each department to buy its own backup equipment'
           - 'Run a business impact analysis of the critical processes'
         a: 3
@@ -1081,7 +1081,7 @@ cases:
         ask: 'What should Shifty do FIRST?'
         o:
           - 'Let Tomás flash the official firmware and install them on schedule'
-          - 'Quarantine the routers and verify their authenticity with the manufacturer'
+          - 'Quarantine the routers and verify them with the manufacturer'
           - 'Install them on a test network to see whether they misbehave'
           - 'Send them back to the reseller and ask for a refund'
         a: 1
@@ -1152,7 +1152,7 @@ cases:
           genuine and unmodified before it joins the network, so that a tampered unit cannot quietly boot.
         ask: 'Which mitigation BEST meets Kim''s requirement?'
         o:
-          - 'A software bill of materials from the vendor'
+          - 'A software bill of materials for the router firmware'
           - 'An SLA with penalties for late delivery'
           - 'A third-party SOC 2 report on the vendor'
           - 'A silicon root of trust that verifies firmware at boot'
@@ -1176,29 +1176,30 @@ cases:
           conduct requires conflicts of interest to be disclosed.
         ask: 'What should Shifty do FIRST?'
         o:
-          - 'Confront Dale and demand that he resign today'
+          - 'Tell Dale privately and give him a week to disclose it himself'
           - 'Keep quiet, since the routers are going back anyway'
-          - 'Report the undisclosed conflict through the code of conduct process'
-          - 'Ask Kim to search Dale''s email for proof first'
+          - 'Report the conflict through the code of conduct process'
+          - 'Have Kim search Dale''s email to confirm it before reporting'
         a: 2
+        trap: 3
         r:
-          - 'Shifty has no authority to fire anyone, and the facts are still unchecked. Dale calls HR first.'
+          - 'Dale "forgets". The next order goes to the same reseller, and now Shifty shares the secret.'
           - 'The conflict stays hidden, and the next order goes to the same reseller. Silence is not neutral.'
           - 'The ethics process takes it to the audit committee. Procurement reruns the supplier choice without Dale.'
           - 'Searching a colleague''s mailbox without authorization breaks policy too. Now there are two problems.'
         why: >-
           An undisclosed conflict of interest is reported through the organization's code of conduct or ethics
-          process, which decides how to investigate. Confronting or searching email alone skips due process, and
-          silence fails canon 2.
+          process, which decides how to investigate. A private warning keeps it hidden; searching email on your own
+          is unauthorized. Silence fails canon 2.
         src: 'ISC2 Code of Ethics, canon 2; CISSP 2027 outline 1.1 (organizational code of ethics)'
 
       - c: export-transborder
-        kind: best
+        kind: first
         diff: 2
         text: >-
           Halvorsen wants to sell 200 surplus routers with strong built-in encryption to a buyer abroad. The buyer's
           country is subject to US sanctions. Dale says "they're used, so export rules don't apply".
-        ask: 'What is the BEST next step?'
+        ask: 'What should Shifty do FIRST?'
         o:
           - 'Have legal check the EAR and sanctions rules before any sale'
           - 'Sell them, since used equipment is exempt from export controls'
@@ -1256,7 +1257,7 @@ cases:
           - 'Disable his accounts at 17:00, so he can hand over his work'
           - 'Ask Vic to delete any company code from his personal devices'
           - 'Disable his access tomorrow, once HR has sent the paperwork'
-          - 'Arrange with IT to disable his access as the 10:00 meeting starts'
+          - 'Have IT disable his access as the 10:00 meeting starts'
         a: 3
         r:
           - 'Seven unsupervised hours with admin rights and a grudge. Several repositories lose their history.'
@@ -1277,8 +1278,8 @@ cases:
           right now. Kim has the laptop locked away.
         ask: 'What should Shifty do FIRST?'
         o:
-          - 'Call the police now, as Dale suggests'
-          - 'Brief legal counsel, who decide on law enforcement and evidence handling'
+          - 'Report the theft to the police now, since it is a crime'
+          - 'Brief legal counsel, who decide on police and evidence handling'
           - 'Have Kim log in to Vic''s personal server and delete the code'
           - 'Close the case, since Vic no longer works at Halvorsen'
         a: 1
@@ -1343,7 +1344,7 @@ cases:
         ask: 'What should the contract BEST include for security?'
         o:
           - 'Hourly billing terms and a monthly invoice schedule'
-          - 'A promise that the contractors are experienced and trustworthy'
+          - 'A promise that the contractors are experienced, honest and well trained'
           - 'Permission for contractors to work on their own laptops'
           - 'Screening, NDAs, Halvorsen''s policies and a right to audit'
         a: 3
@@ -1427,15 +1428,15 @@ cases:
         ask: 'Which measure BEST shows whether the program is effective?'
         o:
           - 'The 98% completion rate for the online module'
-          - 'Staff satisfaction scores from the end-of-module survey'
+          - 'Staff satisfaction and confidence scores from the end-of-module survey'
           - 'The trend in staff reporting simulated phishing over the year'
-          - 'The number of fish-shaped stress balls handed out'
+          - 'The number of phishing simulations sent during the year'
         a: 2
         r:
           - 'Completing a module shows attendance. Last spring''s victim had completed it too.'
           - 'People liked the module. Liking it is not the same as acting differently on a Tuesday morning.'
           - 'Reporting rose from 12% to 41%, and real reports reach the SOC faster. Priya finally has evidence.'
-          - 'Stress balls handed out: 2,000. Stress reduced: unclear. Breaches prevented: unknown.'
+          - 'Twelve simulations went out. That measures Kim''s effort, not whether anyone behaves differently.'
         why: >-
           Effectiveness is shown by changed behaviour over time, such as more staff reporting suspicious email and
           fewer clicking. Completion and satisfaction measure activity, not results: in CISSP terms, measure outcomes,
@@ -1471,7 +1472,7 @@ cases:
           managers will support.
         ask: 'Which approach is MOST likely to raise engagement at the warehouses?'
         o:
-          - 'A security champion at each site, running short game-style challenges'
+          - 'A champion at each site, running short game-style challenges'
           - 'Double the module length and make it compulsory for everyone'
           - 'Email every warehouse worker the full security policy each month'
           - 'Fine anyone who has not finished the module by Friday'
@@ -1497,7 +1498,7 @@ cases:
         ask: 'What is the BEST position for Shifty to take?'
         o:
           - 'Use the scores, since the vendor is accountable for any errors'
-          - 'No automatic penalties: human review, transparency and a privacy review'
+          - 'No automatic penalties: human review, transparency, privacy check'
           - 'Use the scores, but only for warehouse staff at first'
           - 'Ban all AI tools from the security program from now on'
         a: 1
@@ -1547,7 +1548,7 @@ cases:
         o:
           - 'Give departing staff read-only access for a smooth handover'
           - 'Let the buyer''s IT team decide what to do with Halvorsen accounts'
-          - 'Cut departing staff''s access and remove Halvorsen data from the lockers'
+          - 'Cut departing staff''s access and wipe Halvorsen data from lockers'
           - 'Wait until after closing to inventory what data the lockers hold'
         a: 2
         r:
@@ -1611,7 +1612,7 @@ cases:
           - 'The full vulnerability export, so the board sees everything'
           - 'A list of the security tools bought this quarter'
           - 'Only good news, to keep confidence in the program'
-          - 'Top risks against appetite, their trends, and decisions needed'
+          - 'Top risks against appetite, trends and decisions needed'
         a: 3
         r:
           - 'Page 3 of 140 and the chair is checking her phone. Neither funding decision is made.'
@@ -1654,7 +1655,7 @@ cases:
           - 'Encrypt all the data shared with the supplier'
           - 'Ask the supplier for its software bill of materials'
           - 'Assess and monitor suppliers'' conduct, with contract duties'
-          - 'Treat it as a public relations issue, outside security'
+          - 'Treat it as a public relations issue for communications, outside security'
         a: 2
         r:
           - 'Encryption protects data. The headline was about how the supplier treats people.'
@@ -1690,9 +1691,9 @@ cases:
           that, with the insurance in place, the board no longer needs to worry about ransomware risk at all.
         ask: 'Which statement about cyber insurance as a risk response is MOST accurate?'
         o:
-          - 'It shares part of the financial impact; accountability and residual risk remain'
+          - 'It shares the financial impact; the board still owns the risk'
           - 'It eliminates the risk, so no further controls are needed'
-          - 'It is a form of risk avoidance'
+          - 'It is risk avoidance, since Halvorsen no longer bears the loss'
           - 'It hands Halvorsen''s security decisions to the insurer'
         a: 0
         r:

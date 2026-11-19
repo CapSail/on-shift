@@ -132,8 +132,8 @@ cases:
           "go ahead, I'm a chief officer".
         ask: 'What must happen FIRST?'
         o:
-          - 'Let them start, since Dale is an executive'
-          - 'Get written authorization and agreed rules of engagement from the owner'
+          - 'Let them start, since Dale is an executive and has approved it'
+          - 'Written authorization and rules of engagement from the owner'
           - 'Have them run only a light scan until the paperwork arrives'
           - 'Tell the SOC to turn off alerting so the test is not interrupted'
         a: 1
@@ -226,7 +226,7 @@ cases:
           - 'A black-box penetration test of one server'
           - 'A review of the hardening standard document'
           - 'An automated compliance check against the standard'
-          - 'Asking the server admins to confirm by email'
+          - 'Asking each server admin to confirm compliance by signed email'
         a: 2
         r:
           - 'One server, tested deeply, says little about the other 299.'
@@ -288,8 +288,8 @@ cases:
         ask: 'What should Shifty do FIRST?'
         o:
           - 'Have Legal send her a cease-and-desist letter'
-          - 'Ignore the email, since she was not authorized to test'
-          - 'Thank her, confirm receipt and start triage on an agreed timeline'
+          - 'Ignore the email, since she was not authorized to test the app'
+          - 'Acknowledge it, start triage and agree a timeline with her'
           - 'Publish a statement that the app is secure'
         a: 2
         r:
@@ -389,7 +389,7 @@ cases:
           interface.
         ask: 'Which testing would MOST directly have caught this flaw?'
         o:
-          - 'API interface testing, including authorization checks'
+          - 'API testing, including authorization checks'
           - 'User interface testing of the app screens'
           - 'Network interface testing of the depot Wi-Fi'
           - 'Usability testing with real drivers'
@@ -662,17 +662,17 @@ cases:
           - 'Cancel the contract, since on-site audits are refused'
           - 'Accept the provider''s marketing page as the evidence'
           - 'Review the provider''s independent attestations'
-          - 'Send Shifty to haunt the data center and look around'
+          - 'Send the provider Halvorsen''s own security questionnaire instead'
         a: 2
         r:
           - 'Every major provider has the same policy. Halvorsen would move to another provider that also says no.'
           - 'Marketing pages are written to sell. Auditors want independent evidence.'
           - 'Kim maps the SOC 2 controls to Halvorsen''s needs, notes the customer responsibilities, and asks about two exceptions.'
-          - 'A ghost tour is not an audit, and the evidence would never stand up. Shifty is a little disappointed.'
+          - 'The provider answers questions about itself. Self-assessment is not independent assurance, and the auditors say so.'
         why: >-
           Cloud customers usually cannot audit the provider directly, so they rely on independent attestations such as
           SOC 2 Type II and ISO/IEC 27001 certification, check their scope and exceptions, and test their own
-          customer-side controls.
+          customer-side controls. A questionnaire is only self-attestation.
         src: 'CISSP 2027 outline 6.5 (location: cloud, hybrid); AICPA SOC 2; ISO/IEC 27001:2022'
 
       - c: kpi-kri
@@ -746,13 +746,13 @@ cases:
           - 'Offer a reward in exchange for her never publishing'
           - 'Tell her to publish now, since the fix is close'
           - 'Agree she publishes once the fix is out, with credit'
-          - 'Stop replying until she forgets about it'
+          - 'Ask her to wait for next year''s major release to publish'
         a: 2
         r:
           - 'Paying for permanent silence is a gag, not disclosure. She declines, and says so publicly.'
           - 'Publishing before the fix hands attackers a week''s head start on unpatched customers.'
           - 'The fix ships, the advisory credits her, and her write-up goes live a week later. Both sides look good.'
-          - 'She publishes on day 90, as the policy allowed, with a paragraph about the silence.'
+          - 'The fix ships next week, so there is no reason to wait. She publishes on day 90, with a paragraph about the stalling.'
         why: >-
           Responsible disclosure balances user safety and transparency: details are published after a fix is
           available, on an agreed timeline, crediting the finder. Publishing early helps attackers; demanding permanent
@@ -768,7 +768,7 @@ cases:
           Vulnerabilities catalog. A critical-rated flaw sits on an isolated test server.
         ask: 'Which finding should Rafa''s team fix FIRST?'
         o:
-          - 'The critical flaw on the isolated test server'
+          - 'The critical-severity flaw on the isolated internal test server'
           - 'The oldest finding in the queue'
           - 'The finding that is quickest to fix'
           - 'The actively exploited medium flaw on the portal'
@@ -842,9 +842,9 @@ cases:
         ask: 'What should Shifty do FIRST?'
         o:
           - 'Run it as a total surprise, as Dale suggests'
-          - 'Run real ransomware on a few servers to make it convincing'
+          - 'Run real ransomware on a few test servers, with backups ready, to make it convincing'
           - 'Get management approval, an agreed scope and a stop procedure'
-          - 'Cancel it, since simulations on production are never allowed'
+          - 'Cancel it, since attack simulations on production are never allowed'
         a: 2
         trap: 1
         r:

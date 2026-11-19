@@ -270,7 +270,7 @@ cases:
           Halvorsen's handling standard covers Confidential printouts. Dale offers to drop them off on his way home.
         ask: 'Which is the BEST way to send the reports?'
         o:
-          - 'Sealed, marked Confidential, by tracked courier with a signature'
+          - 'Sealed, marked Confidential, by signed-for tracked courier'
           - 'Dale drops them off on his way home, in a plain folder'
           - 'Scanned and emailed to the auditors'' general office inbox'
           - 'By ordinary post, which is cheaper and saves a little time'
@@ -331,7 +331,7 @@ cases:
           run is scheduled for next week.
         ask: 'What is the BEST action for the records about that customer?'
         o:
-          - 'Destroy them on schedule, since the policy says 7 years'
+          - 'Destroy them on schedule, since the retention policy says 7 years'
           - 'Destroy them early, before the lawsuit is filed'
           - 'Place them under legal hold and suspend their destruction'
           - 'Move them to a personal drive, outside the schedule'
@@ -379,13 +379,13 @@ cases:
           has borrowed a powerful degausser and plans to run every SSD through it before sending them for recycling.
         ask: 'Which statement BEST explains the problem with Tomás''s plan?'
         o:
-          - 'Degaussing is meant only for paper records'
+          - 'Degaussing must be followed by an overwrite to count as purge'
           - 'Degaussing is illegal for customer data'
           - 'Degaussing takes too long for 60 drives'
           - 'Degaussing does not reliably sanitize flash storage'
         a: 3
         r:
-          - 'Degaussers act on magnetic media, not paper. Paper is shredded or pulped.'
+          - 'On magnetic media, degaussing alone is a purge. On flash it does nothing, with or without an overwrite.'
           - 'No law bans degaussing. The issue is physics, not law.'
           - 'The degausser is quick. Quickly doing nothing to the data is still nothing.'
           - 'SSDs store data in flash cells, not magnetic domains. Tomás switches to a verified cryptographic erase, and destruction for the most sensitive drives.'
@@ -395,18 +395,19 @@ cases:
         src: 'NIST SP 800-88 Rev. 2; NIST SP 800-88r2 FAQ (2026), Q8 (degaussing) and Q9 (cryptographic erase)'
 
       - c: asset-ownership-inventory
-        kind: best
+        kind: first
         diff: 2
         text: >-
           Tomás Reyes wants to retire a storage array he thinks is unused. The asset inventory names Marcus Webb's
           finance team as its owner. Nobody has asked Marcus, and the array is still mounted on two servers.
-        ask: 'What is the BEST next step before retiring the array?'
+        ask: 'What should happen FIRST, before the array is retired?'
         o:
           - 'Retire it now, since Tomás manages all the storage hardware'
           - 'Unplug it for a week and wait to see who complains'
           - 'Get the owner''s approval and confirm its data is not needed'
           - 'Copy everything to a spare array first, then retire it'
         a: 2
+        trap: 3
         r:
           - 'The array held finance''s archive for the auditors. Marcus finds out when the auditors ask.'
           - 'The "scream test" works: finance screams on the last day of the quarter.'
@@ -414,7 +415,8 @@ cases:
           - 'An unowned copy on a spare array is a new asset nobody tracks. The problem has only moved.'
         why: >-
           The asset owner approves retirement after confirming the data has been migrated, retained as required, or
-          is no longer needed. The custodian then retires it, sanitizes the media and updates the inventory.
+          is no longer needed. The custodian then retires it, sanitizes the media and updates the inventory. Copying
+          it first is the engineer answer: a new, unowned copy.
         src: 'CISSP 2027 outline 2.3 and 2.5 (asset retirement); ISO/IEC 27002:2022, control 5.9'
 
       - c: data-lifecycle
@@ -579,6 +581,7 @@ cases:
           - 'Ask the leasing company to clear the job list'
           - 'Sanitize or keep the internal drives, as the lease allows'
         a: 3
+        trap: 1
         r:
           - 'A copier with a drive is a computer with a paper tray. The next customer could recover driver contracts.'
           - 'One test page overwrites almost nothing. Thousands of scanned pages remain.'
@@ -701,7 +704,7 @@ cases:
           - 'Ask the provider to shred the physical disks'
           - 'Delete the volume and destroy its keys, keeping records'
           - 'Overwrite the volume three times, then delete it'
-          - 'Delete the volume and let the provider handle the rest'
+          - 'Delete the volume and rely on the provider''s own disposal process'
         a: 1
         r:
           - 'The disks are shared with other customers, and the provider will not shred them for one volume.'
@@ -820,14 +823,14 @@ cases:
         ask: 'What is the BEST way to handle the 200 scanners still in use?'
         o:
           - 'Keep using them normally until they break'
-          - 'Isolate them and plan their retirement under the asset policy'
-          - 'Sell them off at the next garage sale'
+          - 'Isolate them and schedule their retirement'
+          - 'Keep them as they are, since EOS only stops new sales'
           - 'Replace them all tonight with staff''s personal phones'
         a: 1
         r:
           - 'An unpatched device in daily use is a door that only gets wider. The next scanner exploit finds them.'
           - 'The scanners move to a restricted network segment, and the replacement plan gets dates and an owner.'
-          - 'Selling them unsanitized is exactly how this case started.'
+          - 'That is end of life (EOL). End of support means no more patches, and these scanners are past it.'
           - 'Personal phones are unmanaged devices with their own problems. Rushing is not planning.'
         why: >-
           Assets past EOS no longer get fixes, so they need compensating controls until they are retired under the

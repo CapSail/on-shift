@@ -34,7 +34,11 @@ for (const dom of meta.domains) {
     const file = `${DIR}/${f}`;
     let doc: { concepts?: Concept[]; cases?: Case[] };
     try { doc = parse(readFileSync(file, 'utf8')) ?? {}; } catch (e) { err(`${file}: invalid YAML: ${(e as Error).message}`); continue; }
-    for (const c of doc.concepts ?? []) concepts.push({ ...c, obj: String(c.obj), d: dom.n });
+    for (const c of doc.concepts ?? []) {
+      // an unquoted obj: 3.10 parses as the number 3.1 and would silently land on the wrong objective
+      if (typeof c.obj !== 'string') err(`${file}: concept ${c.id ?? '?'}: obj must be a quoted string ('${c.obj}'), not a number`);
+      concepts.push({ ...c, obj: String(c.obj), d: dom.n });
+    }
     for (const k of doc.cases ?? []) cases.push({ ...k, d: dom.n });
   }
 }
@@ -93,7 +97,8 @@ for (const k of cases) {
     const ask = String(s.ask ?? '');
     if (s.kind === 'first' && !/\bFIRST\b/.test(ask)) err(`${sat}: a 'first' scene must ask what to do FIRST (in capitals)`);
     if (s.kind === 'best' && !/\b(BEST|MOST|LEAST|PRIMARY|GREATEST|MAIN)\b/.test(ask)) err(`${sat}: a 'best' scene must ask for the BEST/MOST/LEAST/PRIMARY option (in capitals)`);
-    if (s.kind !== 'first' && /\bFIRST\b/.test(ask) && s.kind !== 'rank') warn(`${sat}: asks FIRST but kind is '${s.kind}'`);
+    if (s.kind !== 'first' && /\bFIRST\b/.test(ask) && s.kind !== 'rank') err(`${sat}: asks FIRST but kind is '${s.kind}' (make it a 'first' scene)`);
+    if (s.trap !== undefined && !['first', 'best', 'calc'].includes(s.kind)) err(`${sat}: only first/best scenes have a trap`);
 
     const opts = () => {
       if (!Array.isArray(s.o) || s.o.length !== 4 || !s.o.every(isStr)) { err(`${sat}: needs exactly 4 options`); return false; }

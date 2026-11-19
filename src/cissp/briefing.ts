@@ -3,7 +3,7 @@ import { C, CASES, CONCEPTS, DOMAINS, conceptById } from './content';
 import { S, save } from './state';
 import { engineerRate, readiness, strength, weakest } from './srs';
 import { startCase, startDrill } from './play';
-import { app, go } from '../engine/ui';
+import { app, go, setLeaving } from '../engine/ui';
 import { shiftyHtml } from '../engine/shifty-live';
 import { today, DAY } from './time';
 import { $, $$, esc } from '../engine/util';
@@ -52,7 +52,8 @@ function lesson(cid: string): void {
 ${c.ghost ? `<p class="note ghostline">👻 ${esc(c.ghost)}</p>` : ''}<p class="srcline">Source: ${esc(c.src)}</p>
 <button class="next" id="md">Drill this concept</button><button class="next ghost" id="mx">Close</button></div>`;
   document.body.appendChild(m);
-  const close = () => m.remove();
+  const close = () => { m.remove(); setLeaving(null); };
+  setLeaving(close); // browser back closes the card too (it lives on <body>, outside the screen it covers)
   m.onclick = (e) => { if (e.target === m) close(); };
   (m.querySelector('#mx') as HTMLElement).onclick = close;
   (m.querySelector('#md') as HTMLElement).onclick = () => { close(); go(() => startDrill([cid])); };
