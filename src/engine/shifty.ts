@@ -3,7 +3,7 @@
 // Pure TypeScript with no DOM access, so the icon script can import it too. (Animation lives in shifty-live.ts.)
 
 export type Pose = 'dead' | 'happy' | 'shock' | 'sleepy' | 'cheer';
-export type HatId = '' | 'beanie' | 'cap' | 'sunglasses' | 'party' | 'halo' | 'crown' | 'grad';
+export type HatId = '' | 'beanie' | 'cap' | 'sunglasses' | 'party' | 'halo' | 'crown' | 'grad' | 'tophat';
 
 /** One animation frame. Everything is optional; the defaults are Shifty at rest. */
 export interface Look {
@@ -42,13 +42,14 @@ const HAT_PIXELS: Record<string, { x: number; rows: string[]; lift?: number }> =
   party: { x: 7, rows: ['..rr..', '..oo..', '.oyyo.', '.opyo.', 'oyypyo'] },
   crown: { x: 6, rows: ['y.y..y.y', 'yyyyyyyy', 'yrycyyry'] },
   grad: { x: 4, rows: ['.....oo.....', '...ovvvvo...', 'ovvvvvvvvvvo', '..ovvvvvvoyo', '..ovvvvvvo.y', '..oooooooo.y'] },
+  tophat: { x: 6, rows: ['.oooooo.', '.ovvvvo.', '.ovvvvo.', '.oyyyyo.', 'oooooooo'] },
   halo: { x: 6, rows: ['..cccc..', '.c....c.', '..cccc..'], lift: 1 },
   cap: { x: 5, rows: ['..oooo....', '.obbbbo...', 'obbbbbboo.', 'ooooooooo.'] },
   beanie: { x: 6, rows: ['...ww...', '..gggg..', '.gggggg.', 'oooooooo'] },
 };
 
 export const HAT_NAMES: Record<Exclude<HatId, ''>, string> = {
-  beanie: 'Night-shift beanie', cap: 'Lucky cap', sunglasses: 'Deal-with-it shades', party: 'Party hat', halo: 'Halo', crown: 'Boss crown', grad: 'Graduation cap',
+  beanie: 'Night-shift beanie', cap: 'Lucky cap', sunglasses: 'Deal-with-it shades', party: 'Party hat', halo: 'Halo', crown: 'Boss crown', grad: 'Graduation cap', tophat: 'Boardroom top hat',
 };
 
 /** The pixel grid for a look: rows of colour letters, ' ' = transparent. */
@@ -119,7 +120,7 @@ export function shiftyGrid(look: Look = {}): string[] {
 }
 
 /** Hats that need the extra rows above the head. */
-const TALL: HatId[] = ['party', 'crown', 'halo', 'cap', 'beanie', 'grad'];
+const TALL: HatId[] = ['party', 'crown', 'halo', 'cap', 'beanie', 'grad', 'tophat'];
 
 /** The hat everyone wears right now (set from the save by the app; the icon script leaves it empty). */
 let equipped: HatId = '';

@@ -1,0 +1,2010 @@
+# Domain 3: Security Architecture and Engineering (12.8%)
+# Format and rules: docs/cissp/DESIGN.md and docs/cissp/AUTHORING.md. Ids are stable forever.
+# Facts and sources checked: docs/cissp/sources-d3-d4-d8.md
+
+concepts:
+  # ---------------------------------------------------------------- 3.1 secure design principles
+  - id: fail-secure-defaults
+    obj: '3.1'
+    name: 'Secure defaults and failing securely'
+    rule: 'Ship locked down; when a control breaks, deny access rather than open up.'
+    learn:
+      - 'Secure defaults: systems arrive with the safest settings on (default passwords changed, unneeded services off); people loosen them only by deliberate choice.'
+      - 'Fail securely (fail closed): if a security control fails or errors, it denies access and protects data instead of letting everything through.'
+      - 'Where human life is at stake, physical design fails safe: emergency exit doors unlock in a fire. People come first, always.'
+    ghost: 'Shifty failed once, permanently. He would like the portal to fail more gracefully than he did.'
+    src: 'CISSP 2027 outline 3.1 (secure defaults, fail securely); NIST SP 800-160 Vol. 1 Rev. 1 (security design principles); ISC2 OSG (Sybex) ch. 8 and 10'
+
+  - id: defense-in-depth
+    obj: '3.1'
+    name: 'Defense in depth and keep it simple'
+    rule: 'Layer independent controls, give least privilege, and keep each piece small enough to verify.'
+    learn:
+      - 'Defense in depth: several layers of different controls (physical, technical, administrative) so one failure does not expose the asset.'
+      - 'Least privilege: each user, process and service gets only the access it needs, for only as long as it needs it.'
+      - 'Keep it simple and small: less code and fewer features mean less attack surface and designs that can actually be checked.'
+    ghost: 'A ghost walks through one wall easily. Five different walls, an alarm and a guard dog make even Shifty reconsider.'
+    src: 'CISSP 2027 outline 3.1 (PoLP, DiD, keep it simple and small); NIST SP 800-160 Vol. 1 Rev. 1 (security design principles); ISC2 OSG ch. 8'
+
+  - id: two-person-integrity
+    obj: '3.1'
+    name: 'SoD, two-person integrity, rotation'
+    rule: 'SoD splits a task; two-person integrity needs two people acting together; rotation moves people.'
+    learn:
+      - 'Separation of duties: a sensitive process is divided so no single person can complete it alone (one creates the vendor, another approves payment).'
+      - 'Two-person integrity (dual control): two authorized people must take part in the same action at the same time, such as opening a key safe.'
+      - 'Rotation of duties: people periodically move between jobs, which exposes fraud that needs constant upkeep and builds backup skills.'
+    ghost: 'Shifty cannot turn a key at all, so he is the ideal third person: the one who watches the other two.'
+    src: 'CISSP 2027 outline 3.1 (SoD, two-person integrity, rotation of duties); NIST SP 800-53 Rev. 5, AC-5 and AC-3(2); ISC2 OSG ch. 16'
+
+  - id: zero-trust
+    obj: '3.1'
+    name: 'Zero Trust architecture'
+    rule: 'Never trust by network location; verify every request, per session, against policy.'
+    learn:
+      - 'NIST SP 800-207: no implicit trust from being on the internal network; every access to a resource is authenticated and authorized per session.'
+      - 'The policy decision point (policy engine plus policy administrator) decides; the policy enforcement point sits in the data path and carries out the decision.'
+      - 'Decisions use identity, device health and other signals, and least-privilege access limits how far an attacker can move laterally.'
+    ghost: 'Shifty is technically inside every room at once. Zero Trust is the first architecture that is not impressed.'
+    src: 'NIST SP 800-207, sec. 2.1 (tenets) and sec. 3 (logical components)'
+
+  - id: sase
+    obj: '3.1'
+    name: 'Secure Access Service Edge (SASE)'
+    rule: 'SASE combines SD-WAN with cloud-delivered security services, applied close to each user.'
+    learn:
+      - 'SASE converges wide-area networking (SD-WAN) with security services such as secure web gateway, CASB, ZTNA and firewall as a service.'
+      - 'Policy is enforced at cloud points of presence near users and branches, instead of hauling all traffic back to a headquarters firewall.'
+      - 'It suits remote workers and SaaS-heavy companies. It is an architecture delivered as a service, not a single box you install.'
+    src: 'NIST SP 800-215, Guide to a Secure Enterprise Network Landscape (SASE); CISSP 2027 outline 3.1'
+
+  - id: shared-responsibility
+    obj: '3.1'
+    name: 'Shared responsibility, well-architected'
+    rule: 'The provider secures the cloud; the customer secures what it puts in it.'
+    learn:
+      - 'IaaS: the provider runs facilities, hardware and hypervisor; the customer patches the guest OS, sets network rules and manages identities and data.'
+      - 'PaaS, SaaS and serverless shift more work to the provider, but the customer always keeps its data, identities and access decisions.'
+      - 'A well-architected framework review checks a workload against best-practice pillars such as security, reliability, performance and cost.'
+    src: 'NIST SP 800-145 (cloud service models); CISSP 2027 outline 3.1 (shared responsibility, well-architected framework); AWS Well-Architected Framework'
+
+  - id: privacy-by-design
+    obj: '3.1'
+    name: 'Privacy by design and PETs'
+    rule: 'Build privacy in from the start: collect less, protect by default.'
+    learn:
+      - 'Privacy by design embeds privacy into requirements and architecture; GDPR Art. 25 calls it data protection by design and by default.'
+      - 'Privacy-enhancing technologies (PETs) include differential privacy, homomorphic encryption, secure multiparty computation, pseudonymization and tokenization.'
+      - 'Differential privacy adds calibrated noise to results, so statistics stay useful while no single person''s record can be singled out.'
+    ghost: 'The best-protected data is the data you never collected. Shifty, who owns nothing, finds this easy.'
+    src: 'GDPR Art. 5(1)(c) and Art. 25; NIST SP 800-226 (Guidelines for Evaluating Differential Privacy Guarantees); CISSP 2027 outline 3.1'
+
+  # ---------------------------------------------------------------- 3.2 security models
+  - id: bell-lapadula
+    obj: '3.2'
+    name: 'Bell-LaPadula (confidentiality)'
+    rule: 'No read up, no write down: secrets cannot leak to lower levels.'
+    learn:
+      - 'Simple security property: a subject may not read an object at a higher classification (no read up).'
+      - 'Star (*) property: a subject may not write to an object at a lower classification (no write down), so secrets cannot leak downward.'
+      - 'Strong star property: read and write only at your own level. The model protects confidentiality only, not integrity.'
+    src: 'Bell and LaPadula, Secure Computer Systems: Unified Exposition and Multics Interpretation (MITRE, 1976); ISC2 OSG ch. 8'
+
+  - id: biba
+    obj: '3.2'
+    name: 'Biba (integrity)'
+    rule: 'No read down, no write up: dirty data stays out of clean data.'
+    learn:
+      - 'Simple integrity property: a subject may not read an object at a lower integrity level (no read down).'
+      - 'Star (*) integrity property: a subject may not write to an object at a higher integrity level (no write up).'
+      - 'Biba is Bell-LaPadula flipped for integrity. It protects data from corruption, not from disclosure.'
+    ghost: 'Shifty remembers it as: Bell-LaPadula keeps secrets from falling down; Biba keeps mud from climbing up.'
+    src: 'K. J. Biba, Integrity Considerations for Secure Computer Systems (MITRE, 1977); ISC2 OSG ch. 8'
+
+  - id: clark-wilson
+    obj: '3.2'
+    name: 'Clark-Wilson (commercial integrity)'
+    rule: 'Users change protected data only through certified programs, with duties separated.'
+    learn:
+      - 'Constrained data items (CDIs) may only be changed by transformation procedures (TPs), the well-formed transactions. Users never edit CDIs directly.'
+      - 'The access triple (user, program, data item) binds who may run which TP on which CDI, building in separation of duties.'
+      - 'Integrity verification procedures (IVPs) check CDIs are valid; unconstrained data items (UDIs), like raw input, must pass through a TP first.'
+    src: 'Clark and Wilson, A Comparison of Commercial and Military Computer Security Policies (IEEE S&P, 1987); ISC2 OSG ch. 8'
+
+  - id: brewer-nash
+    obj: '3.2'
+    name: 'Brewer-Nash (Chinese Wall)'
+    rule: 'Once you access one company in a conflict class, its competitors are walled off.'
+    learn:
+      - 'Data is grouped into company datasets, and competing companies sit together in the same conflict-of-interest class.'
+      - 'Access changes dynamically: after a user reads one company''s data, the system blocks that user from its competitors in the same class.'
+      - 'Datasets in other conflict classes stay open. The model is built for consultancies, auditors and banks that serve rivals.'
+    src: 'Brewer and Nash, The Chinese Wall Security Policy (IEEE S&P, 1989); ISC2 OSG ch. 8'
+
+  # ---------------------------------------------------------------- 3.3 to 3.4
+  - id: control-selection
+    obj: '3.3'
+    name: 'Selecting controls from requirements'
+    rule: 'Categorize the system, then select, tailor and assess controls against its requirements.'
+    learn:
+      - 'NIST RMF order: Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor. Categorization (FIPS 199 impact) drives the control baseline.'
+      - 'Baselines (NIST SP 800-53B) are tailored to the system: scope out what does not apply, add compensating controls where needed.'
+      - 'Common Criteria (ISO/IEC 15408) evaluates products: a protection profile states needs, and the EAL (1 to 7) shows evaluation rigor, not strength.'
+    ghost: 'Shifty cannot buy controls with his hands, so he buys them with requirements. It works better anyway.'
+    src: 'NIST SP 800-37 Rev. 2 (RMF steps); FIPS 199; NIST SP 800-53B; ISO/IEC 15408 (Common Criteria)'
+
+  - id: tpm-hsm
+    obj: '3.4'
+    name: 'TPM vs HSM'
+    rule: 'TPM: a chip protecting one device. HSM: hardened hardware doing crypto at scale.'
+    learn:
+      - 'A Trusted Platform Module is a chip in one computer: it stores keys, measures boot into PCRs and seals secrets, such as disk keys, to that device.'
+      - 'A Hardware Security Module is a tamper-resistant appliance or card that generates, stores and uses keys for many systems, such as CA or payment keys.'
+      - 'Keys used inside either never leave in plaintext. For HSMs, look for FIPS 140-3 validation at the level the risk needs.'
+    src: 'TCG TPM 2.0 Library Specification (ISO/IEC 11889); FIPS 140-3; NIST SP 800-57 Part 1 Rev. 5'
+
+  - id: memory-protection
+    obj: '3.4'
+    name: 'Memory protection and the TCB'
+    rule: 'Isolate processes and mediate every access through a small, tamper-proof reference monitor.'
+    learn:
+      - 'Memory protection and process isolation give each process its own address space; protection rings keep user code out of the kernel (ring 0).'
+      - 'The reference monitor mediates every access, is tamper-proof and small enough to verify; the security kernel implements it inside the TCB.'
+      - 'Data Execution Prevention and address space layout randomization (ASLR) make memory-corruption exploits such as buffer overflows much harder.'
+    src: 'J. P. Anderson, Computer Security Technology Planning Study (ESD-TR-73-51, 1972); ISC2 OSG ch. 8 and 9'
+
+  # ---------------------------------------------------------------- 3.5 vulnerabilities of architectures
+  - id: db-inference
+    obj: '3.5'
+    name: 'Aggregation and inference'
+    rule: 'Harmless pieces can combine into secrets; control what data and queries reveal.'
+    learn:
+      - 'Aggregation: combining many lower-sensitivity items produces a collection more sensitive than any single item.'
+      - 'Inference: deducing a sensitive fact from data you are allowed to see, such as a small count that points at one patient.'
+      - 'Countermeasures include polyinstantiation, cell suppression, minimum result sizes, added noise and context-dependent access control.'
+    src: 'ISC2 OSG ch. 9 (database security: aggregation, inference, polyinstantiation)'
+
+  - id: ot-ics
+    obj: '3.5'
+    name: 'OT and industrial control systems'
+    rule: 'In OT, safety and availability come first; test before you touch.'
+    learn:
+      - 'OT and ICS (PLCs, SCADA, HMIs) control physical processes; a bad change can hurt people or stop production, so safety leads.'
+      - 'Active scans and untested patches can crash fragile controllers: coordinate with OT engineers, test first, and use maintenance windows.'
+      - 'Separate IT and OT with a DMZ and controlled conduits; remote vendor access goes through a monitored jump host, never straight in.'
+    ghost: 'Shifty knows better than anyone that some failures cannot be rolled back.'
+    src: 'NIST SP 800-82 Rev. 3, Guide to Operational Technology (OT) Security; ISA/IEC 62443 (zones and conduits)'
+
+  - id: cloud-containers
+    obj: '3.5'
+    name: 'Cloud, serverless and containers'
+    rule: 'In cloud and containers, identity and configuration are the new perimeter.'
+    learn:
+      - 'Serverless (FaaS): the provider runs the servers, but each function''s permissions, code, secrets and event inputs are the customer''s to secure.'
+      - 'Containers share the host kernel: run them as non-root, from minimal signed images, without host mounts, so one escape does not own the host.'
+      - 'Virtualized systems add VM escape and sprawl risks; misconfiguration and over-broad permissions are among the most common cloud failures.'
+    src: 'NIST SP 800-190 (Application Container Security Guide); NIST SP 800-145; NIST SP 800-125 (full virtualization security)'
+
+  - id: iot-autonomous
+    obj: '3.5'
+    name: 'IoT, embedded and autonomous systems'
+    rule: 'Smart devices need segmentation, trusted firmware and safe failure modes.'
+    learn:
+      - 'IoT and embedded devices often ship with default credentials and rare updates: change defaults, segment them, and require signed firmware.'
+      - 'Supply chain risk: counterfeit or tampered components and firmware. Buy through authorized channels and verify with a hardware root of trust.'
+      - 'Autonomous systems act in the physical world: design them to fail safe (stop and alert) when sensors, links or inputs cannot be trusted.'
+    src: 'NIST IR 8259A (IoT device cybersecurity capability core baseline); NIST SP 800-161 Rev. 1 (C-SCRM); CISSP 2027 outline 3.5'
+
+  # ---------------------------------------------------------------- 3.6 cryptographic solutions
+  - id: crypto-methods
+    obj: '3.6'
+    name: 'Symmetric, asymmetric and ECC'
+    rule: 'Symmetric is fast but needs n(n-1)/2 keys; asymmetric needs 2n.'
+    learn:
+      - 'Symmetric (AES): one shared secret key, fast for bulk data, but every pair needs its own key: n(n-1)/2 keys for n parties.'
+      - 'Asymmetric (RSA, ECC): each party has a public and private key, so n parties need 2n keys; slower, used for key exchange and signatures.'
+      - 'Hybrid systems such as TLS use asymmetric crypto to agree a symmetric session key. ECC matches RSA strength with far shorter keys.'
+    src: 'FIPS 197 (AES); NIST SP 800-57 Part 1 Rev. 5, sec. 5.6.1.1, Table 2; ISC2 OSG ch. 6 and 7'
+
+  - id: pki-signatures
+    obj: '3.6'
+    name: 'PKI, certificates and signatures'
+    rule: 'Sign with your private key; anyone verifies with your public key.'
+    learn:
+      - 'A digital signature is a hash signed with the sender''s private key: it gives integrity, authenticity and non-repudiation, not confidentiality.'
+      - 'An X.509 certificate binds a public key to an identity and is signed by a CA; trust chains from the root CA through intermediate CAs.'
+      - 'Keep the root CA offline; revoke compromised certificates and publish their status by CRL or OCSP.'
+    src: 'FIPS 186-5 (Digital Signature Standard); RFC 5280 (X.509 certificates and CRLs); RFC 6960 (OCSP)'
+
+  - id: key-management
+    obj: '3.6'
+    name: 'Key management practices'
+    rule: 'Protect keys more than data: generate, store, rotate, revoke and destroy them deliberately.'
+    learn:
+      - 'Keys have a life cycle: generation, distribution, storage, use, rotation at the end of a cryptoperiod, revocation, archival and destruction.'
+      - 'Store keys apart from the data they protect, in a key vault or HSM, with least-privilege access and logging. Back them up separately.'
+      - 'Rotate on a schedule and at once on suspected compromise; split knowledge and dual control protect the most critical keys.'
+    src: 'NIST SP 800-57 Part 1 Rev. 5, sec. 5.3 (cryptoperiods), sec. 5.5 (compromise) and sec. 6 (protection requirements)'
+
+  - id: post-quantum
+    obj: '3.6'
+    name: 'Quantum risk and post-quantum crypto'
+    rule: 'Quantum threatens RSA and ECC; plan migration to FIPS 203, 204 and 205.'
+    learn:
+      - 'Shor''s algorithm on a large quantum computer would break RSA, Diffie-Hellman and ECC; Grover''s only weakens symmetric keys, so AES-256 stays strong.'
+      - 'NIST post-quantum standards (2024): FIPS 203 ML-KEM for key establishment; FIPS 204 ML-DSA and FIPS 205 SLH-DSA for signatures.'
+      - 'Harvest now, decrypt later: long-lived secrets are at risk today, so inventory your crypto and plan migration (crypto agility).'
+    ghost: 'Shifty exists in two states at once (dead and employed), yet still cannot factor RSA. Encouraging.'
+    src: 'NIST FIPS 203, FIPS 204, FIPS 205 (August 2024); NIST IR 8547 (Transition to Post-Quantum Cryptography Standards)'
+
+  # ---------------------------------------------------------------- 3.7 attacks
+  - id: cryptanalysis
+    obj: '3.7'
+    name: 'Cryptanalytic attacks'
+    rule: 'Name the attack by what the attacker holds or can measure.'
+    learn:
+      - 'Ciphertext-only: attacker has only ciphertext. Known plaintext: has some plaintext with its ciphertext. Chosen ciphertext: can get chosen ciphertexts decrypted.'
+      - 'Brute force tries every key, and each added key bit doubles the work. Frequency analysis breaks simple substitution by counting symbols.'
+      - 'Implementation attacks target the device or code: side channels (timing, power, emissions) and fault injection (glitching voltage or clock).'
+    src: 'ISC2 OSG ch. 7 (cryptanalytic attacks); CISSP 2027 outline 3.7'
+
+  - id: identity-attacks
+    obj: '3.7'
+    name: 'AitM, pass the hash, Kerberos'
+    rule: 'Attackers steal and replay credentials and tickets instead of cracking passwords.'
+    learn:
+      - 'Adversary-in-the-Middle sits between two parties to read or alter traffic; phishing proxies steal session cookies and defeat code-based MFA.'
+      - 'Pass the hash reuses a captured NTLM password hash to authenticate without ever knowing the password.'
+      - 'Kerberos exploitation: Kerberoasting cracks service tickets offline; a golden ticket is a TGT forged with the KRBTGT hash; a silver ticket forges one service.'
+    src: 'MITRE ATT&CK T1557 (Adversary-in-the-Middle), T1550.002 (Pass the Hash), T1558 (Steal or Forge Kerberos Tickets)'
+
+  - id: ransomware-zero-day
+    obj: '3.7'
+    name: 'Ransomware and zero-day attacks'
+    rule: 'Contain fast, recover from protected backups, mitigate when no patch exists.'
+    learn:
+      - 'Ransomware encrypts, and often steals, data for extortion. Isolate infected systems first, as the incident response plan says.'
+      - 'Offline or immutable, tested backups, with their keys stored separately, are the recovery path; paying guarantees nothing and may breach sanctions.'
+      - 'A zero-day is a flaw exploited before a fix exists: apply vendor mitigations, reduce exposure, segment and monitor until a patch ships.'
+    src: 'CISA #StopRansomware Guide; NIST SP 800-40 Rev. 4 (risk responses when no patch exists); CISSP 2027 outline 3.7'
+
+  - id: ai-threats
+    obj: '3.7'
+    name: 'AI threats'
+    rule: 'Poison AI at training, evade it at use, or use AI to deceive people.'
+    learn:
+      - 'Poisoning corrupts training data or the model so it learns wrong behavior or a hidden backdoor; protect data provenance and integrity.'
+      - 'Evasion feeds crafted inputs to a trained model so it misclassifies; privacy attacks pull training data or membership back out.'
+      - 'Deepfakes clone voices and faces for fraud; defend with out-of-band verification and process controls, not by trusting what you see.'
+    ghost: 'Shifty is the only executive at Halvorsen who is easy to tell from his deepfake. The deepfake has a reflection.'
+    src: 'NIST AI 100-2 (Adversarial Machine Learning: A Taxonomy and Terminology of Attacks and Mitigations); CISSP 2027 outline 3.7'
+
+  # ---------------------------------------------------------------- 3.8 to 3.10
+  - id: cpted-site
+    obj: '3.8'
+    name: 'Site design and CPTED'
+    rule: 'Design the site so it naturally guides, watches and claims its space.'
+    learn:
+      - 'CPTED (Crime Prevention Through Environmental Design) uses natural access control, natural surveillance and territorial reinforcement.'
+      - 'Access control guides people with paths, landscaping and layout; surveillance keeps areas visible; territorial reinforcement marks space as owned.'
+      - 'Facility security starts at site selection: crime, disaster and utility risk, with critical rooms deep inside the building.'
+    src: 'ISC2 OSG ch. 10 (site and facility design, CPTED); Timothy D. Crowe, Crime Prevention Through Environmental Design'
+
+  - id: fire-suppression
+    obj: '3.9'
+    name: 'Fire detection and suppression'
+    rule: 'Match suppression to the fire class; preaction sprinklers suit data centers.'
+    learn:
+      - 'US classes (NFPA 10): A ordinary combustibles, B flammable liquids and gases, C energized electrical, D combustible metals, K cooking oils.'
+      - 'Sprinklers: wet pipe (always full), dry pipe (air until a head opens), deluge (all heads open), preaction (detection first, then heat).'
+      - 'Clean agents such as FM-200 spare equipment; CO2 removes oxygen and can kill, so people evacuate first. Life safety always comes first.'
+    src: 'NFPA 10 (fire classes); NFPA 13 (sprinkler systems); ISC2 OSG ch. 10'
+
+  - id: facility-controls
+    obj: '3.9'
+    name: 'Power, HVAC and secure rooms'
+    rule: 'Protect rooms, power and climate; critical spaces get layered access and logging.'
+    learn:
+      - 'Power: fault and blackout (loss), sag and brownout (low voltage), spike and surge (high voltage). A UPS bridges short gaps; generators cover long ones.'
+      - 'Server rooms: interior, windowless, dedicated HVAC with positive pressure and humidity control, water detection, badge access with audit logs.'
+      - 'Wiring closets, media stores and evidence rooms stay locked and logged; evidence storage must preserve the chain of custody.'
+    src: 'ISC2 OSG ch. 10 (power, HVAC, server rooms, evidence storage); CISSP 2027 outline 3.9'
+
+  - id: system-lifecycle
+    obj: '3.10'
+    name: 'Information system lifecycle'
+    rule: 'Security belongs in every phase, from stakeholder needs to secure disposal.'
+    learn:
+      - 'Phases: stakeholder needs, requirements analysis, architectural design, development, integration, verification and validation, transition, operations and maintenance, retirement.'
+      - 'Continuous security review: reassess as threats, changes and findings arrive; an authorization or test passed once does not stay valid forever.'
+      - 'Retirement means secure disposal: sanitize media by clear, purge or destroy (NIST SP 800-88) and record it.'
+    ghost: 'Shifty has personally completed the retirement phase. He recommends doing it more carefully than he did.'
+    src: 'CISSP 2027 outline 3.10; ISO/IEC/IEEE 15288 (system life cycle processes); NIST SP 800-160 Vol. 1 Rev. 1; NIST SP 800-88 Rev. 2'
+
+cases:
+  # ======================================================================== k3-01
+  - id: k3-01
+    title: 'Blueprints for a haunted portal'
+    where: 'Halvorsen Labs, 3rd floor · Tuesday 10:00'
+    diff: 1
+    open: >-
+      Halvorsen Labs is rebuilding the customer portal that was breached in the spring. Rafa Lind, lead developer,
+      unrolls the architecture diagrams across a table Shifty can't lean on. Dale has already named the project
+      "Portal 2: Electric Boogaloo". The board wants it secure by design this time, and Shifty wants to prove that
+      a ghost can read a blueprint.
+    scenes:
+      - c: fail-secure-defaults
+        kind: best
+        text: >-
+          Rafa Lind explains Halvorsen Freight's new customer portal: every page asks a central authorization
+          service whether the user may see a shipment. In load tests that service sometimes times out. The
+          developers ask how the portal should behave when the authorization check gets no answer.
+        ask: 'What is the BEST behavior when the authorization service does not respond?'
+        o:
+          - 'Deny the request and show an error until the service answers'
+          - 'Allow the request if the user logged in successfully earlier'
+          - 'Allow read-only access to shipments until the service recovers'
+          - 'Retry silently in a loop so the user never notices a problem'
+        a: 0
+        r:
+          - 'A few customers see "try again in a minute". Nobody sees anyone else''s shipments. Rafa writes FAIL CLOSED on the whiteboard in letters a ghost could read.'
+          - 'During the next outage, any logged-in customer can open any shipment. A competitor reads a rival''s delivery schedule for an afternoon.'
+          - '"Read-only" turns out to include every customer''s addresses and invoices. Confidentiality fails just as hard in read-only mode.'
+          - 'Threads pile up, the portal freezes for everyone, and nothing gets logged. Availability gone, problem hidden.'
+        why: >-
+          Fail securely (fail closed): when a security control cannot decide, deny access. Falling back to "allow"
+          because the user logged in earlier, or to read-only, turns a control outage into a data breach.
+        src: 'CISSP 2027 outline 3.1 (fail securely); NIST SP 800-160 Vol. 1 Rev. 1 (security design principles); ISC2 OSG ch. 8'
+
+      - c: defense-in-depth
+        kind: best
+        text: >-
+          Dale reviews Halvorsen Freight's new portal design and asks to cut database encryption and the web
+          application firewall from the budget. "We already have a perimeter firewall," he says. "That's one wall.
+          Why pay for more walls?"
+        ask: 'Which principle BEST answers Dale?'
+        o:
+          - 'Security through obscurity: hide the database so attackers cannot find it'
+          - 'Keep it simple: fewer controls always mean a more secure design'
+          - 'Defense in depth: independent layers, so one failure does not expose data'
+          - 'Fail securely: the perimeter firewall blocks all traffic if it crashes'
+        a: 2
+        r:
+          - 'The database is "hidden" on port 54321. An attacker''s scanner finds it in four seconds. Dale asks if four seconds is good.'
+          - 'Rafa points out that keep it simple means simple designs, not missing layers. Dale writes "simple = cheap" in his notebook anyway.'
+          - 'The board keeps the WAF and the encryption. When a firewall rule is later misconfigured, the data is still encrypted. Dale calls it "lucky". Shifty calls it design.'
+          - 'True, but beside the point: a firewall that fails closed still lets through the traffic it was told to allow.'
+        why: >-
+          Defense in depth layers different controls, so an attacker who gets past one (say, through a port the
+          firewall must allow) still meets the WAF and encryption. Keep it simple means simple designs, not
+          removing needed layers.
+        src: 'CISSP 2027 outline 3.1 (DiD, keep it simple and small); ISC2 OSG ch. 8'
+
+      - c: two-person-integrity
+        kind: sort
+        diff: 2
+        text: >-
+          The board asks Shifty how Halvorsen Freight will stop a single insider from repeating last spring's
+          breach. Tomás Reyes, IT Director, lists the controls already planned. Shifty sorts them by the principle
+          each one applies, so the board can see the gaps.
+        ask: 'Sort each control: separation of duties, two-person integrity, or rotation of duties?'
+        bins: ['Separation of duties', 'Two-person integrity', 'Rotation of duties']
+        pairs:
+          - ['The clerk who adds a vendor cannot approve payments to it', 0]
+          - ['Developers write code; a separate release team deploys it', 0]
+          - ['Two named admins must both be present to open the key safe', 1]
+          - ['Root key changes need two admins approving the same session', 1]
+          - ['Payroll clerks move to accounts payable every six months', 2]
+          - ['SOC analysts cover a different team''s duties each quarter', 2]
+        why: >-
+          Separation of duties splits one process across different people. Two-person integrity needs two
+          authorized people acting together on the same action. Rotation of duties moves people between jobs,
+          exposing fraud that needs constant upkeep.
+        src: 'CISSP 2027 outline 3.1; NIST SP 800-53 Rev. 5, AC-5 (separation of duties) and AC-3(2) (dual authorization); ISC2 OSG ch. 16'
+
+      - c: zero-trust
+        kind: spot
+        diff: 2
+        text: >-
+          Rafa Lind draws the Zero Trust design for Halvorsen Labs' route-planning API, following NIST SP 800-207.
+          A driver's phone asks for today's route. One component weighs identity, device health and threat intel,
+          then decides grant or deny. Another component sits in the traffic path and carries the decision out.
+        ask: 'Tap the component that makes the access decision.'
+        map:
+          nodes:
+            - { id: idp, label: 'Identity provider', x: 2, y: 6 }
+            - { id: mdm, label: 'Device health (MDM)', x: 27, y: 6 }
+            - { id: intel, label: 'Threat intel feed', x: 52, y: 6 }
+            - { id: siem, label: 'SIEM activity logs', x: 77, y: 6 }
+            - { id: pdp, label: 'Policy decision point', x: 39, y: 40 }
+            - { id: phone, label: 'Driver phone', x: 2, y: 74 }
+            - { id: pep, label: 'Policy enforcement pt', x: 39, y: 74 }
+            - { id: api, label: 'Route API', x: 76, y: 74 }
+          links: [[pdp, idp], [pdp, mdm], [pdp, intel], [pdp, siem], [phone, pep], [pep, api], [pep, pdp]]
+          caption: 'Zero Trust access to the route API'
+        a: pdp
+        why: >-
+          In NIST SP 800-207 the policy decision point (policy engine plus policy administrator) decides, using
+          identity, device and threat signals. The policy enforcement point only enables or blocks the session as
+          told. Neither trusts the phone because of where it sits.
+        src: 'NIST SP 800-207, sec. 3 (logical components of zero trust architecture)'
+
+      - c: sase
+        kind: best
+        text: >-
+          Dale has heard that Halvorsen Freight needs "a SASE" for its 40 depots and roaming drivers, and asks
+          Shifty which rack in the server room it will go in. Tomás Reyes sighs. Shifty has to explain what SASE
+          actually is.
+        ask: 'Which description of SASE is MOST accurate?'
+        o:
+          - 'A next-generation firewall appliance installed at headquarters'
+          - 'A wireless security protocol that replaces WPA3 in depots'
+          - 'A standard for encrypting data at rest on depot servers'
+          - 'Cloud-delivered SD-WAN plus security services near each user'
+        a: 3
+        trap: 0
+        r:
+          - 'Dale orders a large box. It arrives, blinks, and forces every depot''s traffic back to headquarters. The drivers'' maps load at the speed of a fax.'
+          - 'Tomás gently explains that SASE is not a Wi-Fi protocol. Dale asks if it at least has a nice password.'
+          - 'Encrypting data at rest matters, but it is a different control. The depots still haul all traffic back to HQ.'
+          - 'Dale understands it is a service, not a rack. He is disappointed there is nothing to unbox, but signs off on the pilot.'
+        why: >-
+          SASE converges SD-WAN with security services (secure web gateway, CASB, ZTNA, firewall as a service)
+          delivered from cloud points of presence near users. It is an architecture bought as a service, not a
+          box at headquarters.
+        src: 'NIST SP 800-215 (Guide to a Secure Enterprise Network Landscape: SASE); CISSP 2027 outline 3.1'
+
+      - c: privacy-by-design
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Labs is designing the new driver app. Dale wants it to record each driver's GPS location around
+          the clock, "in case it's useful someday". The app only needs location during a shift, to plan routes and
+          confirm deliveries. The Rotterdam drivers are covered by GDPR.
+        ask: 'What is the BEST design choice?'
+        o:
+          - 'Collect location all the time but encrypt it in the database'
+          - 'Collect location all the time and let drivers request deletion'
+          - 'Collect location all the time but restrict access to managers'
+          - 'Collect location only during shifts, for routing and delivery proof'
+        a: 3
+        r:
+          - 'Encrypted, the off-duty data still exists. A works council in Rotterdam asks why Halvorsen knows where drivers spend Sundays.'
+          - 'Few drivers ever ask. The data piles up, and so does the liability. Ines Albescu starts drafting the regulator letter in advance.'
+          - 'Managers can now see where staff go after work. One of them looks. HR has a very long week.'
+          - 'Ines approves the design in five minutes, a personal record. The data that was never collected can never leak.'
+        why: >-
+          Privacy by design (GDPR Art. 25, data protection by design and by default) means collecting only what the
+          purpose needs. Encrypting or restricting data you never needed still collects it; minimization removes
+          the risk at the source.
+        src: 'GDPR Art. 5(1)(c) (data minimization) and Art. 25; CISSP 2027 outline 3.1 (privacy by design)'
+
+      - c: shared-responsibility
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Labs will host the new portal on a public cloud. Before launch, Rafa Lind wants an independent
+          check that the design itself follows the cloud provider's best practices for security, reliability,
+          performance and cost, not just a scan of the finished code.
+        ask: 'Which activity BEST meets Rafa''s goal?'
+        o:
+          - 'Review the design against the provider''s well-architected framework'
+          - 'Read the provider''s latest SOC 2 Type II report'
+          - 'Run a vulnerability scan of the portal after launch'
+          - 'Ask the provider to sign a stronger uptime SLA'
+        a: 0
+        r:
+          - 'The review flags a single-zone database and an over-broad storage policy. Both are fixed before a single customer logs in.'
+          - 'The report shows the provider runs its own controls well. It says nothing about Halvorsen''s design, which is Halvorsen''s half.'
+          - 'The scan finds the over-broad storage policy, three weeks after customers started using it.'
+          - 'The provider signs. The SLA covers their uptime, not Halvorsen''s design mistakes.'
+        why: >-
+          A well-architected framework review checks a workload's design against pillars such as security,
+          reliability, performance efficiency and cost optimization. A SOC 2 report covers the provider's own
+          controls, not Halvorsen's design; a scan finds flaws after launch.
+        src: 'CISSP 2027 outline 3.1 (well-architected framework, shared responsibility); AWS Well-Architected Framework (pillars)'
+    close: >-
+      Portal 2 ships with fail-closed checks, three layers where Dale wanted one, and no midnight GPS. Rafa pins
+      Shifty's notes above the coffee machine, which Shifty still can't use. Dale renames the project "Portal 2:
+      Secure Boogaloo".
+
+  # ======================================================================== k3-02
+  - id: k3-02
+    title: 'Clearances at MedLink'
+    where: 'MedLink records wing · Wednesday 14:00'
+    diff: 2
+    open: >-
+      Halvorsen MedLink carries lab samples between hospitals and handles patient records, so HIPAA applies and
+      nobody wants a second breach. Dr. Amara Cole, the privacy officer, is labeling everything: Restricted,
+      Confidential, Internal. She asks Shifty which security model fits which rule. Shifty, who once haunted a
+      university library, is thrilled. Dale asks if Biba is a band.
+    scenes:
+      - c: bell-lapadula
+        kind: best
+        text: >-
+          Halvorsen MedLink's records system enforces Bell-LaPadula with labels, from high to low: Restricted,
+          Confidential, Internal. A dispatcher cleared to Confidential opens a Confidential lab schedule, then tries
+          to save a summary of it into an Internal folder. The system blocks the save.
+        ask: 'Which Bell-LaPadula rule BEST explains the block?'
+        o:
+          - 'The simple security property (no read up)'
+          - 'The star property (no write down)'
+          - 'The simple integrity property (no read down)'
+          - 'The star integrity property (no write up)'
+        a: 1
+        r:
+          - 'Dr. Cole frowns: the dispatcher read at her own level, so nothing was read up. Wrong rule.'
+          - 'Dr. Cole nods. Writing Confidential content into an Internal folder would leak it downward. The model did its job.'
+          - 'That is a Biba rule. Bell-LaPadula doesn''t care about integrity at all. Dale is now even more sure Biba is a band.'
+          - 'Also Biba, and backwards for this case. The dispatcher was writing down, not up.'
+        why: >-
+          Writing from Confidential into Internal is a write down, which the star (*) property forbids so secrets
+          cannot leak to lower levels. No read up is the simple security property; the integrity properties belong
+          to Biba.
+        src: 'Bell and LaPadula, Secure Computer Systems: Unified Exposition and Multics Interpretation (MITRE, 1976); ISC2 OSG ch. 8'
+
+      - c: biba
+        kind: sort
+        diff: 1
+        text: >-
+          Dr. Amara Cole at Halvorsen MedLink keeps mixing up the two famous lattice models. Shifty sorts the rules
+          and goals onto two cards for her: one for Bell-LaPadula, one for Biba.
+        ask: 'Sort each rule or goal: Bell-LaPadula or Biba?'
+        bins: ['Bell-LaPadula', 'Biba']
+        pairs:
+          - ['No read up', 0]
+          - ['No write down', 0]
+          - ['Stops secrets leaking to lower levels', 0]
+          - ['No read down', 1]
+          - ['No write up', 1]
+          - ['Stops low-trust data corrupting high-trust data', 1]
+        why: >-
+          Bell-LaPadula protects confidentiality: no read up (simple security), no write down (star). Biba protects
+          integrity and flips the arrows: no read down (simple integrity), no write up (star integrity).
+        src: 'Bell-LaPadula (MITRE, 1976); Biba (MITRE, 1977); ISC2 OSG ch. 8'
+
+      - c: clark-wilson
+        kind: spot
+        diff: 3
+        text: >-
+          Dr. Amara Cole maps Halvorsen MedLink's lab-results flow using Clark-Wilson. Couriers upload raw scans.
+          Technicians may change results only through the result-entry application, never in the database directly.
+          Each night a job checks that every stored result is complete and matches its sample record.
+        ask: 'In Clark-Wilson terms, tap the integrity verification procedure (IVP).'
+        map:
+          nodes:
+            - { id: courier, label: 'Courier scan upload', x: 2, y: 8 }
+            - { id: intake, label: 'Raw intake folder', x: 39, y: 8 }
+            - { id: tech, label: 'Lab technician', x: 76, y: 8 }
+            - { id: app, label: 'Result entry app', x: 39, y: 44 }
+            - { id: db, label: 'Lab results database', x: 76, y: 44 }
+            - { id: auditor, label: 'Compliance auditor', x: 2, y: 80 }
+            - { id: check, label: 'Nightly integrity job', x: 76, y: 80 }
+          links: [[courier, intake], [intake, app], [tech, app], [app, db], [check, db], [auditor, check]]
+          caption: 'MedLink lab results, Clark-Wilson view'
+        a: check
+        why: >-
+          The IVP confirms constrained data items (the stored results) are in a valid state. The result-entry app
+          is the transformation procedure, the database holds the CDIs, and raw uploads are unconstrained data
+          items until a TP accepts them.
+        src: 'Clark and Wilson, A Comparison of Commercial and Military Computer Security Policies (IEEE S&P, 1987); ISC2 OSG ch. 8'
+
+      - c: brewer-nash
+        kind: best
+        text: >-
+          Halvorsen MedLink's analytics team does courier-cost studies for hospitals. Northgate Health and
+          Riverside Clinics are fierce competitors; Bayview Pharmacy competes with neither. Under a Brewer-Nash
+          policy, analyst Joe has just opened Northgate's cost files for the first time. He was eligible for all three.
+        ask: 'What is the MOST accurate result for Joe''s access now?'
+        o:
+          - 'He is blocked from Riverside and Bayview until the project ends'
+          - 'He keeps access to all three, since he was eligible for each'
+          - 'He is blocked from Riverside but can still open Bayview'
+          - 'He loses Northgate access because he has now read it'
+        a: 2
+        r:
+          - 'Bayview''s study stalls for no reason: it is in a different conflict class. The pharmacy calls to ask what they did wrong.'
+          - 'Joe opens Riverside''s files next. Northgate''s lawyers would describe this as "the thing we pay you to prevent".'
+          - 'The wall goes up exactly where the conflict is. Joe finishes Northgate and Bayview; Riverside goes to a colleague who never saw Northgate.'
+          - 'Joe is locked out of the work he was assigned. The model protects against conflicts, not against doing your job.'
+        why: >-
+          Brewer-Nash (Chinese Wall) changes access dynamically: reading Northgate walls Joe off from its
+          competitors in the same conflict-of-interest class (Riverside). Bayview is in a different class, so it
+          stays open.
+        src: 'Brewer and Nash, The Chinese Wall Security Policy (IEEE S&P, 1989); ISC2 OSG ch. 8'
+
+      - c: db-inference
+        kind: best
+        text: >-
+          Halvorsen MedLink's reporting tool shows counts, never names. A clerk filters lab deliveries by ZIP code,
+          date and test type and gets a count of 1. She knows her neighbor was the only person from that ZIP code
+          admitted that day, so she now knows her neighbor's test.
+        ask: 'Which database security problem does this MOST clearly show?'
+        o:
+          - 'SQL injection'
+          - 'Inference'
+          - 'Data remanence'
+          - 'A covert timing channel'
+        a: 1
+        r:
+          - 'No query was tampered with. The clerk used the tool exactly as designed, which is the problem.'
+          - 'Dr. Cole adds a minimum result size and cell suppression. Counts under 11 now show as "fewer than 11". The neighbor''s secret stays secret.'
+          - 'Nothing was left on old media. The leak came from a perfectly live report.'
+          - 'There is no hidden signaling here, just a small number and a nosy neighbor.'
+        why: >-
+          Inference is deducing a sensitive fact from data you are allowed to see, here a count of 1 plus outside
+          knowledge. Minimum result sizes, cell suppression or added noise block it. No query was altered, so it
+          is not injection.
+        src: 'ISC2 OSG ch. 9 (database security: inference and countermeasures)'
+
+      - c: two-person-integrity
+        kind: best
+        text: >-
+          Halvorsen MedLink sometimes must send a hospital a full export of patient records. Dr. Amara Cole requires
+          that no single employee, however senior, can release an export alone, and that two authorized people
+          approve the same export before it leaves.
+        ask: 'Which control BEST meets her requirement?'
+        o:
+          - 'Job rotation for the records team every quarter'
+          - 'Two-person integrity: two approvers on each export'
+          - 'A mandatory vacation policy for export staff'
+          - 'Monthly review of export logs by the privacy office'
+        a: 1
+        r:
+          - 'Rotation helps uncover long-running misuse. It does nothing to stop one person sending an export tonight.'
+          - 'The export screen now needs two different authorized logins on the same request. Dr. Cole sleeps better.'
+          - 'Vacations expose fraud while someone is away. The export still leaves with one click the rest of the year.'
+          - 'The log review finds a bad export a month after it left. HIPAA breach notification is not impressed.'
+        why: >-
+          Two-person integrity (dual authorization) requires two authorized people to act on the same action, so
+          one insider cannot release data alone. Rotation, vacations and log reviews help detect misuse afterward;
+          they don't prevent it.
+        src: 'NIST SP 800-53 Rev. 5, AC-3(2) (dual authorization); CISSP 2027 outline 3.1 (two-person integrity)'
+    close: >-
+      The labels stick, the walls go up, and the nightly check catches one mis-keyed result before a doctor sees
+      it. Dr. Cole frames the Biba card. Dale still thinks Biba is a band, and has bought the T-shirt.
+
+  # ======================================================================== k3-03
+  - id: k3-03
+    title: 'Dale''s quantum-proof plan'
+    where: 'Halvorsen Freight HQ, boardroom · Thursday 11:00'
+    diff: 2
+    open: >-
+      Dale has read one article about quantum computers and now believes "all the codes are broken by Tuesday". He
+      wants every key in the company replaced before lunch. Ines Albescu, General Counsel, wants to know what is
+      actually at risk. Tomás Reyes wants a plan that doesn't involve Dale touching a certificate. Shifty, who died
+      before Wi-Fi, starts studying.
+    scenes:
+      - c: crypto-methods
+        kind: calc
+        diff: 1
+        text: >-
+          Halvorsen Freight wants its 30 depots to exchange encrypted manifests, with every depot able to talk
+          privately to every other depot. Tomás Reyes asks how many keys that takes using only symmetric
+          encryption, with a unique secret key for each pair of depots.
+        ask: 'How many symmetric keys are needed?'
+        o: ['435', '870', '60', '900']
+        a: 0
+        why: >-
+          Symmetric keys for n parties = n(n-1)/2 = 30 x 29 / 2 = 435. 870 forgets to divide by 2 (each key serves
+          a pair). 60 is the asymmetric count, 2n: one key pair per depot.
+        src: 'ISC2 OSG ch. 6 (symmetric key distribution, n(n-1)/2)'
+
+      - c: post-quantum
+        kind: best
+        text: >-
+          Dale tells the board that quantum computers will break "all encryption". Tomás Reyes lists what Halvorsen
+          Freight uses: RSA and elliptic-curve key exchange in TLS, AES-256 for backups, SHA-384 for file hashes,
+          and HMAC-SHA-256 on API messages. Shifty must say where the real quantum risk is.
+        ask: 'Which is MOST threatened by a large-scale quantum computer?'
+        o:
+          - 'AES-256 encryption of the backups'
+          - 'SHA-384 hashes of shipping files'
+          - 'HMAC-SHA-256 tags on API messages'
+          - 'RSA and elliptic-curve key exchange in TLS'
+        a: 3
+        r:
+          - 'Tomás points out that Grover''s algorithm only roughly halves AES''s effective strength. AES-256 stays strong. Dale''s plan to re-encrypt every backup is cancelled.'
+          - 'Hashes like SHA-384 keep a large margin against known quantum attacks. Wrong place to spend the budget.'
+          - 'HMAC with a 256-bit key holds up well. The board wonders why the CISO is worried about the strongest part.'
+          - 'Right. Shor''s algorithm would break RSA and ECC outright. The board funds a crypto inventory and a migration plan for key exchange.'
+        why: >-
+          Shor's algorithm would break RSA, Diffie-Hellman and ECC outright. Grover's algorithm only roughly halves
+          the effective strength of symmetric keys and hashes, so AES-256 and SHA-384 remain strong. Public-key
+          exchange is where migration is urgent.
+        src: 'NIST IR 8547 (Transition to Post-Quantum Cryptography Standards); NIST FIPS 203 (introduction)'
+
+      - c: key-management
+        kind: best
+        text: >-
+          Tomás Reyes finds that the key encrypting Halvorsen Freight's payment database has sat for six years in a
+          config file in the code repository, readable by every developer. He has already rotated the key and
+          removed it from the repo. Shifty wants the problem fixed for good.
+        ask: 'What is the BEST long-term key management fix?'
+        o:
+          - 'Keep the key in the repo but encrypt it with a strong password'
+          - 'Store it in a key vault or HSM, with logged access and rotation'
+          - 'Move the key to a file only the database admins can read'
+          - 'Rename the key file so it is harder to find in the repo'
+        a: 1
+        r:
+          - 'Now the repo holds an encrypted key and somewhere a password to open it. The secret has just moved one step sideways.'
+          - 'The key lives in the vault, the app fetches it at start-up, every access is logged, and it rotates on a schedule. Tomás deletes the old config with joy.'
+          - 'Better than everyone, but still a file on a server, next to the data, with no rotation and no audit trail.'
+          - 'An attacker searches the repo for "key" and finds "definitely_not_a_key.txt" in seconds.'
+        why: >-
+          NIST SP 800-57 calls for keys stored apart from the data they protect, with access limited and logged, and
+          replaced at the end of a cryptoperiod. A password-encrypted key in the repo still needs a secret
+          somewhere; renaming is obscurity.
+        src: 'NIST SP 800-57 Part 1 Rev. 5, sec. 5.3 (cryptoperiods) and sec. 6 (protection requirements for key information)'
+
+      - c: pki-signatures
+        kind: spot
+        text: >-
+          Tomás Reyes sketches Halvorsen Freight's new internal PKI: a root CA, an issuing CA that signs server and
+          device certificates, an OCSP responder, and a registration authority that checks who is asking. Ines
+          Albescu asks which part would destroy trust in everything if its private key leaked, and so should stay
+          offline.
+        ask: 'Tap the component that should be kept offline.'
+        map:
+          nodes:
+            - { id: root, label: 'Root CA', x: 39, y: 4 }
+            - { id: ra, label: 'Registration authority', x: 4, y: 32 }
+            - { id: issuing, label: 'Issuing CA', x: 39, y: 32 }
+            - { id: ocsp, label: 'OCSP responder', x: 74, y: 32 }
+            - { id: web, label: 'Portal web server', x: 4, y: 64 }
+            - { id: truck, label: 'Truck telematics unit', x: 39, y: 64 }
+            - { id: laptop, label: 'Staff laptop', x: 74, y: 64 }
+          links: [[root, issuing], [issuing, ra], [issuing, ocsp], [issuing, web], [issuing, truck], [issuing, laptop]]
+          caption: 'Halvorsen internal PKI'
+        a: root
+        why: >-
+          The root CA anchors the whole chain: if its key leaks, every certificate below it is suspect. So it signs
+          the issuing CA's certificate and then stays offline. The issuing CA and OCSP responder must be online to
+          do their jobs.
+        src: 'RFC 5280, sec. 6 (certification path validation); ISC2 OSG ch. 7 (PKI)'
+
+      - c: tpm-hsm
+        kind: best
+        text: >-
+          Halvorsen Freight's new issuing CA will sign thousands of device certificates a day, and the payment team
+          needs keys that must never exist in plaintext outside protected hardware. Tomás Reyes asks where those
+          private keys should be generated, stored and used.
+        ask: 'Which option BEST meets these requirements?'
+        o:
+          - 'The Trusted Platform Module in the CA server'
+          - 'An encrypted key file on the CA server''s disk'
+          - 'A password manager vault shared by the PKI team'
+          - 'A FIPS 140-3 validated hardware security module'
+        a: 3
+        trap: 0
+        r:
+          - 'The TPM protects that one server''s own keys and boot state. It was never built to serve a CA and the payment system at volume.'
+          - 'The key file is only as safe as the server and whoever can read memory on it. Auditors circle it in red.'
+          - 'Now private keys sit in a shared vault where people can copy them. That is the opposite of non-exportable.'
+          - 'The HSM generates the keys inside its boundary and they never leave in plaintext. The payment auditors check the FIPS certificate and smile.'
+        why: >-
+          An HSM is tamper-resistant hardware built to generate, store and use keys at high volume for many
+          applications, keeping them inside its boundary. A TPM protects one device's own keys (boot measurement,
+          sealing), not enterprise CA or payment workloads.
+        src: 'FIPS 140-3 (security requirements for cryptographic modules); NIST SP 800-57 Part 1 Rev. 5; TCG TPM 2.0 Library Specification'
+
+      - c: cryptanalysis
+        kind: calc
+        diff: 3
+        text: >-
+          Halvorsen Freight's old archive tool uses a 56-bit key, and Tomás Reyes's test rig brute-forced one key
+          in 1 hour, worst case. Dale proposes moving to a 64-bit key "for eight times the safety". Shifty checks
+          the maths, assuming the same rig.
+        ask: 'How long would a worst-case brute force of a 64-bit key take?'
+        o: ['8 hours', '64 hours', '256 hours', '16 hours']
+        a: 2
+        why: >-
+          Each extra bit doubles the key space. 64 - 56 = 8 extra bits, so 2^8 = 256 times the work: 256 hours.
+          "Eight times" treats bits as linear. Both are far too short anyway; NIST requires at least 112-bit
+          security.
+        src: 'NIST SP 800-57 Part 1 Rev. 5, sec. 5.6.1.1, Table 2 (security strength in bits); ISC2 OSG ch. 6'
+    close: >-
+      No keys get replaced before lunch. Instead the board approves an HSM, a locked-away root CA and a crypto
+      inventory for the quantum plan. Dale asks whether the HSM comes in ghost white. It does not.
+
+  # ======================================================================== k3-04
+  - id: k3-04
+    title: 'Golden ticket night'
+    where: 'Halvorsen Freight SOC · Saturday 02:10'
+    diff: 3
+    open: >-
+      Saturday, 2 a.m. Kim Osei, SOC lead, calls Shifty (ghosts don't sleep anyway). Odd logons are moving from a
+      warehouse PC toward the domain controllers, and file shares in two warehouses are filling with files ending in
+      ".halv0rsen". Dale joins the call from a karaoke bar. Shifty floats into the SOC, where at least nobody asks
+      him to hold the coffee.
+    scenes:
+      - c: identity-attacks
+        kind: best
+        text: >-
+          Kim Osei finds Kerberos tickets at Halvorsen Freight that let an ordinary user account request any
+          service in the domain as a domain admin. They are valid for ten years, and no domain controller issued
+          them. Earlier, the attacker dumped credentials from a domain controller.
+        ask: 'Which attack do these tickets MOST likely indicate?'
+        o:
+          - 'A silver ticket forged with one service account''s hash'
+          - 'Kerberoasting of service tickets cracked offline'
+          - 'A golden ticket forged with the KRBTGT account''s hash'
+          - 'Pass the hash using a captured NTLM password hash'
+        a: 2
+        r:
+          - 'A silver ticket opens one service. These tickets are walking into everything, including the domain controllers.'
+          - 'Kerberoasting cracks service account passwords. It doesn''t mint ten-year domain admin tickets.'
+          - 'Kim nods. With the KRBTGT hash, the attacker can be anyone, forever. Resetting the KRBTGT password twice goes on the recovery plan.'
+          - 'Pass the hash abuses NTLM. These are forged Kerberos tickets, a different and worse problem.'
+        why: >-
+          A golden ticket is a ticket-granting ticket forged with the KRBTGT hash, so it can claim any user, any
+          group and any lifetime. A silver ticket forges access to one service only. Recovery includes resetting the
+          KRBTGT password twice.
+        src: 'MITRE ATT&CK T1558.001 (Golden Ticket) and T1558.002 (Silver Ticket)'
+
+      - c: ransomware-zero-day
+        kind: first
+        diff: 2
+        text: >-
+          At 02:20 Kim Osei confirms ransomware is encrypting file shares on two Halvorsen Freight warehouse servers
+          and spreading. The incident response plan authorizes the SOC lead to contain incidents. Dale, on the
+          phone, wants to "wait until Monday so we don't upset anyone".
+        ask: 'What should Shifty have Kim do FIRST?'
+        o:
+          - 'Restore the encrypted shares from last night''s backup right away'
+          - 'Isolate the infected servers from the network, as the IR plan says'
+          - 'Wait until Monday so management can meet and decide'
+          - 'Contact the attackers to ask how much the ransom will be'
+        a: 1
+        trap: 0
+        r:
+          - 'The restore runs onto still-infected servers. Forty minutes later the fresh copies are encrypted too, and the backup server is next in line.'
+          - 'Kim pulls the servers off the network. The spread stops at two warehouses. The plan worked because someone followed it at 2 a.m.'
+          - 'By Monday every warehouse is encrypted. Not upsetting anyone turned out to upset everyone.'
+          - 'The attackers now know they have been spotted, and the price goes up. Nothing is contained.'
+        why: >-
+          Containment comes first, and the IR plan already authorizes it, so this is a time for decisive action, not
+          a meeting. Restoring before isolating just feeds clean data to active malware.
+        src: 'CISA #StopRansomware Guide (ransomware response checklist: detection, analysis and containment)'
+
+      - c: key-management
+        kind: best
+        diff: 2
+        text: >-
+          The ransomware at Halvorsen Freight also hit the backup server. The backup copies survived on a separate
+          immutable store, but they are encrypted, and the only copy of the backup encryption key lived on the
+          backup server that has just been encrypted.
+        ask: 'Which key management practice would MOST have prevented this problem?'
+        o:
+          - 'Using a longer key for the backup encryption'
+          - 'Rotating the backup key every month'
+          - 'Keeping an escrowed key copy off the backup server'
+          - 'Switching the backups from AES to RSA encryption'
+        a: 2
+        r:
+          - 'A longer key, lost just as completely. Key length doesn''t help when nobody has the key.'
+          - 'Fresh monthly keys, all stored on the same server, all gone together.'
+          - 'With a copy of the key in escrow, the immutable backups would restore tonight. Tomás writes "KEYS LIVE ELSEWHERE" on the SOC wall.'
+          - 'RSA is far slower for bulk data and the private key would still have lived on the same server.'
+        why: >-
+          Keys must be stored and backed up apart from the data and systems they protect, for example in an HSM
+          or escrow with access control. A longer or regularly rotated key held on the same server is lost along
+          with it.
+        src: 'NIST SP 800-57 Part 1 Rev. 5, sec. 6 (protection requirements: key backup and archive); CISA #StopRansomware Guide (backups)'
+
+      - c: facility-controls
+        kind: best
+        diff: 1
+        text: >-
+          Kim Osei's team images two infected Halvorsen Freight warehouse servers and removes their drives as
+          evidence; police may get involved. Dale offers his office desk drawer, which locks "mostly". Shifty needs
+          somewhere to store the drives until the investigation ends.
+        ask: 'Where is the BEST place to keep the drives?'
+        o:
+          - 'A dedicated evidence locker with logged access and custody forms'
+          - 'Dale''s locked desk drawer, since it is close to the SOC'
+          - 'The server room shelf, since it already has badge access'
+          - 'Kim''s home safe, so only one trusted person has the key'
+        a: 0
+        r:
+          - 'Every hand-off is signed and every door opening is logged. Months later, the defense lawyer can''t find a gap in the chain of custody.'
+          - 'Dale''s drawer also holds snacks and a spare key taped underneath. The defense lawyer is going to love this.'
+          - 'Forty people badge into the server room. Any of them could have touched the drives, and nobody recorded who.'
+          - 'Evidence in a private home, with no custody record. The prosecutor winces.'
+        why: >-
+          Evidence storage must be a dedicated, secured space with restricted and logged access, so the chain of
+          custody can be proven. A shared server room or a personal safe gives no custody record, and the evidence
+          could be challenged.
+        src: 'CISSP 2027 outline 3.9 (evidence storage); ISC2 OSG ch. 10 and ch. 19 (chain of custody)'
+
+      - c: zero-trust
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Freight's post-incident review finds the attacker moved from one warehouse PC to the domain
+          controllers because anything on the internal network could reach anything else. Tomás Reyes wants to stop
+          that kind of lateral movement next time.
+        ask: 'Which design change BEST addresses the root cause?'
+        o:
+          - 'A stronger perimeter firewall at the internet edge'
+          - 'Zero Trust access: verify each session, never trust by location'
+          - 'A faster SIEM so alerts reach the SOC sooner'
+          - 'Longer passwords on all the warehouse PCs'
+        a: 1
+        r:
+          - 'The new firewall is excellent. The attacker was already inside it, and still would be.'
+          - 'Each resource now checks identity, device and policy per session. A warehouse PC can''t even see a domain controller, let alone log in to one.'
+          - 'Kim gets alerts faster. The attacker still moves freely; the SOC just watches it in higher definition.'
+          - 'The attacker never needed passwords. Hashes and forged tickets work no matter how long the password is.'
+        why: >-
+          The root cause was implicit trust inside the network. Zero Trust (NIST SP 800-207) grants per-session,
+          least-privilege access to each resource regardless of location, limiting lateral movement. A stronger
+          perimeter does nothing once an attacker is inside.
+        src: 'NIST SP 800-207, sec. 2.1 (tenets of zero trust)'
+
+      - c: memory-protection
+        kind: best
+        text: >-
+          Halvorsen Freight's investigation finds the attacker first got in through a zero-day buffer overflow in an
+          old warehouse print service. Rafa Lind asks which operating system protections would have made that
+          exploit much harder to pull off, even without a patch.
+        ask: 'Which pair of protections BEST mitigates this class of exploit?'
+        o:
+          - 'Full-disk encryption and secure boot'
+          - 'Account lockout and password complexity'
+          - 'Hashing and digital signatures on log files'
+          - 'Data Execution Prevention and ASLR'
+        a: 3
+        r:
+          - 'Great for a stolen laptop or a tampered bootloader. The overflow happened in running memory, long after boot.'
+          - 'The exploit never typed a password. Lockout counters stay at zero.'
+          - 'The logs will be trustworthy, and they will record the exploit perfectly.'
+          - 'With non-executable data memory and randomized addresses, the exploit crashes the service instead of running code. Rafa enables both everywhere.'
+        why: >-
+          Buffer overflows inject or redirect code in memory. DEP marks data memory non-executable and ASLR
+          randomizes where code sits, so the exploit can't reliably run. Disk encryption and secure boot protect
+          data at rest and start-up, not running memory.
+        src: 'ISC2 OSG ch. 9 (memory protection, buffer overflows); CISSP 2027 outline 3.4'
+    close: >-
+      By dawn two warehouses are down but forty are fine, the KRBTGT password has been reset twice, and Tomás finds
+      a copy of the backup key on an old laptop. It now lives in escrow. Kim finally sleeps. Dale arrives with
+      karaoke pastries.
+
+  # ======================================================================== k3-05
+  - id: k3-05
+    title: 'The CFO who wasn''t'
+    where: 'Halvorsen Freight finance floor · Monday 16:45'
+    diff: 2
+    open: >-
+      Late Monday, a finance clerk gets a video call from CFO Marcus Webb, who is on holiday in Lisbon. He looks
+      tired, sounds exactly like himself, and wants $480,000 wired to a "new customs broker" before 5 p.m. The clerk
+      pings Shifty, because the new CISO can walk through walls and might know where the real Marcus is.
+    scenes:
+      - c: ai-threats
+        kind: first
+        diff: 1
+        text: >-
+          A Halvorsen Freight finance clerk gets a video call that looks and sounds like CFO Marcus Webb. He demands
+          an urgent $480,000 wire to a new supplier before 5 p.m. and says he can't be reached by phone. Finance
+          policy requires a call-back on a known number for every new payee.
+        ask: 'What should Shifty tell the clerk to do FIRST?'
+        o:
+          - 'Send the wire, since the clerk recognized his face and voice'
+          - 'Ask the caller a personal question only the real Marcus would know'
+          - 'Verify through a known channel, per the call-back policy, before paying'
+          - 'Send the video to the SOC to check it for deepfake artifacts'
+        a: 2
+        trap: 3
+        r:
+          - 'The money lands in a mule account and is gone in minutes. The real Marcus, poolside, has no idea.'
+          - 'The caller answers smoothly; his dog''s name is on social media. The clerk nearly sends it.'
+          - 'The clerk calls Marcus''s number on file. A sleepy, sunburnt, real Marcus says he is on a beach. The wire never leaves.'
+          - 'The SOC starts analyzing frames. The deadline pressure keeps building, and the clerk is still alone with the decision.'
+        why: >-
+          Deepfakes defeat "I recognized him". The control is process: verify out of band using a contact already
+          on file, as the call-back policy requires. Personal facts can be researched; deepfake forensics is slow
+          and uncertain while the clock runs.
+        src: 'CISSP 2027 outline 3.7 (deepfake attacks); NSA, FBI and CISA, Contextualizing Deepfake Threats to Organizations (2023)'
+
+      - c: identity-attacks
+        kind: best
+        text: >-
+          The same attackers phished three Halvorsen Freight staff with a fake sign-in page that relayed everything
+          to the real portal in real time. Staff typed their passwords and one-time codes, and the attackers
+          captured live session cookies. Tomás Reyes wants MFA that this attack can't beat.
+        ask: 'Which authentication method BEST resists this attack?'
+        o:
+          - 'FIDO2 security keys or passkeys'
+          - 'One-time codes sent by SMS'
+          - 'Push notifications to an authenticator app'
+          - 'Longer passwords changed every 60 days'
+        a: 0
+        r:
+          - 'The fake page asks for a passkey, and the key refuses: wrong origin. The attackers get nothing to relay.'
+          - 'Staff type the SMS code into the fake page, which relays it in real time. Same attack, slightly slower.'
+          - 'The victim taps "approve" on a sign-in the proxy started. The session cookie is stolen again.'
+          - 'The proxy captures the long password just as easily as a short one.'
+        why: >-
+          This is an Adversary-in-the-Middle phishing proxy. FIDO2/WebAuthn credentials are bound to the real site's
+          origin, so they won't authenticate to the fake page. SMS codes and app pushes are relayed or approved by
+          the victim, just like passwords.
+        src: 'MITRE ATT&CK T1557 (Adversary-in-the-Middle); W3C Web Authentication (WebAuthn), origin binding; NIST SP 800-63B (phishing resistance)'
+
+      - c: pki-signatures
+        kind: best
+        text: >-
+          Shifty wants supplier payment changes at Halvorsen Freight to be provably from the supplier, and the
+          supplier unable to deny sending them later. Suppliers will digitally sign each change request. CFO Marcus
+          Webb asks which key his team uses to check a signature.
+        ask: 'Which key BEST verifies the supplier''s digital signature?'
+        o:
+          - 'The supplier''s private key'
+          - 'Halvorsen''s own private key'
+          - 'A secret key shared with the supplier'
+          - 'The supplier''s public key'
+        a: 3
+        r:
+          - 'Only the supplier ever holds its private key. If finance had it, the signature would prove nothing.'
+          - 'Halvorsen''s private key signs Halvorsen''s own messages. It can''t check anyone else''s.'
+          - 'A shared key proves the message wasn''t changed, but either side could have made it, so there is no non-repudiation.'
+          - 'Finance verifies with the public key from the supplier''s certificate. Only the supplier could have signed it, and it can''t deny it later.'
+        why: >-
+          The supplier signs a hash of the request with its private key; anyone verifies with the supplier's public
+          key, from its certificate. Only the supplier holds the private key, which gives non-repudiation. A shared
+          secret key gives integrity, not non-repudiation.
+        src: 'FIPS 186-5 (Digital Signature Standard); ISC2 OSG ch. 7 (digital signatures)'
+
+      - c: cryptanalysis
+        kind: best
+        text: >-
+          A tester shows that Halvorsen Freight's payment API compares a submitted API key one character at a time
+          and returns as soon as a character is wrong. By measuring tiny differences in response time, she recovers
+          a valid key character by character.
+        ask: 'Which attack is this MOST accurately called?'
+        o:
+          - 'A chosen ciphertext attack'
+          - 'A timing side-channel attack'
+          - 'A frequency analysis attack'
+          - 'A brute force attack'
+        a: 1
+        r:
+          - 'No ciphertext was ever submitted for decryption. The tester only measured how long the API took.'
+          - 'Right: the secret leaked through time. Rafa switches to a constant-time comparison, and the response times go flat.'
+          - 'Frequency analysis counts symbols in ciphertext. There is no ciphertext here.'
+          - 'Brute force would try whole keys blindly. This attack learned one character at a time from the clock.'
+        why: >-
+          Learning secrets from how long an operation takes is a timing (side-channel) attack on the
+          implementation, not the algorithm. Brute force would try every whole key. The fix is a constant-time
+          comparison.
+        src: 'CISSP 2027 outline 3.7 (timing, side-channel and implementation attacks); ISC2 OSG ch. 7'
+
+      - c: cryptanalysis
+        kind: sort
+        diff: 3
+        text: >-
+          After the fake-CFO scare, Kim Osei trains the Halvorsen Freight SOC on classic cryptanalysis. She
+          describes six attackers by what each one has to work with, and asks the team to name each attack type.
+        ask: 'Sort each attacker: ciphertext-only, known plaintext, or chosen ciphertext?'
+        bins: ['Ciphertext-only', 'Known plaintext', 'Chosen ciphertext']
+        pairs:
+          - ['Has only intercepted encrypted radio traffic, nothing else', 0]
+          - ['Found encrypted backup tapes, with no keys or originals', 0]
+          - ['Holds some old manifests and their encrypted copies', 1]
+          - ['Knows every message begins with the same standard header', 1]
+          - ['Can submit ciphertexts to the server and read the decryptions', 2]
+          - ['Uses a padding oracle that reacts to chosen ciphertexts', 2]
+        why: >-
+          Name the attack by what the attacker has: only ciphertext (ciphertext-only), some plaintext with its
+          ciphertext (known plaintext), or the power to get chosen ciphertexts decrypted (chosen ciphertext).
+          Padding-oracle attacks are chosen-ciphertext attacks.
+        src: 'ISC2 OSG ch. 7 (cryptanalytic attacks); CISSP 2027 outline 3.7'
+
+      - c: post-quantum
+        kind: best
+        diff: 3
+        text: >-
+          Ines Albescu notes that Halvorsen MedLink patient records sent between hospitals today must stay
+          confidential for at least 25 years. She worries attackers could record the encrypted traffic now and
+          decrypt it once quantum computers mature. Tomás Reyes must pick a NIST standard for key establishment.
+        ask: 'Which standard BEST addresses this risk for key establishment?'
+        o:
+          - 'FIPS 204, ML-DSA'
+          - 'FIPS 203, ML-KEM'
+          - 'FIPS 205, SLH-DSA'
+          - 'FIPS 186-5, ECDSA'
+        a: 1
+        r:
+          - 'ML-DSA is a post-quantum signature scheme. It proves who sent the records, but doesn''t protect the key that encrypts them.'
+          - 'Tomás pilots ML-KEM for the hospital links, alongside the current key exchange. Recorded traffic stops being a 25-year time bomb.'
+          - 'SLH-DSA is a hash-based signature standard. Strong, but it signs; it doesn''t establish keys.'
+          - 'ECDSA is exactly the kind of elliptic-curve crypto a quantum computer would break, and it only signs anyway.'
+        why: >-
+          Harvest now, decrypt later targets key establishment, so the fix is a quantum-resistant key-encapsulation
+          mechanism: FIPS 203 ML-KEM. FIPS 204 and 205 are post-quantum signature standards; they protect
+          authenticity, not the secrecy of recorded sessions.
+        src: 'NIST FIPS 203 (ML-KEM), FIPS 204 (ML-DSA) and FIPS 205 (SLH-DSA), August 2024'
+
+      - c: crypto-methods
+        kind: best
+        diff: 1
+        text: >-
+          Rafa Lind is designing how Halvorsen Freight's trucks send telemetry to headquarters. Bulk data must be
+          encrypted quickly, and new trucks join every week, so pre-sharing a secret key with each truck is a
+          headache. Rafa asks Shifty for the usual approach.
+        ask: 'Which approach BEST balances speed and key distribution?'
+        o:
+          - 'Encrypt all telemetry with RSA, since public keys are easy to share'
+          - 'Give every truck the same AES key, installed at the factory'
+          - 'Hash the telemetry with SHA-256 so nobody can read it'
+          - 'Agree a session key with asymmetric crypto, then encrypt with AES'
+        a: 3
+        r:
+          - 'RSA chews through the telemetry so slowly that trucks report yesterday''s position. Public keys were the easy part.'
+          - 'One truck is stolen, its key extracted, and every truck''s telemetry is readable. One key, one fleet-wide failure.'
+          - 'Headquarters can''t read the hashes either. Hashing isn''t encryption; there is nothing to decrypt.'
+          - 'Like TLS: the key exchange handles new trucks, AES handles the data. Rafa ships it before lunch.'
+        why: >-
+          Hybrid encryption, as in TLS: asymmetric crypto solves key distribution, then a fast symmetric cipher
+          (AES) handles bulk data. RSA alone is too slow for bulk data; one shared key exposes every truck if it
+          leaks; hashing isn't encryption.
+        src: 'ISC2 OSG ch. 6 and 7 (hybrid cryptography); RFC 8446 (TLS 1.3 key exchange and record protection)'
+    close: >-
+      The wire never leaves. The real Marcus, sunburnt in Lisbon, confirms he was asleep. Finance gets passkeys,
+      suppliers get signing keys, and the 25-year records get a quantum-resistant plan. Dale asks if he can deepfake
+      himself into fewer meetings.
+
+  # ======================================================================== k3-06
+  - id: k3-06
+    title: 'Warehouse 9 runs itself'
+    where: 'Warehouse 9, Rotterdam port · Wednesday 07:30'
+    diff: 2
+    open: >-
+      Warehouse 9 in Rotterdam is Halvorsen's showpiece: conveyor PLCs, autonomous yard tractors, smart cameras and
+      an AI model that spots damaged crates. Jonas Vries, Rotterdam ops manager, is proud and nervous: last week a
+      camera started streaming to an unknown server. Shifty floats over the conveyor belt and immediately regrets it.
+    scenes:
+      - c: ot-ics
+        kind: first
+        text: >-
+          Tomás Reyes wants to run Halvorsen Freight's standard active vulnerability scan across the Warehouse 9
+          control network tonight. That network has conveyor PLCs and a safety controller that run around the
+          clock. Jonas Vries says the OT engineers have never been asked about scanning.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Run the scan tonight while the warehouse is quieter'
+          - 'Patch every PLC to the newest firmware before scanning'
+          - 'Agree a safe, tested assessment approach with the OT engineers'
+          - 'Exclude the OT network from security assessment entirely'
+        a: 2
+        trap: 0
+        r:
+          - 'At 01:12 the scan floods an old PLC, which faults. The conveyor stops with 300 crates on it, and the safety controller trips.'
+          - 'Untested firmware on safety-related controllers. One PLC doesn''t come back up. Jonas is no longer proud, only nervous.'
+          - 'The OT engineers suggest passive monitoring plus a lab test of the scanner on a spare PLC. The risk gets measured and nothing stops.'
+          - 'The OT network stays a mystery. Last week''s rogue camera suggests mysteries there are not harmless.'
+        why: >-
+          In OT, safety and availability come first. Active scans can crash fragile controllers, so plan with the OT
+          engineers: passive monitoring, lab testing or a maintenance window. Untested firmware is just as risky,
+          and skipping assessment leaves the risk unknown.
+        src: 'NIST SP 800-82 Rev. 3 (OT performance, availability and safety requirements; security assessments in OT)'
+
+      - c: ot-ics
+        kind: spot
+        text: >-
+          The conveyor vendor needs remote access to Warehouse 9's SCADA HMI for monthly maintenance. Tomás Reyes
+          shows the network: internet, corporate LAN, an IT/OT DMZ, the control network with the HMI, and the PLCs
+          below it. Vendor sessions must never connect straight into the control network.
+        ask: 'Tap where the monitored jump server for vendor access should sit.'
+        map:
+          nodes:
+            - { id: inet, label: 'Internet', x: 39, y: 2 }
+            - { id: vendor, label: 'Vendor laptop', x: 74, y: 2 }
+            - { id: erp, label: 'Corporate ERP', x: 4, y: 22 }
+            - { id: corp, label: 'Corporate LAN', x: 39, y: 22 }
+            - { id: dmz, label: 'IT/OT DMZ', x: 39, y: 42 }
+            - { id: eng, label: 'Engineering laptop', x: 4, y: 62 }
+            - { id: hmi, label: 'SCADA HMI', x: 39, y: 62 }
+            - { id: plc, label: 'Conveyor PLCs', x: 20, y: 84 }
+            - { id: safety, label: 'Safety controller', x: 58, y: 84 }
+          links: [[vendor, inet], [inet, corp], [corp, erp], [corp, dmz], [dmz, hmi], [eng, hmi], [hmi, plc], [hmi, safety]]
+          caption: 'Warehouse 9 networks, IT at the top, OT at the bottom'
+        a: dmz
+        why: >-
+          Remote access to OT should end in the IT/OT DMZ, on a monitored jump host with MFA, so no session crosses
+          straight from outside into the control network. On the corporate LAN or the HMI's own network, that buffer
+          is gone.
+        src: 'NIST SP 800-82 Rev. 3 (OT security architecture: DMZ, remote access); ISA/IEC 62443 (zones and conduits)'
+
+      - c: iot-autonomous
+        kind: best
+        text: >-
+          Warehouse 9's autonomous yard tractors drive themselves between trailers, using cameras, lidar and a
+          wireless link to the yard controller. Jonas Vries asks what a tractor should do if it loses the link or its
+          sensor data stops making sense while dock workers are walking nearby.
+        ask: 'Which behavior is BEST?'
+        o:
+          - 'Stop safely in place and raise an alert'
+          - 'Keep driving its last planned route until the link returns'
+          - 'Speed up to finish the job before the fault spreads'
+          - 'Accept commands from any nearby controller to stay productive'
+        a: 0
+        r:
+          - 'A tractor loses its link during a storm, stops, and flashes amber. A worker walks past it, unharmed and slightly annoyed. Exactly right.'
+          - 'The route was planned before a trailer moved. The tractor drives into the trailer, and nearly into a person.'
+          - 'Faster and blind is the worst combination. The insurer cancels the pilot.'
+          - 'An attacker with a laptop in the car park becomes the yard controller. The tractors are now his.'
+        why: >-
+          With people nearby, autonomous systems must fail safe: when inputs or links can't be trusted, reach a safe
+          state (stop) and alert. Continuing on stale data or accepting unauthenticated commands puts lives at risk.
+          Life safety outranks throughput.
+        src: 'CISSP 2027 outline 3.5 (autonomous systems); ISC2 OSG ch. 8 and 10 (fail-safe design, human safety first)'
+
+      - c: biba
+        kind: best
+        diff: 3
+        text: >-
+          Warehouse 9's safety controller trusts only data from certified sensors. Contractors want their cheap
+          handheld scanners to write load weights straight into the safety controller's data. The design applies
+          Biba: certified sensor data is high integrity, contractor scanners are low integrity.
+        ask: 'Which Biba rule MOST directly blocks the contractor scanners'' writes?'
+        o:
+          - 'Star integrity property: no write up'
+          - 'Simple integrity property: no read down'
+          - 'Star property: no write down'
+          - 'Simple security property: no read up'
+        a: 0
+        r:
+          - 'Right: low-integrity scanners can''t write into high-integrity data. The contractors get their own low-integrity log instead.'
+          - 'Close, but that rule stops the safety controller reading the scanners'' data. The question is about the scanners writing.'
+          - 'That is Bell-LaPadula, a confidentiality rule. Nobody here is worried about secrets leaking down.'
+          - 'Also Bell-LaPadula. The safety controller''s problem is dirty data, not secrets.'
+        why: >-
+          A low-integrity subject (contractor scanner) writing into a high-integrity object is a write up, forbidden
+          by Biba's star integrity property. No read down stops high-integrity subjects reading low-integrity data.
+          The other two are Bell-LaPadula rules.
+        src: 'K. J. Biba, Integrity Considerations for Secure Computer Systems (MITRE, 1977); ISC2 OSG ch. 8'
+
+      - c: ai-threats
+        kind: sort
+        text: >-
+          Warehouse 9 uses an AI model to spot damaged crates on camera. Kim Osei lists ways attackers could go after
+          it, using the NIST adversarial machine learning taxonomy, and asks the Rotterdam team to sort them.
+        ask: 'Sort each attack: evasion, poisoning, or privacy?'
+        bins: ['Evasion (at use)', 'Poisoning (at training)', 'Privacy (extract data)']
+        pairs:
+          - ['Stickers on a crate make the camera model miss the damage', 0]
+          - ['Crafted images at run time get crushed crates marked fine', 0]
+          - ['Mislabeled photos slipped into the training set', 1]
+          - ['A hidden backdoor trigger planted in fine-tuning data', 1]
+          - ['Repeated queries rebuild photos from the training set', 2]
+          - ['Testing whether a customer''s images were used in training', 2]
+        why: >-
+          NIST AI 100-2: evasion alters inputs to a deployed model; poisoning corrupts training data or the model
+          itself; privacy attacks extract training data or membership. Poisoning happens before deployment, evasion
+          after it.
+        src: 'NIST AI 100-2 (Adversarial Machine Learning: A Taxonomy and Terminology of Attacks and Mitigations)'
+
+      - c: ransomware-zero-day
+        kind: best
+        text: >-
+          A vendor warns that Warehouse 9's HMI software has a zero-day vulnerability being exploited elsewhere. No
+          patch exists yet; the vendor has published a workaround that disables the vulnerable remote-view feature.
+          The HMI must keep running the conveyors.
+        ask: 'What is the BEST response until a patch ships?'
+        o:
+          - 'Wait for the patch, since nothing can be done about a zero-day'
+          - 'Apply the vendor workaround, restrict access and monitor closely'
+          - 'Shut down the conveyors until the patch is released'
+          - 'Reverse-engineer the HMI and write an in-house patch'
+        a: 1
+        trap: 3
+        r:
+          - 'Three weeks of waiting. Attackers don''t wait. The HMI is exposed the whole time.'
+          - 'Remote view goes off, access narrows to the jump host, and Kim watches the HMI closely. The conveyors keep moving, with the risk cut way down.'
+          - 'Rotterdam stops shipping for three weeks. The cure costs more than the disease.'
+          - 'Rafa''s weekend patch breaks the safety interlock logic. Nobody wanted homemade code on a safety-related system.'
+        why: >-
+          A zero-day has no patch, but risk can still be reduced: vendor mitigations, less exposure, segmentation and
+          closer monitoring. Waiting does nothing; a full shutdown hurts availability more than needed; a homemade
+          patch on OT is untested risk.
+        src: 'CISSP 2027 outline 3.7 (zero-day attacks); NIST SP 800-40 Rev. 4 (mitigating risk when patches are not available)'
+
+      - c: defense-in-depth
+        kind: best
+        diff: 1
+        text: >-
+          After the camera incident, Jonas Vries asks for "one really good box" to protect Warehouse 9's OT network.
+          Tomás Reyes sketches a plan instead: network zones and conduits, locked control cabinets, application
+          allowlisting on the HMIs, OT-aware monitoring and trained operators.
+        ask: 'Which principle does Tomás''s plan MOST clearly apply?'
+        o:
+          - 'Security through obscurity'
+          - 'Single sign-on'
+          - 'Trust but verify'
+          - 'Defense in depth'
+        a: 3
+        r:
+          - 'Nothing in the plan is hidden. Every layer works even if the attacker knows it is there.'
+          - 'SSO is about logging in once. Tomás''s plan is about many different barriers.'
+          - 'A slogan, not a design principle. Zero Trust replaced it with "never trust, always verify".'
+          - 'Jonas gets it: if the camera network fails again, four more layers stand between it and the conveyors. He cancels the order for one big box.'
+        why: >-
+          Several independent layers (physical, network, host, monitoring, people) mean one failure doesn't expose
+          the process. That is defense in depth, which NIST SP 800-82 recommends for OT. One box is a single point of
+          failure.
+        src: 'NIST SP 800-82 Rev. 3 (defense-in-depth architecture for OT); CISSP 2027 outline 3.1'
+    close: >-
+      The vendor's jump box moves to the DMZ, the tractors learn to stop and sulk, and the damaged-crate model gets
+      a training-data custody log. Jonas buys Shifty a ghost-sized hard hat. It falls straight through him.
+
+  # ======================================================================== k3-07
+  - id: k3-07
+    title: 'Cloud by Tuesday'
+    where: 'Halvorsen Labs, war room · Monday 09:30'
+    diff: 2
+    open: >-
+      Dale has promised the board Halvorsen will be "fully cloud by Tuesday". Rafa Lind's team is moving the route
+      platform to an IaaS provider, rewriting the pricing engine as serverless functions and opening a data lake for
+      researchers. Tomás Reyes has stopped sleeping. Shifty, who has always lived in a cloud of sorts, volunteers.
+    scenes:
+      - c: shared-responsibility
+        kind: sort
+        diff: 1
+        text: >-
+          Halvorsen Freight is moving its route platform onto infrastructure as a service (IaaS) virtual machines.
+          Dale assumes "the cloud company handles all the security now". Shifty sorts the duties to show who owns
+          what under the IaaS shared responsibility model.
+        ask: 'Sort each duty: cloud provider or Halvorsen (customer)?'
+        bins: ['Cloud provider', 'Halvorsen (customer)']
+        pairs:
+          - ['Physical security of the data centers', 0]
+          - ['Patching the hypervisor', 0]
+          - ['Replacing failed physical hardware', 0]
+          - ['Patching the guest operating systems', 1]
+          - ['Configuring virtual network firewall rules', 1]
+          - ['Managing user identities and access to the data', 1]
+        why: >-
+          In IaaS the provider secures facilities, hardware and the virtualization layer; the customer secures what
+          it builds on top: guest OS, applications, network rules, identities and data. PaaS and SaaS shift more to
+          the provider, but never data accountability.
+        src: 'NIST SP 800-145 (IaaS: the consumer controls operating systems, storage and deployed applications); CISSP 2027 outline 3.1'
+
+      - c: cloud-containers
+        kind: best
+        text: >-
+          Halvorsen Labs' new pricing engine runs as serverless functions (FaaS). A review finds that the
+          price-quote function runs under a cloud role that can read and delete every storage bucket in the
+          account. It only needs to read one rate table.
+        ask: 'What is the BEST fix?'
+        o:
+          - 'Leave it, since the provider secures serverless functions'
+          - 'Turn on logging so deletions can be investigated later'
+          - 'Scope the function''s role to read only that rate table'
+          - 'Move the function onto a virtual machine instead'
+        a: 2
+        r:
+          - 'The provider secures the servers you never see. Who the function may touch is Halvorsen''s setting, and it is wide open.'
+          - 'Good to have, but it only tells you afterward which buckets vanished.'
+          - 'Now an exploited price-quote function can read one rate table and nothing else. The blast radius shrinks to a single file.'
+          - 'More servers to patch, and the same over-broad role attached to the VM. Nothing fixed.'
+        why: >-
+          In serverless the provider runs the servers, but each function's permissions are the customer's job. Least
+          privilege limits what an exploited function can do. Logging only detects damage afterward; moving to a VM
+          adds work without fixing the permission.
+        src: 'CISSP 2027 outline 3.5 (serverless, FaaS); NIST SP 800-53 Rev. 5, AC-6 (least privilege)'
+
+      - c: db-inference
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen Freight's new cloud data lake gives analysts truck schedules, driver rosters and cargo values,
+          each labeled Internal. Kim Osei notices that put together, they show exactly which truck carries
+          high-value pharmaceuticals, when, and who drives it, which is far more sensitive than any one dataset.
+        ask: 'Which database security problem does this MOST clearly describe?'
+        o:
+          - 'Inference'
+          - 'SQL injection'
+          - 'Aggregation'
+          - 'Data remanence'
+        a: 2
+        r:
+          - 'Close, but nobody had to deduce a hidden fact; the danger is the combined collection itself, sitting in one place.'
+          - 'No query was tampered with. Every analyst used the lake as designed.'
+          - 'Kim gets the combined view classified higher than its parts, with access limited to dispatch. The thieves'' shopping list disappears.'
+          - 'Nothing is left over on old media. The risk is in live, current data.'
+        why: >-
+          Aggregation: individually harmless data, combined, becomes more sensitive than any part, so the combination
+          needs a higher classification and tighter access. Inference is deducing a hidden fact; here the problem is
+          the collection itself.
+        src: 'ISC2 OSG ch. 9 (database security: aggregation)'
+
+      - c: brewer-nash
+        kind: best
+        text: >-
+          Halvorsen Freight hires a cloud consultancy that also works for Kestrel Logistics, Halvorsen's biggest
+          rival. Ines Albescu wants a guarantee that a consultant who has worked on Halvorsen's data can never then
+          work on Kestrel's, while staying free to work for unrelated clients.
+        ask: 'Which security model BEST describes the control Ines wants?'
+        o:
+          - 'Brewer-Nash'
+          - 'Bell-LaPadula'
+          - 'Clark-Wilson'
+          - 'Biba'
+        a: 0
+        r:
+          - 'The consultancy''s system walls off Kestrel from anyone who has touched Halvorsen data. Ines signs the contract.'
+          - 'Fixed clearance levels don''t capture "not both competitors". A consultant cleared for both could see both.'
+          - 'Well-formed transactions protect integrity. They don''t stop one person serving two rivals.'
+          - 'Biba keeps low-integrity data out of high-integrity data. Not the problem here.'
+        why: >-
+          Brewer-Nash (the Chinese Wall model) changes access dynamically to prevent conflicts of interest: once a
+          consultant accesses one company in a conflict class, its competitors are blocked. Bell-LaPadula and Biba
+          use fixed levels; Clark-Wilson enforces well-formed transactions.
+        src: 'Brewer and Nash, The Chinese Wall Security Policy (IEEE S&P, 1989); ISC2 OSG ch. 8'
+
+      - c: privacy-by-design
+        kind: best
+        diff: 3
+        text: >-
+          A university wants Halvorsen MedLink's delivery data to study how fast lab samples reach hospitals. Dr.
+          Amara Cole will share statistics only if no single patient's delivery can be singled out, even by someone
+          who knows a lot about that patient, and the results stay useful.
+        ask: 'Which privacy-enhancing technology BEST fits?'
+        o:
+          - 'Removing names but keeping all other fields'
+          - 'Differential privacy on the published statistics'
+          - 'Encrypting the dataset before sending it'
+          - 'Requiring the researchers to sign an NDA'
+        a: 1
+        r:
+          - 'A researcher matches dates, ZIP codes and hospitals to a news story and finds a patient by name. Removing names isn''t anonymization.'
+          - 'The statistics carry calibrated noise. Averages stay accurate; no single patient can be picked out. Dr. Cole approves.'
+          - 'The researchers decrypt it to use it, and then they hold every raw record. Encryption protected the trip, not the patient.'
+          - 'A promise, not a technology. The raw data still leaves the building.'
+        why: >-
+          Differential privacy adds calibrated noise, so results stay accurate in aggregate while bounding what
+          anyone can learn about one person, even with outside knowledge. Removing names leaves records
+          re-identifiable; encryption protects transit, not what researchers learn.
+        src: 'NIST SP 800-226 (Guidelines for Evaluating Differential Privacy Guarantees); CISSP 2027 outline 3.1 (privacy-enhancing technologies)'
+
+      - c: sase
+        kind: best
+        text: >-
+          After the cloud move, Halvorsen Freight staff mostly use SaaS apps and the cloud route platform from depots,
+          homes and trucks. Tomás Reyes wants web filtering, CASB controls and zero trust access applied the same way
+          everywhere, without hauling traffic back to headquarters first.
+        ask: 'Which approach BEST meets this goal?'
+        o:
+          - 'A full-tunnel VPN that sends all traffic through HQ'
+          - 'A new on-premises proxy cluster in the HQ data center'
+          - 'Secure Access Service Edge from cloud points of presence'
+          - 'Separate small firewalls installed in every truck'
+        a: 2
+        r:
+          - 'Every SaaS request now travels to HQ and back. Drivers in Rotterdam wait for a server in another country to approve a map tile.'
+          - 'A shiny proxy, still at HQ. The bottleneck and single point of failure stay exactly where they were.'
+          - 'Policies follow users to the nearest point of presence. Rotterdam is fast, Depot 12 is filtered, and HQ''s link stops being a lifeline.'
+          - 'Four hundred tiny firewalls to patch, each configured slightly differently. Tomás resigns, briefly.'
+        why: >-
+          SASE delivers SD-WAN and security services (secure web gateway, CASB, ZTNA, firewall as a service) from
+          cloud points of presence near each user. Backhauling to HQ through a VPN or proxy keeps the bottleneck and
+          the single point of failure.
+        src: 'NIST SP 800-215 (SASE); CISSP 2027 outline 3.1'
+    close: >-
+      Halvorsen is not fully cloud by Tuesday. It is mostly cloud by March, with scoped roles, a consultancy behind
+      a Chinese Wall, and researchers who never see a patient. Dale tells the board Tuesday was "a metaphor".
+
+  # ======================================================================== k3-08
+  - id: k3-08
+    title: 'The new data center'
+    where: 'Building C site · Friday 10:00'
+    diff: 1
+    open: >-
+      Halvorsen Freight is building a new data center on its Building C campus, and the board wants Shifty to sign
+      off the design. The architect has brought blueprints, a hard hat and a great many opinions. Dale has brought a
+      vision board with a waterfall feature. Shifty floats through every wall on the plan, the first useful thing a
+      ghost has ever done on a building site.
+    scenes:
+      - c: cpted-site
+        kind: best
+        text: >-
+          The architect for Halvorsen Freight's Building C wants the parking lot and entrance brightly lit, with low
+          shrubs and large windows, so staff and passers-by can see anyone approaching. No fences, gates or guards
+          are added.
+        ask: 'Which CPTED strategy does this design MOST directly use?'
+        o:
+          - 'Natural access control'
+          - 'Natural surveillance'
+          - 'Territorial reinforcement'
+          - 'Target hardening'
+        a: 1
+        r:
+          - 'Nothing here steers where people walk. It is about being seen.'
+          - 'Right: lighting, low shrubs and windows put every approach in view. Intruders hate an audience.'
+          - 'There are no borders or signs marking ownership here, only clear sight lines.'
+          - 'Target hardening means locks, bars and barriers. This design deliberately uses none.'
+        why: >-
+          Natural surveillance arranges lighting, landscaping and windows so people can be seen, which deters
+          intruders. Natural access control guides movement with paths and layout; territorial reinforcement marks
+          space as owned. Target hardening (locks, bars) isn't CPTED's natural approach.
+        src: 'ISC2 OSG ch. 10 (CPTED); Timothy D. Crowe, Crime Prevention Through Environmental Design'
+
+      - c: facility-controls
+        kind: spot
+        text: >-
+          Halvorsen Freight's Building C plan has five candidate spots for the server room: beside the loading dock,
+          in the basement under the water main, on the top floor under a flat roof, next to the lobby with street
+          windows, or in the windowless core of the second floor.
+        ask: 'Tap the BEST location for the server room.'
+        map:
+          nodes:
+            - { id: roof, label: 'Top floor, flat roof', x: 39, y: 4 }
+            - { id: lobby, label: 'Lobby, street windows', x: 2, y: 40 }
+            - { id: core, label: '2nd floor core', x: 39, y: 40 }
+            - { id: kitchen, label: 'Staff kitchen', x: 76, y: 40 }
+            - { id: dock, label: 'Loading dock', x: 2, y: 76 }
+            - { id: base, label: 'Basement, water main', x: 39, y: 76 }
+            - { id: parking, label: 'Parking lot', x: 76, y: 76 }
+          caption: 'Building C, candidate server room locations'
+        a: core
+        why: >-
+          Server rooms belong in the middle of the building: no windows, away from water pipes and roof leaks,
+          away from public areas and loading-dock traffic, with layered access. The basement risks flooding; the top
+          floor risks roof leaks and storms.
+        src: 'ISC2 OSG ch. 10 (server room placement and design)'
+
+      - c: fire-suppression
+        kind: best
+        diff: 2
+        text: >-
+          The Building C fire engineer offers Halvorsen Freight four water-based sprinkler designs for the data
+          center. Shifty wants to avoid water hitting the servers because of one false alarm or one knocked sprinkler
+          head, while still putting out a real fire.
+        ask: 'Which sprinkler system is MOST appropriate for the data center?'
+        o:
+          - 'Wet pipe'
+          - 'Dry pipe'
+          - 'Deluge'
+          - 'Preaction'
+        a: 3
+        r:
+          - 'A forklift clips a sprinkler head in week one. Water pours onto rack 4 instantly. The pipes were full the whole time.'
+          - 'The pipes hold air, but one broken head is enough to fill them and discharge. The forklift strikes again.'
+          - 'Every head opens at once. Great for an aircraft hangar, catastrophic for servers.'
+          - 'A false smoke alarm fills the pipes, but no head opens, so no water falls. When a real fire comes, it works. Shifty approves.'
+        why: >-
+          Preaction pipes stay dry until a detector triggers, and water flows only when a head also opens from heat,
+          so one false alarm or one broken head alone releases nothing. Wet pipe discharges as soon as a head opens;
+          deluge opens every head.
+        src: 'NFPA 13 (sprinkler system types); ISC2 OSG ch. 10 (fire suppression)'
+
+      - c: facility-controls
+        kind: sort
+        diff: 2
+        text: >-
+          Tomás Reyes is choosing UPS units and power conditioning for Halvorsen Freight's new data center. The
+          vendor's brochure uses six terms for power problems. Shifty sorts them so the board knows what each
+          protection is for.
+        ask: 'Sort each power problem: loss of power, low voltage, or high voltage?'
+        bins: ['Loss of power', 'Low voltage', 'High voltage']
+        pairs:
+          - ['Fault', 0]
+          - ['Blackout', 0]
+          - ['Sag', 1]
+          - ['Brownout', 1]
+          - ['Spike', 2]
+          - ['Surge', 2]
+        why: >-
+          Fault (momentary) and blackout (prolonged) are losses of power. Sag (momentary) and brownout (prolonged) are
+          low voltage. Spike (momentary) and surge (prolonged) are high voltage. A UPS and conditioning handle short
+          events; generators cover long outages.
+        src: 'ISC2 OSG ch. 10 (power issues)'
+
+      - c: fail-secure-defaults
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Freight's new data center doors are badge-controlled. The architect asks Shifty how the electric
+          locks on the emergency exit doors should behave when the fire alarm sounds and power to the locks is cut,
+          with staff still inside.
+        ask: 'How should those emergency exit doors BEST behave?'
+        o:
+          - 'Fail secure: stay locked to protect the servers'
+          - 'Stay locked until a guard arrives with a key'
+          - 'Fail safe: unlock so people can get out'
+          - 'Unlock only for badges with data center access'
+        a: 2
+        r:
+          - 'The fire marshal rejects the plans on sight. Servers can be replaced. People can''t.'
+          - 'The guard is outside, behind the smoke. This design has a body count.'
+          - 'Exit doors release on alarm or power loss; other doors that protect assets stay fail secure. The fire marshal signs off.'
+          - 'With power cut, the badge readers are dark too. And visitors never had badges at all.'
+        why: >-
+          Human safety comes first. Emergency exits fail safe (unlock) on fire alarm or power loss so no one is
+          trapped, as life-safety codes require. Fail secure suits doors that protect assets where people can still
+          get out another way.
+        src: 'ISC2 OSG ch. 10 (fail-safe vs fail-secure locks, human safety first); NFPA 101 (Life Safety Code)'
+
+      - c: facility-controls
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Freight's new data center will share the office HVAC unless Shifty objects. The architect notes
+          that dust from the warehouse floor and smoke from the kitchen could be drawn into the server room whenever
+          its doors open.
+        ask: 'What is the BEST HVAC design for the data center?'
+        o:
+          - 'Dedicated HVAC with positive pressure and humidity control'
+          - 'Shared office HVAC, plus a ceiling fan in the server room'
+          - 'Dedicated HVAC with negative pressure to pull air inward'
+          - 'Opening windows for cooling, with insect screens'
+        a: 0
+        r:
+          - 'Air flows out of the room whenever the door opens, so dust and kitchen smoke stay outside. Humidity holds steady.'
+          - 'Kitchen smoke now circulates nicely around rack 3. The fan helps it reach every server.'
+          - 'Negative pressure pulls the warehouse dust in every time the door opens. Exactly backwards.'
+          - 'The server room no longer has walls worth guarding. Or a temperature worth mentioning.'
+        why: >-
+          A dedicated system keeps the server room's temperature and humidity under its own control, and positive
+          pressure pushes air out when doors open, keeping dust and smoke out. Negative pressure does the opposite
+          and draws contaminants in.
+        src: 'ISC2 OSG ch. 10 (HVAC, positive pressurization)'
+    close: >-
+      The data center lands in the middle of the second floor, with preaction sprinklers, its own air, and exit
+      doors that let people out. The waterfall feature is cancelled. Dale is moving it to his office.
+
+  # ======================================================================== k3-09
+  - id: k3-09
+    title: 'The route brain'
+    where: 'Halvorsen Labs · project kickoff, Monday 09:00'
+    diff: 2
+    open: >-
+      Halvorsen Labs is building "the route brain", a system that plans every truck route and sends commands to
+      warehouse conveyors. Rafa Lind wants to start coding today. Dale wants it "secure, but by Friday". Priya Nair,
+      COO, wants it to run for ten years. Shifty wants it designed properly, from requirements to the day it is
+      switched off.
+    scenes:
+      - c: control-selection
+        kind: rank
+        text: >-
+          Priya Nair asks Shifty how Halvorsen Freight will decide which security controls the route brain needs.
+          Shifty uses the NIST Risk Management Framework and lays the steps out on the whiteboard, leaving Prepare
+          and Monitor aside for now.
+        ask: 'Put these RMF steps in order, first at the top.'
+        items:
+          - 'Categorize the system by impact'
+          - 'Select and tailor the control baseline'
+          - 'Implement the controls'
+          - 'Assess whether the controls work as intended'
+          - 'Authorize the system to operate'
+        why: >-
+          NIST SP 800-37 runs Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor. Categorization sets
+          the impact level that drives control selection; an authorizing official accepts the remaining risk only
+          after the controls have been assessed.
+        src: 'NIST SP 800-37 Rev. 2 (Risk Management Framework steps)'
+
+      - c: tpm-hsm
+        kind: best
+        text: >-
+          The route brain will run on rugged laptops in every Halvorsen depot. Tomás Reyes wants each laptop's disk
+          encryption key released only if the laptop boots its own unmodified operating system, so a stolen laptop or
+          a tampered bootloader can't unlock the disk.
+        ask: 'Which component BEST provides this?'
+        o:
+          - 'A network HSM in headquarters'
+          - 'A USB drive holding the key'
+          - 'A strong BIOS password on each laptop'
+          - 'A Trusted Platform Module in each laptop'
+        a: 3
+        trap: 0
+        r:
+          - 'An HSM can guard the master keys, but it can''t see whether one laptop in Depot 12 booted a tampered loader.'
+          - 'The thief steals the laptop and the USB drive together. They were in the same bag.'
+          - 'BIOS passwords are reset with a jumper and a search engine. The disk key isn''t tied to boot integrity at all.'
+          - 'The TPM measures the boot and releases the key only to the expected one. A stolen laptop shows a recovery prompt and nothing else.'
+        why: >-
+          A TPM measures the boot sequence into its PCRs and seals the disk key to those values, releasing it only
+          to the expected, unmodified boot. An HSM serves many systems' keys at scale; it can't attest one laptop's
+          boot state.
+        src: 'TCG TPM 2.0 Library Specification (ISO/IEC 11889): PCRs and sealing; CISSP 2027 outline 3.4'
+
+      - c: memory-protection
+        kind: best
+        diff: 3
+        text: >-
+          Rafa Lind's architects describe one component of the route brain's operating platform: it must check every
+          access by every subject to every object, it must be tamper-proof, and it must be small enough to analyze
+          and test completely.
+        ask: 'Which concept does this description MOST precisely define?'
+        o:
+          - 'A trusted path'
+          - 'The reference monitor'
+          - 'The security perimeter'
+          - 'A maintenance hook'
+        a: 1
+        r:
+          - 'A trusted path is a secure channel between the user and the TCB, such as a secure attention key. Not this.'
+          - 'Right: complete mediation, tamper-proof, verifiable. The security kernel will implement it.'
+          - 'The perimeter is the boundary of the TCB, not the thing that checks every access inside it.'
+          - 'A maintenance hook is a hidden back door. The architects would like the opposite.'
+        why: >-
+          Those are the three reference monitor requirements: complete mediation, tamper-proofness and
+          verifiability. The security kernel implements it inside the TCB. The security perimeter is the TCB's
+          boundary; a trusted path is a secure user-to-TCB channel.
+        src: 'J. P. Anderson, Computer Security Technology Planning Study (ESD-TR-73-51, 1972); ISC2 OSG ch. 8 (TCB, reference monitor)'
+
+      - c: clark-wilson
+        kind: best
+        text: >-
+          The route brain will bill customers. CFO Marcus Webb requires that invoice records change only through the
+          approved billing application, never by editing the database directly, and that the person who creates an
+          invoice cannot also approve its credit note.
+        ask: 'Which security model BEST matches Marcus''s requirements?'
+        o:
+          - 'Biba'
+          - 'Bell-LaPadula'
+          - 'Brewer-Nash'
+          - 'Clark-Wilson'
+        a: 3
+        r:
+          - 'Biba protects integrity with levels, but has no idea of well-formed transactions or separated duties.'
+          - 'Bell-LaPadula is about keeping secrets. Marcus is worried about bad edits, not leaks.'
+          - 'Brewer-Nash prevents conflicts of interest between clients. Nobody is serving two rivals here.'
+          - 'Marcus gets access triples: billing clerks can run "create invoice", supervisors "approve credit". Nobody touches the tables directly.'
+        why: >-
+          Clark-Wilson protects commercial integrity with well-formed transactions (data changes only through
+          certified programs) and separation of duties through access triples. Biba also protects integrity, but
+          only with levels, without transactions or duty separation.
+        src: 'Clark and Wilson, A Comparison of Commercial and Military Computer Security Policies (IEEE S&P, 1987); ISC2 OSG ch. 8'
+
+      - c: ot-ics
+        kind: best
+        text: >-
+          The route brain will send start and stop commands to Halvorsen warehouse conveyors. Rafa Lind wants to push
+          software updates to the conveyor controllers automatically, at any time of day, "like we do for the
+          website". Jonas Vries, Rotterdam ops manager, is alarmed.
+        ask: 'What should be the PRIMARY consideration for changes reaching the conveyor controllers?'
+        o:
+          - 'Confidentiality of the conveyor commands'
+          - 'Speed of deploying new features'
+          - 'Safety and availability of the physical process'
+          - 'Keeping the cost of updates low'
+        a: 2
+        r:
+          - 'Encrypting commands is nice, but a conveyor restarting mid-shift with a worker''s hand nearby is the real nightmare.'
+          - 'An automatic update at 14:00 restarts every conveyor in Rotterdam during peak shift. Jonas''s alarm was justified.'
+          - 'Updates go through OT testing and Sunday maintenance windows agreed with the plant. Nobody gets hurt and the belts keep turning.'
+          - 'The cheapest update is the one that stops the warehouse. Cost is not the main constraint here.'
+        why: >-
+          Operational technology controls physical processes, so safety and availability lead its priorities,
+          unlike typical IT where confidentiality often leads. Changes need testing and agreed maintenance windows
+          with OT staff, not automatic pushes at any hour.
+        src: 'NIST SP 800-82 Rev. 3 (OT priorities: safety, reliability and availability)'
+
+      - c: cloud-containers
+        kind: best
+        text: >-
+          The route brain runs in containers on a shared cluster. A review finds Rafa Lind's containers run as root,
+          mount the host's file system, and pull base images from random public registries. Several teams'
+          containers share the same hosts.
+        ask: 'What is the GREATEST risk in this setup?'
+        o:
+          - 'A compromised container taking over the shared host'
+          - 'Containers starting more slowly than virtual machines'
+          - 'Higher storage costs from duplicated image layers'
+          - 'Developers losing track of container versions'
+        a: 0
+        r:
+          - 'Kim shows how one poisoned image could write to the host and reach other teams'' containers. Rafa moves to non-root, no host mounts, signed images.'
+          - 'Containers usually start faster, and speed isn''t the security problem anyway.'
+          - 'Storage is cheap. Root on a shared host is not.'
+          - 'Messy, but it doesn''t hand an attacker the whole cluster.'
+        why: >-
+          Containers share the host kernel. Root privileges plus host mounts make an escape far easier, and untrusted
+          images may carry malware. Run as non-root, without host mounts, from minimal signed images in a trusted
+          registry.
+        src: 'NIST SP 800-190 (Application Container Security Guide), sec. 3 (major risks) and sec. 4 (countermeasures)'
+
+      - c: system-lifecycle
+        kind: best
+        text: >-
+          A year ago, the route brain passed its security assessment and was authorized to operate. Dale wants to
+          cancel all further security reviews: "We passed. Done." Since then, three new integrations and a major
+          library upgrade have shipped.
+        ask: 'What is the BEST response to Dale?'
+        o:
+          - 'Agree, since the authorization stays valid until retirement'
+          - 'Keep continuous security review and reassess when things change'
+          - 'Repeat the full assessment only if a breach occurs'
+          - 'Replace all reviews with one penetration test a year'
+        a: 1
+        r:
+          - 'The authorization described a system that no longer exists. Three integrations later, nobody knows what the risk is.'
+          - 'Monitoring continues, and each significant change triggers a focused review. The new library''s flaw is caught in week two.'
+          - 'Reactive by design. The first review happens after the damage.'
+          - 'One test a year leaves eleven months of changes unchecked.'
+        why: >-
+          Security review continues through operations and maintenance: threats, code and integrations change, so
+          controls are monitored and reassessed. A one-time pass ages fast; waiting for a breach is reactive; one
+          yearly test leaves months of changes unchecked.
+        src: 'CISSP 2027 outline 3.10 (continuous security review); NIST SP 800-37 Rev. 2 (Monitor step); NIST SP 800-137 (ISCM)'
+    close: >-
+      The route brain goes live with a TPM in every depot laptop, invoices only the billing app can touch, and
+      conveyors that update on Sunday mornings. Rafa admits the whiteboard was faster than a rewrite. Dale takes
+      credit for Friday.
+
+  # ======================================================================== k3-10
+  - id: k3-10
+    title: 'Last day of the old data center'
+    where: 'Building A, old data center · Sunday 08:00'
+    diff: 2
+    open: >-
+      Building A's old data center closes now that Building C is live. Racks of retired servers wait in rows, an
+      old fire panel ticks in the corner, and Dale has already sold the drives "for scrap, as a little bonus".
+      Tomás Reyes is decommissioning. Shifty drifts down the aisles, saying goodbye to hardware older than his
+      death certificate.
+    scenes:
+      - c: system-lifecycle
+        kind: rank
+        diff: 1
+        text: >-
+          Priya Nair asks Shifty to explain on one slide how Halvorsen Freight's systems should move through their
+          lives, from first idea to the day they are switched off, with security part of every step.
+        ask: 'Put these lifecycle phases in order, earliest at the top.'
+        items:
+          - 'Stakeholder needs and requirements'
+          - 'Architectural design'
+          - 'Development and integration'
+          - 'Operations and maintenance'
+          - 'Retirement and secure disposal'
+        why: >-
+          Requirements come first, then design, then building and integrating, then running and sustaining, then
+          retirement. Security belongs in each step, not a test bolted on at the end.
+        src: 'CISSP 2027 outline 3.10; ISO/IEC/IEEE 15288 (system life cycle processes)'
+
+      - c: system-lifecycle
+        kind: best
+        text: >-
+          Tomás Reyes is retiring 200 Halvorsen Freight server drives that held customer payment data. Dale has
+          agreed to sell them to a scrap dealer as they are. The drives will not be reused inside the company.
+        ask: 'What is the BEST way to handle the drives?'
+        o:
+          - 'Delete the files and sell them as Dale arranged'
+          - 'Reformat each drive, then sell them'
+          - 'Sanitize them per NIST SP 800-88 and record it'
+          - 'Keep them in a storeroom indefinitely, just in case'
+        a: 2
+        r:
+          - 'A hobbyist buys a drive, runs a free recovery tool, and finds 40,000 card records. It makes the news.'
+          - 'A quick format leaves the data behind. The same hobbyist, slightly more effort, same headline.'
+          - 'The drives are purged or shredded, each one logged with a certificate. Dale''s scrap bonus shrinks; the liability disappears.'
+          - 'Ten years later, the storeroom is full, unlocked, and nobody remembers what is on any drive.'
+        why: >-
+          Retirement needs secure disposal: NIST SP 800-88 sanitization (purge, or destroy for drives leaving the
+          company), verified and documented. Deleting or reformatting leaves recoverable data (remanence); hoarding
+          keeps the risk.
+        src: 'NIST SP 800-88 Rev. 2, sec. 3.1 (clear, purge and destroy sanitization methods); CISSP 2027 outline 3.10'
+
+      - c: fire-suppression
+        kind: sort
+        diff: 2
+        text: >-
+          Before Building A closes, Halvorsen Freight's safety officer runs a fire drill and quizzes Shifty on the US
+          fire classes, so the right extinguishers go to the right places in the new building.
+        ask: 'Sort each fire: Class A, Class B, or Class C?'
+        bins: ['Class A', 'Class B', 'Class C']
+        pairs:
+          - ['Stacked cardboard boxes', 0]
+          - ['Paper files in a records room', 0]
+          - ['Diesel spilled at the loading dock', 1]
+          - ['Gasoline cans in the generator shed', 1]
+          - ['A burning power supply in a live server', 2]
+          - ['An energized electrical distribution panel', 2]
+        why: >-
+          In the US system (NFPA 10): Class A is ordinary combustibles (paper, wood, cardboard), Class B flammable
+          liquids and gases, Class C energized electrical equipment. Once the power is cut, a fire is treated by the
+          class of what is burning.
+        src: 'NFPA 10 (Standard for Portable Fire Extinguishers: classification of fires); ISC2 OSG ch. 10'
+
+      - c: cpted-site
+        kind: best
+        text: >-
+          The empty Building A will become a Halvorsen Freight training center. Facilities proposes planters, low
+          walls and a single walkway that steer every visitor to the one staffed entrance, without fences or locked
+          gates.
+        ask: 'Which CPTED strategy does this MOST directly apply?'
+        o:
+          - 'Natural surveillance'
+          - 'Territorial reinforcement'
+          - 'Natural access control'
+          - 'Target hardening'
+        a: 2
+        r:
+          - 'Visibility is not the point here. The planters steer people; they don''t make anyone easier to see.'
+          - 'Territorial reinforcement marks ownership with signs and borders. These planters are about where people walk.'
+          - 'Right: the layout guides every visitor to the one entrance with a person at it. No fence required.'
+          - 'Planters aren''t locks or bars. Target hardening is the opposite of a gentle nudge.'
+        why: >-
+          Natural access control uses landscaping, walkways and layout to guide people to controlled entrances.
+          Natural surveillance is about being seen; territorial reinforcement marks ownership with signs and borders;
+          target hardening adds locks and barriers.
+        src: 'ISC2 OSG ch. 10 (CPTED); Timothy D. Crowe, Crime Prevention Through Environmental Design'
+
+      - c: bell-lapadula
+        kind: best
+        diff: 3
+        text: >-
+          A Halvorsen Freight government contract requires a document system using Bell-LaPadula labels. A project
+          analyst cleared Confidential must read and update Confidential files. The contract also forbids her from
+          writing to any other level, higher or lower.
+        ask: 'Which Bell-LaPadula rule BEST describes the contract''s write restriction?'
+        o:
+          - 'The simple security property'
+          - 'The star (*) property'
+          - 'The strong star property'
+          - 'The tranquility principle'
+        a: 2
+        r:
+          - 'Simple security forbids reading up. The contract''s rule is about writing, in both directions.'
+          - 'The plain star property only forbids writing down. Writing up would still be allowed, and the contract says no.'
+          - 'Right: read and write only at her own level. The contract auditor ticks the box.'
+          - 'Tranquility is about whether labels change while the system runs. Not about where she may write.'
+        why: >-
+          The strong star property limits a subject to reading and writing only at its own level. The plain star
+          property forbids only writing down (writing up is allowed); simple security forbids reading up.
+          Tranquility concerns whether labels change during operation.
+        src: 'Bell and LaPadula (MITRE, 1976); ISC2 OSG ch. 8 (strong star property, tranquility)'
+
+      - c: iot-autonomous
+        kind: best
+        text: >-
+          Building C needs 60 IoT environmental sensors. Dale found a marketplace reseller selling them at half price,
+          with "slightly different" firmware and no link to the manufacturer. Tomás Reyes notes the official units
+          support signed firmware and a hardware root of trust.
+        ask: 'What is the BEST decision?'
+        o:
+          - 'Buy authorized units with signed firmware and verify them on arrival'
+          - 'Buy from the reseller and change default passwords on arrival'
+          - 'Buy from the reseller but put the sensors on a separate VLAN'
+          - 'Buy from the reseller and scan the firmware with antivirus'
+        a: 0
+        r:
+          - 'Slightly dearer, verified on delivery, firmware signature checked against the root of trust. Dale''s savings shrink; the risk shrinks more.'
+          - 'New passwords on firmware that may already phone home. The password was never the problem.'
+          - 'Segmentation limits the damage, but you have still installed 60 untrusted devices on purpose.'
+          - 'Antivirus finds nothing, because nobody has written a signature for this reseller''s "slightly different" firmware.'
+        why: >-
+          Counterfeit or tampered devices are a supply chain risk that segmentation and new passwords can't fully
+          fix, since the firmware itself may be malicious. Buy through authorized channels, then verify signed
+          firmware anchored in a hardware root of trust.
+        src: 'NIST SP 800-161 Rev. 1 (C-SCRM: counterfeit and tampered components); NIST IR 8259A (device cybersecurity capabilities)'
+
+      - c: control-selection
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen Freight is buying firewalls for Building C. Vendor A's firewall is Common Criteria certified at
+          EAL4 against a protection profile; Vendor B's is certified at EAL2 against the same profile. Dale says EAL4
+          means "it's twice as secure".
+        ask: 'What does the higher EAL MOST accurately tell Shifty?'
+        o:
+          - 'The product has twice as many security features'
+          - 'The product was evaluated more rigorously against its claims'
+          - 'The product uses stronger encryption algorithms'
+          - 'The product has no known vulnerabilities'
+        a: 1
+        r:
+          - 'Same protection profile, same features. The EAL describes the evaluation, not the feature list.'
+          - 'Right: EAL4 means methodically designed, tested and reviewed. More confidence in the claims, not more claims.'
+          - 'The EAL says nothing about algorithm strength. Both may use the same ciphers.'
+          - 'No certificate proves a product flawless. EAL4 products get patched too.'
+        why: >-
+          An Evaluation Assurance Level measures how rigorously a product was evaluated against its security
+          target, from EAL1 (functionally tested) to EAL7 (formally verified). It says nothing about feature count or
+          algorithm strength, and never proves the absence of flaws.
+        src: 'ISO/IEC 15408 (Common Criteria): evaluation assurance levels; ISC2 OSG ch. 8'
+    close: >-
+      The drives are shredded, the sensors are genuine, and the old fire panel is switched off with a salute. Dale's
+      scrap bonus is a pizza. Shifty takes one last float through Building A and, for the first time, leaves a room
+      by the door.

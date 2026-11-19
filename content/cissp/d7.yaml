@@ -1,0 +1,2301 @@
+# Domain 7: Security Operations (12.8%)
+# Format and rules: docs/cissp/DESIGN.md and docs/cissp/AUTHORING.md. Ids are stable forever.
+# Sources checked for this file: docs/cissp/sources-d5-d7.md
+
+concepts:
+  # ---------------------------------------------------------------- 7.1 investigations
+  - id: evidence-handling
+    obj: '7.1'
+    name: 'Evidence handling and chain of custody'
+    rule: 'Document who had the evidence, when, where and why, from seizure to court.'
+    learn:
+      - 'Chain of custody records where, when and by whom evidence was found, collected, handled, examined, stored and transferred (RFC 3227 sec. 4.1).'
+      - 'Any gap lets the other side argue the evidence was altered. Seal, label, log every handoff and store it securely.'
+      - 'Admissible evidence must be relevant, material and competent (legally obtained and reliable). Involve legal before acting on a suspected crime.'
+    ghost: 'Shifty cannot carry evidence. He is, however, a superb witness: he never sleeps and watches the evidence safe all night.'
+    src: 'RFC 3227 sec. 4.1 (chain of custody); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 19 (admissible evidence)'
+
+  - id: order-of-volatility
+    obj: '7.1'
+    name: 'Order of volatility'
+    rule: 'Collect the most volatile evidence first: memory before disk, disk before archives.'
+    learn:
+      - 'RFC 3227 order: registers and cache; routing table, ARP cache, process table, kernel statistics, memory; temporary file systems; disk.'
+      - 'Then remote logging and monitoring data; physical configuration and network topology; archival media.'
+      - 'Pulling the plug first destroys memory: running processes, network connections and encryption keys.'
+    src: 'RFC 3227 sec. 2.1 (order of volatility)'
+
+  - id: forensic-imaging
+    obj: '7.1'
+    name: 'Forensic process and artifacts'
+    rule: 'Work on a verified copy: write-block, image, hash, then analyze the copy.'
+    learn:
+      - 'SP 800-86 phases: collection, examination, analysis, reporting. Collect with a write blocker and a bit-for-bit image.'
+      - 'Hash the original and the image; matching hashes show the copy is exact. Analyze only the copy.'
+      - 'Artifacts can be data, computer, network or mobile device: files and logs, registry and memory, packet captures and flow records, call logs and app data.'
+    src: 'NIST SP 800-86 sec. 3 (forensic process) and 3.1.2 (acquiring data); CISSP 2027 outline 7.1 (artifacts)'
+
+  # ---------------------------------------------------------------- 7.2 logging and monitoring
+  - id: siem-log-mgmt
+    obj: '7.2'
+    name: 'SIEM, log management and tuning'
+    rule: 'Centralize, time-sync, protect and correlate logs; tune rules continuously.'
+    learn:
+      - 'A SIEM collects, normalizes and correlates events from many sources and alerts on patterns no single log shows.'
+      - 'Logs need synchronized time, protected central storage (attackers delete local logs) and a retention policy.'
+      - 'Continuous monitoring and tuning cut false positives so analysts can see the real alerts.'
+    src: 'NIST SP 800-92 (log management); NIST SP 800-137 (continuous monitoring); NIST SP 800-53 Rev. 5, AU-6, AU-8, AU-9'
+
+  - id: soar-playbooks
+    obj: '7.2'
+    name: 'SOAR'
+    rule: 'SOAR runs approved playbooks automatically across tools to speed response.'
+    learn:
+      - 'Security Orchestration, Automation and Response (SOAR) connects tools (SIEM, EDR, email, firewall) and runs playbooks.'
+      - 'Good candidates: repeatable, well-understood steps such as enriching alerts, quarantining a phishing email, blocking a known-bad hash.'
+      - 'Playbooks encode the approved process; humans keep decisions with high business impact.'
+    src: 'CISSP 2027 outline 7.2 (SOAR); NIST SP 800-61 Rev. 3 (automation in incident response)'
+
+  - id: ueba-analytics
+    obj: '7.2'
+    name: 'UEBA and ML/AI detection'
+    rule: 'Baseline normal behavior per user and entity; alert on meaningful deviations.'
+    learn:
+      - 'User and entity behavior analytics (UEBA) learns normal patterns for users, hosts and service accounts and flags anomalies.'
+      - 'It finds misuse that signatures miss: a valid account downloading ten times its usual volume at 3 a.m.'
+      - 'ML and AI-based tools need good training data, tuning and human review; they produce false positives and can be evaded.'
+    src: 'CISSP 2027 outline 7.2 (UEBA) and 7.7 (ML and AI based tools)'
+
+  - id: threat-intel-hunting
+    obj: '7.2'
+    name: 'Threat intelligence and hunting'
+    rule: 'Feeds tell you what to look for; hunting looks for what tools missed.'
+    learn:
+      - 'Threat feeds supply indicators (IPs, domains, hashes) and adversary tactics; they must be relevant and vetted to be useful.'
+      - 'Threat hunting is proactive and hypothesis-driven: assume a compromise went undetected and search for evidence of it.'
+      - 'Hunt findings should become new detections and tuning, so the next attack is caught automatically.'
+    src: 'CISSP 2027 outline 7.2 (threat feeds, threat hunting); NIST SP 800-150 (cyber threat information sharing)'
+
+  - id: dlp-egress
+    obj: '7.2'
+    name: 'Egress monitoring and DLP'
+    rule: 'Watch and control what leaves: DLP inspects outbound data against policy.'
+    learn:
+      - 'Egress monitoring watches outbound traffic for data exfiltration and command-and-control. DLP is its main tool.'
+      - 'Network DLP inspects traffic at the boundary; endpoint DLP controls USB, printing and uploads on the device.'
+      - 'DLP needs classified data and defined rules; encrypted traffic must be inspected where policy and law allow.'
+    src: 'CISSP 2027 outline 7.2 (egress monitoring, DLP); NIST SP 800-53 Rev. 5, SC-7(10) (prevent exfiltration)'
+
+  # ---------------------------------------------------------------- 7.3 configuration management
+  - id: config-baselines
+    obj: '7.3'
+    name: 'Configuration management and baselines'
+    rule: 'Build from an approved baseline, automate it, and detect drift.'
+    learn:
+      - 'A baseline is the approved, documented configuration for a system type; provisioning should deploy from it.'
+      - 'Automation (images, configuration-as-code) makes builds consistent and repeatable.'
+      - 'Compare running systems to the baseline: unexplained drift is either an unmanaged change or an attacker.'
+    src: 'NIST SP 800-128 (security-focused configuration management); NIST SP 800-53 Rev. 5, CM-2, CM-3, CM-6'
+
+  # ---------------------------------------------------------------- 7.4 foundational concepts
+  - id: ops-defense-in-depth
+    obj: '7.4'
+    name: 'Defense in depth in operations'
+    rule: 'Layer independent controls so one failure does not expose the asset.'
+    learn:
+      - 'Defense in depth layers administrative, technical and physical controls around an asset.'
+      - 'Layers should be different, so one weakness (a stolen password, a propped door) does not defeat them all.'
+      - 'In operations, add detection and response layers too: prevention alone eventually fails.'
+    src: 'CISSP 2027 outline 7.4 (Defense in Depth); NIST SP 800-53 Rev. 5, PL-8(1) (defense in depth)'
+
+  - id: least-privilege-sod
+    obj: '7.4'
+    name: 'Need to know, SoD, job rotation'
+    rule: 'Least access, split critical tasks between people, rotate jobs to expose fraud.'
+    learn:
+      - 'Need to know and least privilege: access only to the data and rights a task requires.'
+      - 'Separation of duties splits a sensitive process so no single person can complete and hide fraud.'
+      - 'Job rotation and mandatory vacations let someone else do the job, which exposes fraud and builds backup skills.'
+    src: 'NIST SP 800-53 Rev. 5, AC-5 (separation of duties) and AC-6; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16'
+
+  - id: privileged-account-monitoring
+    obj: '7.4'
+    name: 'Privileged account management'
+    rule: 'Few privileged accounts, separate from daily ones, closely monitored.'
+    learn:
+      - 'Privileged accounts can change security settings and erase evidence, so they need the most scrutiny.'
+      - 'Use separate admin accounts, log every privileged action to a place admins cannot alter, and review the logs.'
+      - 'Alert on privileged use outside change windows, new admin accounts and disabled logging.'
+    src: 'NIST SP 800-53 Rev. 5, AC-2(7), AC-6(9) and AU-9(4); CISSP 2027 outline 7.4'
+
+  # ---------------------------------------------------------------- 7.5 resource protection
+  - id: media-management
+    obj: '7.5'
+    name: 'Media management and protection'
+    rule: 'Label, track, store, encrypt and sanitize media through its whole life.'
+    learn:
+      - 'Media management: label by classification, log check-in and check-out, and store in a controlled environment.'
+      - 'Protection techniques include archiving, encryption, and sanitization before disposal or reuse.'
+      - 'SP 800-88 sanitization methods: clear, purge, destroy. Pick by media type and data sensitivity.'
+    src: 'NIST SP 800-88 (media sanitization: clear, purge, destroy); NIST SP 800-53 Rev. 5, MP-3 to MP-6'
+
+  - id: data-states-protection
+    obj: '7.5'
+    name: 'Protecting data in each state'
+    rule: 'At rest, in transit, in use: each state needs its own control.'
+    learn:
+      - 'At rest: storage or full-disk encryption and access control. In transit: TLS, IPsec or VPN.'
+      - 'In use: data is decrypted in memory, so protect it with memory protection, trusted execution environments and screen privacy.'
+      - 'Encrypting one state does not cover the others: a TLS-protected file is plaintext on the server''s disk unless also encrypted at rest.'
+    src: 'CISSP 2027 outline 7.5 (data states: in use, in transit, at rest); NIST SP 800-53 Rev. 5, SC-8 and SC-28'
+
+  # ---------------------------------------------------------------- 7.6 incident management
+  - id: incident-steps
+    obj: '7.6'
+    name: 'Incident management steps'
+    rule: 'Detection, response, mitigation, reporting, recovery, remediation, lessons learned.'
+    learn:
+      - 'ISC2 lists seven steps: detection, response, mitigation, reporting, recovery, remediation, lessons learned.'
+      - 'Response activates the team per the plan; mitigation contains the damage (isolate hosts, disable accounts) before it spreads.'
+      - 'Recovery restores normal operations; remediation fixes the root cause so it does not happen again.'
+    ghost: 'Shifty cannot pull a network cable. He can make sure the person who can has the IR plan and the authority.'
+    src: 'CISSP 2027 outline 7.6; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 17'
+
+  - id: incident-reporting-lessons
+    obj: '7.6'
+    name: 'Incident reporting and lessons learned'
+    rule: 'Report as the plan and law require; then learn and improve.'
+    learn:
+      - 'Reporting goes to management and, where law or contract requires, to regulators, customers or law enforcement, usually through legal.'
+      - 'Some laws set deadlines (for example GDPR Art. 33: the authority within 72 hours where feasible).'
+      - 'Lessons learned reviews what happened and what to change, and feeds the plan, controls and training. Blame is not the goal.'
+    src: 'CISSP 2027 outline 7.6 (reporting, lessons learned); GDPR Art. 33; NIST SP 800-61 Rev. 3'
+
+  # ---------------------------------------------------------------- 7.7 detective and preventive measures
+  - id: firewalls-ids-ips
+    obj: '7.7'
+    name: 'Firewalls, IDS and IPS'
+    rule: 'IDS watches and alerts; IPS sits inline and blocks; WAF guards web apps.'
+    learn:
+      - 'An IDS is passive: it monitors a copy of traffic and alerts. An IPS is inline and can drop malicious traffic.'
+      - 'Network firewalls filter by address, port and state; next-generation firewalls add application awareness and IPS features.'
+      - 'A web application firewall (WAF) inspects HTTP to block attacks like SQL injection and cross-site scripting.'
+    src: 'NIST SP 800-94 (IDPS) sec. 2; NIST SP 800-41 Rev. 1 (firewalls); CISSP 2027 outline 7.7'
+
+  - id: allowlist-denylist
+    obj: '7.7'
+    name: 'Allowlist and denylist'
+    rule: 'Denylist blocks known bad; allowlist permits only known good and blocks the rest.'
+    learn:
+      - 'A denylist blocks named bad items (hashes, domains). It is easy, but misses anything new.'
+      - 'An allowlist (default deny) lets only approved items run or connect. Stronger, but needs maintenance.'
+      - 'Application allowlisting fits fixed-function systems such as kiosks, servers and OT workstations.'
+    src: 'NIST SP 800-167 (application whitelisting); CISSP 2027 outline 7.7 (allowlist/denylist)'
+
+  - id: third-party-sec-services
+    obj: '7.7'
+    name: 'DDoS scrubbing and MSSPs'
+    rule: 'Buy the capability, keep the accountability: you still own the risk.'
+    learn:
+      - 'A DDoS scrubbing service diverts traffic through the provider''s scrubbing centers, filters the attack, and returns clean traffic.'
+      - 'A managed security service provider (MSSP) can run monitoring 24x7, under a contract and SLA with defined escalation.'
+      - 'Responsibility can be shared, never handed off: the organization stays accountable for its security.'
+    src: 'CISSP 2027 outline 7.7 (DDoS scrubbing, MSSP); NIST SP 800-35 (guide to IT security services)'
+
+  - id: sandbox-honeypot
+    obj: '7.7'
+    name: 'Sandboxing and honeypots'
+    rule: 'Sandboxes detonate suspect code safely; honeypots lure attackers away from real systems.'
+    learn:
+      - 'A sandbox runs suspicious files or code in an isolated environment and watches what they do.'
+      - 'A honeypot (or honeynet) is a decoy with no production value: any activity on it is suspicious and teaches you about attackers.'
+      - 'Honeypots may entice (be available) but must not entrap (induce a crime); involve legal before deploying.'
+    src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 17 (honeypots, enticement vs entrapment, sandboxing); CISSP 2027 outline 7.7'
+
+  - id: edr-xdr
+    obj: '7.7'
+    name: 'Endpoint protection: EDR and XDR'
+    rule: 'EDR records and responds on endpoints; XDR correlates across endpoints, network, email and cloud.'
+    learn:
+      - 'Classic anti-malware matches signatures. Endpoint Detection and Response (EDR) records endpoint activity, detects behavior and can isolate a host.'
+      - 'Extended Detection and Response (XDR) correlates telemetry from endpoints, network, email, identity and cloud into one incident view.'
+      - 'Both need tuning and a team to act on what they find.'
+    src: 'CISSP 2027 outline 7.7 (endpoint protection: anti-malware, EDR, XDR)'
+
+  # ---------------------------------------------------------------- 7.8 / 7.9
+  - id: patch-vuln-mgmt
+    obj: '7.8'
+    name: 'Patch and vulnerability management'
+    rule: 'Know your assets, prioritize by risk, test, deploy, verify.'
+    learn:
+      - 'Vulnerability management needs an accurate asset inventory; you cannot patch what you do not know you have.'
+      - 'Patch process: evaluate, test, approve, deploy, verify. Emergency patches still go through an emergency change process.'
+      - 'When no patch exists or it cannot be applied (legacy, OT), use compensating controls such as isolation and monitoring.'
+    src: 'NIST SP 800-40 Rev. 4 (enterprise patch management planning); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16'
+
+  - id: change-management
+    obj: '7.9'
+    name: 'Change management'
+    rule: 'Request, review impact, approve, test and implement, document: no surprise changes.'
+    learn:
+      - 'Change management keeps unreviewed changes from reducing security or availability.'
+      - 'Typical steps: request, review and impact analysis, approve or reject (often a change board), test and implement with a rollback plan, document.'
+      - 'Emergency changes may be made first but are documented and reviewed afterward.'
+    src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16 (change management); NIST SP 800-53 Rev. 5, CM-3'
+
+  # ---------------------------------------------------------------- 7.10 recovery strategies
+  - id: backup-types
+    obj: '7.10'
+    name: 'Full, incremental and differential'
+    rule: 'Incremental restore: full plus every incremental. Differential: full plus the latest differential.'
+    learn:
+      - 'Full backs up everything. Incremental backs up changes since the last backup of any kind, and clears the archive bit.'
+      - 'Differential backs up changes since the last full, and does not clear the bit, so each one grows.'
+      - 'The backup interval bounds data loss: backups every 6 hours can lose up to 6 hours of data.'
+    src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18 (backups); NIST SP 800-34 Rev. 1 sec. 3.4.2'
+
+  - id: immutable-backups
+    obj: '7.10'
+    name: 'Immutable, offsite and encrypted backups'
+    rule: 'Keep a copy that ransomware and admins cannot change, away from production.'
+    learn:
+      - 'Immutable (WORM, object-lock) backups cannot be altered or deleted during retention, even with admin credentials.'
+      - 'Store copies offsite or in cloud storage away from the same disaster and the same compromised credentials.'
+      - 'Encrypt backups and keep the keys separately and recoverably: a lost key means a lost backup.'
+    src: 'CISSP 2027 outline 7.10 (cloud, onsite, offsite, immutable, encrypted); NIST SP 800-34 Rev. 1 sec. 3.4.2; NIST SP 800-53 Rev. 5, CP-9'
+
+  - id: recovery-sites
+    obj: '7.10'
+    name: 'Cold, warm, hot and other sites'
+    rule: 'Pick the cheapest site that still meets the RTO.'
+    learn:
+      - 'Cold: space and utilities only (cheapest, slowest). Warm: some or all hardware, partly ready. Hot: fully equipped and staffed, ready fast.'
+      - 'Mirrored sites run in real time (most expensive); mobile sites are transportable. SP 800-34 sec. 3.4.3 defines them all.'
+      - 'Agreements matter: reciprocal and resource capacity agreements must really guarantee the capacity you will need.'
+    src: 'NIST SP 800-34 Rev. 1 sec. 3.4.3 (alternate sites); CISSP 2027 outline 7.10 (resource capacity agreements)'
+
+  - id: ha-fault-tolerance
+    obj: '7.10'
+    name: 'HA, QoS and fault tolerance'
+    rule: 'Redundancy removes single points of failure; QoS protects critical traffic.'
+    learn:
+      - 'Fault tolerance keeps a system running through a component failure (RAID, redundant power supplies).'
+      - 'High availability uses clustering and failover to keep a service up; multiple processing sites protect against site loss.'
+      - 'Quality of Service (QoS) prioritizes critical traffic, such as voice or dispatch, when links are congested.'
+    src: 'CISSP 2027 outline 7.10; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18 (system resilience, fault tolerance)'
+
+  # ---------------------------------------------------------------- 7.11 DR processes
+  - id: dr-process
+    obj: '7.11'
+    name: 'Running the DR plan'
+    rule: 'People first, then assess, restore by priority, communicate, and learn.'
+    learn:
+      - 'Response: protect people and activate the plan. Assessment: find out what is damaged and what to recover first.'
+      - 'Restoration follows business priority from the BIA. Return to the primary site carefully, least critical first.'
+      - 'Communications need planned methods and priorities, with one designated voice to the outside.'
+    src: 'CISSP 2027 outline 7.11; NIST SP 800-34 Rev. 1 sec. 4 (plan activation, recovery, reconstitution)'
+
+  - id: dr-metrics
+    obj: '7.11'
+    name: 'RTO, RPO, MTBF and MTTR'
+    rule: 'RTO: time to restore. RPO: tolerable data loss. Availability = MTBF/(MTBF+MTTR).'
+    learn:
+      - 'RTO is the maximum time to restore a service; it must be shorter than the maximum tolerable downtime. RPO is the maximum acceptable data loss, in time.'
+      - 'MTBF (Mean Time Between Failures) measures reliability. MTTR (ISC2: Mean Time to Resolve) measures how fast you recover.'
+      - 'Measure against a baseline: a falling MTBF or rising MTTR tells you the recovery program is slipping.'
+    src: 'CISSP 2027 outline 7.11 (metrics: baseline, MTTR, MTBF); NIST SP 800-34 Rev. 1 sec. 3.2.1 (MTD, RTO, RPO)'
+
+  # ---------------------------------------------------------------- 7.12 / 7.13
+  - id: dr-test-types
+    obj: '7.12'
+    name: 'DR test types'
+    rule: 'Read-through/tabletop, walkthrough, simulation, parallel, full interruption: rising disruption.'
+    learn:
+      - 'Read-through/tabletop and walkthrough are discussions: people review the plan and talk through their roles. No systems are touched.'
+      - 'Simulation acts out a scenario. Parallel brings up the alternate site while production keeps running.'
+      - 'Full interruption shuts down production and runs from the recovery site: most realistic, most risky, needs senior approval.'
+    src: 'CISSP 2027 outline 7.12; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18 (testing the DRP)'
+
+  - id: bc-exercises
+    obj: '7.13'
+    name: 'BC planning exercises'
+    rule: 'Exercise the plan regularly; discussion-based first, operations-based as maturity grows.'
+    learn:
+      - 'Exercises check that people know their BC roles and that the plan still matches the business.'
+      - 'Discussion-based: seminars, workshops, tabletops, games. Operations-based: drills, functional and full-scale exercises.'
+      - 'Each exercise ends with an after-action report and plan updates; security joins as a participant, the business owns the plan.'
+    src: 'NIST SP 800-84 (TT&E programs); FEMA HSEEP (2020) (discussion-based and operations-based exercises); NIST SP 800-34 Rev. 1 sec. 3.5.3'
+
+  # ---------------------------------------------------------------- 7.14 / 7.15
+  - id: physical-external-internal
+    obj: '7.14'
+    name: 'External and internal physical controls'
+    rule: 'External controls deter and delay at the perimeter; internal controls restrict inside.'
+    learn:
+      - 'External: fences, gates, bollards, lighting, perimeter CCTV, guards, signage and landscaping (CPTED).'
+      - 'Internal: badge readers, access control vestibules (mantraps), locks, internal CCTV, visitor escorts, secured zones.'
+      - 'Layer them, and remember the goals: deter, delay, detect, respond.'
+    ghost: 'Shifty tests every wall by floating through it. Humans, thankfully, cannot.'
+    src: 'CISSP 2027 outline 7.14 (external, internal); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 10'
+
+  - id: personnel-safety
+    obj: '7.15'
+    name: 'Personnel safety and emergencies'
+    rule: 'Human life comes first, always; plan for travel, duress and emergencies.'
+    learn:
+      - 'Emergency management: evacuation routes, wardens, an assembly point and a headcount. Life safety outranks data and equipment.'
+      - 'Duress: a covert signal (code word, silent alarm, duress PIN) lets someone under threat comply safely and still get help.'
+      - 'Travel: brief travelers on risks, use clean loaner devices for high-risk trips and treat returned devices as untrusted.'
+    ghost: 'Shifty is already dead. He is very clear that nobody else at Halvorsen should be.'
+    src: 'CISSP 2027 outline 7.15 (travel, training, emergency management, duress); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16'
+
+cases:
+  # =====================================================================================
+  - id: k7-01
+    title: 'Ransomware at 03:00'
+    where: 'Halvorsen Freight SOC · Sun 03:04'
+    diff: 2
+    open: >-
+      At 03:04 on Sunday, Kim Osei's phone screams. Routing servers are encrypting themselves one after another, and a
+      ransom note in Comic Sans asks for 40 bitcoin. Dale, still in pajamas, joins the call and suggests paying
+      "because it's the weekend". Shifty is already in the SOC. Ghosts don't sleep, and this is the moment the IR plan
+      was written for.
+    scenes:
+      - c: incident-steps
+        kind: first
+        text: >-
+          03:05. Halvorsen's EDR shows ransomware spreading from server to server across the routing VLAN. The IR
+          plan, approved by the board, says the SOC lead may isolate affected network segments during an active
+          incident. Kim Osei asks Shifty whether to wait for the CIO, who is on a plane.
+        ask: 'What should happen FIRST?'
+        o:
+          - 'Wait for the CIO to land and approve the response'
+          - 'Isolate the routing VLAN as the IR plan authorizes'
+          - 'Restore the encrypted servers from last night''s backup'
+          - 'Contact the attackers to negotiate the ransom'
+        a: 1
+        r:
+          - 'The CIO lands four hours later. By then the payroll and portal servers are encrypted too.'
+          - 'Kim cuts the VLAN off. The spread stops at 31 servers. Now the team can work out what happened.'
+          - 'The backups restore onto a network still full of ransomware. They are encrypted again by 04:00.'
+          - 'The attackers are delighted to chat. Ines Albescu, woken up, is not: nobody decided to pay.'
+        why: >-
+          During an active incident, contain it per the approved plan: mitigation limits the damage before it spreads.
+          The plan already grants the authority, so waiting is the wrong kind of caution. Restoring before containment
+          gets reinfected.
+        src: 'CISSP 2027 outline 7.6 (response, mitigation); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 17'
+        diff: 1
+
+      - c: edr-xdr
+        kind: best
+        text: >-
+          Halvorsen's laptops run only signature-based antivirus, which saw nothing during the ransomware attack. Kim
+          Osei wants a tool that records process activity on each endpoint, detects suspicious behavior and can
+          isolate a single infected laptop remotely.
+        ask: 'Which capability BEST matches what Kim wants?'
+        o:
+          - 'A newer signature-based antivirus product'
+          - 'Endpoint Detection and Response (EDR)'
+          - 'A host-based firewall on each laptop'
+          - 'A network intrusion detection system'
+        a: 1
+        r:
+          - 'New signatures for old malware. The next variant walks straight past it.'
+          - 'EDR goes in. Next month it spots a laptop running a suspicious encryption process and isolates it in seconds.'
+          - 'A host firewall filters connections. It does not record process behavior or hunt across endpoints.'
+          - 'A NIDS sees network traffic, not what happens inside each laptop, and cannot isolate one.'
+        why: >-
+          EDR records endpoint activity, detects malicious behavior beyond signatures and can contain a host remotely.
+          Signature antivirus misses new variants; a NIDS watches the network, not endpoint processes.
+        src: 'CISSP 2027 outline 7.7 (endpoint protection: anti-malware, EDR, XDR)'
+        diff: 1
+
+      - c: order-of-volatility
+        kind: rank
+        text: >-
+          The FBI liaison asks Kim Osei to preserve evidence from the first infected server, which is still running
+          but isolated. Kim's checklist follows RFC 3227. Shifty asks her to put the evidence sources in the order she
+          will collect them.
+        ask: 'Order the evidence by collection order, most volatile first at the top.'
+        items:
+          - 'CPU registers and cache'
+          - 'Memory, running processes and network connections'
+          - 'Temporary file systems'
+          - 'The server''s disk'
+          - 'Backup tapes in the archive'
+        why: >-
+          RFC 3227 collects from most to least volatile: registers and cache; routing and ARP tables, process table,
+          memory; temporary file systems; disk; then remote logs, physical configuration and archival media. Shutting
+          down first would lose everything in memory.
+        src: 'RFC 3227 sec. 2.1 (order of volatility)'
+
+      - c: immutable-backups
+        kind: spot
+        text: >-
+          The attackers used a stolen domain admin account. Production, the domain-joined backup NAS and the DR replica
+          are all encrypted. Also available: a cloud bucket with object lock (immutable for 30 days), last written
+          23:00 yesterday, and a tape set in the offsite vault from two weeks ago.
+        ask: 'Tap the copy that BEST lets Halvorsen recover with the least data loss.'
+        map:
+          caption: 'Halvorsen backup and recovery layout, Sunday 05:00'
+          nodes:
+            - { id: prod, label: 'Routing servers', x: 4, y: 8 }
+            - { id: nas, label: 'Backup NAS (domain)', x: 39, y: 8 }
+            - { id: dr, label: 'DR site replica', x: 74, y: 8 }
+            - { id: adm, label: 'Domain admin console', x: 4, y: 60 }
+            - { id: cloud, label: 'Cloud object lock', x: 39, y: 60 }
+            - { id: tape, label: 'Offsite tape vault', x: 74, y: 60 }
+          links: [[prod, nas], [prod, dr], [nas, cloud], [nas, tape], [adm, nas]]
+        a: cloud
+        why: >-
+          The object-locked cloud copy is immutable, so the stolen admin account could not encrypt or delete it, and
+          it is the newest clean copy. The tapes survived too, but lose two weeks of data. The NAS and replica shared
+          the compromised credentials and were encrypted.
+        src: 'CISSP 2027 outline 7.10 (immutable, offsite, cloud backups); NIST SP 800-53 Rev. 5, CP-9'
+        diff: 2
+
+      - c: backup-types
+        kind: calc
+        text: >-
+          Before the immutable copy existed, Halvorsen's on-site schedule was a full backup Sunday at 01:00 and an
+          incremental every night Monday to Friday at 01:00. Kim asks how many backup sets she would need to restore
+          the routing database if it failed on Saturday at noon.
+        ask: 'How many backup sets are needed for the most recent restore?'
+        o: ['6', '2', '5', '1']
+        a: 0
+        why: >-
+          Incremental backups hold only changes since the previous backup, so a restore needs the last full plus every
+          incremental since: Sunday full + Monday, Tuesday, Wednesday, Thursday, Friday = 6 sets. Two sets (full plus
+          latest) is the differential answer; 5 forgets the full.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18 (backup types)'
+        diff: 2
+
+      - c: incident-reporting-lessons
+        kind: first
+        text: >-
+          Monday. Kim Osei confirms the attackers copied the shipment files of EU customers, including names and home
+          addresses, before encrypting. Ines Albescu, General Counsel, is in the room. Dale suggests "keeping it in the
+          family until we know more".
+        ask: 'What should Shifty do FIRST about reporting?'
+        o:
+          - 'Keep it internal until the investigation is complete'
+          - 'Post a statement on social media to get ahead of it'
+          - 'Brief Ines so legal can start required breach notifications'
+          - 'Email every EU customer directly from the SOC'
+        a: 2
+        r:
+          - 'Three weeks later the regulator finds out from a journalist. The 72-hour clock ran out long ago.'
+          - 'The post contradicts what legal later tells the regulator. Marketing and Ines stop speaking to Shifty.'
+          - 'Ines notifies the Dutch data protection authority within 72 hours and plans the customer notices. The regulator notes the cooperation.'
+          - 'Unvetted emails from the SOC give wrong facts. Some customers think it is a phishing email.'
+        why: >-
+          Reporting follows the plan and the law, through legal. A personal data breach under GDPR must be reported to
+          the supervisory authority within 72 hours where feasible, so waiting for a full investigation is wrong.
+          Unvetted public statements create new problems.
+        src: 'GDPR Art. 33 (notification within 72 hours); CISSP 2027 outline 7.6 (reporting)'
+
+      - c: patch-vuln-mgmt
+        kind: best
+        text: >-
+          The investigation finds the root cause: a VPN appliance missing a critical patch released four months ago.
+          It was never patched because it was not in Halvorsen's asset inventory. The servers are restored and
+          running.
+        ask: 'What is the BEST remediation step now?'
+        o:
+          - 'Patch the VPN appliance and close the case'
+          - 'Replace the VPN appliance with a different vendor''s product this month'
+          - 'Fix inventory and patch management so every device is tracked and patched'
+          - 'Block all remote access until next year'
+        a: 2
+        trap: 0
+        r:
+          - 'That one box is fixed. Kim finds three other untracked devices with old firmware the following month.'
+          - 'A new vendor, the same broken process. The new box will be missed just as easily.'
+          - 'Inventory finds 47 unknown devices. Each now has an owner and a patch schedule. That is a root-cause fix.'
+          - 'Drivers and Rotterdam cannot work. Priya Nair asks whether Shifty is serious.'
+        why: >-
+          Remediation fixes the root cause, which here is the process: an asset missing from inventory never gets
+          patched. Patching one box is recovery, not remediation. Vulnerability management starts with knowing every
+          asset.
+        src: 'NIST SP 800-40 Rev. 4 (patch management planning); CISSP 2027 outline 7.6 (remediation) and 7.8'
+    close: >-
+      Halvorsen pays nothing. The routing servers come back from the object-locked copy by Monday evening, the
+      regulator is told on time, and the forgotten VPN box has an owner. Dale changes out of his pajamas on
+      Tuesday. Shifty asks the board for an immutable budget too.
+
+  # =====================================================================================
+  - id: k7-02
+    title: 'The clerk and the USB stick'
+    where: 'Halvorsen MedLink, records office · Wed 11:20'
+    diff: 2
+    open: >-
+      MedLink's UEBA flags a records clerk, Viktor, for copying 9,000 patient files on a Tuesday night. Dr. Amara Cole
+      is upset. Dale wants to march over and "have a word". Ines Albescu wants everyone to touch nothing. Shifty floats
+      above Viktor's desk and confirms, ominously, that there is a USB stick in the laptop.
+    scenes:
+      - c: ueba-analytics
+        kind: best
+        text: >-
+          MedLink's records clerk Viktor normally opens about 40 patient files a day, in office hours. On Tuesday at
+          02:00 his valid account opened 9,000. No malware signature fired. Kim Osei asks which tool caught it.
+        ask: 'Which capability is MOST likely to have detected this?'
+        o:
+          - 'Signature-based antivirus on the laptops'
+          - 'User and entity behavior analytics (UEBA)'
+          - 'A stateful network firewall at the edge'
+          - 'A file integrity monitor'
+        a: 1
+        r:
+          - 'There was no malware to match. The antivirus is still sure everything is fine.'
+          - 'UEBA had learned Viktor''s normal pattern. 9,000 files at 02:00 was far outside it, so it alerted.'
+          - 'The firewall saw allowed traffic from an allowed user. Nothing to block.'
+          - 'No files were changed, only read. Integrity monitoring saw nothing.'
+        why: >-
+          UEBA baselines normal behavior for each user and entity and alerts on deviations, which catches misuse of
+          valid accounts that signatures and firewalls miss. File integrity monitoring detects changes, not mass
+          reading.
+        src: 'CISSP 2027 outline 7.2 (UEBA)'
+        diff: 1
+
+      - c: evidence-handling
+        kind: first
+        text: >-
+          The UEBA alert suggests Viktor, a MedLink clerk, copied 9,000 patient files. Dale wants to go confront him
+          and take his laptop now. Ines Albescu says this could become a criminal case and an HIPAA breach
+          investigation.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Confront Viktor and take the laptop before he leaves'
+          - 'Image the laptop remotely using the EDR agent'
+          - 'Fire Viktor today to limit the damage'
+          - 'Follow legal''s direction and the investigation procedure'
+        a: 3
+        trap: 1
+        r:
+          - 'Viktor wipes the USB stick in the bathroom. Dale''s "word" becomes evidence of a botched investigation.'
+          - 'Kim starts a remote capture with no authorization or plan. Defense counsel will love it.'
+          - 'Viktor leaves with whatever he copied. HR is now in a wrongful dismissal case too.'
+          - 'Ines sets the plan: HR, security and a forensic examiner, chain of custody from the first minute. Then they move.'
+        why: >-
+          When an investigation may become criminal or regulatory, involve legal first and follow the procedure, so
+          evidence is collected lawfully and admissibly. Confronting, firing or ad-hoc imaging risks losing or
+          tainting evidence.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 19 (investigations, admissible evidence); CISSP 2027 outline 7.1'
+
+      - c: order-of-volatility
+        kind: best
+        text: >-
+          With legal approval, MedLink's forensic examiner reaches Viktor's laptop. It is powered on and unlocked, the
+          USB stick is still inserted, and a file copy window is open. Dale wants to pull the power cord "to freeze
+          everything".
+        ask: 'What is the BEST evidence to collect first?'
+        o:
+          - 'A capture of system memory and running processes'
+          - 'A full image of the laptop''s hard disk'
+          - 'The contents of the USB stick'
+          - 'The MedLink backup tapes from last week'
+        a: 0
+        r:
+          - 'The memory capture shows the copy process, the USB path and an open file-sharing session. None of it would survive a power cut.'
+          - 'The disk will still be there later. The memory will not, if anyone touches the power.'
+          - 'The stick will keep its data unpowered. The open session in memory will not.'
+          - 'The tapes are the least volatile evidence of all and can wait.'
+        why: >-
+          RFC 3227 says collect the most volatile evidence first. Memory, processes and network connections vanish
+          when power is lost; disk and removable media persist, and archives are least volatile. Pulling the plug
+          destroys the memory.
+        src: 'RFC 3227 sec. 2.1 (order of volatility)'
+
+      - c: forensic-imaging
+        kind: best
+        text: >-
+          The examiner now has to take the laptop's disk and the USB stick for analysis. Ines Albescu wants the
+          results to stand up in court. Rafa Lind offers to "just plug the stick into my laptop and see what's on it".
+        ask: 'What is the BEST way to handle the disk and USB stick?'
+        o:
+          - 'Open the USB stick on Rafa''s laptop to save some time'
+          - 'Copy the files off with drag and drop'
+          - 'Image each with a write blocker, hash both, analyze the copies'
+          - 'Run antivirus on the originals first'
+        a: 2
+        trap: 0
+        r:
+          - 'Rafa''s laptop writes metadata to the stick. The defense argues every file could have been changed.'
+          - 'A file copy misses deleted files and slack space, and changes access times.'
+          - 'Matching hashes prove the images are exact. The originals go into the evidence safe untouched.'
+          - 'The scan changes the originals and may delete the very files that matter.'
+        why: >-
+          Forensic collection uses a write blocker and a bit-for-bit image; matching hashes of original and image prove
+          integrity, and analysis is done on the copy. Mounting or scanning the original alters it.
+        src: 'NIST SP 800-86 sec. 3.1.2 (acquiring data: write blockers, hashing)'
+
+      - c: evidence-handling
+        kind: spot
+        text: >-
+          The custody log for Viktor's laptop reads: seized at his desk 11:40 by Kim (signed); sealed in the SOC evidence
+          safe 12:05 (signed); taken by Tomás to his office overnight "to charge it" (no entry); received by the forensic
+          lab 08:30 (signed).
+        ask: 'Tap where the chain of custody broke.'
+        map:
+          caption: 'Custody path of Viktor''s laptop'
+          nodes:
+            - { id: desk, label: 'Viktor''s desk', x: 2, y: 30 }
+            - { id: safe, label: 'SOC evidence safe', x: 27, y: 30 }
+            - { id: office, label: 'Tomás''s office', x: 52, y: 30 }
+            - { id: lab, label: 'Forensic lab', x: 77, y: 30, w: 21 }
+            - { id: hr, label: 'HR interview room', x: 27, y: 70 }
+          links: [[desk, safe], [safe, office], [office, lab]]
+        a: office
+        why: >-
+          A chain of custody must record who held the evidence, when, where and how it was transferred. The overnight
+          stay in Tomás's office has no entry, so nobody can show the laptop was not altered. The HR room was never in
+          the path.
+        src: 'RFC 3227 sec. 4.1 (chain of custody)'
+        diff: 1
+
+      - c: dlp-egress
+        kind: best
+        text: >-
+          After the Viktor case, Dr. Amara Cole wants MedLink to stop patient records leaving on USB sticks, personal
+          webmail uploads and large email attachments, and to alert the SOC when someone tries.
+        ask: 'Which control BEST meets her goal?'
+        o:
+          - 'Data loss prevention on endpoints and at the network egress'
+          - 'An intrusion detection system on the internal network'
+          - 'Full-disk encryption on every laptop'
+          - 'A stricter password policy for clerks'
+        a: 0
+        r:
+          - 'DLP blocks patient data going to USB and webmail and alerts Kim. The first alert is a test file. The second is not.'
+          - 'An IDS looks for attacks. Viktor''s copying looked like normal work traffic.'
+          - 'Encryption protects a lost laptop. It does nothing about a user copying files out.'
+          - 'Viktor had a good password. It was his own account.'
+        why: >-
+          Egress monitoring with DLP inspects outbound data (USB, web uploads, email) against policy and can block and
+          alert. Full-disk encryption protects data at rest on a lost device, not data an authorized user sends out.
+        src: 'CISSP 2027 outline 7.2 (egress monitoring, DLP); NIST SP 800-53 Rev. 5, SC-7(10)'
+
+      - c: forensic-imaging
+        kind: sort
+        text: >-
+          The forensic examiner's report on Viktor lists the artifacts recovered. Shifty sorts them for Ines Albescu by
+          the type of artifact named in the 2027 outline.
+        ask: 'Sort each artifact: computer, network or mobile device?'
+        bins: ['Computer artifact', 'Network artifact', 'Mobile device artifact']
+        pairs:
+          - ['USB device history in the laptop''s registry', 0]
+          - ['Recently opened files list on the laptop', 0]
+          - ['Proxy logs of uploads to a webmail site', 1]
+          - ['Firewall flow records to a file-sharing host', 1]
+          - ['Messages on Viktor''s company phone', 2]
+          - ['Photos of screens on the company phone''s camera roll', 2]
+        why: >-
+          Computer artifacts live on the host (registry, file lists). Network artifacts come from traffic records
+          (proxy logs, flows, captures). Mobile device artifacts come from phones (messages, call logs, photos, app
+          data).
+        src: 'CISSP 2027 outline 7.1 (artifacts: data, computer, network, mobile device); NIST SP 800-86 sec. 5-6 (OS, network traffic); NIST SP 800-101 Rev. 1 (mobile device forensics)'
+        diff: 1
+    close: >-
+      The evidence holds, except for one awkward night in Tomás's office that the defense spends an hour on. Viktor
+      is charged, the patients are notified, and DLP now blocks USB copies of patient data. Dale finally gets to have
+      a word, with the custody log.
+
+  # =====================================================================================
+  - id: k7-03
+    title: 'Ten thousand alerts'
+    where: 'Halvorsen Freight SOC · Thu 08:00'
+    diff: 2
+    open: >-
+      Kim Osei's SOC gets 10,000 alerts a day and has three analysts. They have started ignoring the red ones because
+      the red ones are always wrong. Dale suggests turning the alerts off. Marcus Webb suggests a budget. Shifty, who
+      never sleeps, offers to watch the screen at night, which would help if he could click anything.
+    scenes:
+      - c: siem-log-mgmt
+        kind: best
+        text: >-
+          Halvorsen's SIEM fires 10,000 alerts a day, and 97% of them are false positives. Kim Osei's three analysts
+          now ignore most alerts. Dale proposes switching the noisiest rules off.
+        ask: 'What is the BEST way to improve the SIEM?'
+        o:
+          - 'Switch off every rule that has ever produced a false positive'
+          - 'Hire ten more analysts to read every alert'
+          - 'Tune rules and correlation to the environment, and review them regularly'
+          - 'Send all alerts to Dale by email'
+        a: 2
+        r:
+          - 'The noise stops, along with the detection of real attacks hidden in those rules.'
+          - 'Ten more people drowning in the same false alarms. Marcus Webb says no.'
+          - 'Kim tunes thresholds, adds context and correlation. Alerts drop to 300 a day, and real ones get looked at.'
+          - 'Dale''s inbox crashes on day one. Security does not improve.'
+        why: >-
+          Continuous monitoring includes tuning: adjust rules, thresholds and correlation to the environment so alerts
+          are meaningful. Disabling noisy rules loses detection; more staff do not fix poor signal.
+        src: 'CISSP 2027 outline 7.2 (continuous monitoring and tuning); NIST SP 800-137; NIST SP 800-92'
+        diff: 1
+
+      - c: soar-playbooks
+        kind: best
+        text: >-
+          Each reported phishing email takes Kim Osei's analysts 25 minutes: look up the sender, check the links,
+          search for other copies, delete them from mailboxes and block the domain. They get 60 reports a day. The
+          steps are always the same.
+        ask: 'Which tool BEST reduces this workload?'
+        o:
+          - 'A SOAR platform running a phishing playbook'
+          - 'A second SIEM to collect more email logs'
+          - 'A honeypot to attract phishers'
+          - 'A stricter acceptable use policy'
+        a: 0
+        r:
+          - 'The playbook enriches, searches, purges and blocks in two minutes, then hands odd cases to an analyst. Kim''s team gets its day back.'
+          - 'More logs, same 25 minutes per email.'
+          - 'Phishers send emails to employees, not to decoy servers. The queue is still full.'
+          - 'The policy is lovely. The emails keep coming.'
+        why: >-
+          SOAR orchestrates tools and automates repeatable response steps through playbooks, with humans handling the
+          exceptions. A SIEM collects and correlates; it does not by itself run response actions across tools.
+        src: 'CISSP 2027 outline 7.2 (SOAR)'
+
+      - c: firewalls-ids-ips
+        kind: sort
+        text: >-
+          Tomás Reyes is choosing sensors for the warehouse network. Shifty sorts the features he is comparing into
+          those of an intrusion detection system and those of an intrusion prevention system.
+        ask: 'Sort each feature: IDS or IPS?'
+        bins: ['IDS', 'IPS']
+        pairs:
+          - ['Watches a copy of traffic from a SPAN port', 0]
+          - ['Alerts analysts but lets traffic through', 0]
+          - ['Cannot add latency to the traffic it watches', 0]
+          - ['Sits inline in the traffic path', 1]
+          - ['Drops packets that match an attack signature', 1]
+          - ['A false positive can block legitimate traffic', 1]
+        why: >-
+          An IDS is passive: it monitors a copy of traffic and alerts. An IPS is inline, so it can block, but it can
+          also block good traffic on a false positive and can become a bottleneck.
+        src: 'NIST SP 800-94 sec. 2 and 4 (IDPS, inline and passive sensors)'
+        diff: 1
+
+      - c: threat-intel-hunting
+        kind: best
+        text: >-
+          A threat report says a group targeting logistics firms hides in networks for months, using stolen VPN
+          accounts and living-off-the-land tools that raise no alerts. Kim Osei has no alert on Halvorsen for it.
+        ask: 'What is the BEST next step for the SOC?'
+        o:
+          - 'Do nothing, since no alert has fired'
+          - 'Block all traffic from the country the group is based in'
+          - 'Buy a second threat feed'
+          - 'Run a hypothesis-driven threat hunt for that group''s techniques'
+        a: 3
+        r:
+          - 'The group was in Halvorsen''s network for months, raising no alerts. That was the point of the report.'
+          - 'The group uses rented servers in many countries. Rotterdam''s supplier is now blocked.'
+          - 'Two feeds, zero searching. The group stays where it is.'
+          - 'Kim''s hunt finds a VPN account logging in from two continents in an hour. A real compromise, found before damage.'
+        why: >-
+          Threat hunting proactively searches for adversary activity that tools have not flagged, guided by intelligence
+          about likely attackers. The absence of an alert is not evidence of absence; more feeds add data, not
+          searching.
+        src: 'CISSP 2027 outline 7.2 (threat intelligence: threat feeds, threat hunting)'
+        diff: 2
+
+      - c: privileged-account-monitoring
+        kind: best
+        text: >-
+          Kim Osei can only build a few new SIEM alerts this quarter. Shifty asks which events matter most. One option
+          is about Domain Admin accounts, the most powerful accounts at Halvorsen.
+        ask: 'Which alert is MOST valuable to build first?'
+        o:
+          - 'Any user who fails a login once'
+          - 'Admin accounts used outside change windows, or logging disabled'
+          - 'Every web page that any employee visits during work hours'
+          - 'Printer jams on the third floor'
+        a: 1
+        r:
+          - 'Thousands of typos a day. The analysts go back to ignoring alerts.'
+          - 'Two weeks later it fires: an admin account clearing logs at 03:00. It was not the admin.'
+          - 'Millions of events, nearly all harmless. The SIEM licence costs triple.'
+          - 'The third floor is grateful. Security is not improved.'
+        why: >-
+          Privileged accounts can change security controls and erase evidence, so their use deserves the closest
+          monitoring: use outside approved windows, new admin accounts and disabled logging are high-value signals.
+        src: 'NIST SP 800-53 Rev. 5, AC-6(9) and AU-6; CISSP 2027 outline 7.4 (privileged account management)'
+
+      - c: incident-steps
+        kind: rank
+        text: >-
+          After the hunt finds a compromised VPN account, Dale asks Shifty to explain the incident management steps
+          ISC2 teaches, so he can follow along. Shifty picks five of the seven to show the order.
+        ask: 'Put these incident management steps in ISC2''s order, first at the top.'
+        items:
+          - 'Detection'
+          - 'Response'
+          - 'Mitigation'
+          - 'Recovery'
+          - 'Lessons learned'
+        why: >-
+          ISC2's seven steps: detection, response, mitigation, reporting, recovery, remediation, lessons learned.
+          Contain (mitigate) before you restore (recover); lessons learned comes last and feeds improvement.
+        src: 'CISSP 2027 outline 7.6; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 17'
+        diff: 1
+
+      - c: third-party-sec-services
+        kind: best
+        text: >-
+          Marcus Webb approves a managed security service provider (MSSP) to watch Halvorsen's SIEM at night. Dale is
+          thrilled: "So if we get breached, it's their problem now." Ines Albescu is reviewing the contract.
+        ask: 'Which statement about the MSSP is MOST accurate?'
+        o:
+          - 'The MSSP becomes legally responsible for any breach'
+          - 'Halvorsen stays accountable; the contract and SLA define what the MSSP does'
+          - 'Halvorsen no longer needs its own incident response plan or team'
+          - 'The MSSP should hold all of Halvorsen''s admin passwords'
+        a: 1
+        r:
+          - 'Regulators disagree. The fine letter is addressed to Halvorsen.'
+          - 'Ines writes escalation times, duties and reporting into the SLA. Kim stays in charge of incidents.'
+          - 'The MSSP calls at 03:00 with a real incident. Nobody knows what Halvorsen does next.'
+          - 'One vendor breach away from total loss. Kim Osei refuses.'
+        why: >-
+          Third-party services can take on work, not accountability: the organization remains responsible for
+          protecting its assets. The contract and SLA define the MSSP's duties, response times and escalation, and the
+          IR plan stays Halvorsen's.
+        src: 'CISSP 2027 outline 7.7 (MSSP) and 1.8 (SLAs); NIST SP 800-35'
+    close: >-
+      Alerts drop from 10,000 to 300 a day, phishing takes two minutes, and the MSSP calls at night with real
+      problems. Kim's analysts start looking at the red alerts again. Dale gets one alert of his own: "Dale is in
+      the server room again."
+
+  # =====================================================================================
+  - id: k7-04
+    title: 'Black Friday flood'
+    where: 'Halvorsen customer portal · Fri 09:00'
+    diff: 2
+    open: >-
+      Black Friday. Halvorsen's customer portal books more shipments today than in all of March. At 09:00 traffic
+      jumps to forty times normal and the portal stops loading. Somebody wants a ransom to stop it. Dale asks whether
+      the internet can be "turned down a bit". Shifty would unplug it, if ghosts could unplug things.
+    scenes:
+      - c: third-party-sec-services
+        kind: first
+        text: >-
+          09:02 on Black Friday. A volumetric DDoS of 80 Gbps is saturating the 10 Gbps internet link to Halvorsen's
+          customer portal. Halvorsen has a contract with a DDoS scrubbing provider and a runbook for exactly this.
+        ask: 'What should the SOC do FIRST?'
+        o:
+          - 'Add firewall rules to block the attacking IP addresses'
+          - 'Pay the ransom to stop the attack quickly'
+          - 'Activate the scrubbing service as the runbook says'
+          - 'Order a bigger internet link from the ISP'
+        a: 2
+        trap: 0
+        r:
+          - 'The firewall drops the packets after they have already filled the 10 Gbps link. The portal stays dark.'
+          - 'They take the money and attack again on Monday. Ines Albescu is livid.'
+          - 'Traffic reroutes through the provider''s scrubbing centers. Clean traffic comes back. The portal loads by 09:20.'
+          - 'The ISP can install it in six weeks. Black Friday is today.'
+        why: >-
+          A volumetric attack fills the link before on-premises devices can filter it, so traffic must be cleaned
+          upstream. A DDoS scrubbing service diverts traffic, filters the attack and returns clean traffic. Local
+          firewall rules are the engineer answer here.
+        src: 'CISSP 2027 outline 7.7 (third-party services: DDoS scrubbing)'
+        diff: 1
+
+      - c: firewalls-ids-ips
+        kind: best
+        text: >-
+          Under cover of the DDoS, someone is sending SQL injection strings in the portal's tracking-number field.
+          Halvorsen's network firewall allows the traffic because it is normal HTTPS on port 443.
+        ask: 'Which control BEST blocks these attacks in front of the portal?'
+        o:
+          - 'A rule on the network firewall blocking port 443'
+          - 'A web application firewall inspecting HTTP requests'
+          - 'An IDS on a SPAN port that alerts on SQL injection'
+          - 'A honeypot with a fake portal'
+        a: 1
+        r:
+          - 'Port 443 blocked. Customers cannot reach the portal at all. The attackers have won.'
+          - 'The WAF inspects each request and blocks the injection strings. Customers keep booking shipments.'
+          - 'Kim gets very accurate alerts about attacks that still reach the database.'
+          - 'Some attackers poke the fake portal. The real one is still being injected.'
+        why: >-
+          A WAF inspects application-layer HTTP traffic and blocks attacks such as SQL injection. A network firewall
+          filters by address and port, so it cannot tell bad requests from good on 443; a passive IDS alerts but does
+          not block.
+        src: 'NIST SP 800-41 Rev. 1 (firewall types); CISSP 2027 outline 7.7 (firewalls: web application)'
+
+      - c: ha-fault-tolerance
+        kind: best
+        text: >-
+          While the attack is scrubbed, Halvorsen's office link is still congested. Dispatchers' voice calls to drivers
+          are breaking up because staff are streaming video and downloading updates on the same link.
+        ask: 'Which measure BEST keeps the dispatch voice calls clear?'
+        o:
+          - 'Add a second RAID array to the dispatch server'
+          - 'Configure Quality of Service to prioritize dispatch voice'
+          - 'Build a hot site for dispatch'
+          - 'Turn on full-disk encryption for dispatch laptops'
+        a: 1
+        r:
+          - 'The disks are now very redundant. The calls still break up.'
+          - 'QoS gives voice priority over the video. Dispatchers can hear the drivers again.'
+          - 'A whole site for a congested link. Marcus Webb asks if Shifty is feeling well.'
+          - 'The laptops are encrypted. The calls still break up.'
+        why: >-
+          Quality of Service prioritizes critical traffic, such as voice, when links are congested. RAID gives storage
+          fault tolerance and a hot site handles site loss; neither fixes contention on a link.
+        src: 'CISSP 2027 outline 7.10 (QoS); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18'
+        diff: 1
+
+      - c: dr-metrics
+        kind: calc
+        text: >-
+          After Black Friday, Marcus Webb asks how available the portal's web cluster really is. Its records show a
+          Mean Time Between Failures (MTBF) of 990 hours and a Mean Time to Resolve (MTTR) of 10 hours.
+        ask: 'What is the cluster''s expected availability?'
+        o: ['99.0%', '98.99%', '99.9%', '90.0%']
+        a: 0
+        why: >-
+          Availability = MTBF / (MTBF + MTTR) = 990 / (990 + 10) = 990 / 1,000 = 99.0%. 98.99% comes from 1 - MTTR/MTBF,
+          the wrong denominator. Raising MTBF or cutting MTTR both raise availability.
+        src: 'CISSP 2027 outline 7.11 (metrics: MTTR, MTBF); standard reliability availability formula'
+        diff: 2
+
+      - c: data-states-protection
+        kind: best
+        text: >-
+          A customer asks whether payment details entered on Halvorsen's portal are "fully encrypted". The portal uses
+          TLS between the browser and the web server. The payment database on the server is stored in plaintext.
+        ask: 'Which statement about the payment data is MOST accurate?'
+        o:
+          - 'TLS protects the data in transit but not at rest in the database'
+          - 'TLS protects the data in transit and at rest'
+          - 'The data is safe because the server is behind a firewall'
+          - 'Encrypting the database would also protect data in use'
+        a: 0
+        r:
+          - 'Shifty is honest with the customer, then asks Tomás for encryption at rest. Ines prefers honesty to a lawsuit.'
+          - 'TLS ends at the web server. Anyone who copies the database reads every card.'
+          - 'Firewalls do not stop an attacker who is already on the server, or a careless backup.'
+          - 'Data in use is decrypted in memory to be processed. At-rest encryption does not cover it.'
+        why: >-
+          Each data state needs its own control. TLS protects data in transit; once received it sits unencrypted at
+          rest unless the database or storage is encrypted. Data in use is decrypted in memory and needs other
+          protections.
+        src: 'CISSP 2027 outline 7.5 (data states); NIST SP 800-53 Rev. 5, SC-8 and SC-28'
+
+      - c: sandbox-honeypot
+        kind: best
+        text: >-
+          During the attack, a "customer" uploaded an invoice file to the portal's claims form. It is a macro-enabled
+          document nobody recognizes. Kim Osei wants to know what it does without risking the network.
+        ask: 'What is the BEST way to analyze the file?'
+        o:
+          - 'Open it on Kim''s laptop with macros disabled'
+          - 'Email it to the claims team to ask if they expected it'
+          - 'Detonate it in an isolated sandbox and watch its behavior'
+          - 'Delete it and forget about it'
+        a: 2
+        r:
+          - 'Kim''s laptop is now the test lab, and it is connected to everything.'
+          - 'Someone in claims opens it. Kim spends her weekend on a new incident.'
+          - 'In the sandbox the macro downloads a ransomware loader. Kim adds its indicators to the blocklists.'
+          - 'Whatever it was, Halvorsen learns nothing, and the next one is not caught.'
+        why: >-
+          A sandbox runs suspicious code in an isolated environment and records what it does, safely revealing
+          behavior and indicators. Opening it on a production laptop or forwarding it risks infection; deleting it
+          throws away intelligence.
+        src: 'CISSP 2027 outline 7.7 (sandboxing); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 17'
+
+      - c: incident-reporting-lessons
+        kind: best
+        text: >-
+          Two weeks after Black Friday, the portal is fine and the attackers have gone quiet. Shifty schedules a lessons
+          learned meeting. Dale wants it to "find out whose fault it was" and fire them.
+        ask: 'What is the MAIN purpose of the lessons learned meeting?'
+        o:
+          - 'Assign blame for the outage'
+          - 'Close the ticket so the incident count looks better'
+          - 'Calculate the bonus cuts for the SOC team'
+          - 'Find what to improve in the plan, controls and training'
+        a: 3
+        r:
+          - 'Nobody admits anything. The real gaps stay hidden until next Black Friday.'
+          - 'The ticket closes. Nothing changes. The attack works again next year.'
+          - 'The SOC team updates their CVs. Kim Osei is first.'
+          - 'The meeting finds the runbook lacked the scrubbing provider''s 24x7 number. It is added, and the drill is scheduled.'
+        why: >-
+          Lessons learned reviews what happened, what worked and what did not, and turns that into improvements to the
+          plan, controls and training. Blame discourages honest reporting and hides the real problems.
+        src: 'CISSP 2027 outline 7.6 (lessons learned); NIST SP 800-61 Rev. 3 (improvement)'
+        diff: 1
+    close: >-
+      Black Friday ends with a record day, scrubbed traffic and a sandbox full of somebody else's malware. The SQL
+      injection never landed. Dale asks if Shifty can scrub his inbox too. Shifty files that under lessons
+      learned.
+
+  # =====================================================================================
+  - id: k7-05
+    title: 'Patch Tuesday, panic Wednesday'
+    where: 'Halvorsen Freight IT ops · Wed 08:30'
+    diff: 2
+    open: >-
+      Patch Tuesday brought a critical flaw in the file transfer server software Halvorsen uses with its customers.
+      Attackers are already exploiting it elsewhere. Rafa Lind wants to patch everything right now, in production,
+      from his phone. Dale wants to know if this is "the patch with the turkey". Shifty starts reading the change
+      management policy.
+    scenes:
+      - c: patch-vuln-mgmt
+        kind: first
+        text: >-
+          A critical vulnerability in Halvorsen's file transfer server software is being exploited in the wild. A
+          vendor patch is out. Tomás Reyes's team is not sure how many servers run the affected version: the asset
+          list is from last year.
+        ask: 'What should Tomás''s team do FIRST?'
+        o:
+          - 'Identify every affected system from a current asset inventory'
+          - 'Install the patch on the servers they remember'
+          - 'Wait a month for other companies to find patch bugs'
+          - 'Turn off every file transfer server indefinitely'
+        a: 0
+        r:
+          - 'A quick scan finds 11 affected servers, three more than anyone remembered. Now the patch plan covers all of them.'
+          - 'Eight servers patched. Three forgotten ones stay open, and one of them is hit on Friday.'
+          - 'Attackers are exploiting it today. A month is a long time.'
+          - 'Customers cannot send shipping files. Priya Nair arrives at speed.'
+        why: >-
+          Patch and vulnerability management starts with knowing which assets are affected; you cannot patch what you
+          have not found. Then evaluate, test, approve, deploy and verify, using an emergency change if needed.
+        src: 'NIST SP 800-40 Rev. 4 (patch management planning: asset inventory); CISSP 2027 outline 7.8'
+        diff: 1
+
+      - c: change-management
+        kind: best
+        text: >-
+          The file transfer patch is urgent and attackers are active. Halvorsen's change board meets only on Thursdays.
+          The policy has an emergency change procedure: approval by the on-call change manager, documentation and
+          review afterward.
+        ask: 'What is the BEST way to apply the patch?'
+        o:
+          - 'Wait for Thursday''s change board meeting'
+          - 'Rafa patches production from his phone right now'
+          - 'Skip change control because this is a security fix'
+          - 'Use the emergency change procedure, then document and review'
+        a: 3
+        trap: 1
+        r:
+          - 'Two days unpatched while attackers scan the internet. The change board is very thorough, and very late.'
+          - 'It works on two servers and breaks the third. Nobody knows which version is where.'
+          - 'No record, no rollback plan. The next outage takes a day to diagnose.'
+          - 'The on-call manager approves in 20 minutes. Patches go out with a rollback plan and are reviewed Thursday.'
+        why: >-
+          Change management has an emergency path: urgent changes are approved quickly and documented and reviewed
+          afterward. Skipping the process, or one admin patching ad hoc, loses control and rollback; waiting leaves
+          the risk open.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16 (change management); NIST SP 800-53 Rev. 5, CM-3'
+
+      - c: change-management
+        kind: rank
+        text: >-
+          After the emergency, Shifty asks Tomás Reyes to walk Dale through how a normal, non-emergency change to the
+          file transfer servers should flow at Halvorsen.
+        ask: 'Put the normal change management steps in order, first at the top.'
+        items:
+          - 'Submit a change request'
+          - 'Review the request and analyze its impact'
+          - 'Change board approves or rejects it'
+          - 'Test, schedule and implement with a rollback plan'
+          - 'Document the change and update the baseline'
+        why: >-
+          A change is requested, reviewed for impact, approved (or rejected), then tested and implemented with a way
+          back, and finally documented so configuration records stay accurate. Implementing before approval is the
+          classic failure.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16 (change management process); NIST SP 800-53 Rev. 5, CM-3'
+        diff: 1
+
+      - c: config-baselines
+        kind: best
+        text: >-
+          Tomás finds Halvorsen's 60 file transfer and web servers are each configured a little differently, built by
+          hand over ten years. Some have old protocols enabled, some do not. He wants every server to be consistent and
+          hardened.
+        ask: 'What is the BEST long-term approach?'
+        o:
+          - 'Fix each server by hand whenever someone notices a problem'
+          - 'Define a secure baseline, deploy it automatically, and monitor for drift'
+          - 'Leave them alone, since they work'
+          - 'Ask each admin to write down how they built their servers'
+        a: 1
+        r:
+          - 'Ten more years of snowflakes. Each one hand-patched differently.'
+          - 'One hardened baseline, built by automation. A drift report flags two servers changed outside the process.'
+          - 'They work, with old protocols enabled. Attackers like that too.'
+          - 'Sixty different notes. Consistent in nothing but handwriting.'
+        why: >-
+          Configuration management defines an approved baseline, provisions from it (ideally automated) and compares
+          systems to it to detect drift. Hand fixes and documentation alone do not keep systems consistent.
+        src: 'NIST SP 800-128 (security-focused configuration management); NIST SP 800-53 Rev. 5, CM-2 and CM-6'
+
+      - c: patch-vuln-mgmt
+        kind: best
+        text: >-
+          The forklift control workstation in Halvorsen's main warehouse runs an old OS. The forklift vendor will not
+          support a newer one, and no patch exists for the file transfer flaw on it. The warehouse needs it.
+        ask: 'What is the BEST way to handle this vulnerability?'
+        o:
+          - 'Upgrade the OS anyway and accept losing vendor support'
+          - 'Accept the risk with no other action'
+          - 'Isolate the workstation, restrict what it runs, and monitor it'
+          - 'Unplug the forklifts permanently'
+        a: 2
+        r:
+          - 'The forklift software stops working on the new OS. So does the warehouse.'
+          - 'Accepting a known, exploitable risk with no other action is not what the risk owner signed up for.'
+          - 'The workstation moves to its own segment, runs only the forklift app, and the SOC watches it. The risk owner accepts what remains.'
+          - 'Pallets are now moved by hand. The warehouse manager quits.'
+        why: >-
+          When a patch cannot be applied, use compensating controls (isolation, allowlisting, monitoring) and have the
+          risk owner accept the residual risk. Forcing an unsupported upgrade breaks the business.
+        src: 'NIST SP 800-40 Rev. 4 (risk responses when patching is not possible); CISSP 2027 outline 7.8'
+        diff: 2
+
+      - c: allowlist-denylist
+        kind: best
+        text: >-
+          The isolated forklift workstation runs only one application: the vendor's forklift control program. Kim Osei
+          wants to stop anything else from running on it, including malware nobody has seen before.
+        ask: 'Which control BEST fits this workstation?'
+        o:
+          - 'Application allowlisting: only the forklift program may run'
+          - 'A denylist of known malware hashes, updated every day'
+          - 'A stronger user password'
+          - 'Daily antivirus scans'
+        a: 0
+        r:
+          - 'Only the forklift program runs. A test file from Kim''s USB stick refuses to start.'
+          - 'Known malware is blocked. New malware is not on the list yet.'
+          - 'Malware does not need to know the password once it is running.'
+          - 'Daily scans find known malware a day late.'
+        why: >-
+          An allowlist permits only approved items and blocks everything else, including unknown malware. It suits
+          fixed-function systems. A denylist blocks only what is already known to be bad.
+        src: 'NIST SP 800-167 (application whitelisting); CISSP 2027 outline 7.7 (allowlist/denylist)'
+        diff: 1
+
+      - c: least-privilege-sod
+        kind: best
+        text: >-
+          Rafa Lind writes code for the file transfer servers, approves his own change requests and deploys them to
+          production himself. He is very good. Marcus Webb's auditors still have a concern.
+        ask: 'What is the MAIN risk the auditors see?'
+        o:
+          - 'Rafa is too slow to deploy changes'
+          - 'Rafa''s code is probably low quality because he works alone and fast'
+          - 'No separation of duties: one person can make and hide an unauthorized change'
+          - 'Rafa should use a faster laptop'
+        a: 2
+        r:
+          - 'Speed is not the issue. Rafa is, if anything, too fast.'
+          - 'Rafa''s code is excellent. That is not what auditors look for here.'
+          - 'Approvals move to a second person and deployment to the pipeline. Rafa grumbles, then admits it caught a bug.'
+          - 'The laptop is fine. Shifty checked by sitting in it.'
+        why: >-
+          Separation of duties splits a sensitive process so one person cannot both create and approve or deploy a
+          change. Without it, errors or malicious changes go unchecked, however skilled the person is.
+        src: 'NIST SP 800-53 Rev. 5, AC-5 (separation of duties); CISSP 2027 outline 7.4'
+    close: >-
+      All 11 servers are patched by Wednesday evening, through an emergency change with a rollback plan. The forklift
+      PC gets its own little network and an allowlist. Rafa now needs a second signature. Dale finally learns this was
+      not the patch with the turkey.
+
+  # =====================================================================================
+  - id: k7-06
+    title: 'Storm over the depot'
+    where: 'Halvorsen main depot, Gulf coast · Tue 14:00'
+    diff: 2
+    open: >-
+      A hurricane is coming straight for Halvorsen's main depot, which also houses the server room for the routing
+      platform. Priya Nair has the DR plan open. Dale has a kayak on his car roof "just in case". Shifty is the only
+      person in the building who is not worried about the wind, which is exactly why he worries for everyone else.
+    scenes:
+      - c: dr-process
+        kind: first
+        text: >-
+          The hurricane's outer bands hit Halvorsen's depot early. Water is entering the ground floor, and the
+          authorities order an evacuation. Tomás Reyes wants ten minutes to shut down the routing servers cleanly
+          and grab the backup drives.
+        ask: 'What should Shifty insist on FIRST?'
+        o:
+          - 'Shut down the servers cleanly, then leave'
+          - 'Grab the backup drives before evacuating'
+          - 'Evacuate everyone now and account for all staff'
+          - 'Call the DR site to start failover'
+        a: 2
+        r:
+          - 'Ten minutes becomes thirty. The road out floods. The servers did shut down cleanly, though.'
+          - 'Tomás goes back for the drives through rising water. The drives are replaceable. Tomás is not.'
+          - 'Everyone is out and counted at the assembly point. The DR plan, including remote failover, can start from safety.'
+          - 'The failover call can be made from the car. People first.'
+        why: >-
+          Life safety comes first in every DR and emergency plan. Equipment and data are replaceable and the plan
+          already covers recovery from backups elsewhere. Failover can be started after people are safe.
+        src: 'CISSP 2027 outline 7.11 (response, personnel) and 7.15 (emergency management)'
+        diff: 1
+
+      - c: recovery-sites
+        kind: best
+        text: >-
+          Halvorsen's BIA gives the routing platform an RTO of 48 hours. A hot site costs $40,000 a month; a warm site
+          with hardware in place, ready in about 40 hours including data restore, costs $9,000; a cold site with only
+          power and space takes 2 to 3 weeks.
+        ask: 'Which site is the BEST choice for the routing platform?'
+        o:
+          - 'Hot site, because faster is always better'
+          - 'Warm site, which meets the RTO at lower cost'
+          - 'Cold site, because it is the cheapest'
+          - 'No alternate site; rebuild after the storm'
+        a: 1
+        r:
+          - 'Marcus Webb pays $40,000 a month for speed the business did not ask for.'
+          - 'The warm site is ready in under two days. The routing platform is back inside 48 hours. Marcus approves the cost.'
+          - 'Three weeks without routing. The trucks go nowhere. The RTO is missed by a mile.'
+          - 'Rebuilding a server room after a hurricane takes months.'
+        why: >-
+          Choose the least costly site that still meets the RTO. A warm site (hardware in place, data restored on
+          activation) fits 48 hours; a cold site cannot, and a hot site pays for speed not required.
+        src: 'NIST SP 800-34 Rev. 1 sec. 3.4.3 (alternate sites); CISSP 2027 outline 7.10'
+
+      - c: dr-metrics
+        kind: calc
+        text: >-
+          For the warm site, Tomás Reyes estimates 20 hours to activate the site, 14 hours to restore the routing data
+          and 6 hours to test before going live. The routing platform's RTO is 48 hours.
+        ask: 'How many hours of margin does this plan leave against the RTO?'
+        o: ['8 hours', '14 hours', '28 hours', '0 hours']
+        a: 0
+        why: >-
+          Recovery time = 20 + 14 + 6 = 40 hours. Margin = RTO 48 - 40 = 8 hours. 28 forgets restore and test
+          (48 - 20); 14 forgets testing (48 - 34). Testing before go-live is part of the recovery time.
+        src: 'NIST SP 800-34 Rev. 1 sec. 3.2.1 (RTO); CISSP 2027 outline 7.11 (metrics)'
+        diff: 2
+
+      - c: backup-types
+        kind: calc
+        text: >-
+          The routing database is backed up every 6 hours, at 00:00, 06:00, 12:00 and 18:00, and copied offsite at
+          once. The BIA sets its Recovery Point Objective (RPO) at 4 hours. The storm takes the depot down just before
+          a scheduled backup.
+        ask: 'What is the most data Halvorsen could lose with this schedule?'
+        o: ['6 hours', '4 hours', '2 hours', '24 hours']
+        a: 0
+        why: >-
+          Data written since the last backup is lost, so the worst case is the full interval: 6 hours. That exceeds the
+          4-hour RPO; backups must run at least every 4 hours. 2 hours is the gap between RPO and interval, not the loss.
+        src: 'NIST SP 800-34 Rev. 1 sec. 3.2.1 (RPO); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18'
+        diff: 2
+
+      - c: dr-process
+        kind: rank
+        text: >-
+          After the storm, Priya Nair wants the DR team to follow the plan step by step, from the moment the hurricane
+          hit to the day operations are back at a repaired depot.
+        ask: 'Put the DR activities in order, first at the top.'
+        items:
+          - 'Respond: protect people and activate the DR plan'
+          - 'Assess the damage to the depot and systems'
+          - 'Restore critical services at the warm site by priority'
+          - 'Return operations to the repaired depot'
+          - 'Hold a lessons learned review and update the plan'
+        why: >-
+          DR runs response (people, activation), assessment, restoration by business priority, return to the primary
+          site, then lessons learned. Assessment comes before restoration because it decides what must be recovered
+          where.
+        src: 'CISSP 2027 outline 7.11 (response, assessment, restoration, lessons learned); NIST SP 800-34 Rev. 1 sec. 4'
+
+      - c: personnel-safety
+        kind: best
+        text: >-
+          At the assembly point after the evacuation, the depot warden has a list of 140 staff badged in today. Forty
+          minutes later, three people on the list have not been seen. Dale wants to send everyone home because "they
+          probably left early".
+        ask: 'What is the BEST action for the warden?'
+        o:
+          - 'Report the three missing people to emergency services now'
+          - 'Send everyone home and check tomorrow'
+          - 'Send Tomás back in to look for them'
+          - 'Wait another hour at the assembly point for them to turn up'
+        a: 0
+        r:
+          - 'Firefighters find one driver sheltering in the cab of a truck. The other two had left early. Everyone is safe.'
+          - 'Nobody knows for a whole night whether three people are in a flooding building.'
+          - 'Now Tomás is missing too.'
+          - 'An hour more of not knowing. The water is still rising.'
+        why: >-
+          Emergency management includes a headcount at the assembly point; anyone unaccounted for is reported to
+          emergency responders, who are trained and equipped to search. Untrained staff should not re-enter.
+        src: 'CISSP 2027 outline 7.15 (emergency management); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16'
+        diff: 1
+
+      - c: ha-fault-tolerance
+        kind: best
+        text: >-
+          Priya Nair wants routing to survive the next storm without any failover delay. She asks Tomás Reyes to run
+          the platform actively in two data centers 900 km apart, both serving traffic all the time.
+        ask: 'Which strategy does Priya MOST clearly describe?'
+        o:
+          - 'A RAID 5 array in the main depot'
+          - 'A cold site with a reciprocal agreement'
+          - 'Weekly tape backups shipped to an offsite vault in another state'
+          - 'Multiple processing sites in an active-active, high availability design'
+        a: 3
+        r:
+          - 'The disks survive a failed drive. They do not survive the depot flooding.'
+          - 'A cold site takes weeks. Priya wanted no delay at all.'
+          - 'Tapes protect the data. Restoring from them takes days.'
+          - 'Both sites serve traffic. When one fails, the other keeps going. Marcus Webb winces at the cost, then approves it.'
+        why: >-
+          Multiple active processing sites give high availability against loss of a whole site. RAID is component
+          fault tolerance inside one site; cold sites and tapes are recovery options with long delays.
+        src: 'CISSP 2027 outline 7.10 (multiple processing sites, HA); NIST SP 800-34 Rev. 1 sec. 3.4.3 (mirrored sites)'
+        diff: 2
+    close: >-
+      The depot floods. Everyone is safe, including the driver in the truck. Routing runs from the warm site within
+      40 hours, inside the RTO, and the backups move to every 4 hours. Dale's kayak turns out to be useful after all,
+      for the press photo.
+
+  # =====================================================================================
+  - id: k7-07
+    title: 'Test day'
+    where: 'Halvorsen Freight HQ, war room · Sat 08:00'
+    diff: 2
+    open: >-
+      After the storm, the board wants proof the DR plan works before the next one. Priya Nair books a Saturday. Dale
+      proposes the most exciting test: "Switch the whole company off and see what happens." Marcus Webb turns pale.
+      Shifty has read the testing chapter twice and brought snacks he cannot eat.
+    scenes:
+      - c: dr-test-types
+        kind: rank
+        text: >-
+          Priya Nair wants Halvorsen to build up its DR testing year by year, starting with the least disruptive test
+          and ending with the most realistic. Shifty lists the five test types from the CISSP outline.
+        ask: 'Order the DR test types from least to most disruptive, least at the top.'
+        items:
+          - 'Read-through / tabletop'
+          - 'Walkthrough'
+          - 'Simulation'
+          - 'Parallel'
+          - 'Full interruption'
+        why: >-
+          Read-through and walkthrough are discussion only. Simulation acts out a scenario. Parallel brings up the
+          recovery site while production runs. Full interruption shuts production down and is the most disruptive.
+        src: 'CISSP 2027 outline 7.12; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18 (testing the DRP)'
+        diff: 1
+
+      - c: dr-test-types
+        kind: best
+        text: >-
+          Priya wants to prove the warm site can really run routing with real data, but the business cannot risk any
+          interruption to the production routing platform during the test. Dale still wants to "switch everything
+          off".
+        ask: 'Which DR test type BEST meets Priya''s goal?'
+        o:
+          - 'A full interruption test'
+          - 'A parallel test'
+          - 'A read-through of the plan'
+          - 'A walkthrough with team leads'
+        a: 1
+        r:
+          - 'Production goes dark on purpose. If the warm site fails, so does Halvorsen. The board did not approve that risk.'
+          - 'The warm site comes up and processes real data while production keeps running. Two problems are found and fixed safely.'
+          - 'Everyone reads the plan. Nobody learns whether the warm site works.'
+          - 'Team leads talk it through well. The warm site''s hardware is never switched on.'
+        why: >-
+          A parallel test brings the recovery site up and runs real processing while production continues, so it proves
+          the site without interrupting operations. Full interruption risks the business; read-throughs and walkthroughs
+          never touch systems.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18 (parallel test); CISSP 2027 outline 7.12'
+
+      - c: bc-exercises
+        kind: best
+        text: >-
+          Halvorsen's executives have never practiced their business continuity roles. Priya Nair wants them to talk
+          through a scenario (a cyberattack that stops routing for three days) and decide who does what, without
+          touching any system.
+        ask: 'Which exercise BEST fits this first session?'
+        o:
+          - 'A full-scale exercise at the warm site'
+          - 'A functional exercise with live systems'
+          - 'A tabletop exercise with the executives'
+          - 'A full interruption test'
+        a: 2
+        r:
+          - 'Executives in hard hats at the warm site on day one. Most of them do not know their role yet.'
+          - 'Live systems, before anyone knows who decides what. Chaos with logs.'
+          - 'Two hours around a table surface three gaps: who calls customers, who approves spending, who talks to press.'
+          - 'The company is switched off so the executives can practice. Marcus Webb leaves the room.'
+        why: >-
+          A tabletop is a discussion-based exercise: participants walk through a scenario and their roles without
+          deploying resources. It is the natural first step; functional and full-scale exercises come later.
+        src: 'NIST SP 800-84 (TT&E: tabletop exercises); NIST SP 800-34 Rev. 1 sec. 3.5.3 (exercises)'
+        diff: 1
+
+      - c: dr-process
+        kind: best
+        text: >-
+          In the simulation, reporters call the depot and three managers give three different answers. Customers hear
+          rumors on social media. Priya Nair asks Shifty what the DR plan should say about communications.
+        ask: 'What is the BEST communications rule for the DR plan?'
+        o:
+          - 'Let each manager talk to whoever calls them'
+          - 'Say nothing to anyone until recovery is complete'
+          - 'Post full technical details online so that people stop guessing'
+          - 'Pre-approved methods and priorities, with one designated spokesperson'
+        a: 3
+        r:
+          - 'Three managers, three stories, three headlines.'
+          - 'Silence for days. Customers assume the worst and move their freight elsewhere.'
+          - 'Attackers and competitors read the details with great interest.'
+          - 'Staff hear first, then customers, regulators and press, from one voice with approved messages. The rumors die down.'
+        why: >-
+          DR communications need planned methods (call trees, alternate channels) and priorities (staff, customers,
+          regulators, media), with one designated spokesperson. Silence and uncoordinated statements both damage
+          trust.
+        src: 'CISSP 2027 outline 7.11 (communications: methods, prioritization) and 7.12 (communications)'
+
+      - c: dr-metrics
+        kind: best
+        text: >-
+          Marcus Webb is comparing two storage arrays for the warm site. Array A fails on average every 50,000 hours.
+          Array B can be brought back after a failure in 2 hours on average, versus 8 for Array A. He asks what each
+          number means.
+        ask: 'Which pairing of metrics to numbers is MOST accurate?'
+        o:
+          - '50,000 hours is MTBF; 2 and 8 hours are MTTR'
+          - '50,000 hours is MTTR; 2 and 8 hours are MTBF'
+          - '50,000 hours is RPO; 2 and 8 hours are RTO'
+          - '50,000 hours is RTO; 2 and 8 hours are RPO'
+        a: 0
+        r:
+          - 'Marcus writes it down: MTBF is how often it breaks, MTTR how fast it is fixed. Now he can compare them.'
+          - 'Backwards. Nobody fixes a disk array in 50,000 hours.'
+          - 'RPO and RTO are business targets for recovery, not properties of a storage array.'
+          - 'Same mix-up. These are reliability numbers, not recovery objectives.'
+        why: >-
+          MTBF (Mean Time Between Failures) is the average operating time between failures. MTTR (ISC2: Mean Time to
+          Resolve) is the average time to restore after one. RTO and RPO are recovery objectives set by the business.
+        src: 'CISSP 2027 outline 7.11 (metrics: MTTR, MTBF)'
+
+      - c: bc-exercises
+        kind: sort
+        text: >-
+          Priya Nair drafts a three-year exercise program for Halvorsen's business continuity plan. Shifty sorts the
+          exercise types using FEMA's HSEEP categories, so the program can start with discussion and move to
+          operations.
+        ask: 'Sort each exercise: discussion-based or operations-based?'
+        bins: ['Discussion-based', 'Operations-based']
+        pairs:
+          - ['Tabletop exercise', 0]
+          - ['Seminar on the BC plan', 0]
+          - ['Workshop to write the recovery procedures', 0]
+          - ['Drill of the call tree', 1]
+          - ['Functional exercise at the warm site', 1]
+          - ['Full-scale exercise with emergency services', 1]
+        why: >-
+          HSEEP: discussion-based exercises (seminars, workshops, tabletops, games) explore plans and roles.
+          Operations-based exercises (drills, functional and full-scale) carry out actions with real people and
+          resources.
+        src: 'FEMA Homeland Security Exercise and Evaluation Program (HSEEP, 2020) (exercise types)'
+        diff: 2
+
+      - c: recovery-sites
+        kind: best
+        text: >-
+          A neighbouring logistics company offers Halvorsen a free reciprocal agreement: each would host the other's
+          systems in a disaster. Its data center is 2 km away and already 90% full. Marcus Webb likes "free".
+        ask: 'What is the GREATEST weakness of this agreement?'
+        o:
+          - 'It is free, so there is no paperwork'
+          - 'The partner may lack capacity and share the same disaster'
+          - 'Reciprocal agreements are illegal for logistics companies'
+          - 'The partner would be too fast to recover'
+        a: 1
+        r:
+          - 'Paperwork is the least of it. And there is some.'
+          - 'Shifty points to the 90% figure and the 2 km. Halvorsen keeps the warm site and adds a capacity guarantee in writing.'
+          - 'They are perfectly legal, just hard to enforce.'
+          - 'Nobody has ever complained about that.'
+        why: >-
+          Reciprocal and resource capacity agreements are cheap but hard to enforce: the partner may not have the
+          capacity when needed, and a site 2 km away is likely hit by the same disaster. Capacity must be guaranteed
+          and the site geographically separate.
+        src: 'NIST SP 800-34 Rev. 1 sec. 3.4.3 (reciprocal agreements, geographic separation); CISSP 2027 outline 7.10'
+        diff: 3
+    close: >-
+      The parallel test brings the warm site up with real data, finds two broken scripts and one wrong phone number,
+      and nobody switches the company off. The executives know their roles. Dale is appointed spokesperson for the
+      snacks only.
+
+  # =====================================================================================
+  - id: k7-08
+    title: 'The warehouse walk'
+    where: 'Halvorsen Rotterdam warehouse · Mon 22:00'
+    diff: 1
+    open: >-
+      Jonas Vries reports pallets of phones vanishing from the Rotterdam warehouse at night. Nobody saw anything. The
+      cameras, it turns out, film mostly the ceiling. Shifty does a night walk of the site, which for a ghost means
+      walking through every wall and counting what would have stopped a living thief. Dale comes along with a torch.
+    scenes:
+      - c: physical-external-internal
+        kind: spot
+        text: >-
+          Shifty's night walk of the Rotterdam warehouse finds: the main gate is guarded, the parking lot is lit, the
+          lobby has a receptionist and badge reader, and the server room needs badge and PIN. The loading dock gate in
+          the perimeter fence is propped open, with its camera pointed at the sky.
+        ask: 'Tap the weakest external security control.'
+        map:
+          caption: 'Rotterdam warehouse site, night walk'
+          nodes:
+            - { id: gate, label: 'Main gate (guard)', x: 2, y: 4 }
+            - { id: lot, label: 'Parking lot (lit)', x: 39, y: 4 }
+            - { id: dock, label: 'Dock gate (fence)', x: 76, y: 4 }
+            - { id: lobby, label: 'Lobby + badge reader', x: 2, y: 56 }
+            - { id: floor, label: 'Warehouse floor', x: 39, y: 56 }
+            - { id: srv, label: 'Server room (PIN)', x: 76, y: 56 }
+          links: [[gate, lot], [lot, lobby], [dock, floor], [lobby, floor], [floor, srv]]
+        a: dock
+        why: >-
+          External controls protect the perimeter: fences, gates, lighting, guards, perimeter cameras. The propped dock
+          gate with a useless camera defeats the fence. The lobby reader and server room PIN are internal controls,
+          working as intended.
+        src: 'CISSP 2027 outline 7.14 (external security controls); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 10'
+
+      - c: physical-external-internal
+        kind: sort
+        text: >-
+          Jonas Vries asks Shifty for a list of fixes for the Rotterdam warehouse, split between the site perimeter and
+          the inside of the building, so he can budget them separately.
+        ask: 'Sort each control: external or internal?'
+        bins: ['External security control', 'Internal security control']
+        pairs:
+          - ['Bollards in front of the warehouse entrance', 0]
+          - ['Motion-activated lighting along the fence', 0]
+          - ['Cameras covering the perimeter fence line', 0]
+          - ['Access control vestibule (mantrap) into the server room', 1]
+          - ['Visitor escort on the warehouse floor', 1]
+          - ['Locked cage for high-value pallets inside', 1]
+        why: >-
+          External controls deter and delay at the perimeter: bollards, fence lighting, perimeter cameras. Internal
+          controls restrict movement inside: vestibules, escorts, locked cages and internal zones.
+        src: 'CISSP 2027 outline 7.14 (external and internal security controls)'
+
+      - c: personnel-safety
+        kind: first
+        text: >-
+          During Shifty's walk, the fire alarm goes off and smoke comes from the Rotterdam server room. Two night
+          staff are inside the warehouse. The server room has a gas suppression system that will discharge after a
+          countdown. Jonas wants to save the backup drives in the server room.
+        ask: 'What should happen FIRST?'
+        o:
+          - 'Retrieve the backup drives before the gas discharges'
+          - 'Evacuate everyone and call the fire service'
+          - 'Abort the gas discharge to protect the equipment'
+          - 'Try to find the fire with an extinguisher'
+        a: 1
+        r:
+          - 'Jonas runs into the server room as the countdown ends. This is how people get hurt.'
+          - 'The staff are out and counted. The fire service arrives. The gas puts out the fire in the empty room.'
+          - 'The fire spreads to the warehouse with two people still inside.'
+          - 'Untrained staff fighting a server room fire. The countdown keeps going.'
+        why: >-
+          Human life always comes first. Evacuate, account for people and call the fire service. Gas suppression and
+          offsite backups exist so nobody has to risk their life for equipment or data.
+        src: 'CISSP 2027 outline 7.15 (emergency management); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 10 (fire suppression, life safety)'
+        diff: 1
+
+      - c: ops-defense-in-depth
+        kind: best
+        text: >-
+          Jonas Vries wants one big fix for the phone thefts. Dale suggests a much taller fence. Shifty prefers several
+          different, independent layers.
+        ask: 'Which plan BEST applies defense in depth?'
+        o:
+          - 'A fence twice as tall around the site, with nothing else changed'
+          - 'Four identical locks on the dock door'
+          - 'Fixed dock gate, monitored cameras, locked cage, inventory checks'
+          - 'One guard who covers the entire site alone'
+        a: 2
+        r:
+          - 'The thieves use the propped dock gate in the taller fence.'
+          - 'One key opens all four. Identical layers fail together.'
+          - 'Perimeter, detection, an internal barrier and an administrative check. The next attempt is caught on camera at the cage.'
+          - 'The guard takes a break. So does the security.'
+        why: >-
+          Defense in depth layers different, independent controls (physical, technical, administrative) so one failure
+          does not expose the asset. More of the same control fails the same way.
+        src: 'CISSP 2027 outline 7.4 (Defense in Depth); NIST SP 800-53 Rev. 5, PL-8'
+
+      - c: media-management
+        kind: best
+        text: >-
+          In the Rotterdam server room, Shifty finds backup tapes on an open shelf with handwritten labels, some
+          unlabeled, and no record of who takes them offsite or when. Two tapes are missing.
+        ask: 'Which control BEST addresses the tape handling?'
+        o:
+          - 'Buy higher-capacity tapes so there are fewer of them to lose'
+          - 'Label by classification, log check-in and check-out, store securely'
+          - 'Stop making backups until the tapes are found'
+          - 'Ask staff to be more careful with tapes'
+        a: 1
+        r:
+          - 'Fewer tapes, the same chaos. The next one goes missing just as easily.'
+          - 'Tapes are labeled, logged and locked away. When a courier takes them offsite, it is signed for.'
+          - 'No backups at all. The next fire is going to be very expensive.'
+          - 'Everyone agrees to be careful. Another tape vanishes in March.'
+        why: >-
+          Media management means labeling media by classification, tracking custody (check-in and check-out logs) and
+          storing it in a secure, controlled environment, including offsite transport. Requests to be careful are not
+          a control.
+        src: 'CISSP 2027 outline 7.5 (media management); NIST SP 800-53 Rev. 5, MP-3, MP-4 and MP-5'
+        diff: 1
+    close: >-
+      The dock gate is fixed, the cameras now film thieves instead of clouds, and the tapes have a logbook. The night
+      the phone thieves return, they find a locked cage and a waiting police car. Dale keeps the torch as a
+      souvenir.
+
+  # =====================================================================================
+  - id: k7-09
+    title: 'Travel season'
+    where: 'Halvorsen Freight HQ, travel desk · Mon 09:00'
+    diff: 2
+    open: >-
+      Priya Nair is taking a sales team to a trade fair in a country known for searching business travelers' laptops
+      at the border. Halvorsen MedLink's courier lead has asked about safety on night runs. Dale wants to bring the
+      full customer database "in case someone asks". Shifty does not travel by plane: he gets airsick going through
+      the walls.
+    scenes:
+      - c: personnel-safety
+        kind: best
+        text: >-
+          Priya Nair's sales team is travelling to a trade fair in a country where officials often inspect and copy
+          business laptops at the border. Dale wants everyone to bring their normal laptops with the full customer
+          database.
+        ask: 'What is the BEST travel arrangement?'
+        o:
+          - 'Normal laptops with the full customer database'
+          - 'Normal laptops, with a strong password on each'
+          - 'Clean loaner laptops with only what the trip needs'
+          - 'No devices at all for the whole trip'
+        a: 2
+        r:
+          - 'One border inspection later, a copy of every customer record belongs to someone else.'
+          - 'Officials can require the password. Then everything on it is theirs.'
+          - 'Each traveler gets a wiped loaner with only the trip''s files. What can be inspected holds little.'
+          - 'The sales team cannot show a single slide. The fair is a waste.'
+        why: >-
+          For high-risk travel, issue clean loaner devices with only the data needed, and brief travelers on the
+          risks. A password does not help if authorities can compel it, and no devices stops the business.
+        src: 'CISSP 2027 outline 7.15 (travel); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16'
+        diff: 1
+
+      - c: forensic-imaging
+        kind: best
+        text: >-
+          On the way home, border officials took one of the sales team's loaner laptops into a back room for an hour.
+          Kim Osei wants to know whether anything was installed on it before it goes near Halvorsen's network.
+        ask: 'What is the BEST way to handle the returned laptop?'
+        o:
+          - 'Plug it into the office network and run an antivirus scan'
+          - 'Keep it off the network and have a forensic image taken and examined'
+          - 'Use it normally, since it is only a loaner'
+          - 'Throw it away immediately'
+        a: 1
+        r:
+          - 'If something was implanted, it now has a direct line into Halvorsen.'
+          - 'The image is hashed and examined on a lab machine. The laptop itself never touches the network.'
+          - 'Loaners talk to the same network. "Only a loaner" is how implants get in.'
+          - 'Whatever was done to it, Halvorsen will never know.'
+        why: >-
+          Treat a device out of your control as untrusted. Keep it isolated and examine a forensic image (write
+          blocker, hashes) to learn whether it was tampered with. Connecting or scanning it on the network risks
+          infection; discarding it loses the evidence.
+        src: 'NIST SP 800-86 sec. 3.1.2 (acquiring data); CISSP 2027 outline 7.15 (travel) and 7.1'
+        diff: 2
+
+      - c: personnel-safety
+        kind: best
+        text: >-
+          MedLink couriers carry high-value medicines at night. A courier was once forced at knifepoint to open a
+          locked van. Dr. Amara Cole wants a way for a courier under threat to comply safely and still get help.
+        ask: 'Which control BEST meets this need?'
+        o:
+          - 'Train couriers to resist robbers physically'
+          - 'A duress code that opens the lock and silently alerts dispatch'
+          - 'A louder alarm on every van'
+          - 'Forbid couriers to open vans at night under any condition'
+        a: 1
+        r:
+          - 'Resisting an armed robber is how couriers get hurt. MedLink''s insurer agrees.'
+          - 'The courier enters the duress code, the van opens and dispatch quietly calls the police. The courier stays safe.'
+          - 'A loud alarm can make an armed robber more dangerous, not less.'
+          - 'Telling an armed robber "it is against policy" is not a safety plan.'
+        why: >-
+          A duress system lets a person under threat appear to comply while silently signalling for help, protecting
+          their life first. Resisting or provoking the attacker raises the danger.
+        src: 'CISSP 2027 outline 7.15 (duress); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16'
+
+      - c: data-states-protection
+        kind: sort
+        text: >-
+          Before the trip, Kim Osei explains how the sales team's data will be protected. Shifty sorts each control by
+          the data state it mainly protects.
+        ask: 'Sort each control by data state: at rest, in transit or in use?'
+        bins: ['At rest', 'In transit', 'In use']
+        pairs:
+          - ['Full-disk encryption on the loaner laptops', 0]
+          - ['Encrypted USB drive for the price lists', 0]
+          - ['VPN tunnel back to the head office', 1]
+          - ['TLS for the email app', 1]
+          - ['Privacy screen filter against shoulder surfing', 2]
+          - ['Memory protection for the app processing the quote', 2]
+        why: >-
+          At rest: stored data (disk and drive encryption). In transit: data moving over networks (VPN, TLS). In use:
+          data being processed or viewed, decrypted in memory or on screen (memory protection, privacy filters).
+        src: 'CISSP 2027 outline 7.5 (data states: in use, in transit, at rest); NIST SP 800-53 Rev. 5, SC-8, SC-28'
+        diff: 1
+
+      - c: media-management
+        kind: best
+        text: >-
+          The loaner laptops come back from the trip. They are self-encrypting SSDs, and next month they go to the
+          Rotterdam team for other work. Tomás Reyes wants to reuse them safely.
+        ask: 'What is the BEST step before the laptops are reused?'
+        o:
+          - 'Delete all the users'' files, empty the recycle bin and reboot'
+          - 'Quick-format the drives'
+          - 'Sanitize per NIST SP 800-88, such as a cryptographic erase, and verify'
+          - 'Reinstall the OS over the existing data'
+        a: 2
+        r:
+          - 'Deleted files are easy to recover. Rotterdam finds the sales team''s price lists.'
+          - 'A quick format removes the index, not the data.'
+          - 'The drives are sanitized, the result is verified and recorded, and Rotterdam gets clean machines.'
+          - 'Some of the old data survives in unused space.'
+        why: >-
+          Media leaving one use for another must be sanitized to a level that fits the data: SP 800-88 defines clear,
+          purge and destroy, and cryptographic erase is a purge method for self-encrypting drives. Deleting or
+          formatting leaves data recoverable.
+        src: 'NIST SP 800-88 (clear, purge, destroy; cryptographic erase); CISSP 2027 outline 7.5 (disposal/reuse)'
+
+      - c: dlp-egress
+        kind: best
+        text: >-
+          During the trip, a salesperson tries to email a spreadsheet of MedLink patient pickup addresses to a personal
+          webmail account "to work on it in the hotel". Halvorsen has DLP at its email gateway.
+        ask: 'What should DLP MOST appropriately do here?'
+        o:
+          - 'Block the email and alert the SOC, per policy'
+          - 'Allow it, because the salesperson is an employee'
+          - 'Delete the salesperson''s account'
+          - 'Encrypt the email and send it anyway'
+        a: 0
+        r:
+          - 'The email is stopped. Kim sees the alert and offers the salesperson the approved remote access instead.'
+          - 'Patient data now sits in a personal webmail account in a foreign hotel. Dr. Cole is not pleased.'
+          - 'An overreaction. HR has questions.'
+          - 'Encrypted or not, patient data is now in an account Halvorsen does not control.'
+        why: >-
+          Egress DLP inspects outbound content against policy and blocks protected data going to unauthorized
+          destinations, alerting the SOC. Being an employee does not make a personal account an approved place for
+          patient data.
+        src: 'CISSP 2027 outline 7.2 (egress monitoring, DLP); HIPAA Security Rule 45 CFR 164.312(e) (transmission security)'
+        diff: 1
+    close: >-
+      The sales team comes home with orders and clean, boring loaners. One laptop goes to the forensic lab and turns
+      out to be fine. The couriers have duress codes. Dale's customer database never leaves the building. Shifty
+      marks the trip as uneventful, the best kind.
+
+  # =====================================================================================
+  - id: k7-10
+    title: 'Who watches the admins?'
+    where: 'Halvorsen Freight HQ, finance floor · Thu 17:30'
+    diff: 3
+    open: >-
+      Marcus Webb's monthly report shows $180,000 paid to a vendor nobody has heard of. The payment approvals look
+      perfect. The vendor's address is a car wash. Kim Osei finds that logs on the payment server stop every Friday
+      at 22:00 for exactly one hour. Dale suspects the car wash. Shifty suspects someone with admin rights.
+    scenes:
+      - c: privileged-account-monitoring
+        kind: first
+        text: >-
+          Kim Osei sees that logging on Halvorsen's payment server is switched off every Friday at 22:00 for one hour,
+          using the account of Bas, a payment system administrator. Bas is on shift tonight. Ines Albescu is aware.
+        ask: 'What should Kim do FIRST?'
+        o:
+          - 'Ask Bas directly why logging keeps stopping on Friday nights'
+          - 'Forward the server''s logs to the SIEM where admins cannot alter them'
+          - 'Delete Bas''s account immediately'
+          - 'Reinstall the payment server tonight'
+        a: 1
+        r:
+          - 'Bas says it is a backup job. Next Friday, logging stops for a different reason that nobody can see.'
+          - 'Logs now flow to a central store Bas cannot touch. On Friday at 22:00, the SIEM sees exactly what he does.'
+          - 'The payment system stops for the weekend, and the evidence of what he did goes with the account.'
+          - 'The reinstall wipes the evidence and the payment run. Marcus Webb is not amused.'
+        why: >-
+          Privileged users can alter local logs, so send their activity to a protected central store they cannot
+          change, and monitor it. Tipping off, deleting or rebuilding destroys the evidence needed for the
+          investigation.
+        src: 'NIST SP 800-53 Rev. 5, AU-9(2) and AU-9(4) (protect audit information, access by subset of privileged users); CISSP 2027 outline 7.4'
+        diff: 2
+
+      - c: siem-log-mgmt
+        kind: best
+        text: >-
+          The SIEM now has payment server logs, but Kim Osei sees that the server's clock is 47 minutes behind the
+          firewall's. Ines Albescu says the timeline must hold up in court.
+        ask: 'What is the BEST fix to make the logs reliable for the timeline?'
+        o:
+          - 'Correct each timestamp by hand in the report'
+          - 'Synchronize all systems to a common, authoritative time source'
+          - 'Ignore the firewall logs and use only the server''s'
+          - 'Collect fewer logs so the times are easier to compare'
+        a: 1
+        r:
+          - 'Hand corrections invite the defense to ask what else was edited.'
+          - 'Every system syncs to the same time source. Events line up across server, firewall and badge logs.'
+          - 'Half the evidence thrown away, and the server clock is still wrong.'
+          - 'Fewer logs, fewer answers.'
+        why: >-
+          Log correlation and evidentiary value depend on synchronized time across systems. Configure all sources to an
+          authoritative time source; editing timestamps undermines integrity.
+        src: 'NIST SP 800-92 (log management: time synchronization); NIST SP 800-53 Rev. 5, AU-8 (time stamps)'
+
+      - c: least-privilege-sod
+        kind: best
+        text: >-
+          The investigation shows Bas could create a vendor in the payment system, approve the invoice and release the
+          payment, all by himself. Marcus Webb asks for the control that would have prevented this.
+        ask: 'Which control would BEST have prevented the fraud?'
+        o:
+          - 'A longer password and a lockout policy for Bas''s account'
+          - 'Separation of duties between vendor setup, approval and payment'
+          - 'Encrypting the payment database'
+          - 'A yearly security awareness course'
+        a: 1
+        r:
+          - 'A longer password, the same unlimited power.'
+          - 'Vendor setup moves to purchasing, approval to finance, release to treasury. Fraud now needs three people.'
+          - 'The data is encrypted. Bas can still decrypt and use it.'
+          - 'Bas aced the course.'
+        why: >-
+          Separation of duties divides a sensitive process so no single person can complete it alone; fraud then
+          requires collusion. Passwords and encryption do not limit what an authorized insider can do.
+        src: 'NIST SP 800-53 Rev. 5, AC-5 (separation of duties); CISSP 2027 outline 7.4'
+        diff: 1
+
+      - c: evidence-handling
+        kind: best
+        text: >-
+          Ines Albescu expects the fraud case to go to court. Kim Osei has the SIEM logs, a forensic image of Bas's
+          workstation and badge records. Defense lawyers will challenge everything.
+        ask: 'What MOST helps the evidence be admissible?'
+        o:
+          - 'Relevance, reliability and a complete chain of custody'
+          - 'Having the CISO sign a statement that it is accurate'
+          - 'Printing every log so the court has paper'
+          - 'Collecting as much data as possible, from every system'
+        a: 0
+        r:
+          - 'Every item has a custody record, a hash and a reason it matters. The defense finds nothing to attack.'
+          - 'Shifty''s signature is, unfortunately, invisible. And a statement does not replace custody records.'
+          - 'Paper copies without custody records are just paper.'
+          - 'A mountain of unrelated data, and the relevant items are no better documented.'
+        why: >-
+          Admissible evidence must be relevant, material and competent (reliable, lawfully obtained), and a complete
+          chain of custody shows it was not altered. Volume or a manager's assurance does not establish
+          admissibility.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 19 (admissible evidence); RFC 3227 sec. 4.1'
+        diff: 2
+
+      - c: config-baselines
+        kind: best
+        text: >-
+          Kim Osei finds that Bas had also installed a remote access tool on the payment server last year. No change
+          request was filed and nobody noticed. Tomás Reyes wants to catch such changes quickly in future.
+        ask: 'Which practice would MOST quickly reveal this kind of change?'
+        o:
+          - 'Comparing servers to their approved baseline and alerting on drift'
+          - 'Reading every admin''s email'
+          - 'Running a full external penetration test every three years'
+          - 'Asking admins to report their own changes'
+        a: 0
+        r:
+          - 'The next unapproved tool on any server shows up in the drift report within a day.'
+          - 'An enormous privacy problem, and it would not show installed software.'
+          - 'Three years is a long time for a tool to sit there.'
+          - 'Bas did not report this one.'
+        why: >-
+          Configuration management compares running systems to their approved baselines; unauthorized software or
+          settings show up as drift. Self-reporting fails exactly when the person is the problem.
+        src: 'NIST SP 800-128 (configuration monitoring); NIST SP 800-53 Rev. 5, CM-2, CM-3 and CM-6'
+
+      - c: change-management
+        kind: best
+        text: >-
+          The drift report finds the remote access tool Bas installed on the payment server without a change request.
+          Tomás Reyes asks what the change management process should require for it now.
+        ask: 'What is the BEST next step for the unauthorized change?'
+        o:
+          - 'Approve it retroactively, since it has been running fine for a year'
+          - 'Handle it as a security incident, then remove it through change control'
+          - 'Leave it, because removing it might break something'
+          - 'Let Bas remove it himself'
+        a: 1
+        r:
+          - 'Retroactive approval of an attacker''s tool. The auditors underline that twice.'
+          - 'Kim investigates its use first, then the tool is removed through a tracked change. The baseline is updated.'
+          - 'A known unauthorized backdoor on the payment server stays. That is a decision only a very brave risk owner would sign.'
+          - 'Bas removes it, along with any trace of how he used it.'
+        why: >-
+          An unauthorized change on a critical system is a potential security incident: investigate it, then remove it
+          through change control so the baseline and records are correct. Retroactive approval rewards bypassing the
+          process.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16 (change management); NIST SP 800-53 Rev. 5, CM-3'
+        diff: 2
+
+      - c: ops-defense-in-depth
+        kind: best
+        text: >-
+          After the fraud, Dale proposes one fix: "Just make Bas's replacement trustworthy." Marcus Webb asks Shifty for
+          a plan for the payment process that does not depend on any single control or person.
+        ask: 'Which plan BEST reflects defense in depth?'
+        o:
+          - 'Hire a more trustworthy administrator'
+          - 'Buy the most expensive payment software available'
+          - 'Rely on the external auditors to catch any problems in the yearly audit'
+          - 'SoD, protected logging, baseline monitoring and reconciliation checks together'
+        a: 3
+        r:
+          - 'Trust is not a control. Bas was trusted.'
+          - 'Expensive software, one admin, same problem.'
+          - 'The auditors found this fraud after $180,000 had gone.'
+          - 'Prevention, detection and administrative checks overlap. If one fails, the others still catch it.'
+        why: >-
+          Defense in depth combines different administrative and technical controls, preventive and detective, so a
+          single failure (one rogue admin) does not lead to loss. Any one control alone is a single point of failure.
+        src: 'CISSP 2027 outline 7.4 (Defense in Depth); NIST SP 800-53 Rev. 5, PL-8'
+    close: >-
+      The car wash is closed, Bas is charged, and the evidence survives the defense lawyers. Payments now need three
+      people, logs go where admins cannot reach them, and drift reports land every morning. Dale asks if the car wash
+      is still open. Shifty does not answer.
+
+  # =====================================================================================
+  - id: k7-11
+    title: 'Bait and boxes'
+    where: 'Halvorsen Freight SOC · Tue 13:00'
+    diff: 3
+    open: >-
+      A threat intel report names Halvorsen on a list of logistics targets. Kim Osei wants to go on the offensive, in
+      the legal sense. Dale wants to "hack them back". Ines Albescu says no to that before he finishes the sentence.
+      Shifty suggests something ghosts understand well: let the intruders find a house that looks lived in, and
+      watch who knocks.
+    scenes:
+      - c: sandbox-honeypot
+        kind: best
+        text: >-
+          Kim Osei proposes a honeypot: a fake shipment database server with no real data, placed where attackers
+          scanning Halvorsen's network would find it. Dale wants to add a banner inviting hackers to "steal the free
+          customer list". Ines Albescu has concerns.
+        ask: 'Which approach to the honeypot is MOST appropriate?'
+        o:
+          - 'Add Dale''s banner so more attackers come'
+          - 'Fill it with real customer data to look convincing'
+          - 'Use it to launch attacks back at the intruders'
+          - 'Make it available, not inviting, with legal approval'
+        a: 3
+        r:
+          - 'Inducing someone to commit a crime is entrapment. Ines kills the banner and nearly the project.'
+          - 'Real customer data on a server built to be breached. That is just a breach.'
+          - 'Hacking back is illegal and may hit innocent systems. Ines leaves the room to calm down.'
+          - 'Legal approves. The decoy sits quietly. Two weeks later a visitor shows up and teaches Kim their tools.'
+        why: >-
+          A honeypot may entice (be available to intruders who are already looking) but must not entrap (induce a
+          crime). It holds no real data, and legal approves it first. Counterattacking is illegal.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 17 (honeypots, enticement and entrapment)'
+        diff: 2
+
+      - c: threat-intel-hunting
+        kind: best
+        text: >-
+          Kim Osei receives three threat feeds: one free list with 2 million unvetted IP addresses, one from a
+          logistics sector sharing group with vetted indicators and tactics, and one about attacks on banks in another
+          region.
+        ask: 'Which feed is MOST useful for Halvorsen''s SOC?'
+        o:
+          - 'The free list, because it has the most indicators'
+          - 'The bank attack feed, because banks are attacked most'
+          - 'The logistics sector feed with vetted indicators and tactics'
+          - 'All three loaded as automatic blocks with no review'
+        a: 2
+        r:
+          - 'Two million unvetted IPs. Half of them are shared cloud addresses, including a big customer''s.'
+          - 'Accurate, but about someone else''s attackers.'
+          - 'The sector feed matches the honeypot visitor''s tools. Kim builds detections and starts a hunt.'
+          - 'The blocks cut off a major customer within an hour.'
+        why: >-
+          Threat intelligence is valuable when it is relevant, timely, accurate and actionable. A vetted feed from the
+          same sector describes the adversaries most likely to target Halvorsen; volume or blind blocking adds noise
+          and outages.
+        src: 'NIST SP 800-150 (cyber threat information sharing); CISSP 2027 outline 7.2 (threat feeds)'
+
+      - c: edr-xdr
+        kind: best
+        text: >-
+          The honeypot visitor sent phishing emails, then logged in with a stolen account from a cloud IP, then ran a
+          tool on a laptop. Kim Osei's email, identity, cloud and endpoint alerts sit in four consoles that nobody
+          connects.
+        ask: 'Which capability BEST correlates these signals into one incident?'
+        o:
+          - 'Extended Detection and Response (XDR)'
+          - 'Traditional anti-malware'
+          - 'A second network firewall'
+          - 'A denylist of the attacker''s IP'
+        a: 0
+        r:
+          - 'XDR stitches the phish, the login and the laptop activity into one incident. Kim sees the whole attack chain at once.'
+          - 'Anti-malware sees one laptop, and not the tool, which is legitimate software.'
+          - 'Firewalls do not read email or identity logs.'
+          - 'The attacker changes IP tomorrow. The four consoles are still disconnected.'
+        why: >-
+          XDR extends endpoint detection by correlating telemetry from endpoints, email, identity, network and cloud
+          into a single incident view. Anti-malware and denylists act on single indicators in one place.
+        src: 'CISSP 2027 outline 7.7 (endpoint protection: EDR, XDR)'
+
+      - c: soar-playbooks
+        kind: best
+        text: >-
+          Kim Osei wants to automate the response to the attacker's phishing: when XDR confirms a malicious email, find
+          every copy, pull them from mailboxes and block the sender. Dale wants the automation to also shut down the
+          payment system "just in case".
+        ask: 'Which SOAR playbook design is BEST?'
+        o:
+          - 'Automate every action, including shutting down payments'
+          - 'Automate nothing; analysts do every step by hand'
+          - 'Let the playbook decide which business systems to shut down'
+          - 'Automate the routine steps; keep high-impact actions for human approval'
+        a: 3
+        r:
+          - 'A false positive at 09:00 stops all payments. Marcus Webb learns what SOAR stands for.'
+          - 'Analysts spend each morning deleting emails by hand while the next wave lands.'
+          - 'An algorithm decides to switch off a business. The risk owner was never asked.'
+          - 'Copies vanish from mailboxes in seconds. A shutdown would page Kim for a decision. Fast and safe.'
+        why: >-
+          SOAR suits repeatable, well-understood steps (search, purge, block). Actions with major business impact stay
+          with a human per the IR plan, so a false positive cannot stop the business.
+        src: 'CISSP 2027 outline 7.2 (SOAR); NIST SP 800-61 Rev. 3'
+        diff: 2
+
+      - c: ueba-analytics
+        kind: best
+        text: >-
+          A vendor sells Kim Osei an AI-based detection tool that "learns your network and needs no tuning". In its first
+          week it flags 400 users as risky, including the entire night shift, because their hours are unusual.
+        ask: 'What is the BEST way to treat this ML/AI tool?'
+        o:
+          - 'Disable the accounts of everyone it flags as risky'
+          - 'Turn it off, since AI tools never work'
+          - 'Tune its baselines and have analysts review its findings'
+          - 'Trust it fully, since it learns by itself'
+        a: 2
+        r:
+          - 'The whole night shift is locked out. Nobody routes the trucks.'
+          - 'The tool also caught one real compromised account in the 400. That would be lost.'
+          - 'Kim teaches it the night shift''s pattern. Alerts drop to 12 a week, and analysts confirm the real ones.'
+          - 'A tool that is wrong 399 times out of 400 does not deserve full trust.'
+        why: >-
+          ML and AI-based tools need accurate baselines, tuning and human review; they generate false positives and
+          can be evaded. Acting automatically on raw output harms the business; discarding the tool wastes its real
+          finds.
+        src: 'CISSP 2027 outline 7.2 (UEBA) and 7.7 (ML and AI based tools)'
+
+      - c: immutable-backups
+        kind: best
+        text: >-
+          Tomás Reyes now encrypts Halvorsen's cloud backups. He keeps the only copy of the encryption key on the backup
+          server itself, "so restores are easy". Kim Osei is worried.
+        ask: 'What is the GREATEST problem with this key arrangement?'
+        o:
+          - 'Encryption makes the backups too slow'
+          - 'Encrypted backups cannot be stored in cloud object storage'
+          - 'If the backup server is lost or compromised, the key goes with it'
+          - 'Cloud providers do not allow encryption keys'
+        a: 2
+        r:
+          - 'They are a bit slower. That is not the danger.'
+          - 'They can. That is the point of encrypting them.'
+          - 'Tomás moves the key to a key management service with a recoverable escrow copy. Now losing a server does not lose the backups.'
+          - 'They do, and many offer key management services.'
+        why: >-
+          Encrypted backups are only as recoverable as their keys. Keep keys separate from the data, protected and
+          recoverable (key management, escrow). A key stored only on the backup server is lost or exposed with it.
+        src: 'CISSP 2027 outline 7.10 (encrypted backups); NIST SP 800-57 Part 1 Rev. 5 (key backup and recovery)'
+        diff: 2
+
+      - c: allowlist-denylist
+        kind: sort
+        text: >-
+          The honeypot visitor used five known command-and-control domains. Kim Osei blocks them at the DNS resolver
+          today. Dale asks what the difference is between that and the allowlist on the forklift workstation. Shifty
+          sorts the properties.
+        ask: 'Sort each property: allowlist or denylist?'
+        bins: ['Allowlist', 'Denylist']
+        pairs:
+          - ['Default deny: only approved items run or connect', 0]
+          - ['Blocks brand-new malware nobody has seen yet', 0]
+          - ['Best suited to fixed-function systems like kiosks', 0]
+          - ['Blocks only items already known to be bad', 1]
+          - ['Misses a malicious domain registered this morning', 1]
+          - ['Practical for general web browsing across the company', 1]
+        why: >-
+          An allowlist permits only approved items and blocks everything else, so it stops the unknown but needs
+          upkeep and suits fixed-function systems. A denylist blocks known-bad items: easy for broad use, blind to
+          anything new.
+        src: 'NIST SP 800-167 sec. 2 (application whitelisting); CISSP 2027 outline 7.7 (allowlist/denylist)'
+        diff: 2
+    close: >-
+      The honeypot catches one curious intruder, the sector feed names them, XDR draws their whole path, and SOAR
+      pulls their phishing in seconds. Nobody hacks back. Dale is given a honeypot of his own: a decoy email inbox
+      where his ideas go.
+
+  # =====================================================================================
+  - id: k7-12
+    title: 'The fire drill nobody wanted'
+    where: 'Halvorsen MedLink lab depot · Wed 10:00'
+    diff: 1
+    open: >-
+      MedLink's sample depot holds blood samples that spoil in four hours without power. It has never had a fire
+      drill, a DR test or a visitor log. Dr. Amara Cole wants all three this week. Dale wants to know if the samples
+      can join the fire drill. Shifty volunteers as the fake fire, which nobody finds funny.
+    scenes:
+      - c: dr-test-types
+        kind: best
+        text: >-
+          MedLink's depot team wants to practice moving samples to the backup refrigeration site after a power loss.
+          They will act out the scenario, step by step, with timed tasks, but will not actually cut the depot's power or
+          move real samples.
+        ask: 'Which DR test type does this MOST closely describe?'
+        o:
+          - 'Read-through'
+          - 'Simulation'
+          - 'Full interruption'
+          - 'Parallel'
+        a: 1
+        r:
+          - 'More than reading: the team acts out the scenario and its timed tasks.'
+          - 'A simulation: the scenario is played out and responses practiced without disrupting operations. Two slow steps are found.'
+          - 'A full interruption would cut the power for real. Dr. Cole would never approve it with live samples.'
+          - 'Parallel would run the backup site for real alongside the depot. Nothing is run for real here.'
+        why: >-
+          A simulation acts out a disaster scenario so teams practice their responses, without shutting down
+          operations or processing for real. Parallel runs the alternate site for real; full interruption stops
+          production.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 18 (simulation test); CISSP 2027 outline 7.12'
+        diff: 2
+
+      - c: personnel-safety
+        kind: best
+        text: >-
+          Dr. Amara Cole's first fire drill at the MedLink depot is chaos: nobody knows the assembly point, two visitors
+          are left behind, and one courier goes back for her lunch. She asks Shifty what to fix first.
+        ask: 'Which improvement MOST helps protect people next time?'
+        o:
+          - 'Train staff on routes and wardens, with a headcount that includes visitors'
+          - 'Install more fire extinguishers'
+          - 'Hold future drills only on days when no visitors are present'
+          - 'Fine the courier who went back for lunch'
+        a: 0
+        r:
+          - 'Wardens sweep their zones, the visitor log goes to the assembly point, and the next drill is done in four minutes.'
+          - 'Extinguishers help with small fires. Nobody knew where to go.'
+          - 'Real fires do not wait for visitors to leave.'
+          - 'Punishment teaches people to hide mistakes, not where the exit is.'
+        why: >-
+          Emergency management depends on training and awareness: known routes, wardens, an assembly point and a
+          headcount that includes visitors. Equipment helps, but people must know what to do.
+        src: 'CISSP 2027 outline 7.15 (security training and awareness, emergency management)'
+        diff: 1
+
+      - c: physical-external-internal
+        kind: best
+        text: >-
+          The drill shows that visitors at MedLink's depot wander freely into the sample storage room. The depot has a
+          fence, a gate and a lit car park. Inside, there are no controls between the lobby and storage.
+        ask: 'Which control BEST closes the internal gap?'
+        o:
+          - 'A taller perimeter fence'
+          - 'Brighter car park lighting'
+          - 'Badge access to the storage room plus visitor escorts'
+          - 'A sign at the gate saying "Authorized only"'
+        a: 2
+        r:
+          - 'The visitors came in through the front door. The fence was never the problem.'
+          - 'The car park is already lit. The storage room is still open.'
+          - 'Storage now opens only with an authorized badge, and visitors are escorted. The sample room is quiet.'
+          - 'Signs at the gate deter some people at the perimeter. Visitors are already inside.'
+        why: >-
+          The gap is inside the building, so an internal control is needed: access control on the storage room and
+          escorted visitors. Fences, lighting and gate signs are external controls that do not restrict movement
+          inside.
+        src: 'CISSP 2027 outline 7.14 (internal security controls); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 10'
+        diff: 1
+
+      - c: bc-exercises
+        kind: first
+        text: >-
+          The MedLink exercise week is over: a simulation, a fire drill and a tabletop. Each found problems, such as a
+          wrong phone number, a slow sample transfer and no plan for visitors. Dale wants to "file it and move on".
+        ask: 'What should Dr. Cole do FIRST with the results?'
+        o:
+          - 'File the results and schedule next year''s exercises'
+          - 'Write an after-action report and update the plans'
+          - 'Run a full interruption test to see if it is worse'
+          - 'Ask the hospitals to accept longer delays'
+        a: 1
+        r:
+          - 'Next year finds the same wrong phone number.'
+          - 'The after-action report lists each gap, an owner and a date. The plans are updated and the next exercise checks the fixes.'
+          - 'Cutting power to live blood samples to find more problems is not a plan.'
+          - 'The hospitals politely decline.'
+        why: >-
+          Exercises are only useful if their findings change the plan: an after-action report with owners and dates,
+          then plan updates and re-testing. Filing results without action wastes the exercise.
+        src: 'NIST SP 800-84 (TT&E: after-action report); NIST SP 800-34 Rev. 1 sec. 3.5'
+        diff: 1
+
+      - c: least-privilege-sod
+        kind: best
+        text: >-
+          MedLink's dispatcher Ruud has run the sample billing desk alone for nine years. He never takes holidays and
+          trains nobody. Dr. Amara Cole learns that a similar setup hid a fraud at another courier firm.
+        ask: 'Which practice would BEST reduce this risk?'
+        o:
+          - 'Give Ruud a bonus for nine years without taking any holidays'
+          - 'Job rotation and mandatory vacation, with someone else covering his desk'
+          - 'Install a camera above Ruud''s desk'
+          - 'Ask Ruud to sign a stricter code of conduct'
+        a: 1
+        r:
+          - 'Rewarding a single point of failure. Ruud is touched. The risk is not.'
+          - 'Ruud takes two weeks off. His cover finds nothing wrong, and learns the job. Both risks fall.'
+          - 'A camera sees typing, not billing entries. Ruud feels watched and the desk is no more resilient.'
+          - 'Signing a policy does not reveal anything that is already happening.'
+        why: >-
+          Job rotation and mandatory vacations put another person in the role, which can expose fraud that depends on
+          constant presence, and builds backup skills. Rewards or signatures do neither.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 16 (job rotation, mandatory vacations); CISSP 2027 outline 7.4'
+        diff: 2
+    close: >-
+      By Friday the depot has wardens, a visitor log, badge-only storage and an after-action report with owners and
+      dates. Ruud takes his first holiday in nine years and sends a postcard. Dale asks if the samples enjoyed the
+      drill.

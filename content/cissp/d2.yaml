@@ -1,0 +1,879 @@
+# Domain 2: Asset Security (12%)
+# Format and rules: docs/cissp/DESIGN.md and docs/cissp/AUTHORING.md. Ids are stable forever.
+
+concepts:
+  - id: data-classification
+    obj: '2.1'
+    name: 'Data classification'
+    rule: 'The data owner classifies by value, sensitivity and impact; the label drives handling.'
+    learn:
+      - 'Classification ranks data by the harm if it is disclosed, altered or lost. The owner assigns it; custodians apply the matching controls.'
+      - 'US government levels: Top Secret (exceptionally grave damage), Secret (serious damage), Confidential (damage). Companies often use Confidential, Private, Sensitive, Public.'
+      - 'Fewer levels are easier to apply. Review classifications as data ages, and declassify when protection is no longer needed.'
+    ghost: 'Shifty cannot hold a label maker, which may be why his classifications are so carefully thought through.'
+    src: 'Executive Order 13526, sec. 1.2 (classification levels); FIPS 199; ISC2 CISSP Official Study Guide (Sybex), ch. 5'
+
+  - id: asset-classification
+    obj: '2.1'
+    name: 'Asset classification'
+    rule: 'An asset takes the classification of the most sensitive data it holds.'
+    learn:
+      - 'Hardware, media and systems are classified by the data they store or process, so a laptop with confidential files is a confidential asset.'
+      - 'FIPS 199 rates systems low, moderate or high impact for confidentiality, integrity and availability; the highest rating sets the level (the high-water mark).'
+      - 'The classification follows the asset to the end of its life, including how it is sanitized and disposed of.'
+    src: 'FIPS 199 (Standards for Security Categorization); FIPS 200 (high water mark); ISC2 CISSP Official Study Guide (Sybex), ch. 5'
+
+  - id: handling-requirements
+    obj: '2.2'
+    name: 'Handling and encryption requirements'
+    rule: 'Each classification level sets how data is marked, stored, sent and transported.'
+    learn:
+      - 'Physical handling: marking, locked storage, tracked couriers, chain of custody. Digital handling: labels, access control, approved channels.'
+      - 'Encrypt sensitive data at rest (disk, database) and in transit (TLS, VPN); key management matters as much as the algorithm.'
+      - 'Handling rules apply wherever the data goes, including backups, printouts and third parties.'
+    src: 'CISSP 2027 outline 2.2; ISO/IEC 27002:2022, controls 5.13, 5.14 and 7.10; NIST SP 800-52 Rev. 2 (TLS); 45 CFR 164.312(e)(1)'
+
+  - id: media-destruction
+    obj: '2.2'
+    name: 'Secure media destruction'
+    rule: 'Clear, purge or destroy, chosen by sensitivity and destination; then verify and record it.'
+    learn:
+      - 'NIST SP 800-88 Rev. 2: Clear (logical overwrite, protects against simple recovery), Purge (lab recovery infeasible), Destroy (media no longer usable).'
+      - 'Degaussing purges legacy magnetic media only; it can fail on SSDs and flash. Cryptographic erase is a purge method when its preconditions are met.'
+      - 'Record each sanitization with a certificate and verify it. In cloud storage, cryptographic erase is often the only option.'
+    src: 'NIST SP 800-88 Rev. 2, Guidelines for Media Sanitization (2025); NIST SP 800-88r2 FAQ (2026), Q6, Q8, Q9, Q13'
+
+  - id: asset-ownership-inventory
+    obj: '2.3'
+    name: 'Asset ownership and inventory'
+    rule: 'You cannot protect what you have not listed; every asset needs a named owner.'
+    learn:
+      - 'The inventory covers tangible assets (trucks, servers, scanners) and intangible ones (data, software, intellectual property, brand, domain names).'
+      - 'Each asset has an owner who is accountable for it and approves its use, changes and retirement.'
+      - 'Asset management keeps the inventory current from acquisition to disposal, often in a CMDB, so no asset is forgotten.'
+    src: 'CISSP 2027 outline 2.3; ISO/IEC 27002:2022, controls 5.9 (inventory of information and other associated assets) and 5.11 (return of assets)'
+
+  - id: data-roles
+    obj: '2.4'
+    name: 'Data roles'
+    rule: 'Owners decide, custodians operate, users use; controllers set purposes, processors act for them.'
+    learn:
+      - 'Data owner: senior person accountable for the data, who classifies it and approves access. Custodian: carries out daily protection such as backups and permissions.'
+      - 'GDPR controller: decides the purposes and means of processing. Processor: processes on the controller''s behalf, under an Article 28 contract.'
+      - 'Data subject: the person the data is about. Users access data for their work, under policy.'
+    src: 'GDPR Arts. 4(7), 4(8) and 28; ISC2 CISSP Official Study Guide (Sybex), ch. 5 (data roles)'
+
+  - id: data-lifecycle
+    obj: '2.4'
+    name: 'Data lifecycle and data policy'
+    rule: 'A data management policy governs data from collection to destruction, wherever it lives.'
+    learn:
+      - 'Lifecycle: collect or create, store, use, share, retain or archive, destroy. The data management policy sets the controls for each stage.'
+      - 'Collect only what the purpose needs (data minimization), and keep it accurate and current (data maintenance).'
+      - 'Know where data lives, backups and copies included, because local law and transfer rules depend on location.'
+    src: 'CISSP 2027 outline 2.4 (data management policy, collection, location, maintenance); GDPR Art. 5(1)(c) and (d)'
+
+  - id: data-remanence
+    obj: '2.4'
+    name: 'Data remanence'
+    rule: 'Deleted is not gone: residual data stays until the media is sanitized.'
+    learn:
+      - 'Deleting a file or formatting a drive removes pointers, not the data, and free tools can recover it.'
+      - 'Remanence hides in copier and printer drives, SSD spare blocks, backups and leased or returned equipment.'
+      - 'Plan sanitization before equipment leaves your control: disposal, lease returns, repairs and warranty swaps.'
+    src: 'NIST SP 800-88 Rev. 2 (media sanitization); ISC2 CISSP Official Study Guide (Sybex), ch. 5 (data remanence)'
+
+  - id: data-retention
+    obj: '2.4'
+    name: 'Data retention and legal hold'
+    rule: 'Keep data as long as required and no longer; a legal hold suspends destruction.'
+    learn:
+      - 'A retention schedule sets how long each type of record is kept, based on law, contracts and business need.'
+      - 'Keeping data too long adds risk and cost, and GDPR''s storage limitation principle forbids it for personal data.'
+      - 'When litigation is reasonably expected, a legal hold stops scheduled destruction of relevant records. HIPAA keeps required documentation for 6 years.'
+    src: 'GDPR Art. 5(1)(e); 45 CFR 164.316(b)(2)(i); Federal Rules of Civil Procedure, Rule 37(e)'
+
+  - id: eol-eos
+    obj: '2.5'
+    name: 'End of life and end of support'
+    rule: 'EOL ends sales; EOS ends patches. Plan retirement before EOS arrives.'
+    learn:
+      - 'End of life (EOL): the vendor stops selling the product. End of support (EOS): it stops patches and fixes, so new flaws stay open.'
+      - 'An asset management policy sets how assets are tracked, retained and retired, including budgeting replacements early.'
+      - 'Retirement: owner approval, data migration or retention, media sanitization with certificates, and removal from the inventory.'
+    src: 'CISSP 2027 outline 2.5 (asset management policy, retention, retirement); ISC2 CISSP Official Study Guide (Sybex), ch. 5'
+
+  - id: data-states
+    obj: '2.6'
+    name: 'Data states'
+    rule: 'Protect data at rest, in transit and in use, each with its own controls.'
+    learn:
+      - 'At rest: stored on disks, in databases and backups. Protect with encryption and access control.'
+      - 'In transit: moving across networks. Protect with TLS, VPNs and authenticated channels.'
+      - 'In use: in memory while being processed. Protect with access control, memory isolation and trusted execution environments (confidential computing).'
+    src: 'CISSP 2027 outline 2.6 (data states); NIST SP 800-52 Rev. 2; NIST IR 8320 (Hardware-Enabled Security)'
+
+  - id: scoping-tailoring
+    obj: '2.6'
+    name: 'Scoping, tailoring and baselines'
+    rule: 'Start from a baseline, scope out what does not apply, tailor the rest.'
+    learn:
+      - 'A baseline is a starting set of controls for an impact level, such as the NIST SP 800-53B low, moderate and high baselines.'
+      - 'In CISSP terms, scoping removes baseline controls that do not apply; tailoring adjusts the remaining controls and their values to fit the mission.'
+      - 'Select standards to match the data and obligations (PCI DSS for card data, HIPAA for PHI), and document every change with its reason.'
+    src: 'NIST SP 800-53B (control baselines, tailoring); ISC2 CISSP Official Study Guide (Sybex), ch. 5 (scoping and tailoring)'
+
+  - id: data-protection-tools
+    obj: '2.6'
+    name: 'DRM, DLP, CASB, CNAPP'
+    rule: 'DRM controls use, DLP stops leaks, CASB polices cloud apps, CNAPP protects cloud-native apps.'
+    learn:
+      - 'DRM: usage rules that travel with the file (no printing, expiry, revocation). DLP: finds sensitive data and blocks it leaving by email, web or USB.'
+      - 'CASB: sits between users and cloud services to discover shadow IT and enforce policy on approved apps.'
+      - 'CNAPP: one platform for cloud-native apps, combining posture management (CSPM), workload protection (CWPP) and entitlement management, from build to runtime.'
+    src: 'CISSP 2027 outline 2.6 (data protection methods: DRM, DLP, CASB, CNAPP); ISC2 CISSP Official Study Guide (Sybex), ch. 5'
+
+cases:
+  - id: k2-01
+    title: 'Label maker'
+    where: 'Halvorsen Freight HQ · Monday 10:00'
+    diff: 1
+    open: >-
+      After the breach, the auditors asked a simple question: which data is sensitive? Nobody could answer. Now
+      Halvorsen is launching a classification project, and Dale has bought a label maker. He has already labelled the
+      coffee machine "TOP SECRET". Shifty is asked to make sense of it all, which is hard when you cannot pick up a
+      label.
+    scenes:
+      - c: asset-ownership-inventory
+        kind: first
+        diff: 1
+        text: >-
+          Halvorsen is starting a data classification project. Nobody has a list of the company's information assets,
+          and for most systems nobody knows who is responsible for the data. Dale wants to start labelling files today.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Start labelling the most important-looking files today'
+          - 'Buy a tool that classifies and labels files automatically'
+          - 'Encrypt every file server, so classification matters less'
+          - 'Inventory the information assets and assign each an owner'
+        a: 3
+        trap: 1
+        r:
+          - 'Dale labels 300 files. Half are his holiday photos. The real crown jewels sit unlabelled on a server nobody remembers.'
+          - 'The tool labels thousands of files using rules nobody approved. Nobody owns the results, so nobody fixes them.'
+          - 'Everything is encrypted and still nobody knows what matters. Encryption does not decide who may see what.'
+          - 'The inventory finds 140 systems, each now with an owner who can classify its data. The project has a backbone.'
+        why: >-
+          Classification needs to know what assets exist and who owns them, because the owner assigns the
+          classification. Buying an auto-labelling tool first is the engineer answer: automation with no approved
+          rules and no owners.
+        src: 'CISSP 2027 outline 2.1 and 2.3; ISO/IEC 27002:2022, controls 5.9 (inventory) and 5.12 (classification)'
+
+      - c: data-classification
+        kind: best
+        diff: 1
+        text: >-
+          Halvorsen's route-planning data sits on servers run by Tomás Reyes's IT team. Priya Nair, the COO, is the
+          senior manager accountable for that data. Shifty runs the security program. Someone has to decide whether
+          the data is Confidential or Internal.
+        ask: 'Who is the BEST person to decide the classification of the route-planning data?'
+        o:
+          - 'Tomás Reyes, who runs the servers'
+          - 'Priya Nair, the data owner'
+          - 'Shifty, as CISO'
+          - 'The analysts who use the data most'
+        a: 1
+        r:
+          - 'Tomás is the custodian. He applies the controls; he does not decide how valuable the data is.'
+          - 'Priya classifies it Confidential, and Tomás applies the matching controls. Everyone is in the right role.'
+          - 'Shifty advises on the scheme and the controls. The decision belongs to the person accountable for the data.'
+          - 'Users follow the classification. If they set it, every team''s data would be "Very Important".'
+        why: >-
+          The data owner, the senior manager accountable for the data, assigns its classification. Custodians implement
+          the controls, the security team advises on the scheme, and users follow the rules.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 5 (data owner); ISO/IEC 27002:2022, control 5.12'
+
+      - c: data-roles
+        kind: sort
+        diff: 1
+        text: >-
+          Halvorsen's new payroll system needs its responsibilities written down. Shifty sorts the tasks between the
+          data owner (Marcus Webb, the CFO), the custodian (Tomás Reyes's IT team) and users (the payroll clerks).
+        ask: 'Sort each task to the role that performs it.'
+        bins: ['Data owner', 'Custodian', 'User']
+        pairs:
+          - ['Approves who may see salary data', 0]
+          - ['Decides the payroll data''s classification', 0]
+          - ['Runs the nightly payroll database backups', 1]
+          - ['Sets the permissions the owner approved', 1]
+          - ['Uses payroll data only for assigned tasks', 2]
+          - ['Reports a misdirected payslip to security', 2]
+        why: >-
+          The owner is accountable for the data and decides its classification and who gets access. The custodian
+          carries out day-to-day protection such as backups and permissions. Users work with the data under policy and
+          report problems.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 5 (data roles); CISSP 2027 outline 2.4'
+
+      - c: asset-classification
+        kind: best
+        diff: 2
+        text: >-
+          A Halvorsen sales laptop holds public brochures, internal price lists, and a Restricted file with a major
+          customer's contract terms. Halvorsen's scheme has four levels: Public, Internal, Confidential and Restricted.
+        ask: 'How should the laptop BEST be classified?'
+        o:
+          - 'Public, because most of its files are public'
+          - 'Internal, the average level of its files'
+          - 'Restricted, the level of its most sensitive data'
+          - 'Not at all, because a laptop is hardware'
+        a: 2
+        r:
+          - 'The laptop is left on a train. The contract terms are on it, whatever the brochures say.'
+          - 'Classification does not average. The contract does not become half as sensitive.'
+          - 'The laptop gets Restricted handling: full-disk encryption and never left in a car. The salesperson grumbles but complies.'
+          - 'Assets are classified by the data they hold. Otherwise every laptop could walk out unprotected.'
+        why: >-
+          An asset is classified at the level of the most sensitive data it stores or processes (the high-water mark).
+          Averaging or counting files would leave the most sensitive data underprotected.
+        src: 'FIPS 199; FIPS 200 (high water mark); ISC2 CISSP Official Study Guide (Sybex), ch. 5'
+
+      - c: data-states
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen's route optimizer decrypts customer shipment data in memory to calculate routes, on cloud servers
+          shared with other tenants. The data is already encrypted on disk and on the network. Kim Osei worries about
+          the data while it is being processed.
+        ask: 'Which control MOST directly protects the data in that state?'
+        o:
+          - 'TLS 1.3 between the servers'
+          - 'AES full-disk encryption on the servers'
+          - 'Encrypted backup tapes stored off-site'
+          - 'A trusted execution environment'
+        a: 3
+        r:
+          - 'TLS protects data in transit. Inside the server''s memory, the data is already decrypted.'
+          - 'Full-disk encryption protects data at rest. While the optimizer works, the data is in memory, not on disk.'
+          - 'Backups are data at rest, somewhere else entirely.'
+          - 'The optimizer runs in a hardware-isolated enclave. Even the cloud host''s administrators cannot read its memory.'
+        why: >-
+          Data being processed in memory is data in use. Trusted execution environments (confidential computing)
+          isolate it in hardware while it is processed. TLS protects data in transit; disk and backup encryption
+          protect data at rest.
+        src: 'CISSP 2027 outline 2.6 (data states); NIST IR 8320 (Hardware-Enabled Security), trusted execution environments'
+
+      - c: handling-requirements
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's external auditors need paper copies of Confidential payroll reports at their office across town.
+          Halvorsen's handling standard covers Confidential printouts. Dale offers to drop them off on his way home.
+        ask: 'Which is the BEST way to send the reports?'
+        o:
+          - 'Sealed, marked Confidential, by tracked courier with a signature'
+          - 'Dale drops them off on his way home, in a plain folder'
+          - 'Scanned and emailed to the auditors'' general office inbox'
+          - 'By ordinary post, which is cheaper and saves a little time'
+        a: 0
+        r:
+          - 'The courier logs each hand-off and the auditors sign on receipt. The chain of custody is unbroken.'
+          - 'Dale stops for groceries. The folder spends an hour on the seat of an unlocked car.'
+          - 'A general inbox is read by whoever is in the office. The reports are now on an unknown number of screens.'
+          - 'Ordinary post is untracked. If it goes missing, nobody can say where.'
+        why: >-
+          Handling rules for sensitive printed material call for marking, sealed packaging and a tracked, signed-for
+          transfer that keeps the chain of custody. Informal delivery, untracked post or a shared inbox break those
+          controls.
+        src: 'CISSP 2027 outline 2.2 (physical handling); ISO/IEC 27002:2022, controls 5.13 (labelling) and 5.14 (information transfer)'
+    close: >-
+      Every system now has an owner, the payroll roles are written down, and the auditors sign for their reports.
+      Dale's label maker is confiscated after he labels Shifty "UNCLASSIFIED". Shifty takes it as a compliment.
+
+  - id: k2-02
+    title: 'The great server cull'
+    where: 'Halvorsen data center · Saturday 07:00'
+    diff: 2
+    open: >-
+      The old data center is closing. Two hundred servers, forty storage arrays and a room full of tapes have to go
+      somewhere: a recycler, a reseller or a skip. Tomás Reyes has hired a van. Dale has already listed some servers
+      online. Shifty floats between the racks, counting drives and worrying about what is still on them.
+    scenes:
+      - c: eol-eos
+        kind: best
+        diff: 1
+        text: >-
+          The vendor of Halvorsen's dispatch servers announces end of life (EOL) for the model this year and end of
+          support (EOS) in three years. Dale thinks the servers must be replaced "immediately, they're dead".
+        ask: 'What is the MAIN security significance of the EOS date?'
+        o:
+          - 'After it, the servers stop working'
+          - 'After it, the vendor stops issuing security patches'
+          - 'After it, the vendor stops selling the model'
+          - 'After it, the law requires the servers to be destroyed'
+        a: 1
+        r:
+          - 'They keep working fine. That is the danger: unpatched and still running.'
+          - 'Shifty plans replacements to land before EOS. Until then, the servers still get fixes.'
+          - 'That is EOL, which happens this year. It does not stop patches.'
+          - 'No law requires that. Retirement is decided under Halvorsen''s asset management policy.'
+        why: >-
+          EOL means the vendor stops selling a product; EOS means it stops support, including security patches. After
+          EOS, new vulnerabilities stay unfixed, so replacement or compensating controls must be ready before that
+          date.
+        src: 'CISSP 2027 outline 2.5 (EOL, EOS); ISC2 CISSP Official Study Guide (Sybex), ch. 5'
+
+      - c: data-retention
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's retention schedule says shipment records older than 7 years are destroyed in March. In February,
+          Ines Albescu learns that a customer is preparing a lawsuit over shipments from 8 years ago. The destruction
+          run is scheduled for next week.
+        ask: 'What is the BEST action for the records about that customer?'
+        o:
+          - 'Destroy them on schedule, since the policy says 7 years'
+          - 'Destroy them early, before the lawsuit is filed'
+          - 'Place them under legal hold and suspend their destruction'
+          - 'Move them to a personal drive, outside the schedule'
+        a: 2
+        r:
+          - 'Destroying records after you know of likely litigation can look like destroying evidence. Ines does not want to explain it to a judge.'
+          - 'Destroying records to beat a lawsuit is spoliation. Courts can sanction it heavily.'
+          - 'Ines issues a legal hold. Those records are kept; the rest of the destruction run goes ahead.'
+          - 'Records on a personal drive are out of control and still discoverable. Two problems instead of one.'
+        why: >-
+          When litigation is reasonably anticipated, a legal hold overrides the normal retention schedule for the
+          relevant records. Destroying them, on schedule or early, risks sanctions for failing to preserve evidence.
+        src: 'Federal Rules of Civil Procedure, Rule 37(e); CISSP 2027 outline 2.4 (data retention)'
+
+      - c: data-remanence
+        kind: first
+        diff: 2
+        text: >-
+          Halvorsen's old file servers are about to go to a recycler. Tomás Reyes says the drives have been formatted,
+          so "there's nothing on them". The servers held payroll and customer files. The recycler's van arrives in an
+          hour.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Hold the drives until they are sanitized and verified'
+          - 'Let the van go, since formatted drives are empty'
+          - 'Ask the recycler to promise not to read the drives'
+          - 'Delete all the files again, just to be sure'
+        a: 0
+        r:
+          - 'The van leaves with the empty server cases. The drives wait for sanitization and a certificate.'
+          - 'A student buys three drives from the recycler''s website and recovers 40,000 payroll records with free software.'
+          - 'A promise is not sanitization. The data is still there for whoever handles the drives next.'
+          - 'Deleting again removes the same pointers. The data underneath is untouched.'
+        why: >-
+          Formatting and deleting leave recoverable data (remanence). Media must be sanitized with an approved method
+          and verified before it leaves the organization's control. Promises and repeated deletion do not remove the
+          data.
+        src: 'NIST SP 800-88 Rev. 2 (sanitization and verification); CISSP 2027 outline 2.4 (data remanence)'
+
+      - c: media-destruction
+        kind: best
+        diff: 2
+        text: >-
+          Among the retired Halvorsen equipment are 60 solid-state drives (SSDs) that held customer data. Tomás Reyes
+          has borrowed a powerful degausser and plans to run every SSD through it before sending them for recycling.
+        ask: 'Which statement BEST explains the problem with Tomás''s plan?'
+        o:
+          - 'Degaussing is meant only for paper records'
+          - 'Degaussing is illegal for customer data'
+          - 'Degaussing takes too long for 60 drives'
+          - 'Degaussing does not reliably sanitize flash storage'
+        a: 3
+        r:
+          - 'Degaussers act on magnetic media, not paper. Paper is shredded or pulped.'
+          - 'No law bans degaussing. The issue is physics, not law.'
+          - 'The degausser is quick. Quickly doing nothing to the data is still nothing.'
+          - 'SSDs store data in flash cells, not magnetic domains. Tomás switches to a verified cryptographic erase, and destruction for the most sensitive drives.'
+        why: >-
+          Degaussing acts on magnetic media: it can purge legacy hard disks and tapes but can fail on flash or hybrid
+          storage. SSDs need a method that works for flash, such as a verified cryptographic erase or destruction.
+        src: 'NIST SP 800-88 Rev. 2; NIST SP 800-88r2 FAQ (2026), Q8 (degaussing) and Q9 (cryptographic erase)'
+
+      - c: asset-ownership-inventory
+        kind: best
+        diff: 2
+        text: >-
+          Tomás Reyes wants to retire a storage array he thinks is unused. The asset inventory names Marcus Webb's
+          finance team as its owner. Nobody has asked Marcus, and the array is still mounted on two servers.
+        ask: 'What is the BEST next step before retiring the array?'
+        o:
+          - 'Retire it now, since Tomás manages all the storage hardware'
+          - 'Unplug it for a week and wait to see who complains'
+          - 'Get the owner''s approval and confirm its data is not needed'
+          - 'Copy everything to a spare array first, then retire it'
+        a: 2
+        r:
+          - 'The array held finance''s archive for the auditors. Marcus finds out when the auditors ask.'
+          - 'The "scream test" works: finance screams on the last day of the quarter.'
+          - 'Marcus says two folders must move first. They do, and the array retires quietly.'
+          - 'An unowned copy on a spare array is a new asset nobody tracks. The problem has only moved.'
+        why: >-
+          The asset owner approves retirement after confirming the data has been migrated, retained as required, or
+          is no longer needed. The custodian then retires it, sanitizes the media and updates the inventory.
+        src: 'CISSP 2027 outline 2.3 and 2.5 (asset retirement); ISO/IEC 27002:2022, control 5.9'
+
+      - c: data-lifecycle
+        kind: best
+        diff: 2
+        text: >-
+          During the data center closure, Halvorsen finds the same customer data in six places, each with different
+          retention, owners and quality rules, or none at all. Priya Nair wants one document that sets rules for data
+          ownership, quality, retention and disposal across the company.
+        ask: 'Which document BEST fits Priya''s request?'
+        o:
+          - 'An acceptable use policy'
+          - 'A data management policy'
+          - 'A disaster recovery plan'
+          - 'A server hardening standard'
+        a: 1
+        r:
+          - 'An acceptable use policy tells staff how to use systems. It does not govern the data''s lifecycle.'
+          - 'The policy names an owner for each data set and the rules for keeping and disposing of it. Six copies become one.'
+          - 'A DR plan restores systems after a disaster. It does not say who owns the data.'
+          - 'A hardening standard configures servers. The data on them still has no rules.'
+        why: >-
+          A data management policy sets organization-wide rules for data across its lifecycle: ownership, quality,
+          retention, location and disposal. The other documents govern system use, recovery or configuration.
+        src: 'CISSP 2027 outline 2.4 (data management policy)'
+
+      - c: asset-classification
+        kind: best
+        diff: 2
+        text: >-
+          A Halvorsen storage array being retired held the public website's images and, on one volume, the payroll
+          database. Halvorsen's sanitization standard requires a stronger method for Confidential media than for Public
+          media.
+        ask: 'Which classification should BEST decide how the array is sanitized?'
+        o:
+          - 'Confidential, because of the payroll volume'
+          - 'Public, since most of its volumes were public'
+          - 'Whatever level the recycler recommends'
+          - 'None, since the array is being retired'
+        a: 0
+        r:
+          - 'The whole array is sanitized at the Confidential level, and one certificate covers every disk.'
+          - 'The payroll volume is on the same disks. Treating them as public leaves salaries recoverable.'
+          - 'The recycler is paid by the ton. Its advice is not a classification.'
+          - 'Retired media keeps its data until it is sanitized. Retirement is exactly when classification matters.'
+        why: >-
+          An asset takes the classification of the most sensitive data it held, and that classification sets the
+          sanitization method. Data does not become less sensitive because the hardware is being retired.
+        src: 'FIPS 199; NIST SP 800-88 Rev. 2 (sanitization matched to the confidentiality of the data)'
+    close: >-
+      The servers leave in the van, the drives leave later with certificates, and the lawsuit records stay put under
+      legal hold. Dale's online listing comes down. One buyer had asked if the ghost came with the rack. He does not.
+
+  - id: k2-03
+    title: 'The Rotterdam data map'
+    where: 'Rotterdam branch · Wednesday 11:00'
+    diff: 2
+    open: >-
+      After the stolen laptop, the Dutch regulator wants a record of processing: what personal data Halvorsen
+      Rotterdam holds, where it goes and why. Jonas Vries has a whiteboard, three marker pens and no idea. Shifty has a
+      passion for diagrams and, being a ghost, a lot of free evenings.
+    scenes:
+      - c: data-roles
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's Rotterdam company decides which driver data to collect and why. It uses an outside payroll
+          provider that calculates pay strictly on Halvorsen's instructions and uses the data for nothing else.
+        ask: 'What is the payroll provider''s role under GDPR, MOST accurately?'
+        o: ['Controller', 'Joint controller', 'Data subject', 'Processor']
+        a: 3
+        r:
+          - 'The provider does not decide why or how the data is used. Halvorsen does.'
+          - 'Joint controllers decide purposes together. The provider just follows instructions.'
+          - 'Data subjects are the drivers themselves. The provider is a business.'
+          - 'Ines checks the Article 28 contract with the provider. It is there, signed, with audit rights.'
+        why: >-
+          The controller determines the purposes and means of processing; a processor processes personal data on the
+          controller's behalf. A processor must be bound by a contract that meets Article 28.
+        src: 'GDPR Arts. 4(7), 4(8), 26 and 28'
+
+      - c: data-lifecycle
+        kind: spot
+        diff: 2
+        text: >-
+          Shifty maps where Rotterdam driver data goes. Everything stays in the EU except two flows: HR records go to
+          Halvorsen HQ in the US under signed standard contractual clauses, and nightly backups go to a vendor in
+          Singapore with no contract or safeguards on file.
+        ask: 'Tap the destination with the GREATEST risk of an unlawful transfer.'
+        map:
+          nodes:
+            - { id: form, label: 'Driver signup form', x: 2, y: 8 }
+            - { id: hr, label: 'Rotterdam HR DB (EU)', x: 2, y: 40 }
+            - { id: pay, label: 'Payroll provider (EU)', x: 2, y: 72 }
+            - { id: hq, label: 'HQ HR system (US)', x: 39, y: 22 }
+            - { id: bak, label: 'Backup vendor (SG)', x: 39, y: 58 }
+            - { id: ana, label: 'Analytics (EU)', x: 76, y: 40 }
+          links: [[form, hr], [hr, pay], [hr, hq], [hr, bak], [hr, ana]]
+          caption: 'HQ transfer: SCCs signed. Backup vendor: no contract on file.'
+        a: bak
+        why: >-
+          GDPR Chapter V allows transfers outside the EEA only with an adequacy decision or appropriate safeguards. The
+          US flow has standard contractual clauses; the Singapore backups have none, so that is the unlawful transfer.
+          Knowing data location includes the backups.
+        src: 'GDPR Arts. 44-46; CISSP 2027 outline 2.4 (data location)'
+
+      - c: data-lifecycle
+        kind: best
+        diff: 1
+        text: >-
+          Halvorsen Rotterdam's new driver signup form asks for name, address, licence number, bank details, religion,
+          blood type and "favourite football club". Jonas Vries says "more data is always useful".
+        ask: 'Which principle BEST guides what the form should collect?'
+        o:
+          - 'Collect everything now, since deleting it later is easy'
+          - 'Data minimization: collect only what the purpose needs'
+          - 'Collect everything, as long as it is encrypted'
+          - 'Collect whatever the drivers agree to provide'
+        a: 1
+        r:
+          - 'Deleting later rarely happens. The data is at risk now, and so is the next audit.'
+          - 'Religion, blood type and football are gone. The form is shorter, and so is the list of things that can leak.'
+          - 'Encrypted data you did not need is still data you should not have.'
+          - 'Drivers want the job. Their "agreement" does not make unnecessary data necessary.'
+        why: >-
+          GDPR Art. 5(1)(c) requires personal data to be adequate, relevant and limited to what is necessary for the
+          purpose. Extra data, even encrypted or agreed to, adds risk with no purpose. Religion is also special
+          category data under Art. 9.
+        src: 'GDPR Art. 5(1)(c) and Art. 9(1)'
+
+      - c: data-protection-tools
+        kind: sort
+        diff: 2
+        text: >-
+          Rotterdam staff share files with customers and use many cloud apps. Shifty matches each need on Jonas Vries's
+          wish list to the type of tool built for it.
+        ask: 'Sort each need into the tool built for it.'
+        bins: ['DLP', 'CASB', 'DRM']
+        pairs:
+          - ['Block outgoing emails that contain passport numbers', 0]
+          - ['Find unprotected bank details on file shares', 0]
+          - ['Discover which unapproved cloud apps staff use', 1]
+          - ['Enforce policy between staff and the approved SaaS apps', 1]
+          - ['Stop a shared contract from being printed', 2]
+          - ['Revoke a customer''s access to a file already sent', 2]
+        why: >-
+          DLP inspects content to find sensitive data and stop it leaving. A CASB sits between users and cloud services
+          to discover shadow IT and enforce policy. DRM attaches usage rules to the file itself, so they apply wherever
+          it goes.
+        src: 'CISSP 2027 outline 2.6 (DRM, DLP, CASB); ISC2 CISSP Official Study Guide (Sybex), ch. 5'
+
+      - c: data-remanence
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Rotterdam's leased multifunction copiers go back to the leasing company next week. Each copier has
+          an internal drive that has stored images of every page scanned and copied, including driver contracts.
+        ask: 'What is the BEST action before the copiers are returned?'
+        o:
+          - 'Return them as they are, since copiers are not computers'
+          - 'Print a test page to overwrite the stored images'
+          - 'Ask the leasing company to clear the job list'
+          - 'Sanitize or keep the internal drives, as the lease allows'
+        a: 3
+        r:
+          - 'A copier with a drive is a computer with a paper tray. The next customer could recover driver contracts.'
+          - 'One test page overwrites almost nothing. Thousands of scanned pages remain.'
+          - 'Clearing a job list removes the index, not the stored images.'
+          - 'The lease lets Halvorsen keep the drives for a fee. They are destroyed, with a certificate.'
+        why: >-
+          Office devices with internal storage keep residual data. Before leased equipment leaves your control,
+          sanitize the storage or keep and destroy the drives, under lease terms that allow it. Clearing lists or
+          printing pages leaves the data.
+        src: 'NIST SP 800-88 Rev. 2 (sanitizing media before it leaves organizational control); CISSP 2027 outline 2.4 (data remanence)'
+
+      - c: scoping-tailoring
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Rotterdam adopts HQ's control baseline. The baseline includes controls for a mainframe, but
+          Rotterdam has no mainframe, so Shifty removes those controls from Rotterdam's set and records why.
+        ask: 'In CISSP terms, what is this step MOST accurately called?'
+        o: ['Tailoring', 'Compensating', 'Scoping', 'Accreditation']
+        a: 2
+        r:
+          - 'Tailoring adjusts controls that do apply, for example their settings. Removing ones that do not apply is scoping.'
+          - 'Compensating controls replace a control that cannot be met. Nothing here needed replacing.'
+          - 'The baseline now fits Rotterdam. The auditor sees each removed control and its reason in one table.'
+          - 'Accreditation is an authorization decision. This is control selection.'
+        why: >-
+          In CISSP terms, scoping removes baseline controls that do not apply to the system or environment, and
+          tailoring adjusts the remaining controls and their values to fit. NIST treats scoping as part of tailoring.
+          Both are documented.
+        src: 'NIST SP 800-53B (tailoring control baselines, scoping considerations); ISC2 CISSP Official Study Guide (Sybex), ch. 5'
+    close: >-
+      The data map fits on one page. The Singapore backups move to an EU vendor under contract, the form loses its
+      football question, and the copier drives are destroyed with certificates. Jonas frames the map. Shifty frames
+      nothing, but he is proud.
+
+  - id: k2-04
+    title: 'MedLink in the clouds'
+    where: 'Halvorsen MedLink · Tuesday 13:00'
+    diff: 3
+    open: >-
+      MedLink is moving its specimen-tracking platform to the cloud: containers, serverless functions and a great many
+      buttons. Rafa Lind's team is excited. Dr. Amara Cole is not. She wants to know how patient data is protected in
+      every state, by which tools, and for how long records are kept. Shifty, who has never had a body, finds
+      serverless rather comforting.
+    scenes:
+      - c: data-protection-tools
+        kind: best
+        diff: 3
+        text: >-
+          MedLink's new cloud platform uses containers, serverless functions and infrastructure as code. Rafa Lind
+          wants one platform that finds cloud misconfigurations, protects running workloads and flags excessive cloud
+          permissions, from the build pipeline to runtime.
+        ask: 'Which type of tool BEST meets this need?'
+        o: ['DRM', 'CNAPP', 'CASB', 'DLP']
+        a: 1
+        r:
+          - 'DRM controls what people can do with files. It does not scan container images.'
+          - 'The CNAPP flags a public storage bucket on day one and an over-privileged function on day two.'
+          - 'A CASB governs how users reach cloud apps. Rafa needs protection for the app MedLink itself runs.'
+          - 'DLP watches for sensitive data leaving. It does not check cloud configurations or workloads.'
+        why: >-
+          A Cloud-Native Application Protection Platform (CNAPP) combines cloud security posture management, workload
+          protection and entitlement management for cloud-native apps, across build and runtime. A CASB controls user
+          access to cloud services; DLP and DRM protect content.
+        src: 'CISSP 2027 outline 2.6 (data protection methods, CNAPP)'
+
+      - c: data-states
+        kind: sort
+        diff: 1
+        text: >-
+          Dr. Amara Cole wants to know how MedLink's lab results are protected at each moment. Shifty sorts each
+          situation by the state the data is in.
+        ask: 'Sort each situation by data state.'
+        bins: ['At rest', 'In transit', 'In use']
+        pairs:
+          - ['Results stored in the cloud database', 0]
+          - ['Nightly backups in object storage', 0]
+          - ['Results sent over TLS to a hospital system', 1]
+          - ['The driver app uploading a scan to the API', 1]
+          - ['Results open on a nurse''s screen', 2]
+          - ['A function processing results in memory', 2]
+        why: >-
+          Data at rest is stored; data in transit is moving across a network; data in use is being processed or
+          displayed. Each state needs its own protection: storage encryption, transport encryption, and access control
+          or isolation in memory.
+        src: 'CISSP 2027 outline 2.6 (data states)'
+
+      - c: handling-requirements
+        kind: best
+        diff: 2
+        text: >-
+          MedLink's cloud API will send lab results containing ePHI to St. Brigid's Hospital over the internet. To save
+          setup time, Rafa Lind proposes plain HTTP, restricted to the hospital's allowlisted addresses.
+        ask: 'Which is the BEST protection for the results in transit?'
+        o:
+          - 'Plain HTTP, since only allowlisted addresses can connect'
+          - 'A password-protected zip, with the password in the same message'
+          - 'TLS 1.2 or later, with both sides authenticated'
+          - 'A hash of each result, so that changes can be spotted'
+        a: 2
+        r:
+          - 'An allowlist limits who connects. Anyone on the path can still read plain HTTP.'
+          - 'A password in the same message is a key taped to the lock.'
+          - 'Mutual TLS encrypts and authenticates each connection. Amara signs off the design.'
+          - 'A hash may reveal changes. It does nothing to stop anyone reading the results.'
+        why: >-
+          Sensitive data in transit should be encrypted and the endpoints authenticated, which TLS 1.2 or later with
+          mutual authentication does. HIPAA requires transmission security for ePHI. Allowlists, hashes and
+          same-channel passwords give no real confidentiality.
+        src: '45 CFR 164.312(e)(1) (transmission security); NIST SP 800-52 Rev. 2 (TLS guidelines)'
+
+      - c: media-destruction
+        kind: best
+        diff: 3
+        text: >-
+          MedLink is closing a cloud storage volume that held ePHI. MedLink does not own the physical disks and cannot
+          reach them. The data was encrypted from the start with keys in MedLink's own key management service.
+        ask: 'What is the BEST way to sanitize the data?'
+        o:
+          - 'Ask the provider to shred the physical disks'
+          - 'Delete the volume and destroy its keys, keeping records'
+          - 'Overwrite the volume three times, then delete it'
+          - 'Delete the volume and let the provider handle the rest'
+        a: 1
+        r:
+          - 'The disks are shared with other customers, and the provider will not shred them for one volume.'
+          - 'The keys are zeroized and the deletion logged. Without the keys, every remaining copy is unreadable.'
+          - 'Overwriting logical blocks in the cloud does not reach every physical copy the provider keeps.'
+          - 'Deletion alone may leave recoverable copies, and MedLink cannot show what happened.'
+        why: >-
+          Where the owner cannot reach the physical media, as in cloud storage, cryptographic erase is often the only
+          viable purge method. It works if the data was encrypted from the start and the keys are securely destroyed
+          (zeroized), with records kept.
+        src: 'NIST SP 800-88 Rev. 2; NIST SP 800-88r2 FAQ (2026), Q9 and Q13'
+
+      - c: data-retention
+        kind: calc
+        diff: 2
+        text: >-
+          MedLink's HIPAA access-control policy was created on January 15, 2019. A new version replaced it on June 30,
+          2025, the last day the old one was in effect. Dr. Amara Cole asks how long the old policy document must be
+          kept.
+        ask: 'Under HIPAA, until when at least must MedLink keep the old policy?'
+        o: ['January 15, 2025', 'June 30, 2028', 'January 15, 2029', 'June 30, 2031']
+        a: 3
+        why: >-
+          HIPAA documentation must be kept for 6 years from its creation or from the date it was last in effect,
+          whichever is later. Creation plus 6 is January 2025; last in effect June 30, 2025, plus 6 is June 30, 2031.
+          The later date applies.
+        src: '45 CFR 164.316(b)(2)(i)'
+
+      - c: scoping-tailoring
+        kind: best
+        diff: 2
+        text: >-
+          MedLink must choose security controls for its new cloud platform holding ePHI. Rafa Lind wants to write a
+          custom control list from scratch. Dr. Amara Cole wants something auditors will recognize.
+        ask: 'What is the BEST approach to selecting the controls?'
+        o:
+          - 'A custom list written from scratch, tuned to the team''s skills'
+          - 'Every control in NIST SP 800-53, adopted with no changes'
+          - 'The cloud provider''s defaults, used as the whole control set'
+          - 'A recognized baseline, scoped and tailored to MedLink''s risks'
+        a: 3
+        r:
+          - 'The list covers what the team likes and misses what it does not know. Auditors cannot map it to anything.'
+          - 'Every control, including ones for systems MedLink does not have. The project drowns in paperwork.'
+          - 'Defaults cover the provider''s side. MedLink''s own configurations and data remain unprotected.'
+          - 'MedLink starts from a moderate baseline, maps it to HIPAA, and documents each scoping and tailoring decision.'
+        why: >-
+          Standards and controls selection works best from a recognized baseline matched to the system's impact level
+          and obligations, then scoped, tailored and documented. Custom lists, unmodified catalogues or provider
+          defaults leave gaps or waste effort.
+        src: 'NIST SP 800-53B (control baselines and tailoring); 45 CFR 164.306(b) (flexibility of approach)'
+    close: >-
+      The platform launches with a CNAPP watching it, mutual TLS to the hospital and keys that can be destroyed on
+      demand. Amara files the 2019 policy until 2031 and marks her calendar. Rafa names a function "shifty-erase".
+      Shifty is touched, figuratively.
+
+  - id: k2-05
+    title: 'Dale''s garage sale'
+    where: 'Dale''s driveway · Saturday 08:00'
+    diff: 1
+    open: >-
+      Dale is holding a garage sale. Among the lamps and the exercise bike are a box of Halvorsen backup tapes, three
+      old handheld scanners and a laptop he "was going to give back". Shifty finds out from a neighbour's social media
+      post and arrives at the speed of thought, which for a ghost is quite fast.
+    scenes:
+      - c: handling-requirements
+        kind: first
+        diff: 1
+        text: >-
+          Dale has a box of Halvorsen backup tapes on a table at his garage sale, priced at $2 each. He took them home
+          to "save a courier trip" to the off-site vault. Shifty arrives just as a buyer picks one up.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Let the sale go ahead and track down the buyers later'
+          - 'Start writing a new, stricter media handling policy'
+          - 'Secure the tapes and return them under chain of custody'
+          - 'Report Dale to HR for a policy breach before anything else'
+        a: 2
+        r:
+          - 'Three tapes leave in a stranger''s car. Nobody knows which three until the audit.'
+          - 'A fine policy, written while the tapes are carried away.'
+          - 'Kim''s team collects the box, logs every tape and returns them to the vault under chain of custody.'
+          - 'HR can deal with Dale later. Right now the tapes are on a table in the sun, unguarded.'
+        why: >-
+          Exposed sensitive media is brought back under control first, following the handling requirements and chain
+          of custody. Disciplinary steps and policy updates come after. Letting the exposure continue is never the
+          first step.
+        src: 'CISSP 2027 outline 2.2 (physical handling); ISO/IEC 27002:2022, control 7.10 (storage media)'
+
+      - c: media-destruction
+        kind: sort
+        diff: 2
+        text: >-
+          After the garage sale, Kim Osei reviews how Halvorsen sanitizes media. Shifty sorts each technique into the
+          NIST SP 800-88 method it belongs to.
+        ask: 'Sort each technique by sanitization method.'
+        bins: ['Clear', 'Purge', 'Destroy']
+        pairs:
+          - ['Single-pass overwrite using standard write commands', 0]
+          - ['Degaussing a legacy magnetic backup tape', 1]
+          - ['Cryptographic erase of a self-encrypting drive', 1]
+          - ['Incinerating a high-sensitivity SSD', 2]
+          - ['Disintegrating a drive at an approved facility', 2]
+        why: >-
+          Clear uses logical techniques against simple recovery. Purge makes recovery infeasible even in a lab, as with
+          degaussing legacy magnetic media or a valid cryptographic erase. Destroy leaves the media unusable, as with
+          incineration or disintegration.
+        src: 'NIST SP 800-88 Rev. 2 (clear, purge, destroy); NIST SP 800-88r2 FAQ (2026), Q6, Q8, Q10'
+
+      - c: eol-eos
+        kind: best
+        diff: 2
+        text: >-
+          The three handheld scanners at Dale's garage sale are a model past end of support (EOS): no more patches.
+          Another 200 of them are still in use in Halvorsen's warehouses. Replacements are budgeted for next year.
+        ask: 'What is the BEST way to handle the 200 scanners still in use?'
+        o:
+          - 'Keep using them normally until they break'
+          - 'Isolate them and plan their retirement under the asset policy'
+          - 'Sell them off at the next garage sale'
+          - 'Replace them all tonight with staff''s personal phones'
+        a: 1
+        r:
+          - 'An unpatched device in daily use is a door that only gets wider. The next scanner exploit finds them.'
+          - 'The scanners move to a restricted network segment, and the replacement plan gets dates and an owner.'
+          - 'Selling them unsanitized is exactly how this case started.'
+          - 'Personal phones are unmanaged devices with their own problems. Rushing is not planning.'
+        why: >-
+          Assets past EOS no longer get fixes, so they need compensating controls until they are retired under the
+          asset management policy, with sanitization and inventory updates. Ignoring the risk or improvising
+          replacements is not a plan.
+        src: 'CISSP 2027 outline 2.5 (EOL/EOS, asset management policy, asset retirement)'
+
+      - c: data-classification
+        kind: rank
+        diff: 1
+        text: >-
+          Halvorsen is bidding to move equipment for a US government agency. Dale has to learn the government
+          classification levels for the bid, and has written them on his whiteboard in the wrong order.
+        ask: 'Put the US government classification levels in order, most sensitive at the top.'
+        items:
+          - 'Top Secret: exceptionally grave damage to national security'
+          - 'Secret: serious damage to national security'
+          - 'Confidential: damage to national security'
+          - 'Unclassified'
+        why: >-
+          Executive Order 13526 defines Top Secret (exceptionally grave damage), Secret (serious damage) and
+          Confidential (damage). Unclassified information is not classified, although some of it still needs
+          protection as Controlled Unclassified Information.
+        src: 'Executive Order 13526, sec. 1.2; 32 CFR part 2002 (Controlled Unclassified Information)'
+
+      - c: asset-ownership-inventory
+        kind: sort
+        diff: 2
+        text: >-
+          Priya Nair wants Halvorsen's asset inventory to cover everything of value, not just what Dale could put on a
+          garage sale table. Shifty sorts the list into tangible and intangible assets.
+        ask: 'Sort each asset as tangible or intangible.'
+        bins: ['Tangible', 'Intangible']
+        pairs:
+          - ['Delivery trucks', 0]
+          - ['Warehouse handheld scanners', 0]
+          - ['Backup tapes in the off-site vault', 0]
+          - ['The customer list', 1]
+          - ['The Halvorsen brand and trademark', 1]
+          - ['The route-optimisation algorithm', 1]
+          - ['The company''s internet domain name', 1]
+        why: >-
+          Tangible assets are physical things; intangible assets have no physical form but still have value, such as
+          data, intellectual property, brands and domain names. Both belong in the inventory, each with an owner.
+        src: 'CISSP 2027 outline 2.3 (asset inventory: tangible, intangible); ISO/IEC 27002:2022, control 5.9'
+    close: >-
+      The tapes are back in the vault, the scanners are fenced off on their own network, and the inventory now
+      includes the brand and the domain name. Dale sells the exercise bike for $40. It was the only thing on the table
+      that was actually his.

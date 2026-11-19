@@ -4,28 +4,29 @@ A meme-y, expert-level SOC alert-triage game for senior security people. Triage 
 
 Full project brief, locked decisions and the phase plan: [PROJECT_BRIEF.md](PROJECT_BRIEF.md).
 
-## One app, two shifts
+## One app, three shifts
 
-Since 2026-11-15 this app is also the home of **SHIFTY-1**, the AWS AI Practitioner (AIF-C01) study game (it used to be its own app at `/shifty-1/`). A switch at the top of the home screen flips between the two; the app reopens on the one used last.
+Since 2026-11-15 this app is also the home of **SHIFTY-1**, the AWS AI Practitioner (AIF-C01) study game (it used to be its own app at `/shifty-1/`), and since 2026-11 of the **Ghost CISO**, a CISSP study game. A switch at the top of the home screen flips between them; the app reopens on the one used last.
 
 | Shift | Code | Content | Save (localStorage) |
 |---|---|---|---|
 | **SOC shift**: the alert-triage game described on this page | `src/soc/` | `content/*.yaml` | `onshift.v2` |
 | **AI school**: SHIFTY-1 (training runs, daily eval, benchmark, red team, earbud mode, model card, syllabus, speed round) | `src/ai/` | `content/ai/` (cards, facts, `quips/`) | `shifty1.v1` (the standalone app's key and format, unchanged) |
+| **CISO**: the Ghost CISO, CISSP on the 2027 outline, taught through **case files** (story scenes: FIRST/BEST decisions, ordering, sorting, tap-the-diagram, risk math), flashbacks, daily case, adaptive board exam, briefing book | `src/cissp/` | `content/cissp/` (`d1`-`d8.yaml`, `quips/`) | `cissp.v1` |
 
-Both run on one engine, `src/engine/`: UI, navigation, PWA and install gate, Shifty, days, the save store, XP/rank/streak rules, line decks, speech. XP, rank, streak, closet and sound are separate per shift. `#shifty-1` opens the AI school (the old link forwards there), `#card=<id>` opens one SHIFTY-1 card. How and why: [docs/MERGE_SHIFTY1.md](docs/MERGE_SHIFTY1.md). SHIFTY-1's brief, objectives, content schema and QA record: [docs/ai/](docs/ai/).
+All three run on one engine, `src/engine/`: UI, navigation, PWA and install gate, Shifty, days, the save store, XP/rank/streak rules, line decks, speech. XP, rank, streak, closet and sound are separate per shift. `#shifty-1` opens the AI school (the old link forwards there), `#cissp` the Ghost CISO; `#card=<id>` opens one SHIFTY-1 card and `#scene=<id>` one CISSP scene. How and why: [docs/MERGE_SHIFTY1.md](docs/MERGE_SHIFTY1.md). SHIFTY-1's brief, objectives, content schema and QA record: [docs/ai/](docs/ai/). The Ghost CISO's design, authoring rules (accuracy and sources first), source logs and reviews: [docs/cissp/](docs/cissp/).
 
 ## Commands
 
 | | |
 |---|---|
 | `npm install` | once |
-| `npm run validate` | validate both content banks (SOC: YAML + pinned ATT&CK + editorial lints; AI school: cards, facts, exam coverage) and every quip; writes nothing |
-| `npm run content` | validate, then write `src/generated/content.json` (SOC) and `src/generated/ai.json` (AI school) |
-| `npm run quips` | lint Shifty's and Dale's lines in both shifts |
+| `npm run validate` | validate all three content banks (SOC: YAML + pinned ATT&CK + editorial lints; AI school: cards, facts, exam coverage; CISSP: cases, scenes, sources, every 2027 objective covered) and every quip; writes nothing |
+| `npm run content` | validate, then write `src/generated/content.json` (SOC), `ai.json` (AI school) and `cissp.json` (Ghost CISO) |
+| `npm run quips` | lint Shifty's and Dale's lines in every shift |
 | `npm run dev` | content + Vite dev server |
 | `npm run build` | content + typecheck + production build into `dist/` |
-| `npm test` | build, then every Playwright test (390x844): projects `soc` (the SOC game), `ai` (SHIFTY-1, including every card answered through the UI) and `shell` (switching, deep links, progress carry-over, the old-link forwarder). One project: `node ./node_modules/@playwright/test/cli.js test --project=soc`. First time: `node ./node_modules/@playwright/test/cli.js install chromium` |
+| `npm test` | build, then every Playwright test (390x844): projects `soc` (the SOC game), `ai` (SHIFTY-1, including every card answered through the UI), `cissp` (the Ghost CISO, including every scene answered through the UI) and `shell` (switching, deep links, progress carry-over, the old-link forwarder). One project: `node ./node_modules/@playwright/test/cli.js test --project=soc`. First time: `node ./node_modules/@playwright/test/cli.js install chromium` |
 | `npm run show -- <id\|concept>` | print SOC alerts compactly (authoring helper) |
 | `npm run qa` / `npm run qa -- --src` | twin-pair table / log-source list for human review |
 

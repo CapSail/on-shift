@@ -1,0 +1,886 @@
+# Domain 6: Security Assessment and Testing (11.2%)
+# Format and rules: docs/cissp/DESIGN.md and docs/cissp/AUTHORING.md. Ids are stable forever.
+
+concepts:
+  - id: assessment-strategy
+    obj: '6.1'
+    name: 'Assessment and test strategy'
+    rule: 'Match who tests, what they know and where systems run to the goal.'
+    learn:
+      - 'Internal assessments use your own staff; external ones an outside firm you engage; third-party ones are run by or for another party, such as a customer.'
+      - 'Location shapes the plan: on premises you test what you own; in cloud and hybrid you follow provider rules and use provider attestations.'
+      - 'Tester knowledge: black box (none, the outsider view), gray box (partial), white box (full design and code).'
+    src: 'CISSP 2027 outline 6.1; NIST SP 800-115 (Technical Guide to Information Security Testing and Assessment); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: vuln-pentest
+    obj: '6.2'
+    name: 'Vulnerability scans and pentests'
+    rule: 'Scans find weaknesses; pentests exploit them. Written permission always comes first.'
+    learn:
+      - 'A vulnerability assessment finds and rates weaknesses without exploiting them; credentialed scans see far more than unauthenticated ones.'
+      - 'A penetration test exploits weaknesses to show real impact. NIST SP 800-115 phases: planning, discovery, attack, reporting.'
+      - 'Written authorization and rules of engagement come before any testing. If testing reveals a real compromise, stop and report it.'
+    src: 'NIST SP 800-115, sec. 5.2 (penetration testing) and Appendix B (rules of engagement); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: code-testing
+    obj: '6.2'
+    name: 'Code review and testing'
+    rule: 'Review code without running it, test it running, and fuzz it with bad input.'
+    learn:
+      - 'Static testing (SAST, code review) examines code without running it; dynamic testing (DAST) tests the running application.'
+      - 'Fagan inspection is the most formal review: overview, preparation, inspection, rework, follow-up (the Sybex guide adds planning first).'
+      - 'Fuzzing feeds malformed or random input to find crashes and unhandled errors; mutation fuzzing alters real inputs, generational fuzzing builds them from a model.'
+    src: 'CISSP 2027 outline 6.2; Fagan, "Design and code inspections to reduce errors in program development", IBM Systems Journal 15(3), 1976; ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: test-techniques
+    obj: '6.2'
+    name: 'Other control testing methods'
+    rule: 'Pick the test for the question: logs, synthetics, misuse, interfaces, coverage, compliance.'
+    learn:
+      - 'Log reviews show what controls recorded. Synthetic transactions run scripted actions on a schedule; real user monitoring watches actual users.'
+      - 'Misuse case testing checks how the system handles an attacker''s goals. Interface testing covers user interfaces, network interfaces and APIs.'
+      - 'Coverage = items tested / total items x 100. Compliance checks compare actual configurations with a required standard or baseline.'
+    src: 'CISSP 2027 outline 6.2; ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: attack-simulations
+    obj: '6.2'
+    name: 'Attack simulations'
+    rule: 'Emulate real adversary behaviour to test whether defenders detect and respond.'
+    learn:
+      - 'Attack simulations (red team exercises, breach and attack simulation tools) emulate real threat tactics, often mapped to MITRE ATT&CK.'
+      - 'The red team attacks and the blue team defends; in a purple team exercise they work together to improve detection.'
+      - 'Scope, rules and approvals still apply: even a surprise exercise needs management authorization, safety limits and a way to stop.'
+    src: 'CISSP 2027 outline 6.2 (attack simulations); MITRE ATT&CK (attack.mitre.org); NIST SP 800-115'
+
+  - id: kpi-kri
+    obj: '6.3'
+    name: 'KPIs and KRIs'
+    rule: 'KPIs show how well a process performs; KRIs warn that risk is rising.'
+    learn:
+      - 'A key performance indicator measures how well a process meets its goal, such as critical patches applied within 14 days.'
+      - 'A key risk indicator signals changing exposure, such as rising counts of exploitable internet-facing systems or orphaned accounts.'
+      - 'Good metrics are defined, repeatable, tied to a target or threshold, and reported to someone who can act.'
+    src: 'CISSP 2027 outline 6.3 (key performance and risk indicators); NIST SP 800-55 Vol. 1 (2024), measurement guide; ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: process-data
+    obj: '6.3'
+    name: 'Security process data'
+    rule: 'Collect evidence that processes work: reviews done, restores tested, plans exercised.'
+    learn:
+      - 'Account management data: accounts reviewed, orphaned and privileged accounts found, with management review and approval recorded.'
+      - 'Backup verification means test restores. A "job succeeded" log does not prove the data can be recovered.'
+      - 'Training records and DR/BC test results (actual recovery times against RTOs) show whether people and plans perform.'
+    src: 'CISSP 2027 outline 6.3; NIST SP 800-34 Rev. 1 (testing, training and exercises); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: remediation-exceptions
+    obj: '6.4'
+    name: 'Remediation and exceptions'
+    rule: 'Fix by risk and track to closure; exceptions need owner approval and an expiry date.'
+    learn:
+      - 'Prioritize remediation by risk: severity, active exploitation (such as CISA''s KEV catalog), exposure and asset value.'
+      - 'Every finding gets an owner, a plan and a due date, and is retested to confirm the fix.'
+      - 'An exception is a documented, time-limited risk acceptance by the risk owner, usually with compensating controls, reviewed at expiry.'
+    src: 'CISSP 2027 outline 6.4 (remediation, exception handling); CISA Known Exploited Vulnerabilities Catalog; CISA BOD 22-01'
+
+  - id: responsible-disclosure
+    obj: '6.4'
+    name: 'Responsible disclosure'
+    rule: 'Acknowledge reports, fix first, then disclose on an agreed timeline.'
+    learn:
+      - 'Responsible (coordinated) disclosure: the finder reports privately, the vendor fixes, and details go public once users can be protected.'
+      - 'Publish how to report (a vulnerability disclosure policy, security.txt) and respond to good-faith researchers without threats.'
+      - 'ISO/IEC 29147 covers vulnerability disclosure; ISO/IEC 30111 covers handling the reports internally.'
+    src: 'ISO/IEC 29147:2018 (Vulnerability disclosure); ISO/IEC 30111:2019 (Vulnerability handling processes); RFC 9116 (security.txt); CISA Coordinated Vulnerability Disclosure Program'
+
+  - id: audit-types
+    obj: '6.5'
+    name: 'Internal, external, third-party audits'
+    rule: 'Independence decides who audits; location decides how the audit is done.'
+    learn:
+      - 'Internal audit: the organization''s own auditors, independent of the areas audited, reporting to the board''s audit committee.'
+      - 'External audit: an outside firm engaged by the organization. Third-party audit: done by or for another party, such as a customer or regulator.'
+      - 'In cloud and hybrid settings, rely on right-to-audit terms and provider attestations, since customers usually cannot audit provider data centers.'
+    src: 'CISSP 2027 outline 6.5; IIA Global Internal Audit Standards (2024), Principle 7; ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: soc-reports
+    obj: '6.5'
+    name: 'SOC reports'
+    rule: 'SOC 1 for financial reporting, SOC 2 for security controls, SOC 3 for everyone.'
+    learn:
+      - 'SOC 1: controls relevant to clients'' financial reporting. SOC 2: security, availability, processing integrity, confidentiality, privacy. SOC 3: a general-use summary.'
+      - 'Type I reports on control design at a point in time; Type II also tests operating effectiveness over a period, often 6 to 12 months.'
+      - 'Read the scope, the period, any exceptions, and the complementary user entity controls that remain your job.'
+    src: 'AICPA, SOC suite of services (SOC 1, SOC 2, SOC 3); AICPA SSAE 18 (AT-C 320); AICPA Trust Services Criteria'
+
+cases:
+  - id: k6-01
+    title: 'Permission to haunt'
+    where: 'Halvorsen Freight HQ · Monday 09:00'
+    diff: 2
+    open: >-
+      The board wants proof that Halvorsen's defenses work, not just promises. Shifty hires Redline Security to test
+      them. Dale is thrilled: "Can they hack the competition too?" Kim Osei wants a purple team. Tomás Reyes wants
+      nobody touching production in peak season. Shifty, who passes through walls for free, decides that testing other
+      people's walls needs paperwork.
+    scenes:
+      - c: vuln-pentest
+        kind: first
+        diff: 1
+        text: >-
+          Redline Security's testers arrive at Halvorsen on Monday, ready to start a penetration test of the customer
+          portal. The scope was discussed by phone, but the portal's owner, Priya Nair, has signed nothing. Dale says
+          "go ahead, I'm a chief officer".
+        ask: 'What must happen FIRST?'
+        o:
+          - 'Let them start, since Dale is an executive'
+          - 'Get written authorization and agreed rules of engagement from the owner'
+          - 'Have them run only a light scan until the paperwork arrives'
+          - 'Tell the SOC to turn off alerting so the test is not interrupted'
+        a: 1
+        r:
+          - 'Dale does not own the portal and cannot authorize testing it. Without that, the testers are committing the crimes they were hired to simulate.'
+          - 'Priya signs off the scope, times, contacts and limits. Testing starts at noon, legally.'
+          - 'A light unauthorized scan is still unauthorized, and it knocks over the payment API at 10:15.'
+          - 'The SOC goes blind for a week. A real attacker would love that week.'
+        why: >-
+          Penetration testing needs written authorization from someone with authority over the systems, plus agreed
+          rules of engagement covering scope, timing, methods and contacts. Without it, testing can be illegal and
+          unsafe; a "light scan first" is still testing without permission.
+        src: 'NIST SP 800-115, sec. 5.2 and Appendix B (rules of engagement); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+      - c: assessment-strategy
+        kind: best
+        diff: 2
+        text: >-
+          The board wants to know what a real outside attacker could do to Halvorsen's customer portal. Redline Security
+          offers three designs: full access to source code and architecture, partial details, or nothing but the
+          company name.
+        ask: 'Which design BEST simulates an outside attacker with no inside knowledge?'
+        o:
+          - 'White-box testing'
+          - 'Gray-box testing'
+          - 'A credentialed vulnerability scan'
+          - 'Black-box testing'
+        a: 3
+        r:
+          - 'White box gives the testers everything. It finds more, but it is not what an outsider starts with.'
+          - 'Gray box gives partial knowledge, like a customer or partner might have. Closer, but not zero.'
+          - 'A credentialed scan logs in with valid accounts, which is the opposite of no knowledge.'
+          - 'Redline starts with only "Halvorsen Freight" and a search engine. The board gets the outsider view it asked for.'
+        why: >-
+          Black-box (zero-knowledge) testing gives testers no inside information, simulating an external attacker.
+          White box gives full knowledge and finds more in less time; gray box sits in between. Credentialed scans use
+          valid accounts.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (knowledge levels); NIST SP 800-115'
+
+      - c: vuln-pentest
+        kind: rank
+        diff: 2
+        text: >-
+          Redline Security explains its penetration testing method to Halvorsen's board. It follows NIST SP 800-115.
+          Dale has shuffled the slides.
+        ask: 'Put the four penetration testing phases in order, first at the top.'
+        items:
+          - 'Planning: rules, scope and approvals'
+          - 'Discovery: information gathering and vulnerability analysis'
+          - 'Attack: verifying vulnerabilities by exploiting them'
+          - 'Reporting: findings, risks and mitigations'
+        why: >-
+          NIST SP 800-115 describes four phases: planning, discovery, attack and reporting. The attack phase can loop
+          back to discovery when new access reveals more; reporting delivers the results at the end.
+        src: 'NIST SP 800-115, sec. 5.2 (four-stage penetration testing methodology)'
+
+      - c: attack-simulations
+        kind: best
+        diff: 2
+        text: >-
+          Kim Osei wants to know whether her SOC detects the techniques used by the gang that breached Halvorsen last
+          spring. She proposes that Redline's red team run those techniques while her analysts watch, compare notes in
+          real time and tune detections together.
+        ask: 'What is this exercise BEST described as?'
+        o:
+          - 'A vulnerability assessment'
+          - 'A purple team exercise'
+          - 'A tabletop exercise'
+          - 'A compliance check'
+        a: 1
+        r:
+          - 'A vulnerability assessment lists weaknesses. This tests whether defenders spot real attack behaviour.'
+          - 'By Friday, 9 of 14 techniques are detected, up from 4. The red team buys the blue team coffee.'
+          - 'A tabletop talks through a scenario. Here the attacks really run, under control.'
+          - 'A compliance check compares settings with a standard. Nobody is attacking anything.'
+        why: >-
+          A purple team exercise combines an attack simulation by the red team with the blue team's defense, working
+          together to improve detection and response. Vulnerability assessments, tabletops and compliance checks do not
+          emulate live adversary techniques.
+        src: 'CISSP 2027 outline 6.2 (attack simulations); MITRE ATT&CK'
+
+      - c: test-techniques
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's server hardening standard requires specific settings on every Windows server, such as disabled
+          guest accounts and audit logging. Kim Osei needs to show the auditors that all 300 servers actually match it.
+        ask: 'Which test BEST provides that evidence?'
+        o:
+          - 'A black-box penetration test of one server'
+          - 'A review of the hardening standard document'
+          - 'An automated compliance check against the standard'
+          - 'Asking the server admins to confirm by email'
+        a: 2
+        r:
+          - 'One server, tested deeply, says little about the other 299.'
+          - 'The document shows what should be true. The auditors want to know what is true.'
+          - 'The scan shows 287 compliant servers and 13 that have drifted. Each gap gets a ticket, and the report goes to the auditors.'
+          - 'Self-reported answers are not evidence. The auditors smile politely and ask for the scan.'
+        why: >-
+          Compliance checks compare actual configurations with a required standard or baseline across the whole
+          population. A pentest tests how exploitable a sample is; document reviews and self-attestation do not show
+          real configurations.
+        src: 'CISSP 2027 outline 6.2 (compliance checks); NIST SP 800-70 Rev. 4 (security configuration checklists)'
+
+      - c: vuln-pentest
+        kind: first
+        diff: 3
+        text: >-
+          During the authorized test, a Redline tester finds a web shell on Halvorsen's portal server that Redline did
+          not plant, and logs showing data leaving for an unknown address. The rules of engagement name Kim Osei as the
+          emergency contact.
+        ask: 'What should the tester do FIRST?'
+        o:
+          - 'Keep testing to see how far the real attacker got'
+          - 'Remove the web shell to protect Halvorsen'
+          - 'Note it in the final report, due in three weeks'
+          - 'Stop testing that system and notify Kim right away'
+        a: 3
+        trap: 1
+        r:
+          - 'The tester''s activity now mixes with the attacker''s in the logs. Kim''s forensics team is not grateful.'
+          - 'Deleting the shell destroys evidence and tells the attacker they have been seen. Removal is the incident team''s call.'
+          - 'Three weeks of live breach, documented beautifully in hindsight.'
+          - 'Kim opens an incident within minutes. The test pauses and the evidence is preserved.'
+        why: >-
+          Signs of a real compromise end normal testing of that system: the tester stops and notifies the designated
+          contact so incident response can begin and evidence is preserved. Removing the shell is the engineer answer;
+          it destroys evidence.
+        src: 'NIST SP 800-115, Appendix B (rules of engagement); NIST SP 800-61 Rev. 3 (incident response)'
+    close: >-
+      Redline's report lands with clear risks and fixes, the real web shell becomes a real incident handled by Kim, and
+      the purple team doubles detection coverage. Dale asks if they can test his home Wi-Fi. Shifty says only with
+      written authorization.
+
+  - id: k6-02
+    title: 'Code review, ghost edition'
+    where: 'Halvorsen Labs · Tuesday 10:00'
+    diff: 2
+    open: >-
+      Halvorsen Labs ships a new driver app every two weeks. Last month a stranger emailed to say the API leaked other
+      drivers' locations. Nobody answered, because the email went to an inbox called "info". Now Rafa Lind wants a
+      proper testing program, and Shifty wants a proper way to hear from strangers.
+    scenes:
+      - c: responsible-disclosure
+        kind: first
+        diff: 2
+        text: >-
+          A security researcher emails Halvorsen: the driver app's API lets any logged-in driver see other drivers'
+          live locations. She includes technical details, has published nothing, and asks how Halvorsen wants to
+          coordinate disclosure. Dale wants Legal to threaten her.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Have Legal send her a cease-and-desist letter'
+          - 'Ignore the email, since she was not authorized to test'
+          - 'Thank her, confirm receipt and start triage on an agreed timeline'
+          - 'Publish a statement that the app is secure'
+        a: 2
+        r:
+          - 'She publishes the flaw the next day, with the letter attached. The press prefers that story.'
+          - 'Silence. Thirty days later she publishes, as her email said she would.'
+          - 'Rafa confirms the bug within an hour. She agrees to wait for the fix and gets thanked on the security page.'
+          - 'The statement is disproved within hours by anyone who reads her proof.'
+        why: >-
+          In responsible (coordinated) disclosure, the vendor acknowledges the report, triages and fixes the flaw, and
+          agrees a disclosure timeline with the finder. Threats or silence push researchers to publish before any fix
+          exists.
+        src: 'ISO/IEC 29147:2018 (Vulnerability disclosure); ISO/IEC 30111:2019; CISSP 2027 outline 6.4 (responsible disclosure)'
+
+      - c: code-testing
+        kind: sort
+        diff: 1
+        text: >-
+          Rafa Lind lists the tests Halvorsen Labs runs on the driver app. Shifty sorts them into static testing
+          (without running the code) and dynamic testing (with the code running).
+        ask: 'Sort each test as static or dynamic.'
+        bins: ['Static', 'Dynamic']
+        pairs:
+          - ['SAST tool scanning the source code on each commit', 0]
+          - ['Peer review of a pull request', 0]
+          - ['Formal inspection of the login module''s code', 0]
+          - ['DAST scanner probing the staging site', 1]
+          - ['Fuzzing the API with malformed requests', 1]
+          - ['Load test of the booking service', 1]
+        why: >-
+          Static testing examines code or designs without executing them, as SAST and code reviews do. Dynamic testing
+          exercises the running software, as DAST, fuzzing and load tests do. Each finds flaws the other misses.
+        src: 'CISSP 2027 outline 6.2 (code review and testing); NIST SP 800-218 (SSDF), practices PW.7 and PW.8'
+
+      - c: code-testing
+        kind: rank
+        diff: 2
+        text: >-
+          For the payment module, Rafa Lind wants a formal Fagan inspection instead of a quick peer review. The team
+          needs the steps in order.
+        ask: 'Put the Fagan inspection steps in order, first at the top.'
+        items:
+          - 'Overview: the author walks the team through the code'
+          - 'Preparation: each inspector studies the code alone'
+          - 'Inspection: the team meets to find defects'
+          - 'Rework: the author fixes the defects'
+          - 'Follow-up: the moderator confirms every fix'
+        why: >-
+          Fagan inspection runs overview, preparation, inspection, rework and follow-up; the Sybex guide adds a
+          planning step at the start. Defined roles and a moderator make it the most formal and thorough type of code
+          review.
+        src: 'Fagan, "Design and code inspections to reduce errors in program development", IBM Systems Journal 15(3), 1976; ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+      - c: test-techniques
+        kind: calc
+        diff: 1
+        text: >-
+          Halvorsen Labs has documented 80 use cases for the driver app, misuse cases included. The test suite
+          exercises 52 of them. Rafa Lind wants the coverage figure for the release report.
+        ask: 'What is the test coverage?'
+        o: ['52%', '65%', '35%', '154%']
+        a: 1
+        why: >-
+          Coverage = use cases tested / total use cases x 100 = 52 / 80 x 100 = 65%. 35% is the untested share, 52%
+          mistakes the count for a percentage, and 154% divides the wrong way round.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (coverage analysis); CISSP 2027 outline 6.2'
+
+      - c: test-techniques
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Labs' tests confirm that drivers can book, scan and deliver correctly. Shifty asks what happens if a
+          driver tries to mark a parcel delivered without scanning it, or scans the same parcel for two customers.
+        ask: 'Which testing approach BEST addresses Shifty''s question?'
+        o:
+          - 'Regression testing'
+          - 'Load testing'
+          - 'Synthetic transaction monitoring'
+          - 'Misuse case testing'
+        a: 3
+        r:
+          - 'Regression testing checks that old features still work. Nobody has asked the app to resist abuse.'
+          - 'Load testing checks the app under heavy use. Abuse by one driver is not a load problem.'
+          - 'Synthetic transactions repeat normal scripted actions. Shifty is asking about the abnormal ones.'
+          - 'Rafa writes tests for what a dishonest driver would try. Two of them succeed, and get fixed before release.'
+        why: >-
+          Misuse case testing models how a user or attacker might abuse a function and checks that the system resists
+          it. Regression, load and synthetic tests check that expected behaviour keeps working under normal or heavy
+          use.
+        src: 'CISSP 2027 outline 6.2 (misuse case testing); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+      - c: test-techniques
+        kind: best
+        diff: 2
+        text: >-
+          The location leak in Halvorsen's driver app was in the API, not the app screens: the API returned any
+          driver's location if you changed the ID in the request. Rafa Lind's tests had only exercised the app's user
+          interface.
+        ask: 'Which testing would MOST directly have caught this flaw?'
+        o:
+          - 'API interface testing, including authorization checks'
+          - 'User interface testing of the app screens'
+          - 'Network interface testing of the depot Wi-Fi'
+          - 'Usability testing with real drivers'
+        a: 0
+        r:
+          - 'Rafa''s new API tests change the ID in every request. The next object-level authorization bug fails the build.'
+          - 'The screens worked perfectly. The flaw was underneath them, where the screens never went.'
+          - 'The Wi-Fi was fine. The API answered anyone who asked politely.'
+          - 'Drivers found the app easy to use. One found it too easy.'
+        why: >-
+          Interface testing covers user, network and application programming interfaces. Testing the API directly,
+          including whether each request is authorized for the object it asks for, catches broken object-level
+          authorization that UI tests never reach.
+        src: 'CISSP 2027 outline 6.2 (interface testing: UI, network, API); OWASP API Security Top 10 (2023), API1 Broken Object Level Authorization'
+    close: >-
+      The API fix ships in four days, the researcher gets public thanks, and Halvorsen now publishes how to report
+      vulnerabilities. Coverage climbs past 80%. The "info" inbox is retired. Shifty reads the first report from the new
+      channel himself, hovering over Rafa's shoulder.
+
+  - id: k6-03
+    title: 'The metrics that lied'
+    where: 'Halvorsen SOC · Thursday 16:00'
+    diff: 2
+    open: >-
+      Every security dashboard at Halvorsen is green. Every single one. Shifty, who has been dead long enough to
+      distrust anything that looks this healthy, asks Kim Osei to prove the numbers. Marcus Webb wants metrics he can
+      take to the audit committee. Dale wants the dashboards to stay green "for morale".
+    scenes:
+      - c: kpi-kri
+        kind: sort
+        diff: 2
+        text: >-
+          Kim Osei proposes metrics for Halvorsen's audit committee. Marcus Webb asks which ones show how well security
+          processes perform, and which warn that risk is rising. Shifty sorts them.
+        ask: 'Sort each metric as a KPI or a KRI.'
+        bins: ['KPI (performance)', 'KRI (risk)']
+        pairs:
+          - ['Percentage of critical patches applied within 14 days', 0]
+          - ['Average time to close a security ticket', 0]
+          - ['Percentage of staff who finished training on time', 0]
+          - ['Internet-facing systems with known exploited flaws', 1]
+          - ['Active accounts that belong to leavers', 1]
+          - ['Growth in privileged accounts this quarter', 1]
+        why: >-
+          A KPI measures how well a process meets its goals, such as patch speed or training completion. A KRI signals
+          exposure, such as exploitable systems or leftover accounts, giving early warning that risk is moving towards
+          its limit.
+        src: 'CISSP 2027 outline 6.3 (key performance and risk indicators); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+      - c: kpi-kri
+        kind: calc
+        diff: 1
+        text: >-
+          Halvorsen's quarterly account review covered 1,200 active accounts. 84 of them belonged to people who had left
+          the company. Kim Osei reports this as a key risk indicator with an alert threshold of 2%.
+        ask: 'What percentage of the reviewed accounts were orphaned?'
+        o: ['0.7%', '7%', '8.4%', '14%']
+        a: 1
+        why: >-
+          84 / 1,200 = 0.07 = 7%, more than three times the 2% threshold, so the KRI is red. 8.4% treats 84 as a share
+          of 1,000, 0.7% slips a decimal place, and 14% doubles the count.
+        src: 'CISSP 2027 outline 6.3 (account management, key risk indicators)'
+
+      - c: process-data
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's backup dashboard has shown "100% successful" every night for a year. Kim Osei asks for evidence
+          that the dispatch database could actually be recovered. Tomás Reyes points to the success logs.
+        ask: 'Which is the BEST evidence that the backups can be recovered?'
+        o:
+          - 'A year of nightly "job succeeded" logs'
+          - 'The backup vendor''s product datasheet'
+          - 'The backup files growing in size each month'
+          - 'Results of regular test restores'
+        a: 3
+        r:
+          - 'The jobs succeeded at copying a database that had been corrupt since March. The logs were delighted.'
+          - 'The datasheet says what the product can do, not what Halvorsen configured it to do.'
+          - 'Growing files show something is being written, not that it can be read back.'
+          - 'The first test restore fails on a missing table. It is fixed now, instead of on the day it matters.'
+        why: >-
+          Backup verification data must show that data can be restored and is complete, which only a test restore
+          proves. Job logs show the copy ran, not that it is usable; datasheets and file sizes prove even less.
+        src: 'CISSP 2027 outline 6.3 (backup verification data); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+      - c: audit-types
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen is setting up an internal audit function. Dale proposes that the head of internal audit report to
+          him, "since I'm in charge of synergy, which includes auditing". Internal audit will review security, IT and
+          Dale's own department.
+        ask: 'For independence, what is the MAIN reporting line for internal audit?'
+        o:
+          - 'Dale, as Chief Synergy Officer'
+          - 'Tomás Reyes, as IT Director'
+          - 'The board''s audit committee'
+          - 'Shifty, as CISO'
+        a: 2
+        r:
+          - 'Dale would review reports on his own department. Nobody would believe them, including Dale.'
+          - 'IT is one of the main areas audited. Reporting to it defeats the point.'
+          - 'The head of internal audit reports to the audit committee, with an administrative line to the CEO.'
+          - 'Security is audited too. Shifty cannot mark his own homework, even with ghost hands.'
+        why: >-
+          Internal audit must be independent of the areas it reviews, so it reports functionally to the board or its
+          audit committee. Reporting to a manager whose area is audited impairs its objectivity.
+        src: 'IIA Global Internal Audit Standards (2024), Principle 7 and Standard 7.1 (organizational independence); CISSP 2027 outline 6.5'
+
+      - c: test-techniques
+        kind: best
+        diff: 1
+        text: >-
+          Halvorsen's customer portal sometimes slows down at night, when few real customers use it, so nobody notices
+          until morning. Kim Osei wants to detect problems before customers do, around the clock.
+        ask: 'Which monitoring approach BEST meets that goal?'
+        o:
+          - 'Synthetic transactions'
+          - 'Real user monitoring'
+          - 'A weekly log review'
+          - 'An annual penetration test'
+        a: 0
+        r:
+          - 'A script logs in, tracks a parcel and books a pickup every five minutes. The 2 a.m. slowdown pages the on-call engineer.'
+          - 'Real user monitoring needs real users. At 3 a.m. there are four, all asleep on the page.'
+          - 'A weekly review finds Tuesday''s outage the following Monday.'
+          - 'An annual test says nothing about tonight.'
+        why: >-
+          Synthetic transactions run scripted actions against a system on a schedule, so they detect availability and
+          performance problems even when no real users are active. Real user monitoring depends on actual traffic.
+        src: 'CISSP 2027 outline 6.2 (synthetic transactions/benchmarks); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+      - c: remediation-exceptions
+        kind: best
+        diff: 2
+        text: >-
+          An audit finds that Halvorsen's warehouse label printers cannot use TLS, which the encryption standard
+          requires. Replacements arrive in nine months. Tomás Reyes asks Shifty to "just mark it as fine".
+        ask: 'What is the BEST way to handle this finding?'
+        o:
+          - 'Mark the finding closed, since the printers can never comply'
+          - 'A documented, time-limited exception approved by the risk owner'
+          - 'Leave the finding open, with no plan, until replacements arrive'
+          - 'Switch the printers off for nine months until they are replaced'
+        a: 1
+        r:
+          - 'Closing a finding that is not fixed hides the risk. The next auditor finds it again, and asks why.'
+          - 'Priya approves a nine-month exception. The printers sit on an isolated segment, and the exception expires with the replacement.'
+          - 'An open finding with no owner or plan just ages. The audit committee asks why it is still red.'
+          - 'No labels, no shipments. The cure is worse than the risk.'
+        why: >-
+          Exception handling documents a finding that cannot be fixed yet: the risk owner accepts the residual risk for
+          a limited time, compensating controls reduce it, and it is reviewed at expiry. Closing or ignoring it hides
+          the risk.
+        src: 'CISSP 2027 outline 6.4 (exception handling); NIST SP 800-37 Rev. 2 (risk acceptance by the authorizing official)'
+
+      - c: soc-reports
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen outsources payroll processing. Marcus Webb's financial statement auditors want assurance about the
+          payroll provider's controls that affect Halvorsen's financial reporting, over the whole year.
+        ask: 'Which report BEST meets the auditors'' need?'
+        o:
+          - 'A SOC 3 report'
+          - 'A SOC 2 Type I report'
+          - 'A SOC 1 Type II report'
+          - 'The provider''s ISO/IEC 27001 certificate'
+        a: 2
+        r:
+          - 'A SOC 3 is a short public summary on security. It is not built for financial auditors.'
+          - 'SOC 2 covers security and related criteria, and Type I looks at a single date. Wrong focus, too short.'
+          - 'The SOC 1 Type II report covers payroll controls tested over twelve months. The auditors take it and move on.'
+          - 'The certificate shows an ISMS exists. It does not test payroll controls over financial reporting.'
+        why: >-
+          SOC 1 reports cover a service organization's controls relevant to clients' internal control over financial
+          reporting; Type II adds testing of operating effectiveness over a period. SOC 2 and SOC 3 cover security and
+          the related trust services criteria.
+        src: 'AICPA, SOC 1 (SSAE 18, AT-C 320); AICPA, SOC 2 and SOC 3 (Trust Services Criteria)'
+    close: >-
+      The dashboard is now honestly amber. The orphaned accounts are gone, the first real test restore failed and was
+      fixed, and internal audit reports to the audit committee. Marcus calls it the most useful bad news of his year.
+      Dale buys a red light bulb, for morale.
+
+  - id: k6-04
+    title: 'Auditors in the building'
+    where: 'Halvorsen Freight HQ · Monday 08:30'
+    diff: 2
+    open: >-
+      Three audits land in the same month. A big retail customer is sending its own auditors, the cyber insurer wants
+      evidence, and the cloud provider hosting the portal refuses to let anyone into its data center "on principle".
+      Dale has bought biscuits. Shifty, who once haunted an accounting firm, knows that biscuits are not evidence.
+    scenes:
+      - c: audit-types
+        kind: best
+        diff: 2
+        text: >-
+          Mercer Retail, one of Halvorsen's largest customers, sends its own audit team to check that Halvorsen's
+          controls over Mercer's shipment data meet their contract. Mercer's auditors report to Mercer, not to
+          Halvorsen.
+        ask: 'In CISSP terms, what type of audit is this MOST accurately?'
+        o: ['Internal audit', 'External audit', 'Self-assessment', 'Third-party audit']
+        a: 3
+        r:
+          - 'Internal audit is Halvorsen''s own team. Mercer''s auditors work for Mercer.'
+          - 'An external audit is one Halvorsen commissions from an outside firm. Halvorsen did not hire these people.'
+          - 'A self-assessment is Halvorsen checking Halvorsen. Mercer would not accept one as proof.'
+          - 'Mercer''s team works through its checklist. Halvorsen provides evidence and keeps access within Mercer''s scope.'
+        why: >-
+          In CISSP terms, internal audits use the organization's own auditors, external audits use an outside firm the
+          organization engages, and third-party audits are done by or for another party, such as a customer or
+          regulator, outside the organization's control.
+        src: 'CISSP 2027 outline 6.5 (internal, external, third-party); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+      - c: soc-reports
+        kind: best
+        diff: 1
+        text: >-
+          Halvorsen must assure Mercer Retail that the cloud provider hosting its portal ran effective security controls
+          throughout the past year. The provider offers several reports.
+        ask: 'Which report BEST shows the controls operated effectively over the year?'
+        o: ['SOC 2 Type II', 'SOC 2 Type I', 'SOC 3', 'SOC 1 Type I']
+        a: 0
+        r:
+          - 'The Type II report tests the controls over twelve months and lists any exceptions. Mercer''s auditors read it closely.'
+          - 'Type I covers control design at a single date. Mercer asked about the whole year.'
+          - 'A SOC 3 is a short public summary. It lacks the detailed tests and results.'
+          - 'SOC 1 is about financial reporting controls, and Type I is a single point in time. Wrong on both counts.'
+        why: >-
+          A SOC 2 report covers controls relevant to security and the other trust services criteria; Type II adds
+          testing of operating effectiveness over a period. Type I covers design at a point in time, SOC 3 is a
+          general-use summary, and SOC 1 targets financial reporting.
+        src: 'AICPA, SOC 2 (Trust Services Criteria; Type 1 and Type 2 reports); AICPA, SOC 3'
+
+      - c: assessment-strategy
+        kind: spot
+        diff: 3
+        text: >-
+          Shifty draws the scope of Halvorsen's own assessment of its hybrid customer portal. Halvorsen's testers may
+          test everything Halvorsen configures or operates. One part is run entirely by the cloud provider, which
+          forbids customer testing and offers its SOC 2 Type II report instead.
+        ask: 'Tap the component Halvorsen should MAINLY cover with the provider''s attestation, not its own testing.'
+        map:
+          nodes:
+            - { id: users, label: 'Customers (internet)', x: 2, y: 6 }
+            - { id: app, label: 'Portal app (Halvorsen)', x: 39, y: 6 }
+            - { id: iam, label: 'Cloud IAM settings', x: 76, y: 6 }
+            - { id: onprem, label: 'On-prem dispatch', x: 2, y: 40 }
+            - { id: vpn, label: 'Site-to-site VPN', x: 39, y: 40 }
+            - { id: db, label: 'Customer DB config', x: 76, y: 40 }
+            - { id: dc, label: 'Provider data center', x: 39, y: 74 }
+          links: [[users, app], [app, iam], [app, db], [app, vpn], [vpn, onprem], [app, dc], [db, dc]]
+          caption: 'Hybrid portal. The provider runs the physical data center and its hardware.'
+        a: dc
+        why: >-
+          Under shared responsibility, the customer tests what it configures and operates: its app, IAM settings,
+          database configuration, VPN and on-premises systems. The provider's data center is outside the customer's
+          control, so assurance comes from independent attestations and contract terms.
+        src: 'CISSP 2027 outline 6.1 (location: on-premises, cloud, hybrid); NIST SP 800-144 (security and privacy in public cloud computing)'
+
+      - c: audit-types
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen's cloud provider refuses on-site audits by individual customers and points to its current SOC 2
+          Type II report and ISO/IEC 27001 certificate. Dale wants to cancel the contract in protest.
+        ask: 'What is the BEST way for Halvorsen to get audit assurance over the provider?'
+        o:
+          - 'Cancel the contract, since on-site audits are refused'
+          - 'Accept the provider''s marketing page as the evidence'
+          - 'Review the provider''s independent attestations'
+          - 'Send Shifty to haunt the data center and look around'
+        a: 2
+        r:
+          - 'Every major provider has the same policy. Halvorsen would move to another provider that also says no.'
+          - 'Marketing pages are written to sell. Auditors want independent evidence.'
+          - 'Kim maps the SOC 2 controls to Halvorsen''s needs, notes the customer responsibilities, and asks about two exceptions.'
+          - 'A ghost tour is not an audit, and the evidence would never stand up. Shifty is a little disappointed.'
+        why: >-
+          Cloud customers usually cannot audit the provider directly, so they rely on independent attestations such as
+          SOC 2 Type II and ISO/IEC 27001 certification, check their scope and exceptions, and test their own
+          customer-side controls.
+        src: 'CISSP 2027 outline 6.5 (location: cloud, hybrid); AICPA SOC 2; ISO/IEC 27001:2022'
+
+      - c: kpi-kri
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's cyber insurer asks for one indicator that would warn early if ransomware exposure is rising,
+          before an incident happens. Kim Osei offers several metrics.
+        ask: 'Which metric is the BEST key risk indicator for this purpose?'
+        o:
+          - 'Number of security staff trained this year'
+          - 'Number of incidents closed last quarter'
+          - 'Exposed systems with actively exploited flaws'
+          - 'Hours of security training delivered'
+        a: 2
+        r:
+          - 'Training counts describe effort. They do not tell the insurer whether exposure is growing.'
+          - 'Closed incidents look backwards. The insurer wants to see trouble coming.'
+          - 'The count rose from 2 to 9 in a month. The insurer sees the warning, and so does Kim, who patches them.'
+          - 'Hours of training measure activity. Exposure could rise while the hours climb.'
+        why: >-
+          A KRI is a forward-looking signal that exposure is changing. Unpatched, actively exploited internet-facing
+          systems are a leading indicator of ransomware risk. Training hours and closed incidents measure activity or
+          performance, not exposure.
+        src: 'CISSP 2027 outline 6.3 (key performance and risk indicators); CISA Known Exploited Vulnerabilities Catalog'
+
+      - c: soc-reports
+        kind: sort
+        diff: 2
+        text: >-
+          Halvorsen's partners and auditors are all asking for SOC reports. Shifty matches each request to the SOC
+          report built for it.
+        ask: 'Sort each request to the right SOC report.'
+        bins: ['SOC 1', 'SOC 2', 'SOC 3']
+        pairs:
+          - ['Payroll service controls, for a financial audit', 0]
+          - ['Billing controls that affect a client''s financial statements', 0]
+          - ['Detailed test results of a cloud host''s security controls', 1]
+          - ['A vendor''s confidentiality and availability controls, under NDA', 1]
+          - ['A public summary of security controls for a website', 2]
+          - ['A general-use report that anyone may read', 2]
+        why: >-
+          SOC 1 covers controls relevant to clients' financial reporting. SOC 2 gives detailed tests against the trust
+          services criteria to restricted users. SOC 3 covers the same criteria in a general-use summary without the
+          detailed results.
+        src: 'AICPA, SOC suite of services (SOC 1, SOC 2, SOC 3)'
+    close: >-
+      Mercer's auditors leave satisfied, the insurer renews, and the cloud provider's SOC 2 report does the work an
+      on-site visit could not. The biscuits are gone by Tuesday. Shifty notes that none of the auditors ate one, which
+      he finds very professional.
+
+  - id: k6-05
+    title: 'The friendly hackers'
+    where: 'Halvorsen Labs · Wednesday 15:00'
+    diff: 3
+    open: >-
+      After the driver-app bug, Halvorsen launched a vulnerability disclosure program. It worked. Too well. Forty
+      reports arrived in two weeks, from a teenager in Leeds, a professor in Seoul and someone who signs emails
+      "Mothman". Rafa Lind is drowning. Kim Osei wants a ransomware drill. Shifty wants a plan for all of it, and coffee
+      he cannot drink.
+    scenes:
+      - c: responsible-disclosure
+        kind: best
+        diff: 3
+        text: >-
+          A researcher reported a flaw in Halvorsen's customer portal 60 days ago under Halvorsen's disclosure policy,
+          which promises fixes within 90 days. The fix ships next week. The researcher wants to publish details. Dale
+          wants to ask her never to publish.
+        ask: 'What is the BEST response under responsible disclosure?'
+        o:
+          - 'Offer a reward in exchange for her never publishing'
+          - 'Tell her to publish now, since the fix is close'
+          - 'Agree she publishes once the fix is out, with credit'
+          - 'Stop replying until she forgets about it'
+        a: 2
+        r:
+          - 'Paying for permanent silence is a gag, not disclosure. She declines, and says so publicly.'
+          - 'Publishing before the fix hands attackers a week''s head start on unpatched customers.'
+          - 'The fix ships, the advisory credits her, and her write-up goes live a week later. Both sides look good.'
+          - 'She publishes on day 90, as the policy allowed, with a paragraph about the silence.'
+        why: >-
+          Responsible disclosure balances user safety and transparency: details are published after a fix is
+          available, on an agreed timeline, crediting the finder. Publishing early helps attackers; demanding permanent
+          silence defeats disclosure.
+        src: 'ISO/IEC 29147:2018 (Vulnerability disclosure); CISA Coordinated Vulnerability Disclosure Program; CISSP 2027 outline 6.4'
+
+      - c: remediation-exceptions
+        kind: first
+        diff: 2
+        text: >-
+          Halvorsen's latest scan and the disclosure inbox produced 40 open findings, and Rafa Lind's team can fix about
+          ten this week. A medium-rated flaw on the internet-facing portal is listed in CISA's Known Exploited
+          Vulnerabilities catalog. A critical-rated flaw sits on an isolated test server.
+        ask: 'Which finding should Rafa''s team fix FIRST?'
+        o:
+          - 'The critical flaw on the isolated test server'
+          - 'The oldest finding in the queue'
+          - 'The finding that is quickest to fix'
+          - 'The actively exploited medium flaw on the portal'
+        a: 3
+        r:
+          - 'The test server cannot be reached from outside. Its critical score overstates the real risk.'
+          - 'Age is not risk. The oldest item is a typo on an error page.'
+          - 'Quick wins feel good. The exploited flaw is still open on the internet.'
+          - 'The portal fix ships tonight. Two days later, a scanning wave for that exact flaw hits Halvorsen and fails.'
+        why: >-
+          Remediation is prioritized by risk, not raw severity: active exploitation and internet exposure of a
+          production system outweigh a higher score on an isolated host. CISA's KEV catalog exists for exactly this
+          kind of prioritization.
+        src: 'CISA Known Exploited Vulnerabilities Catalog; CISA BOD 22-01; CISSP 2027 outline 6.4 (remediation)'
+
+      - c: code-testing
+        kind: best
+        diff: 2
+        text: >-
+          "Mothman", a researcher in Halvorsen's disclosure program, crashed the label-printing service by sending it
+          oversized and garbled shipping labels. Rafa Lind wants to find more bugs like this before researchers do.
+        ask: 'Which testing technique BEST finds this class of bug?'
+        o:
+          - 'Static code review'
+          - 'Fuzz testing'
+          - 'Synthetic transactions'
+          - 'User acceptance testing'
+        a: 1
+        r:
+          - 'Code review might spot it, but reading code rarely finds every input that breaks it.'
+          - 'The fuzzer sends a million malformed labels overnight and finds six more crashes. Mothman is impressed, and a little put out.'
+          - 'Synthetic transactions replay normal labels. The bug only appears with abnormal ones.'
+          - 'Users print normal labels. They are not trying to break anything.'
+        why: >-
+          Fuzz testing sends large volumes of malformed, unexpected or random input to software to find crashes and
+          unhandled errors, which is exactly the bug class reported. Synthetic and acceptance tests use normal input;
+          code review can miss input-handling flaws.
+        src: 'CISSP 2027 outline 6.2 (code review and testing); ISC2 CISSP Official Study Guide (Sybex), ch. 15 (fuzz testing)'
+
+      - c: vuln-pentest
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's weekly vulnerability scan of the warehouse servers runs without logging in. Kim Osei suspects it
+          misses missing patches and weak local settings that are only visible from inside each server.
+        ask: 'Which change would MOST improve what the scan finds?'
+        o:
+          - 'Run credentialed (authenticated) scans'
+          - 'Scan more often, still without credentials'
+          - 'Replace the scans with a penetration test'
+          - 'Move the scanner inside the SOC network'
+        a: 0
+        r:
+          - 'With read-only credentials, the scanner finds 300 missing patches the old scan never saw.'
+          - 'More unauthenticated scans give the same outside view, more often.'
+          - 'A pentest goes deep on a few targets. Kim needs breadth across every server.'
+          - 'Moving the scanner changes its network view, not what it can see inside each server.'
+        why: >-
+          Credentialed scans log in to each system, so they can check installed patches, local settings and software
+          versions that an unauthenticated scan cannot see. A penetration test goes deeper but narrower, and does not
+          replace regular scanning.
+        src: 'NIST SP 800-115 (vulnerability scanning); ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+      - c: attack-simulations
+        kind: first
+        diff: 2
+        text: >-
+          Kim Osei wants a ransomware attack simulation against Halvorsen's production network next week, emulating the
+          real gang's techniques. Dale suggests a total surprise: "don't tell anyone, not even Priya, it'll be more
+          realistic".
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Run it as a total surprise, as Dale suggests'
+          - 'Run real ransomware on a few servers to make it convincing'
+          - 'Get management approval, an agreed scope and a stop procedure'
+          - 'Cancel it, since simulations on production are never allowed'
+        a: 2
+        trap: 1
+        r:
+          - 'The SOC calls the police on its own red team. Priya learns about it from a news alert. Nobody is happy.'
+          - 'Real encryption on real servers is not a simulation. It is an incident you caused.'
+          - 'Priya signs off. Only a small control group knows, dispatch is out of scope at peak, and there is a stop word.'
+          - 'Simulations on production can be run safely with controls. Cancelling loses the most realistic test.'
+        why: >-
+          Attack simulations, like all testing, need management authorization, a defined scope, safety limits and a
+          way to stop. Defenders may be kept unaware; leadership may not. Running real destructive payloads is the
+          engineer answer: realism that causes real harm.
+        src: 'CISSP 2027 outline 6.2 (attack simulations); NIST SP 800-115, Appendix B (rules of engagement)'
+
+      - c: process-data
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's DR plan says the dispatch system will be restored within 8 hours (its RTO). Priya Nair asks Kim
+          Osei for process data that shows whether the DR capability really works.
+        ask: 'Which evidence BEST shows the DR capability works?'
+        o:
+          - 'The DR plan, approved and signed last year'
+          - 'The number of people on the DR contact list'
+          - 'The annual cost of the DR site contract'
+          - 'Measured recovery times from the last DR test'
+        a: 3
+        r:
+          - 'A signed plan shows intent. It does not show dispatch comes back in time.'
+          - 'A long contact list means many people get the email, not that dispatch comes back.'
+          - 'Spending shows budget, not capability.'
+          - 'The last test took 11 hours. The gap goes into the plan, and the next test comes in at 7.'
+        why: >-
+          DR and BC process data should come from tests and exercises: recovery times measured against RTOs, and the
+          issues found and fixed. Plans, contact lists and costs show the plan exists, not that it works.
+        src: 'CISSP 2027 outline 6.3 (DR and BC process data); NIST SP 800-34 Rev. 1 (testing, training and exercises)'
+    close: >-
+      The disclosure queue is triaged by risk, the friendly hackers get credit and fixes on time, and the ransomware
+      simulation finds two gaps without breaking anything. Mothman sends a thank-you note signed with a moth. Shifty
+      pins it to the board, where it falls straight through.

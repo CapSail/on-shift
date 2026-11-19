@@ -1,5 +1,6 @@
-// Which shift is on: the SOC game ('soc') or SHIFTY-1, the AI cert school ('ai'). One app, two shifts.
-export type ShiftId = 'soc' | 'ai';
+// Which shift is on: the SOC game ('soc'), SHIFTY-1 the AI cert school ('ai'), or the Ghost CISO ('cissp'). One app.
+export type ShiftId = 'soc' | 'ai' | 'cissp';
+export const SHIFTS: ShiftId[] = ['soc', 'ai', 'cissp'];
 
 const KEY = 'onshift.shift';
 const has = (k: string): boolean => { try { return localStorage.getItem(k) !== null; } catch { return false; } };
@@ -8,7 +9,7 @@ const has = (k: string): boolean => { try { return localStorage.getItem(k) !== n
 export function getShift(): ShiftId {
   let v: string | null = null;
   try { v = localStorage.getItem(KEY); } catch { /* ignore */ }
-  if (v === 'soc' || v === 'ai') return v;
+  if (v && (SHIFTS as string[]).includes(v)) return v as ShiftId;
   return has('shifty1.v1') && !has('onshift.v2') ? 'ai' : 'soc';
 }
 

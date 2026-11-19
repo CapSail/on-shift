@@ -156,7 +156,7 @@ test('both shifts play in airplane mode after one visit, including a shift never
   await context.setOffline(false);
 });
 
-test('one install: one manifest, one service worker, and it precaches both shifts', async ({ page, request }) => {
+test('one install: one manifest, one service worker, and it precaches every shift', async ({ page, request }) => {
   await page.goto('./');
   const manifest = await (await request.get(new URL('manifest.webmanifest', page.url()).href)).json();
   expect(manifest.name).toBe('ON SHIFT');
@@ -167,8 +167,9 @@ test('one install: one manifest, one service worker, and it precaches both shift
     const body = await (await request.get(new URL(f, page.url()).href)).text();
     if (body.includes('Certified AI Practitioner')) big.push('ai');
     if (body.includes('attack.mitre.org')) big.push('soc');
+    if (body.includes('Halvorsen Freight')) big.push('cissp');
   }
-  expect(big).toEqual(expect.arrayContaining(['ai', 'soc']));
+  expect(big).toEqual(expect.arrayContaining(['ai', 'soc', 'cissp']));
 });
 
 test('shared class names do not leak styles across shifts (the locked boss tile is not a SHIFTY-1 lock-in button)', async ({ page }) => {
@@ -188,4 +189,21 @@ test('shared class names do not leak styles across shifts (the locked boss tile 
   await page.goto('./#card=d1-001');
   await page.reload();
   await expect(page.locator('body')).toHaveAttribute('data-shift', 'ai');
+});
+
+test('the third shift: the switch reaches the Ghost CISO and back, and #cissp opens it; saves stay separate', async ({ page }) => {
+  await seedBoth(page);
+  await page.goto('./');
+  await socHome(page);
+  await expect(page.locator('.shsw [data-shift]')).toHaveCount(3);
+  await page.locator('.shsw [data-shift="cissp"]').click();
+  await expect(page.getByText('GHOST CISO', { exact: true })).toBeVisible(); // its first-visit story
+  expect(await ls(page, 'cissp.v1')).toBeNull(); // looking around saves nothing
+  await page.getByText('Open the SOC shift').click();
+  await socHome(page);
+  await page.goto('./#cissp');
+  await expect(page.getByText('GHOST CISO', { exact: true })).toBeVisible();
+  expect(await ls(page, 'onshift.shift')).toBe('cissp');
+  expect(JSON.parse((await ls(page, 'onshift.v2'))!).xp).toBe(40);
+  expect(JSON.parse((await ls(page, 'shifty1.v1'))!).xp).toBe(200);
 });

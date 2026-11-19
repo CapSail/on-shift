@@ -1,0 +1,951 @@
+# Domain 8: Software Development Security (11.2%)
+# Format and rules: docs/cissp/DESIGN.md and docs/cissp/AUTHORING.md. Ids are stable forever.
+# Facts and sources checked: docs/cissp/sources-d3-d4-d8.md
+
+concepts:
+  # ---------------------------------------------------------------- 8.1 security in the SDLC
+  - id: sdlc-methods
+    obj: '8.1'
+    name: 'Development methods and IPTs'
+    rule: 'Pick the method that fits, and build security into every iteration.'
+    learn:
+      - 'Waterfall runs phases in sequence with sign-offs; Agile delivers in short iterations; the Scaled Agile Framework (SAFe) scales Agile across many teams.'
+      - 'DevOps joins development and operations for fast, automated delivery; DevSecOps makes security a shared, automated part of that pipeline.'
+      - 'An Integrated Product Team brings developers, security, operations, testers and business owners together from the start, sharing decisions and responsibility.'
+    src: 'CISSP 2027 outline 8.1; NIST SP 800-218 v1.1 (SSDF); ISC2 OSG ch. 20'
+
+  - id: maturity-models
+    obj: '8.1'
+    name: 'CMM and SAMM'
+    rule: 'Maturity models measure how repeatable and self-improving your development process is.'
+    learn:
+      - 'SW-CMM levels: 1 Initial, 2 Repeatable, 3 Defined, 4 Managed, 5 Optimizing. CMMI renames level 2 Managed and level 4 Quantitatively Managed.'
+      - 'OWASP SAMM v2 has five business functions (Governance, Design, Implementation, Verification, Operations), each with three security practices.'
+      - 'Use a maturity model to see where you are, set a realistic target, and improve one step at a time.'
+    ghost: 'Shifty is at maturity level 5 in being dead: fully optimized, no further improvement possible.'
+    src: 'SEI, Capability Maturity Model for Software v1.1 (CMU/SEI-93-TR-024); OWASP SAMM v2'
+
+  - id: ssdf-sbom
+    obj: '8.1'
+    name: 'SSDF and SBOM'
+    rule: 'NIST SSDF defines secure development practices; an SBOM lists what your software contains.'
+    learn:
+      - 'NIST SP 800-218 (SSDF) has four practice groups: Prepare the Organization (PO), Protect the Software (PS), Produce Well-Secured Software (PW), Respond to Vulnerabilities (RV).'
+      - 'An SBOM is a formal, machine-readable inventory of a product''s components and their supply chain relationships, in formats such as SPDX or CycloneDX.'
+      - 'NTIA minimum elements: data fields (supplier, component, version, unique IDs, dependencies, author, timestamp), automation support, and practices and processes.'
+    src: 'NIST SP 800-218 v1.1 (SSDF); NTIA, The Minimum Elements for a Software Bill of Materials (2021); Executive Order 14028, sec. 4'
+
+  - id: shift-left
+    obj: '8.1'
+    name: 'Shift left'
+    rule: 'Find and fix security problems as early in development as possible.'
+    learn:
+      - 'Shift left moves security work earlier: security requirements, threat modeling and design review, not just testing before release.'
+      - 'Defects found in design or coding cost far less to fix than defects found after release.'
+      - 'In practice: security requirements in user stories, checks in the IDE and at commit, SAST and SCA on every build, developer training.'
+    ghost: 'Shifty arrives at sprint one, not launch night. Ghosts are usually late to things; this one is early.'
+    src: 'CISSP 2027 outline 8.1 (shift left); NIST SP 800-218 v1.1, PO.1, PW.1 and PW.7'
+
+  - id: sw-change-mgmt
+    obj: '8.1'
+    name: 'Software change management and O&M'
+    rule: 'Every change is requested, reviewed, approved, tested and documented, even urgent ones.'
+    learn:
+      - 'Change management: request, review of impact and security risk, approval (for example by a change advisory board), testing, controlled release, documentation.'
+      - 'Emergency changes may move fast, but they are still authorized, recorded and reviewed afterward.'
+      - 'Operation and maintenance keep security alive after release: patching, monitoring, vulnerability response and, eventually, retirement.'
+    src: 'ISC2 OSG ch. 16 and ch. 20 (change management); NIST SP 800-53 Rev. 5, CM-3 (configuration change control)'
+
+  # ---------------------------------------------------------------- 8.2 development ecosystems
+  - id: memory-safe
+    obj: '8.2'
+    name: 'Memory-safe languages'
+    rule: 'Prefer memory-safe languages; they remove whole classes of memory bugs.'
+    learn:
+      - 'C and C++ let code read or write outside buffers and use freed memory, causing overflows and use-after-free bugs.'
+      - 'Memory-safe languages such as Rust, Go, Java, C#, Python and Swift prevent most of these errors by design.'
+      - 'CISA and NSA urge memory-safety roadmaps: new code in memory-safe languages, legacy C and C++ hardened and gradually replaced.'
+    src: 'CISA and partners, The Case for Memory Safe Roadmaps (Dec. 2023); NSA, Software Memory Safety (Nov. 2022)'
+
+  - id: cicd-repos
+    obj: '8.2'
+    name: 'CI/CD, repositories and SCM'
+    rule: 'Protect the pipeline like production: it builds, signs and ships your code.'
+    learn:
+      - 'CI/CD automates build, test and deploy; an attacker in the pipeline can ship malicious code that looks official.'
+      - 'Protect repositories: branch protection, required reviews, signed commits, no secrets in code, least privilege for pipeline credentials.'
+      - 'Software configuration management tracks versions and builds so every release is reproducible and traceable; harden IDEs, tool sets and runtimes too.'
+    src: 'NIST SP 800-204D (software supply chain security in DevSecOps CI/CD pipelines); NIST SP 800-218 v1.1, PS.1 and PS.2; OWASP Top 10 CI/CD Security Risks'
+
+  - id: app-sec-testing
+    obj: '8.2'
+    name: 'SAST, DAST and friends'
+    rule: 'SAST reads code without running it; DAST attacks the running application.'
+    learn:
+      - 'SAST (white box) analyzes source or binaries early, without executing them; it points to the line but produces false positives.'
+      - 'DAST (black box) tests the running app from outside as an attacker would, finding runtime and configuration issues, not exact code lines.'
+      - 'IAST instruments the running app, fuzzing feeds malformed input, and SCA checks third-party components. Combine them in the pipeline.'
+    src: 'NIST SP 800-218 v1.1, PW.7 and PW.8; OWASP Web Security Testing Guide'
+
+  # ---------------------------------------------------------------- 8.3 effectiveness
+  - id: sw-risk-audit
+    obj: '8.3'
+    name: 'Assessing software security'
+    rule: 'Log every change to a person, then analyze and treat software risk on evidence.'
+    learn:
+      - 'Auditing and logging of changes records who changed what, when and why, in code, configuration and deployments, in logs that resist tampering.'
+      - 'Risk analysis rates each weakness by likelihood and impact; then the owner mitigates, transfers, avoids or accepts it.'
+      - 'Measure effectiveness with evidence: test results, defect trends, time to fix, and audits of whether the process is followed.'
+    src: 'CISSP 2027 outline 8.3; NIST SP 800-218 v1.1, RV.2; NIST SP 800-53 Rev. 5, AU-9 and CM-3'
+
+  # ---------------------------------------------------------------- 8.4 acquired software
+  - id: sca-open-source
+    obj: '8.4'
+    name: 'Open source and SCA'
+    rule: 'Know every component you ship, its vulnerabilities and its license.'
+    learn:
+      - 'Software composition analysis (SCA) inventories open-source and third-party components, including transitive dependencies, and flags known vulnerabilities and license issues.'
+      - 'Open source is free to read, not free of risk: abandoned projects, typosquatted packages and malicious updates are real supply chain threats.'
+      - 'Pair SCA with SBOMs so that when a new vulnerability is announced, you find every affected product in minutes.'
+    src: 'CISSP 2027 outline 8.4 (open source, SCA); NIST SP 800-218 v1.1, PW.4; NIST SP 800-161 Rev. 1'
+
+  - id: acquired-software
+    obj: '8.4'
+    name: 'COTS, third-party and cloud software'
+    rule: 'You can outsource the software, never the accountability: assess before and after buying.'
+    learn:
+      - 'COTS: no source code, so rely on vendor security evidence, certifications, testing in your environment, patch support and contract terms.'
+      - 'Managed and cloud services (SaaS, PaaS, IaaS, FaaS): review independent reports such as SOC 2 Type II, and the shared responsibility split.'
+      - 'Contracts should cover vulnerability notice, SBOMs, right to audit, data handling and, for critical software, source code escrow.'
+    src: 'CISSP 2027 outline 8.4; NIST SP 800-161 Rev. 1 (C-SCRM); AICPA SOC 2 reporting'
+
+  # ---------------------------------------------------------------- 8.5 secure coding
+  - id: secure-coding
+    obj: '8.5'
+    name: 'Secure coding practices'
+    rule: 'Treat all input as hostile: validate, parameterize, encode and handle errors safely.'
+    learn:
+      - 'Validate input on the server against an allowlist; use parameterized queries to stop SQL injection; encode output to stop cross-site scripting.'
+      - 'Other source-level weaknesses: buffer overflows, race conditions (TOCTOU), hard-coded secrets, insecure deserialization and verbose error messages.'
+      - 'Follow a coding standard, review code, and use the CWE Top 25 and OWASP guidance to know what to look for.'
+    src: 'OWASP Secure Coding Practices Quick Reference Guide; MITRE CWE Top 25; OWASP ASVS'
+
+  - id: api-security
+    obj: '8.5'
+    name: 'API security'
+    rule: 'Authenticate every call, authorize every object, limit every client.'
+    learn:
+      - 'Broken object level authorization is the top API risk: check that the caller may access this specific object, not just that it is logged in.'
+      - 'Use standard authentication (OAuth 2.0, short-lived tokens), rate limits, input validation and an API gateway; never trust the client app.'
+      - 'Keep an inventory of every API host, version and endpoint; forgotten old versions are a common way in.'
+    ghost: 'An API is a door that strangers knock on 40,000 times a minute. Shifty respects doors.'
+    src: 'OWASP API Security Top 10 (2023): API1, API4, API9; RFC 6749 (OAuth 2.0)'
+
+cases:
+  # ======================================================================== k8-01
+  - id: k8-01
+    title: 'The driver app rewrite'
+    where: 'Halvorsen Labs · sprint planning, Monday 10:00'
+    diff: 1
+    open: >-
+      Halvorsen Labs is rewriting the driver app from scratch, and Rafa Lind has two weeks, five developers and a
+      whiteboard covered in coffee rings. Dale wants "AI-powered synergy" in it. Shifty wants security in it from
+      the first sprint, not glued on the night before launch. The developers have never had a ghost in sprint
+      planning before.
+    scenes:
+      - c: sdlc-methods
+        kind: best
+        text: >-
+          Halvorsen Labs' new driver app must ship usable features every two weeks and change as drivers give
+          feedback. Rafa Lind's team is small and the requirements will keep changing. Dale wants a single 400-page
+          specification signed off before anyone writes code.
+        ask: 'Which development methodology BEST fits this project?'
+        o:
+          - 'Waterfall, with all requirements fixed up front'
+          - 'Agile, with short iterations and regular feedback'
+          - 'A single big-bang release after a year of work'
+          - 'The V-model, with a full test plan for every phase'
+        a: 1
+        r:
+          - 'By page 212 of the specification, the drivers want something else. The app ships a year late and solves last year''s problems.'
+          - 'Two-week sprints, a driver demo every Friday, and security stories in every sprint backlog. Dale gets a demo instead of a binder.'
+          - 'A year of silence, then a release nobody asked for. The drivers keep using paper.'
+          - 'Rigorous, but built for stable requirements. Every change of mind restarts a phase.'
+        why: >-
+          Agile delivers working software in short iterations and adapts to changing requirements, which fits a small
+          team with evolving needs. Waterfall and the V-model assume stable requirements fixed up front. Either way,
+          security work belongs in every iteration.
+        src: 'Manifesto for Agile Software Development (2001); ISC2 OSG ch. 20 (development methodologies)'
+
+      - c: shift-left
+        kind: best
+        text: >-
+          Rafa Lind plans Halvorsen Labs' first security test of the driver app for one week before launch. Shifty
+          points out that last year's portal had 60 security bugs found that late, and fixing them delayed the
+          launch by two months.
+        ask: 'What is the BEST change to the plan?'
+        o:
+          - 'Hire a much bigger test team for the final week'
+          - 'Skip testing and fix whatever bugs users report'
+          - 'Shift left: add security from requirements and sprint one'
+          - 'Move the security test to a month after launch'
+        a: 2
+        r:
+          - 'Twice the testers find twice as many bugs, at the most expensive possible moment.'
+          - 'The users become the testers. One of them is an attacker.'
+          - 'Security requirements go into the user stories, threat modeling into design, and checks into every build. The final test finds four bugs, not sixty.'
+          - 'The bugs ship to every driver first, and get found by someone else.'
+        why: >-
+          Shift left moves security into requirements, design and coding, where defects are cheapest to fix. A late
+          test finds the same bugs at the most expensive moment; testing after launch exposes users first.
+        src: 'CISSP 2027 outline 8.1 (shift left); NIST SP 800-218 v1.1, PO.1 (security requirements) and PW.1 (secure design)'
+
+      - c: memory-safe
+        kind: best
+        diff: 2
+        text: >-
+          The driver app must parse barcode and label images from unknown printers worldwide, and Rafa Lind is
+          choosing a language for that parser. Last year's C parser at Halvorsen Labs had three buffer overflows. The
+          team also knows Rust and Go well.
+        ask: 'Which choice BEST reduces this class of vulnerability?'
+        o:
+          - 'Write it in C, with more careful code reviews'
+          - 'Write it in C and compile with optimizations on'
+          - 'Write it in assembly for full control of memory'
+          - 'Write it in a memory-safe language such as Rust'
+        a: 3
+        trap: 2
+        r:
+          - 'The reviews catch two of the three overflows next time. The third ships.'
+          - 'The parser is faster at overflowing.'
+          - 'Full control of memory includes full control of every mistake. Rafa''s weekend vanishes.'
+          - 'Out-of-bounds reads and writes are now stopped by the language itself. The malformed label that crashed last year''s parser just returns an error.'
+        why: >-
+          Memory-safe languages prevent buffer overflows and use-after-free bugs by design, which is why CISA and NSA
+          urge memory-safety roadmaps. Careful C review helps but misses bugs; optimizations and assembly add speed,
+          not safety.
+        src: 'CISA and partners, The Case for Memory Safe Roadmaps (2023); NSA, Software Memory Safety (2022)'
+
+      - c: app-sec-testing
+        kind: sort
+        diff: 2
+        text: >-
+          Halvorsen Labs is adding security testing to the driver app pipeline. Kim Osei lists the features of two
+          tools on the shortlist and asks Rafa Lind which features describe SAST and which describe DAST.
+        ask: 'Sort each feature: SAST or DAST?'
+        bins: ['SAST', 'DAST']
+        pairs:
+          - ['Analyzes source code without running it', 0]
+          - ['Points to the exact line with the flaw', 0]
+          - ['Runs on each commit, before the app can even start', 0]
+          - ['Attacks the running app from outside, like a user', 1]
+          - ['Finds server misconfigurations on the staging site', 1]
+          - ['Needs no access to the source code', 1]
+        why: >-
+          SAST is white box: it reads source or binaries without executing them, early, and can point to the line.
+          DAST is black box: it probes the running application from outside and finds runtime and configuration
+          issues without seeing code.
+        src: 'NIST SP 800-218 v1.1, PW.7 (review and analyze code) and PW.8 (test executable code); OWASP Web Security Testing Guide'
+
+      - c: secure-coding
+        kind: best
+        text: >-
+          The driver app's delivery lookup builds an SQL query by pasting the driver's typed search text straight
+          into the query string. A Halvorsen Labs tester typed ' OR '1'='1 into the search box and saw every
+          delivery in the system.
+        ask: 'What is the BEST fix in the code?'
+        o:
+          - 'Strip single quotes from the search text'
+          - 'Use parameterized queries (prepared statements)'
+          - 'Hide database error messages from the screen'
+          - 'Limit the search box to 50 characters'
+        a: 1
+        r:
+          - 'The tester switches to a payload with no quotes. Denylists are a game attackers enjoy.'
+          - 'The query structure is fixed and the search text is only ever data. The same payload now finds zero deliveries.'
+          - 'Errors vanish; the injection still works. It just works quietly.'
+          - 'The payload was 11 characters. The limit is 50.'
+        why: >-
+          Parameterized queries keep data separate from SQL code, so input can never change the query's structure.
+          Stripping quotes is a denylist that attackers routinely bypass; hiding errors and length limits slow
+          attackers without fixing the flaw.
+        src: 'OWASP SQL Injection Prevention Cheat Sheet (prepared statements); MITRE CWE-89'
+
+      - c: ssdf-sbom
+        kind: best
+        diff: 2
+        text: >-
+          A hospital customer of Halvorsen MedLink will only allow the new driver app on its network if Halvorsen
+          Labs provides a machine-readable list of every component in the app, with suppliers, versions and
+          dependency relationships, updated with each release.
+        ask: 'Which deliverable MOST directly meets this requirement?'
+        o:
+          - 'A SOC 2 Type II report for Halvorsen Labs'
+          - 'A software bill of materials in SPDX or CycloneDX'
+          - 'Read access to the app''s source code repository'
+          - 'A penetration test summary letter'
+        a: 1
+        r:
+          - 'A fine report on Halvorsen''s controls. It doesn''t list a single component.'
+          - 'The hospital''s tools ingest the SBOM automatically and match it against vulnerability feeds. The app is approved.'
+          - 'The hospital didn''t ask for the code, and doesn''t want to read 200,000 lines to find a version number.'
+          - 'A letter about findings, not an inventory of parts.'
+        why: >-
+          An SBOM is a formal, machine-readable inventory of components and their supply chain relationships, with
+          fields such as supplier, component name, version and dependencies. A SOC 2 report covers controls; a
+          pentest letter covers findings; neither lists components.
+        src: 'NTIA, The Minimum Elements for a Software Bill of Materials (2021); Executive Order 14028, sec. 4(e)'
+
+      - c: api-security
+        kind: best
+        diff: 2
+        text: >-
+          The driver app calls Halvorsen Labs' delivery API with the driver's token. A tester logged in as driver
+          1001 changes the URL from /deliveries/1001 to /deliveries/1002 and sees another driver's deliveries and
+          customer addresses.
+        ask: 'Which vulnerability is this MOST accurately?'
+        o:
+          - 'Cross-site scripting'
+          - 'Broken authentication'
+          - 'Broken object level authorization'
+          - 'Unrestricted resource consumption'
+        a: 2
+        r:
+          - 'No script ran in anyone''s browser. The API simply handed over the data.'
+          - 'The tester''s login was valid and correctly checked. Authentication worked; authorization didn''t.'
+          - 'Right. Rafa adds a server-side ownership check on every delivery lookup. Driver 1001 now sees driver 1001''s deliveries, and nothing else.'
+          - 'One request, no flood. Rate limits wouldn''t notice.'
+        why: >-
+          The tester was correctly authenticated; the API never checked that delivery 1002 belongs to him. That is
+          broken object level authorization (BOLA), API1 in the OWASP API Security Top 10. The fix is a server-side
+          ownership check on every object.
+        src: 'OWASP API Security Top 10 (2023), API1:2023 Broken Object Level Authorization'
+    close: >-
+      The app ships on time, with a Rust parser, parameterized queries, an SBOM for the hospital and an API that
+      checks who owns what. Dale's AI-powered synergy feature moves to "next sprint", which is Agile for never.
+
+  # ======================================================================== k8-02
+  - id: k8-02
+    title: 'Pipeline poltergeist'
+    where: 'Halvorsen Labs, build room · Friday 17:30'
+    diff: 2
+    open: >-
+      Friday evening, Halvorsen Labs' build pipeline deploys a version of the portal nobody remembers writing.
+      Rafa Lind swears it wasn't him. The staging site briefly displays "hello from the other side". Everyone looks
+      at Shifty. Shifty, for once completely innocent, takes the case.
+    scenes:
+      - c: cicd-repos
+        kind: spot
+        text: >-
+          Rafa Lind maps Halvorsen Labs' pipeline: developer laptop, code repository, build server, artifact
+          registry, staging and production. The mystery build ran a pipeline script that someone had pushed straight
+          to the main branch, with no review, using a stolen developer token.
+        ask: 'Tap where branch protection and required reviews would have stopped the change.'
+        map:
+          nodes:
+            - { id: dev, label: 'Developer laptop', x: 2, y: 20 }
+            - { id: repo, label: 'Code repository', x: 27, y: 20 }
+            - { id: build, label: 'Build server', x: 52, y: 20 }
+            - { id: registry, label: 'Artifact registry', x: 77, y: 20 }
+            - { id: secrets, label: 'Secrets vault', x: 2, y: 62 }
+            - { id: logs, label: 'Build logs', x: 27, y: 62 }
+            - { id: staging, label: 'Staging', x: 52, y: 62 }
+            - { id: prod, label: 'Production', x: 77, y: 62 }
+          links: [[dev, repo], [repo, build], [build, registry], [build, logs], [secrets, build], [registry, staging], [registry, prod]]
+          caption: 'Halvorsen Labs CI/CD pipeline'
+        a: repo
+        why: >-
+          Branch protection and required reviews in the code repository stop unreviewed changes, including pipeline
+          scripts, from being merged and built. The build server only runs what the repository gives it; pipeline
+          definitions are code and need the same controls.
+        src: 'NIST SP 800-204D (CI/CD pipeline security); NIST SP 800-218 v1.1, PS.1 (protect all forms of code); OWASP Top 10 CI/CD Security Risks (insufficient flow control)'
+
+      - c: cicd-repos
+        kind: first
+        text: >-
+          Kim Osei confirms that Halvorsen Labs' tampered pipeline also printed a working cloud access key into
+          build logs that anyone on the internet could read for six hours. The key can create servers and read
+          storage in the production account.
+        ask: 'What should Shifty have the team do FIRST?'
+        o:
+          - 'Delete the build logs so nobody else sees the key'
+          - 'Find out which developer account changed the script'
+          - 'Revoke and rotate the exposed key'
+          - 'Write a policy banning keys in build logs'
+        a: 2
+        trap: 0
+        r:
+          - 'The logs vanish, along with the evidence of who read them. The key still works, and someone abroad is still using it.'
+          - 'An hour of digging through history. Meanwhile the key spins up forty crypto-mining servers on Halvorsen''s bill.'
+          - 'The key dies within minutes. Two later attempts to use it fail in the logs, which Kim keeps as evidence. Now the hunt can start calmly.'
+          - 'A fine policy, adopted next month. The key is still live tonight.'
+        why: >-
+          A leaked, still-valid credential is an active exposure: revoke and rotate it first to stop misuse, then
+          investigate. Deleting logs destroys evidence while the key keeps working; finding the culprit and writing
+          policy matter, but later.
+        src: 'NIST SP 800-57 Part 1 Rev. 5, sec. 5.5 (compromise of keys); NIST SP 800-218 v1.1, RV.1 and RV.2'
+
+      - c: sw-change-mgmt
+        kind: best
+        text: >-
+          During the investigation, Halvorsen Labs must push an urgent security fix to production tonight. The change
+          advisory board doesn't meet until Tuesday. Dale says, "Emergencies mean no paperwork, right?"
+        ask: 'What is the BEST way to handle this change?'
+        o:
+          - 'Push it now with no record, since it is urgent'
+          - 'Use the emergency change process'
+          - 'Hold the fix until Tuesday''s board meeting'
+          - 'Let the developer who wrote it approve it alone'
+        a: 1
+        r:
+          - 'The fix works. Three weeks later nobody can explain the change in production, which is exactly how tonight''s mystery started.'
+          - 'An on-call approver signs off, the fix is tested in staging, everything is recorded, and Tuesday''s board reviews it. Fast and traceable.'
+          - 'The hole stays open all weekend for the sake of a meeting.'
+          - 'One person writes and approves the change. Separation of duties just left the building.'
+        why: >-
+          Emergency changes still go through change management, in a faster form: an authorized approver, testing
+          proportional to risk, documentation, and a board review afterward. Skipping records breaks traceability;
+          self-approval breaks separation of duties.
+        src: 'ISC2 OSG ch. 16 (change management); NIST SP 800-53 Rev. 5, CM-3 (configuration change control)'
+
+      - c: sw-risk-audit
+        kind: best
+        text: >-
+          To learn who changed the pipeline script, Kim Osei needs a trustworthy record of every change to Halvorsen
+          Labs' code, pipeline definitions and deployments: who, what, when and why. Today, developers all push
+          changes through one shared service account.
+        ask: 'Which improvement is MOST important for future investigations?'
+        o:
+          - 'Individual accounts, with change logs protected from tampering'
+          - 'A shared account with a much stronger password'
+          - 'Weekly backups of the code repository'
+          - 'Faster build servers to shorten the exposure window'
+        a: 0
+        r:
+          - 'Every change now carries a named person, and the logs can''t be edited by the people they describe. The next mystery takes minutes.'
+          - 'A strong password that five people share still can''t say which of the five did it.'
+          - 'Backups restore code. They don''t say who changed it.'
+          - 'Faster mysteries are still mysteries.'
+        why: >-
+          Auditing and logging of changes needs accountability: each change tied to an individual identity and
+          recorded in logs that can't be altered. A shared account can't say who did it; backups restore code but
+          don't attribute changes.
+        src: 'CISSP 2027 outline 8.3 (auditing and logging of changes); NIST SP 800-53 Rev. 5, AU-9 (protection of audit information) and IA-2'
+
+      - c: sca-open-source
+        kind: best
+        text: >-
+          The mystery build also pulled in a new open-source package named "colorz", one letter off a popular
+          library. Halvorsen Labs' portal already has 900 open-source dependencies, most pulled in by other packages,
+          and nobody has a list of them.
+        ask: 'Which capability would BEST give Halvorsen Labs ongoing control of this risk?'
+        o:
+          - 'Static analysis of Halvorsen''s own source code only'
+          - 'A yearly penetration test of the portal'
+          - 'Software composition analysis on every build'
+          - 'Asking developers to remember what they install'
+        a: 2
+        r:
+          - 'SAST reads Halvorsen''s code. The malicious package is somebody else''s code.'
+          - 'Once a year is 364 days too late for a typosquatted package.'
+          - 'SCA lists all 900 dependencies, flags "colorz" as suspicious and new, and blocks builds with known critical vulnerabilities.'
+          - 'Nobody remembers installing "colorz". That''s rather the point.'
+        why: >-
+          Software composition analysis inventories direct and transitive open-source dependencies and flags known
+          vulnerabilities, suspicious packages and license problems, on every build. SAST examines your own code,
+          not what you import; a yearly pentest is far too infrequent.
+        src: 'CISSP 2027 outline 8.4 (open source, SCA); NIST SP 800-218 v1.1, PW.4 (reuse existing, well-secured software)'
+
+      - c: app-sec-testing
+        kind: best
+        text: >-
+          Halvorsen Labs' pipeline already runs SAST on every commit. Kim Osei wants another test that probes the
+          deployed staging portal from outside, the way an attacker would, to catch misconfigurations and runtime
+          flaws that SAST can't see.
+        ask: 'Which testing type BEST meets Kim''s goal?'
+        o:
+          - 'More static analysis rules'
+          - 'Dynamic application security testing (DAST)'
+          - 'Software composition analysis'
+          - 'Manual review of the pipeline script'
+        a: 1
+        r:
+          - 'More rules, same view: the code, not the running site.'
+          - 'DAST runs against staging after each deploy and finds a debug page left switched on. SAST never saw it, because it isn''t in the code.'
+          - 'SCA checks components. It doesn''t probe the running site.'
+          - 'Useful once, tonight. It won''t find runtime flaws in the portal.'
+        why: >-
+          DAST exercises the running application from outside without source code, finding runtime issues such as
+          misconfiguration, session handling and injection points reachable over HTTP. More SAST rules still only
+          read code; SCA checks components.
+        src: 'NIST SP 800-218 v1.1, PW.8 (test executable code); OWASP Web Security Testing Guide'
+    close: >-
+      The poltergeist was a stolen developer token and a pipeline with no brakes. The key is dead, branches are
+      protected, logs name names, and every build gets SCA and DAST. Shifty is cleared. He asks for that in writing.
+
+  # ======================================================================== k8-03
+  - id: k8-03
+    title: 'The library that cried CVE'
+    where: 'Halvorsen Labs · Wednesday 08:15'
+    diff: 2
+    open: >-
+      A critical vulnerability is announced in a popular open-source logging library, and the internet panics. Dale
+      asks if Halvorsen uses "the log thing". Nobody is sure. Halvorsen also runs a COTS warehouse system, a SaaS
+      payroll service and a vendor's routing engine. Shifty, who once haunted a library, takes this personally.
+    scenes:
+      - c: sca-open-source
+        kind: first
+        text: >-
+          A critical, actively exploited vulnerability is announced in an open-source logging library. Halvorsen
+          Labs keeps an SBOM and runs software composition analysis for every product it builds. Dale wants to patch
+          "everything, everywhere" tonight.
+        ask: 'What should Shifty have the team do FIRST?'
+        o:
+          - 'Patch every server in the company tonight'
+          - 'Wait for each vendor to call Halvorsen about it'
+          - 'Remove logging from every application'
+          - 'Query the SBOMs and SCA data for affected products'
+        a: 3
+        trap: 0
+        r:
+          - 'The team patches servers all night, missing the two products that bundle their own copy of the library.'
+          - 'Two vendors call by Friday. The attackers called on Wednesday.'
+          - 'Without logs, the next incident will be invisible. And the library is still there.'
+          - 'In ten minutes the SBOMs show the library in two products, one internet-facing. That one gets fixed first.'
+        why: >-
+          You can't fix what you can't find. SBOMs and SCA show exactly which products and versions include the
+          library, so fixes go first where exposure is highest. Blind mass patching misses embedded copies; waiting
+          wastes the head start.
+        src: 'NTIA, The Minimum Elements for an SBOM (2021); NIST SP 800-218 v1.1, RV.1 (identify and confirm vulnerabilities)'
+
+      - c: ssdf-sbom
+        kind: sort
+        diff: 3
+        text: >-
+          Priya Nair asks Rafa Lind to map Halvorsen Labs' practices to the NIST SSDF practice groups before a
+          customer audit. Shifty helps sort the list into three of the four groups, using the names from NIST SP
+          800-218.
+        ask: 'Sort each practice into its SSDF practice group.'
+        bins: ['Prepare the Organization (PO)', 'Protect the Software (PS)', 'Respond to Vulnerabilities (RV)']
+        pairs:
+          - ['Define security requirements for software development', 0]
+          - ['Give developers role-based security training', 0]
+          - ['Protect all code from unauthorized access and tampering', 1]
+          - ['Sign releases so customers can verify their integrity', 1]
+          - ['Archive each release with its provenance data', 1]
+          - ['Identify and confirm vulnerabilities in released software', 2]
+          - ['Analyze root causes so vulnerabilities do not recur', 2]
+        why: >-
+          SP 800-218 groups practices as PO (people, processes, requirements), PS (protect code and releases from
+          tampering), PW (produce well-secured software) and RV (respond to vulnerabilities). Signing releases is
+          PS.2; root cause analysis is RV.3.
+        src: 'NIST SP 800-218 v1.1 (SSDF), practices PO.1, PO.2, PS.1, PS.2, PS.3, RV.1 and RV.3'
+
+      - c: acquired-software
+        kind: best
+        text: >-
+          Halvorsen Freight's COTS warehouse management system is closed source. Rafa Lind can't run SAST on it, and
+          the vendor won't share code. Priya Nair asks how Halvorsen can judge its security before renewing the
+          contract.
+        ask: 'What is the BEST approach?'
+        o:
+          - 'Assume it is secure because many companies use it'
+          - 'Decompile and audit it without telling the vendor'
+          - 'Review vendor evidence, test it, set contract terms'
+          - 'Replace it with in-house software right away'
+        a: 2
+        trap: 1
+        r:
+          - 'Popularity is a reason attackers study it, not a security control.'
+          - 'Ines Albescu reads the license aloud. Reverse engineering is prohibited. The audit becomes a legal problem.'
+          - 'The vendor provides a third-party test report and agrees to SBOMs and 30-day vulnerability notice. Halvorsen tests it in staging too.'
+          - 'Two years and a budget nobody has, to build something that already works.'
+        why: >-
+          For COTS without source, assess what you can: vendor security attestations and certifications,
+          independent test results, behavior in your environment, patch support, and contract terms such as
+          vulnerability notice and SBOMs. Unauthorized decompiling may breach the license.
+        src: 'CISSP 2027 outline 8.4 (COTS); NIST SP 800-161 Rev. 1 (supplier assessment); NIST SP 800-218 v1.1, PW.4'
+
+      - c: acquired-software
+        kind: best
+        text: >-
+          Halvorsen Freight wants to move payroll to a SaaS provider. CFO Marcus Webb asks how to gain assurance
+          about the provider's security controls over time, since Halvorsen can't inspect the provider's data
+          centers or test its shared platform.
+        ask: 'Which evidence is MOST useful?'
+        o:
+          - 'A SOC 2 Type I report from three years ago'
+          - 'A current SOC 2 Type II report covering the service'
+          - 'The provider''s marketing whitepaper'
+          - 'A penetration test Halvorsen runs without permission'
+        a: 1
+        r:
+          - 'Type I describes control design on one day, three years ago. A lot can change in three years.'
+          - 'An independent auditor tested whether the controls actually operated over twelve months. Marcus reads the exceptions section first.'
+          - 'The whitepaper says "bank-grade security" eleven times. It is not evidence.'
+          - 'Testing a shared platform without permission breaks the contract and maybe the law, and hits other customers too.'
+        why: >-
+          A SOC 2 Type II report is an independent auditor's opinion on whether controls were suitably designed and
+          operated effectively over a period. Type I covers design at a point in time; marketing isn't evidence;
+          unauthorized testing may breach contract and law.
+        src: 'AICPA, SOC 2 reporting on controls at a service organization (Type 1 and Type 2 reports); CISSP 2027 outline 8.4 (cloud services)'
+
+      - c: sw-risk-audit
+        kind: best
+        diff: 3
+        text: >-
+          A scan of the vendor routing engine finds 40 vulnerabilities. Rafa Lind's team can fix 10 this month. Some
+          are in internet-facing components with public exploits; others are in an internal-only reporting module.
+          Dale wants them fixed in alphabetical order.
+        ask: 'How should the team BEST decide which to fix first?'
+        o:
+          - 'Rank them by risk: exploitability, exposure and impact'
+          - 'Fix them in alphabetical order, as Dale suggests'
+          - 'Fix the ten easiest so the count drops fastest'
+          - 'Fix the most recently found ones first'
+        a: 0
+        r:
+          - 'The internet-facing, publicly exploited flaws go first. The rest get dates, and the risk owner signs off on what waits.'
+          - 'The first fix is in "Admin-report-export", internal only. The internet-facing exploit is under "W".'
+          - 'The count looks great on a slide. The ones attackers are using are still open.'
+          - 'Newest is not riskiest. Last year''s exploited flaw is still sitting there.'
+        why: >-
+          Risk analysis ranks weaknesses by likelihood (exploit available, internet exposure) and business impact,
+          so limited effort removes the most risk. Easiest-first improves the count, not the risk; what waits gets a
+          documented decision by the risk owner.
+        src: 'CISSP 2027 outline 8.3 (risk analysis and mitigation); NIST SP 800-218 v1.1, RV.2.1 (analyze each vulnerability to plan its remediation)'
+
+      - c: memory-safe
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen Labs maintains 400,000 lines of C in its old routing engine, and memory-safety bugs keep turning
+          up. Dale wants it all rewritten in Rust by summer. Rafa Lind says that is impossible, but the team could
+          change how new work is done.
+        ask: 'Which approach BEST follows CISA and NSA guidance on memory safety?'
+        o:
+          - 'Rewrite everything in Rust by summer, pausing all else'
+          - 'Keep writing new modules in C, with more code review'
+          - 'Adopt a roadmap: new code memory-safe, old C hardened and migrated'
+          - 'Leave the engine alone, since it has run for years'
+        a: 2
+        r:
+          - 'Every other project stops. By summer, half the engine is rewritten and both halves have bugs.'
+          - 'Each new C module adds new chances for the same bug class.'
+          - 'New modules are written in Rust, the riskiest parser is rewritten first, and the old C gets fuzzing and compiler hardening meanwhile.'
+          - 'Years of running is not the same as years of being safe. The bugs keep coming.'
+        why: >-
+          CISA and NSA recommend memory-safety roadmaps: write new code in memory-safe languages, rewrite the riskiest
+          components first, and harden legacy C/C++ meanwhile. A big-bang rewrite is unrealistic; more C keeps adding
+          the same bug class.
+        src: 'CISA and partners, The Case for Memory Safe Roadmaps (Dec. 2023)'
+    close: >-
+      By Thursday the SBOMs show the library in two products, both patched by lunch. The COTS vendor agrees to send
+      SBOMs too, payroll comes with a fresh Type II report, and the C code gets a roadmap. Dale's alphabetical method
+      is retired.
+
+  # ======================================================================== k8-04
+  - id: k8-04
+    title: 'API at the door'
+    where: 'Halvorsen Labs · partner launch, Tuesday 11:00'
+    diff: 3
+    open: >-
+      Halvorsen is opening its shipping API to partners: retailers will book trucks and track parcels from their own
+      systems. Rafa Lind is excited. Kim Osei is terrified. On launch day a partner's script hits the API 40,000
+      times a minute, and a security researcher sends a polite email with an unpleasant subject line. Shifty clears
+      his non-existent throat.
+    scenes:
+      - c: api-security
+        kind: spot
+        text: >-
+          Halvorsen Labs' API design: partner apps call an API gateway, which routes to booking, tracking and pricing
+          services, each with its own database. A partner script sends 40,000 requests a minute and slows tracking
+          for everyone. Kim Osei wants per-partner rate limits enforced in one central place.
+        ask: 'Tap where per-partner rate limiting BEST belongs.'
+        map:
+          nodes:
+            - { id: partner, label: 'Partner apps', x: 39, y: 2 }
+            - { id: gateway, label: 'API gateway', x: 39, y: 24 }
+            - { id: idp, label: 'Identity provider', x: 76, y: 24 }
+            - { id: booking, label: 'Booking service', x: 2, y: 50 }
+            - { id: tracking, label: 'Tracking service', x: 39, y: 50 }
+            - { id: pricing, label: 'Pricing service', x: 76, y: 50 }
+            - { id: bdb, label: 'Booking DB', x: 2, y: 78 }
+            - { id: tdb, label: 'Tracking DB', x: 39, y: 78 }
+            - { id: pdb, label: 'Pricing DB', x: 76, y: 78 }
+          links: [[partner, gateway], [gateway, idp], [gateway, booking], [gateway, tracking], [gateway, pricing], [booking, bdb], [tracking, tdb], [pricing, pdb]]
+          caption: 'Halvorsen partner API'
+        a: gateway
+        why: >-
+          An API gateway is the single entry point, so it can authenticate each partner and enforce quotas and rate
+          limits before requests reach any service (OWASP API4, unrestricted resource consumption). Limits inside one
+          service protect only that service.
+        src: 'OWASP API Security Top 10 (2023), API4:2023 Unrestricted Resource Consumption; NIST SP 800-204 (security strategies for microservices, API gateway)'
+
+      - c: api-security
+        kind: best
+        diff: 2
+        text: >-
+          The researcher's email says Halvorsen's old v1 shipping API, which everyone thought was retired, still
+          answers at api-v1.halvorsen.example and returns full customer records without the checks the v2 API added.
+          Nobody at Halvorsen Labs had it on any list.
+        ask: 'Which practice would MOST have prevented this exposure?'
+        o:
+          - 'Adding more fields to the v2 API'
+          - 'Rate limiting the v2 API more tightly'
+          - 'Encrypting v2 API traffic with TLS 1.3'
+          - 'Inventory all API versions; retire old ones'
+        a: 3
+        r:
+          - 'v2 gets richer. v1 keeps leaking.'
+          - 'v2 is now very polite about traffic. v1 still answers anyone.'
+          - 'v2 is well encrypted. The attacker is using v1.'
+          - 'Rafa builds an API inventory from DNS, the gateway and cloud accounts. v1 and two other forgotten endpoints are switched off that afternoon.'
+        why: >-
+          Improper inventory management (OWASP API9) leaves old, unpatched API versions running unseen. An inventory
+          of every host, version and endpoint, with old versions decommissioned, removes the forgotten door.
+          Tightening v2 does nothing for v1.
+        src: 'OWASP API Security Top 10 (2023), API9:2023 Improper Inventory Management'
+
+      - c: secure-coding
+        kind: best
+        diff: 2
+        text: >-
+          In Halvorsen's partner portal, partners can type delivery notes that drivers and staff later view in their
+          browsers. A researcher shows that a note containing a script tag runs in every viewer's browser and steals
+          their session.
+        ask: 'What is the BEST primary fix?'
+        o:
+          - 'Block the word "script" in delivery notes'
+          - 'Encode notes for their output context'
+          - 'Ask partners not to type code into notes'
+          - 'Make session cookies expire after one hour'
+        a: 1
+        r:
+          - 'The researcher switches to an image tag with an error handler. No "script" required.'
+          - 'Notes are HTML-encoded when shown, so the browser displays the tag as text instead of running it. A content security policy goes on top.'
+          - 'Attackers are famously good at following polite requests.'
+          - 'Sessions are stolen within seconds of viewing. One hour is plenty.'
+        why: >-
+          This is stored cross-site scripting. Context-aware output encoding (HTML-encoding the note when rendering)
+          stops the browser treating data as code; validation and a content security policy add depth. Blocking one
+          word is an easily bypassed denylist.
+        src: 'OWASP Cross Site Scripting Prevention Cheat Sheet (output encoding); MITRE CWE-79'
+
+      - c: secure-coding
+        kind: best
+        text: >-
+          Halvorsen's booking service checks that a truck has free capacity, then, a few milliseconds later, reserves
+          the slot. Under heavy partner load, two partners sometimes book the same last slot, because both passed the
+          check before either reservation was written.
+        ask: 'Which weakness does this MOST accurately describe?'
+        o:
+          - 'A buffer overflow'
+          - 'Broken object level authorization'
+          - 'A time-of-check to time-of-use race'
+          - 'An integer overflow'
+        a: 2
+        r:
+          - 'Nothing writes past the end of a buffer. The data is fine; the timing isn''t.'
+          - 'Both partners were allowed to book. The problem is that they did it at the same moment.'
+          - 'Right. Rafa makes check-and-reserve one atomic database transaction. The last slot now sells exactly once.'
+          - 'No number wraps around. The count is right; it is just read too early.'
+        why: >-
+          Checking a condition and then acting on it in separate, unprotected steps is a time-of-check to time-of-use
+          (TOCTOU) race condition. The fix is an atomic check-and-reserve, for example one database transaction or a
+          lock.
+        src: 'MITRE CWE-367 (Time-of-check Time-of-use race condition); ISC2 OSG ch. 21'
+
+      - c: shift-left
+        kind: best
+        diff: 2
+        text: >-
+          Before Halvorsen Labs builds its next partner API, for returns, Rafa Lind asks when the team should work out
+          how attackers might abuse it: trust boundaries, data flows and misuse cases.
+        ask: 'When is the BEST time to do this threat modeling?'
+        o:
+          - 'After the first penetration test'
+          - 'After launch, once real attacks show up'
+          - 'During design, before code is written'
+          - 'Only if a partner asks for it'
+        a: 2
+        r:
+          - 'The pentest finds the design flaws, and now they are built into the code. Expensive.'
+          - 'Real attackers are thorough threat modelers. They don''t share their notes.'
+          - 'The team spots that partners could approve their own refunds, and designs it out on a whiteboard. Zero lines of code to change.'
+          - 'Partners assume Halvorsen did it already.'
+        why: >-
+          Threat modeling belongs in design, so security requirements and controls shape the architecture before code
+          exists: the heart of shift left. Doing it after a pentest or launch means redesigning live software at far
+          higher cost.
+        src: 'NIST SP 800-218 v1.1, PW.1.1 (use threat modeling and risk modeling); CISSP 2027 outline 8.1 (shift left)'
+
+      - c: maturity-models
+        kind: sort
+        text: >-
+          Halvorsen Labs scores itself with OWASP SAMM v2 after the API launch. Kim Osei hands Rafa Lind six
+          practices and asks him to place each under its SAMM business function, starting with three of the five
+          functions.
+        ask: 'Sort each SAMM practice into its business function.'
+        bins: ['Design', 'Verification', 'Operations']
+        pairs:
+          - ['Threat assessment', 0]
+          - ['Security architecture', 0]
+          - ['Requirements-driven testing', 1]
+          - ['Security testing', 1]
+          - ['Incident management', 2]
+          - ['Environment management', 2]
+        why: >-
+          SAMM v2 has five business functions with three practices each. Design: threat assessment, security
+          requirements, security architecture. Verification: architecture assessment, requirements-driven testing,
+          security testing. Operations: incident, environment and operational management.
+        src: 'OWASP SAMM v2 (model: business functions and security practices)'
+    close: >-
+      The partner script gets a polite rate limit, v1 is finally switched off, notes are encoded, and the last truck
+      slot can only be sold once. The researcher gets a thank-you and a T-shirt. Shifty asks for one too. It falls
+      through him.
+
+  # ======================================================================== k8-05
+  - id: k8-05
+    title: 'Maturity day'
+    where: 'Halvorsen Freight HQ, boardroom · Friday 14:00'
+    diff: 2
+    open: >-
+      A major hospital group will renew its contract with Halvorsen MedLink only if Halvorsen Labs can prove its
+      software process is mature. Priya Nair books the boardroom for a self-assessment. Dale arrives with a slide
+      that says "We are Level 11". Rafa Lind brings evidence. Shifty brings the questions.
+    scenes:
+      - c: maturity-models
+        kind: rank
+        text: >-
+          Priya Nair asks Shifty to explain the Capability Maturity Model levels to the board, so they can see where
+          Halvorsen Labs sits and what the next step looks like. Dale's "Level 11" slide is quietly removed.
+        ask: 'Put the SW-CMM maturity levels in order, lowest at the top.'
+        items:
+          - 'Initial: ad hoc, success depends on heroes'
+          - 'Repeatable: basic project management repeats past successes'
+          - 'Defined: a standard, documented process across the organization'
+          - 'Managed: the process is measured and controlled with metrics'
+          - 'Optimizing: continuous process improvement'
+        why: >-
+          SW-CMM runs 1 Initial, 2 Repeatable, 3 Defined, 4 Managed, 5 Optimizing. CMMI renames level 2 Managed and
+          level 4 Quantitatively Managed. Organizations climb one level at a time.
+        src: 'SEI, Capability Maturity Model for Software, Version 1.1 (CMU/SEI-93-TR-024)'
+
+      - c: sdlc-methods
+        kind: best
+        text: >-
+          Halvorsen Labs' MedLink app was built by developers who handed it to security, then operations, then the
+          hospitals, with weeks of rework at each handoff. Priya Nair wants developers, security, operations, testers
+          and a hospital representative working together from day one, sharing decisions.
+        ask: 'Which approach BEST describes what Priya wants?'
+        o:
+          - 'A Waterfall phase gate'
+          - 'A change advisory board'
+          - 'Outsourcing development to a vendor'
+          - 'An Integrated Product Team'
+        a: 3
+        r:
+          - 'Phase gates are the handoffs Priya wants to get rid of.'
+          - 'A change board approves changes. It doesn''t build the product together from day one.'
+          - 'Now the handoff is to another company. The walls got taller.'
+          - 'One team, one backlog, a hospital nurse in sprint review. The rework between handoffs disappears.'
+        why: >-
+          An Integrated Product Team brings all the disciplines and stakeholders together for the life of the
+          product, sharing responsibility, instead of throwing work over walls. A change board approves changes; it
+          doesn't build the product.
+        src: 'CISSP 2027 outline 8.1 (Integrated Product Team); U.S. DoD, Integrated Product and Process Development Handbook (1998)'
+
+      - c: sw-change-mgmt
+        kind: rank
+        text: >-
+          The hospital auditor asks Rafa Lind to walk through how a normal change to the MedLink app reaches
+          production at Halvorsen Labs. Shifty checks the steps against the change management process in the ISC2
+          study guide.
+        ask: 'Put the change management steps in order, first at the top.'
+        items:
+          - 'Request the change'
+          - 'Review its impact and security risk'
+          - 'Approve or reject the change'
+          - 'Test the approved change'
+          - 'Schedule, implement and document the change'
+        why: >-
+          The ISC2 study guide's order: request, review, approve or reject, test, then schedule, implement and
+          document. Security reviews the impact before approval, and nothing reaches production untested or
+          unrecorded.
+        src: 'ISC2 OSG (Sybex) ch. 16 (change management process)'
+
+      - c: ssdf-sbom
+        kind: best
+        diff: 3
+        text: >-
+          The hospital group's contract asks Halvorsen Labs for SBOMs meeting the NTIA minimum elements. Rafa Lind's
+          draft lists component names only, as a PDF table attached to an email. Kim Osei says it won't pass.
+        ask: 'Which change MOST improves the SBOM against the minimum elements?'
+        o:
+          - 'Add a cover letter signed by the CEO to the PDF'
+          - 'Add the required data fields, in a machine-readable format'
+          - 'Turn the PDF table into a shorter slide deck'
+          - 'Leave out open-source parts to keep it short'
+        a: 1
+        r:
+          - 'A very official PDF that still lists only names. The hospital''s tools can''t read it.'
+          - 'Supplier, version, unique IDs, dependencies, author and timestamp, in CycloneDX. The hospital''s scanner ingests it in seconds.'
+          - 'Shorter and prettier, and still useless to a machine.'
+          - 'The open-source parts are where most known vulnerabilities live. Leaving them out defeats the purpose.'
+        why: >-
+          NTIA's minimum elements need data fields (supplier, component, version, unique identifiers, dependency
+          relationship, SBOM author, timestamp), automation support (machine-readable formats such as SPDX or
+          CycloneDX), and practices for keeping it current.
+        src: 'NTIA, The Minimum Elements for a Software Bill of Materials (July 2021)'
+
+      - c: acquired-software
+        kind: best
+        text: >-
+          The hospitals' scheduling depends on a small vendor's routing engine embedded in the MedLink app. Ines
+          Albescu worries that if the vendor goes bankrupt, nobody could fix its bugs. The vendor won't hand over its
+          source code outright.
+        ask: 'Which contract term BEST addresses Ines''s concern?'
+        o:
+          - 'Source code escrow, released if the vendor fails'
+          - 'A longer warranty period on the engine'
+          - 'A discount on future license renewals'
+          - 'A higher uptime SLA with service credits'
+        a: 0
+        r:
+          - 'The code sits with a neutral escrow agent, released to Halvorsen on bankruptcy or end of support. Ines files it under "sleeps better".'
+          - 'A warranty from a bankrupt company is a nice piece of paper.'
+          - 'Cheaper licenses for software nobody can maintain.'
+          - 'An SLA is a promise from a vendor that may not exist next year.'
+        why: >-
+          Source code escrow places the code with a neutral third party, released to the customer on agreed triggers
+          such as bankruptcy or end of support, so the software can still be maintained. Warranties, discounts and
+          SLAs are worthless if the vendor is gone.
+        src: 'CISSP 2027 outline 8.4 (third-party software); ISC2 OSG ch. 20 (software escrow)'
+
+      - c: cicd-repos
+        kind: best
+        text: >-
+          The hospital auditor asks how a hospital can be sure a MedLink app update really came from Halvorsen Labs'
+          pipeline and wasn't altered on the way. Today, builds are uploaded to a download site with no signatures.
+        ask: 'Which control BEST provides this assurance?'
+        o:
+          - 'Rename each file with the release date'
+          - 'Host the downloads on a faster server'
+          - 'Sign each release in the pipeline'
+          - 'Email hospitals a list of file sizes'
+        a: 2
+        r:
+          - 'A date in the file name tells you when, not who, and anyone can rename a file.'
+          - 'Faster tampered downloads are still tampered.'
+          - 'Releases are signed by a key the pipeline keeps in an HSM. Hospitals verify the signature before installing. The auditor ticks the box.'
+          - 'An attacker who can change the file can pad it to the right size.'
+        why: >-
+          Code signing in a protected pipeline lets customers verify that a release is authentic and unchanged (SSDF
+          PS.2). File names, sizes and server speed prove nothing about origin; an attacker who can alter a file can
+          match its listed size.
+        src: 'NIST SP 800-218 v1.1, PS.2 (provide a mechanism for verifying software release integrity); NIST SP 800-204D'
+    close: >-
+      The hospital group renews. Halvorsen Labs scores "Defined" and has a plan for "Managed". Releases are signed,
+      SBOMs are machine-readable and the vendor's code is in escrow. Dale updates his slide to "We are Level 3, with
+      ambition".

@@ -1,0 +1,81 @@
+{
+  "flash": [
+    "Flashback! A concept from an old case is due. Different story, same rule.",
+    "Wait, I remember this. Do you? Old rule, new scene.",
+    "Spaced repetition time. My memory is spooky, yours should be too.",
+    "This one's back on schedule. Ghosts and concepts always come back.",
+    "A memory from a past case. Let's see if it stuck.",
+    "Due for review. The exam doesn't care when you learned it.",
+    "Flashback scene. Different case, same lesson. Pay attention to why.",
+    "Quick one from the archive before the new case.",
+    "The board wants to know you still remember this.",
+    "Old concept, fresh story. That's how it sticks.",
+    "I filed this under 'things the exam loves'. Here it is again.",
+    "A ghost from your past. Your study past."
+  ],
+  "dale": {
+    "intro": [
+      "Big news, ghost-guy! Nobody alive applied for CISO, so it's you. You can't be sued, which Legal says is 'a feature'. Also the board wants you certified. CISSP. Before the auditors come back. No pressure. Some pressure."
+    ],
+    "perfect": [
+      "A perfect case! I'm telling the board it was a team effort. I was the team.",
+      "Flawless. I'm putting this in my quarterly synergy report.",
+      "No mistakes? Are you sure you're dead? That's living-person energy.",
+      "Perfect. The board asked if we can clone you. I said you're already a copy of a guy.",
+      "Every call right. I'm going to start pretending I understood all of it.",
+      "Perfect score. Even Legal smiled. Legal never smiles.",
+      "Clean case. I'm buying you a coffee. Wait. Never mind.",
+      "That was perfect. I'll be taking credit at the offsite."
+    ],
+    "good": [
+      "Solid case. The board only asked two follow-up questions. That's a record.",
+      "Good work. A couple of misses, but nobody got sued. Yet.",
+      "Pretty good! I'd give you a raise, but you don't have a bank account.",
+      "Nice. You're getting the hang of this 'thinking before doing' thing.",
+      "Good case. I almost understood the risk part this time.",
+      "Not bad at all. The auditors would grumble, quietly.",
+      "Strong work. I'll tell the board you're 'on a journey'.",
+      "Good one. Next time, maybe fewer heart attacks in the boardroom."
+    ],
+    "bad": [
+      "Rough one. Don't worry, the flashbacks will bring those back. Like you came back.",
+      "Ooh. The board has questions. I told them you're still learning.",
+      "Tough case. Read the rules, sleep on it. Oh right. Rest on it.",
+      "That one went sideways. The good news: it's practice, not a real breach.",
+      "Not great. But at least you didn't buy a firewall. That was me.",
+      "Messy. Every CISO has a messy week. Yours just has more ghosts.",
+      "Hmm. Let's call that a 'learning-forward outcome'.",
+      "Bumpy. The exam is in the spring. We've got time. Probably."
+    ],
+    "exam": [
+      "Board exam done. I didn't understand the score, but I clapped.",
+      "Mock exam complete. The real one is longer. And has no Dale.",
+      "There's your estimate. Keep practicing until it's boring.",
+      "Mock done! I'm taking it to the board as 'readiness metrics'.",
+      "Exam practice finished. Remember: think like a manager. Like me. But better.",
+      "That's a number. The board loves numbers. Keep it going up.",
+      "Practice exam in the bag. Real exam: same idea, more caffeine for the living.",
+      "Good effort. The adaptive thing went easy then hard on you. Like the board."
+    ],
+    "daily": [
+      "Daily case closed. Post the grid, show the group chat who's boss.",
+      "Same case for everyone today. I bet you did better than the auditors.",
+      "Daily done. Tomorrow, another one. Like Mondays, but useful.",
+      "There's today's case. Share it. Humbly. Or not.",
+      "Daily case complete! I'm framing the grid next to the canons.",
+      "Nice. Same daily for everybody, so no excuses in the chat.",
+      "Daily wrapped. I'll tell the board you work weekends. You do, right?",
+      "Case of the day closed. Same time tomorrow, Chief."
+    ],
+    "streak": [
+      "{n} days in a row! Longest tenure of any CISO we've had.",
+      "{n}-day streak. The board is warming up to you. Not literally, you're cold.",
+      "{n} days straight. That's more consistent than our patching.",
+      "{n} days! I'll mention it in my synergy update.",
+      "Streak of {n}. Nobody alive has lasted this long in that chair.",
+      "{n} days in a row. The auditors noticed. In a good way, for once.",
+      "{n}-day streak. That's governance you can sustain, Chief.",
+      "{n} days. Keep showing up. That's literally the job."
+    ]
+  }
+}

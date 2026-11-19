@@ -58,5 +58,24 @@ console.log(`quips: SOC shift ${SHIFTY_LINES.length} home lines`);
 
 const shifty = all.filter(([n]) => !n.startsWith('dale') && n !== 'attacks').length;
 console.log(`quips: SHIFTY-1 ${all.length} lines (Shifty ${shifty}, Dale ${all.filter(([n]) => n.startsWith('dale')).length}, attacks ${misc.attacks?.length ?? 0})`);
+
+// ---- the Ghost CISO shift (content/cissp/quips/*.json): same rules, its own pools and duplicate check
+{
+  const rc = (f: string) => JSON.parse(readFileSync(new URL(`../content/cissp/quips/${f}`, import.meta.url), 'utf8'));
+  const ch = rc('home.json'), cf = rc('feedback.json'), cm = rc('misc.json');
+  const before = all.length;
+  tiers('ciso.home', ch.home, [18, 16, 14], 120);
+  tiers('ciso.ok', cf.ok, [10, 10, 10], 100);
+  tiers('ciso.no', cf.no, [10, 10, 10], 100);
+  pool('ciso.flash', cm.flash, 10, 120);
+  const CD = cm.dale ?? {};
+  pool('ciso.dale.intro', CD.intro, 1, 400);
+  for (const k of ['perfect', 'good', 'bad', 'exam', 'daily']) pool(`ciso.dale.${k}`, CD[k], 8, 120);
+  pool('ciso.dale.streak', CD.streak, 8, 120, '{n}');
+  const mine = all.slice(before), seenC = new Map<string, string>();
+  for (const [n, t] of mine) { const k = norm(t); if (seenC.has(k)) errs.push(`duplicate (${seenC.get(k)} / ${n}): ${t}`); else seenC.set(k, n); }
+  all.splice(before);
+  console.log(`quips: Ghost CISO ${mine.length} lines (Shifty ${mine.filter(([n]) => !n.startsWith('ciso.dale')).length}, Dale ${mine.filter(([n]) => n.startsWith('ciso.dale')).length})`);
+}
 warns.forEach((w) => console.warn('WARN ' + w));
 if (errs.length) { errs.forEach((e) => console.error('ERROR ' + e)); process.exit(1); }

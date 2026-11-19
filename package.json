@@ -3,10 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "ON SHIFT: a meme-y, expert-level SOC alert triage game, and SHIFTY-1, the AI cert study game. One app, one engine.",
+  "description": "ON SHIFT: one app, three shifts on one engine: the SOC alert triage game, SHIFTY-1 (AWS AI Practitioner) and the Ghost CISO (CISSP).",
   "scripts": {
-    "content": "node ./node_modules/tsx/dist/cli.mjs scripts/build-content.ts && node ./node_modules/tsx/dist/cli.mjs scripts/build-content-ai.ts && npm run quips",
-    "validate": "node ./node_modules/tsx/dist/cli.mjs scripts/build-content.ts --check && node ./node_modules/tsx/dist/cli.mjs scripts/build-content-ai.ts --check && npm run quips",
+    "content": "node ./node_modules/tsx/dist/cli.mjs scripts/build-content.ts && node ./node_modules/tsx/dist/cli.mjs scripts/build-content-ai.ts && node ./node_modules/tsx/dist/cli.mjs scripts/build-content-cissp.ts && npm run quips",
+    "validate": "node ./node_modules/tsx/dist/cli.mjs scripts/build-content.ts --check && node ./node_modules/tsx/dist/cli.mjs scripts/build-content-ai.ts --check && node ./node_modules/tsx/dist/cli.mjs scripts/build-content-cissp.ts --check && npm run quips",
     "quips": "node ./node_modules/tsx/dist/cli.mjs scripts/check-quips.ts",
     "dev": "npm run content && node ./node_modules/vite/bin/vite.js",
     "build": "npm run content && npm run typecheck && node ./node_modules/vite/bin/vite.js build",

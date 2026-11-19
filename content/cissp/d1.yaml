@@ -1,0 +1,1730 @@
+# Domain 1: Security Governance and Risk Management (13.6%)
+# Format and rules: docs/cissp/DESIGN.md and docs/cissp/AUTHORING.md. Ids are stable forever.
+
+concepts:
+  - id: ethics-canons
+    obj: '1.1'
+    name: 'ISC2 Code of Ethics canons'
+    rule: 'Four canons, in order: society, then honor, then principals, then the profession.'
+    learn:
+      - '1 Protect society, the common good, necessary public trust and confidence, and the infrastructure.'
+      - '2 Act honorably, honestly, justly, responsibly, and legally. 3 Provide diligent and competent service to principals. 4 Advance and protect the profession.'
+      - 'When canons pull against each other, the earlier canon wins: public safety outranks what a client or employer wants.'
+    ghost: 'Shifty owes his loyalty to the living public first, the company second. The board found this out the hard way.'
+    src: 'ISC2 Code of Ethics (Preamble and Canons), isc2.org/ethics'
+
+  - id: conflict-of-interest
+    obj: '1.1'
+    name: 'Gifts and conflicts of interest'
+    rule: 'Disclose conflicts and follow the gift policy; never let favors steer a decision.'
+    learn:
+      - 'Acting honorably and honestly (canon 2) means a decision must not be bought, even by a nice dinner.'
+      - 'The organizational code of ethics and gift policy set the limits; when unsure, decline and disclose to management.'
+      - 'A procurement choice must be defensible on business merit alone, with any relationship declared up front.'
+    ghost: 'Ghosts cannot eat the steak dinner anyway. Shifty declines on principle and on anatomy.'
+    src: 'ISC2 Code of Ethics, canon 2; CISSP 2027 outline 1.1 (organizational code of ethics)'
+
+  - id: business-alignment
+    obj: '1.3'
+    name: 'Align security to the business'
+    rule: 'Security exists to support the mission; learn the business before choosing controls.'
+    learn:
+      - 'Governance starts with the organization''s strategy, goals, mission and objectives, not with technology.'
+      - 'Senior management owns risk and sets risk appetite; the security function advises and supports that decision.'
+      - 'Controls chosen without business context waste money or block the business they are meant to protect.'
+    ghost: 'A new CISO''s first tool is a calendar full of meetings, not a firewall. Handy, since Shifty can''t hold a screwdriver.'
+    src: 'CISSP 2027 outline 1.3; NIST SP 800-39 (organization-wide risk management, risk framing)'
+
+  - id: due-care-diligence
+    obj: '1.3'
+    name: 'Due care vs due diligence'
+    rule: 'Due diligence is finding out and checking; due care is acting on it.'
+    learn:
+      - 'Due diligence: investigating and continuously verifying (assessments, audits, vendor reviews, monitoring) so you know the risks.'
+      - 'Due care: doing what a reasonable, prudent person would do about them (implementing and maintaining controls and policy).'
+      - 'Failing either one can be negligence; together they show management acted responsibly.'
+    ghost: 'Shifty does the diligence by asking questions, and makes sure someone with hands does the care.'
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 1, due care and due diligence; CISSP 2027 outline 1.3'
+
+  - id: quant-risk
+    obj: '1.9'
+    name: 'SLE, ARO and ALE'
+    rule: 'SLE = asset value x exposure factor; ALE = SLE x ARO.'
+    learn:
+      - 'Exposure factor (EF) is the percentage of the asset''s value lost in one event; SLE is the dollar loss of one event.'
+      - 'ARO is how many times a year the event is expected (0.5 = once every two years).'
+      - 'ALE = SLE x ARO, the expected yearly loss used to compare the cost of controls.'
+    ghost: 'Dale''s gut feeling is not a number. ALE is.'
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 2, quantitative risk analysis'
+
+  - id: control-cost-benefit
+    obj: '1.9'
+    name: 'Is a control worth buying?'
+    rule: 'Control value = ALE before - ALE after - annual control cost. Negative means no.'
+    learn:
+      - 'A safeguard is cost-justified only when the yearly loss it removes is larger than its yearly cost.'
+      - 'If it isn''t, look for a cheaper control, transfer the risk, or let the risk owner accept it in writing.'
+      - 'Qualitative factors (safety, law, reputation) can still justify a control; say so explicitly in the recommendation.'
+    ghost: 'Shifty may haunt the budget meeting. He may not spend more than the ghost he is chasing.'
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 2, safeguard cost/benefit calculation'
+
+  - id: ai-ethics
+    obj: '1.1'
+    name: 'Ethics in AI'
+    rule: 'AI must be fair, transparent and accountable; people stay answerable for its decisions.'
+    learn:
+      - 'NIST AI RMF trustworthy AI: valid, reliable, safe, secure, resilient, accountable, transparent, explainable, privacy-enhanced, and fair with harmful bias managed.'
+      - 'People should know when they are dealing with an AI and how to reach a human. The EU AI Act requires chatbots to disclose it.'
+      - 'The organization that deploys an AI stays accountable for its outcomes; keep human oversight of decisions that significantly affect people.'
+    ghost: 'Shifty knows what it is like to be invisible in a conversation. He insists customers are told when the voice on the line is not human.'
+    src: 'CISSP 2027 outline 1.1 (ethics in AI); NIST AI 100-1 (AI RMF 1.0), sec. 3; Regulation (EU) 2024/1689 (AI Act), Art. 50(1)'
+
+  - id: cia-authenticity
+    obj: '1.2'
+    name: 'CIA, authenticity, non-repudiation'
+    rule: 'Keep data secret, correct and available; prove where it came from and who sent it.'
+    learn:
+      - 'Confidentiality: only authorized people see it. Integrity: no unauthorized change. Availability: authorized users get it when they need it.'
+      - 'Authenticity: the data or party is genuine, as claimed. A MAC or a digital signature shows a message came from a key holder.'
+      - 'Non-repudiation: the sender cannot credibly deny the action. Digital signatures give it; shared-key MACs do not, since either party could make the tag.'
+    src: 'CISSP 2027 outline 1.2; FIPS 199 (security objectives); FIPS 186-5 (Digital Signature Standard)'
+
+  - id: governance-roles
+    obj: '1.3'
+    name: 'Security roles and org processes'
+    rule: 'Senior management is accountable; security advises and runs the program; auditors verify independently.'
+    learn:
+      - 'Senior management (board, CEO) holds ultimate responsibility for security and owns the decision to accept risk. It can delegate tasks, not accountability.'
+      - 'The CISO designs and runs the program; custodians operate controls; users follow policy; auditors check independently.'
+      - 'Acquisitions and divestitures change risk: assess security before closing, and on a divestiture cut access and retrieve or sanitize data.'
+    src: 'CISSP 2027 outline 1.3 (organizational processes, roles and responsibilities); ISC2 CISSP Official Study Guide (Sybex), ch. 1'
+
+  - id: control-frameworks
+    obj: '1.3'
+    name: 'Security control frameworks'
+    rule: 'Pick the framework that fits the need: certify, architect, govern or comply.'
+    learn:
+      - 'ISO/IEC 27001 states ISMS requirements and can be certified; ISO/IEC 27002 is guidance on controls. NIST CSF 2.0 added a Govern function.'
+      - 'COBIT (ISACA) governs enterprise IT. SABSA builds security architecture from business requirements down to components.'
+      - 'PCI DSS is required by the card brands for anyone handling card data; FedRAMP authorizes cloud services for US federal agencies.'
+    src: 'CISSP 2027 outline 1.3; ISO/IEC 27001:2022 and 27002:2022 (titles and scope); NIST CSWP 29 (CSF 2.0); PCI DSS v4.0.1; fedramp.gov'
+
+  - id: ip-licensing
+    obj: '1.4'
+    name: 'Intellectual property and licensing'
+    rule: 'Patent, copyright, trademark, trade secret: each protects something different, for a different term.'
+    learn:
+      - 'Patent: an invention, made public in exchange for about 20 years from filing. Copyright: original expression; in the US, the author''s life plus 70 years.'
+      - 'Trademark: names and logos that identify a source, renewable indefinitely. Trade secret: protected only while kept secret, through NDAs and controls.'
+      - 'Software is used under licence terms (EULA, open source licences). Exceeding them is infringement, so track licences like assets.'
+    src: '35 U.S.C. 154(a)(2); 17 U.S.C. 102(b) and 302(a); 15 U.S.C. 1058-1059; 18 U.S.C. 1836 and 1839(3); ISC2 CISSP Official Study Guide (Sybex), ch. 4'
+
+  - id: export-transborder
+    obj: '1.4'
+    name: 'Import/export and transborder data'
+    rule: 'Check export controls before shipping crypto; move personal data abroad only with lawful safeguards.'
+    learn:
+      - 'US exports of dual-use items, including much encryption, are controlled by Commerce under the EAR; defense articles by State under ITAR.'
+      - 'GDPR Chapter V allows transfers outside the EEA only with an adequacy decision (Art. 45) or appropriate safeguards such as standard contractual clauses (Art. 46).'
+      - 'Know where data and its backups are stored, because the law of that place applies and transfer rules depend on it.'
+    src: 'EAR, 15 CFR parts 730-774; ITAR, 22 CFR parts 120-130; GDPR (Regulation (EU) 2016/679), Arts. 44-46'
+
+  - id: breach-notification
+    obj: '1.4'
+    name: 'Breach notification deadlines'
+    rule: 'GDPR: tell the regulator within 72 hours. HIPAA: tell individuals within 60 days at most.'
+    learn:
+      - 'GDPR Art. 33: the controller notifies the supervisory authority without undue delay, within 72 hours of becoming aware where feasible. Processors tell the controller.'
+      - 'HIPAA: covered entities notify individuals without unreasonable delay, no later than 60 days after discovery. Business associates notify the covered entity.'
+      - 'HIPAA breaches of more than 500 residents of a state also need media notice. HHS is told alongside individuals for 500 or more, yearly for smaller ones.'
+    src: 'GDPR Arts. 33-34; 45 CFR 164.404, 164.406, 164.408, 164.410'
+
+  - id: hipaa-entities
+    obj: '1.4'
+    name: 'HIPAA: who it covers'
+    rule: 'Covered entities and their business associates must protect PHI; a BAA binds them.'
+    learn:
+      - 'Covered entities are health plans, clearinghouses and providers that bill electronically. Business associates create, receive, maintain or transmit PHI on their behalf.'
+      - 'A business associate agreement is needed with each business associate, and they need one with their own subcontractors that handle PHI.'
+      - 'The Security Rule requires a risk analysis of ePHI. A pure conduit (courier, carrier) that only transports PHI is not a business associate.'
+    src: '45 CFR 160.103 (definitions); 45 CFR 164.308(a)(1)(ii)(A), 164.308(b), 164.502(e); HHS HIPAA FAQs 245 and 2077 (conduits)'
+
+  - id: investigation-types
+    obj: '1.5'
+    name: 'Investigation types'
+    rule: 'Administrative, criminal, civil, regulatory: different purposes and different standards of proof.'
+    learn:
+      - 'Administrative: internal, about policy or operations; the lowest bar. Criminal: about a crime, proof beyond a reasonable doubt, strict evidence handling.'
+      - 'Civil: a dispute between parties over harm or money, decided on the preponderance of the evidence. Regulatory: a government agency checks compliance with its rules.'
+      - 'An internal matter can turn criminal; involve legal counsel before deciding to bring in law enforcement.'
+    src: 'CISSP 2027 outline 1.5; ISC2 CISSP Official Study Guide (Sybex), ch. 19 (investigation types)'
+
+  - id: policy-hierarchy
+    obj: '1.6'
+    name: 'Policy, standard, procedure, guideline'
+    rule: 'Policy states intent; standards and procedures are mandatory; guidelines only advise.'
+    learn:
+      - 'Policy: high-level management intent and responsibilities, approved by senior management. Standards: mandatory, specific requirements (technologies, settings).'
+      - 'Baselines: minimum security configurations. Procedures: mandatory step-by-step instructions for a task.'
+      - 'Guidelines: recommendations, optional. Keeping the documents separate lets details change without reapproving the policy.'
+    src: 'CISSP 2027 outline 1.6; ISC2 CISSP Official Study Guide (Sybex), ch. 1 (security policy documentation)'
+
+  - id: bia-metrics
+    obj: '1.7'
+    name: 'BIA: MTD, RTO, RPO'
+    rule: 'Find critical processes first; then RTO plus work recovery time must fit within MTD.'
+    learn:
+      - 'The BIA identifies critical business processes, the impact of an outage, the resources they need and recovery priorities.'
+      - 'MTD: longest tolerable outage. RTO: time to restore the system. WRT: time to verify and resume work. RPO: acceptable data loss, measured in time.'
+      - 'Include external dependencies (suppliers, cloud, telecom, utilities): recovery is only as fast as theirs.'
+    src: 'NIST SP 800-34 Rev. 1, sec. 3.2 (BIA); ISO 22301:2019 (business continuity management systems); CISSP 2027 outline 1.7'
+
+  - id: personnel-lifecycle
+    obj: '1.8'
+    name: 'Hiring, transfer, termination'
+    rule: 'Screen to the role, grant only needed access, remove access the moment it ends.'
+    learn:
+      - 'Screening is scaled to the role''s sensitivity and limited by local law. Agreements (NDA, acceptable use) are signed before access is given.'
+      - 'On a transfer, remove the access the old job needed; otherwise privileges pile up (privilege creep).'
+      - 'On termination, disable access no later than when the person is told, collect assets, and remind them of continuing NDA duties.'
+    src: 'CISSP 2027 outline 1.8; ISC2 CISSP Official Study Guide (Sybex), ch. 2 (personnel security)'
+
+  - id: vendor-agreements
+    obj: '1.8'
+    name: 'Vendor agreements and SLAs'
+    rule: 'Put security requirements, measurable service levels and remedies into the contract.'
+    learn:
+      - 'Contracts with vendors, consultants and contractors set security requirements, screening, NDAs, a right to audit and breach notice duties.'
+      - 'An SLA defines measurable service levels (uptime, response and fix times) and what happens when they are missed (credits, penalties).'
+      - 'Turn percentages into time: 99.9% availability over a 30-day month allows 43.2 minutes of downtime.'
+    src: 'CISSP 2027 outline 1.8 (vendor, consultant and contractor agreements, SLAs); ISC2 CISSP Official Study Guide (Sybex), ch. 2'
+
+  - id: risk-response
+    obj: '1.9'
+    name: 'Risk response and treatment'
+    rule: 'Mitigate, transfer, avoid or accept. Ignoring a risk is never a response.'
+    learn:
+      - 'Mitigate (reduce): add controls. Transfer (share): insurance or contract, such as cybersecurity insurance. Avoid: stop the risky activity.'
+      - 'Accept: the risk owner knowingly keeps the risk, in writing, when it is within appetite or treatment costs too much.'
+      - 'Residual risk remains after treatment. Transferring a risk moves part of the financial impact, not the accountability.'
+    src: 'CISSP 2027 outline 1.9; NIST SP 800-39, sec. 3.3 (responding to risk); ISO/IEC 27005:2022 (risk treatment)'
+
+  - id: control-types
+    obj: '1.9'
+    name: 'Types of controls'
+    rule: 'Preventive stops, detective finds, corrective fixes; compensating stands in for one you cannot use.'
+    learn:
+      - 'Preventive: stops an incident (locks, MFA, DLP blocking). Detective: discovers it (log review, CCTV, IDS). Corrective: repairs afterwards (restore, rollback).'
+      - 'Deterrent discourages, recovery restores operations, directive tells people what to do, compensating gives alternative protection.'
+      - 'Categories cut across the types: administrative (policy), technical or logical (firewall), physical (fence).'
+    src: 'CISSP 2027 outline 1.9 (types of controls); ISC2 CISSP Official Study Guide (Sybex), ch. 2'
+
+  - id: risk-assessment-maturity
+    obj: '1.9'
+    name: 'Risk frameworks, maturity, reporting'
+    rule: 'Follow a framework, monitor continuously, mature the process, report risk in business terms.'
+    learn:
+      - 'NIST RMF (SP 800-37): Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor. SP 800-30 guides the risk assessment itself.'
+      - 'Maturity models such as CMMI (Initial, Managed, Defined, Quantitatively Managed, Optimizing) show how repeatable and self-improving a process is.'
+      - 'Report risk to the board against appetite, with trends and the decisions needed, not raw technical counts.'
+    src: 'NIST SP 800-37 Rev. 2 (RMF); NIST SP 800-30 Rev. 1; NIST SP 800-137 (ISCM); CMMI Institute (ISACA), CMMI maturity levels'
+
+  - id: threat-modeling
+    obj: '1.10'
+    name: 'Threat modeling'
+    rule: 'Model threats early, at design time; STRIDE names what can go wrong.'
+    learn:
+      - 'STRIDE: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.'
+      - 'Decompose the system (data flows, trust boundaries), identify and rate threats, then plan mitigations. PASTA and attack trees are other methods.'
+      - 'Threat modeling is cheapest and most useful at design time, and is revisited whenever the design changes.'
+    src: 'CISSP 2027 outline 1.10; Shostack, Threat Modeling: Designing for Security (Wiley, 2014); OWASP Threat Modeling Cheat Sheet'
+
+  - id: scrm
+    obj: '1.11'
+    name: 'Supply chain risk management'
+    rule: 'Buy through trusted channels, verify what arrives, and keep watching suppliers.'
+    learn:
+      - 'Supplier risks include product tampering, counterfeits, hidden implants and reputational harm, when a supplier''s scandal becomes yours.'
+      - 'Mitigations: third-party assessment and monitoring, minimum security and service level requirements in contracts, and an SBOM for software.'
+      - 'A silicon root of trust anchors secure boot in hardware; a physically unclonable function gives each chip an identity that cannot be copied.'
+    src: 'CISSP 2027 outline 1.11; NIST SP 800-161 Rev. 1 (C-SCRM); NIST SP 800-193 (Platform Firmware Resiliency); NTIA, Minimum Elements for an SBOM (2021)'
+
+  - id: awareness-program
+    obj: '1.12'
+    name: 'Awareness, training, education'
+    rule: 'Awareness draws attention, training builds skill, education builds understanding. Measure behaviour.'
+    learn:
+      - 'Awareness: recognize an issue (posters, short videos). Training: a skill for the job (handling PHI). Education: deeper understanding (degrees, certifications).'
+      - 'Engage stakeholders; use security champions and gamification; review content for new trends such as AI, cryptocurrency and blockchain.'
+      - 'Measure effectiveness by behaviour over time (report rates, incidents), not by attendance or completion alone.'
+    ghost: 'Nobody remembers a poster. Everybody remembers the ghost who taught them to report a phish.'
+    src: 'CISSP 2027 outline 1.12; NIST SP 800-50 Rev. 1 (Building a Cybersecurity and Privacy Learning Program, 2024); ISC2 CISSP Official Study Guide (Sybex), ch. 2'
+
+cases:
+  - id: k1-01
+    title: 'The board hires a ghost'
+    where: 'Halvorsen Freight HQ · Monday 09:00'
+    diff: 1
+    open: >-
+      Halvorsen Freight got breached in the spring. Since then, nobody living will take the CISO job. So the board
+      hired Shifty: he can't be fired, sued or paged, because he is already dead. One catch. His ghost hands go
+      straight through keyboards. He can't fix anything himself, so he will have to lead. Dale, now "Chief Synergy
+      Officer", hands him a badge that falls through him.
+    scenes:
+      - c: business-alignment
+        kind: first
+        text: >-
+          Day one. Dale wants a "big visible win by Friday" and suggests a shiny new next-gen firewall. The IT team
+          offers to scan every server tonight. Nobody has written down what the company actually depends on to make
+          money, or how much risk the board will tolerate.
+        ask: 'As the new CISO, what should Shifty do FIRST?'
+        o:
+          - 'Meet the executives to learn business goals and risk appetite'
+          - 'Approve the next-gen firewall so there is a visible win by Friday'
+          - 'Run a full vulnerability scan of every server tonight'
+          - 'Write a complete security policy set over the weekend'
+        a: 0
+        trap: 2
+        r:
+          - 'The COO lights up: "Nobody ever asked what keeps the trucks moving." Shifty leaves with a list of crown jewels and a risk appetite.'
+          - 'A very expensive box arrives. It protects a network segment the business is about to retire. Dale loves the blinking lights.'
+          - 'The scan finds 4,000 issues and crashes the dispatch system at 2 a.m. Nobody knows which 40 issues matter.'
+          - 'Ninety pages of policy that match nothing the business does. Legal asks who approved them. Nobody did.'
+        why: >-
+          Governance starts from the business: its mission, critical services and the risk management will accept.
+          Only then can controls, scans and policy be chosen and prioritized. Scanning first is the engineer answer:
+          useful later, but data without business context.
+        src: 'CISSP 2027 outline 1.3; NIST SP 800-39, sec. 3.1 (framing risk)'
+
+      - c: due-care-diligence
+        kind: sort
+        text: >-
+          The COO asks Shifty to explain to the board what "acting responsibly" means after the breach. He sorts this
+          week's to-do list into the two things the board's lawyers keep mentioning.
+        ask: 'Sort each item: due diligence or due care?'
+        bins: ['Due diligence (find out, verify)', 'Due care (act on it)']
+        pairs:
+          - ['Review the payment vendor''s latest SOC 2 report', 0]
+          - ['Assess which systems hold customer data', 0]
+          - ['Audit whether last quarter''s access reviews really happened', 0]
+          - ['Turn on MFA for every remote login', 1]
+          - ['Patch the dispatch servers on the agreed schedule', 1]
+          - ['Publish and enforce the acceptable use policy', 1]
+        why: >-
+          Due diligence is the investigating and verifying: assessments, audits, vendor reviews. Due care is doing
+          what a prudent organization would do with what it learned: implementing and maintaining the controls.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 1; CISSP 2027 outline 1.3'
+
+      - c: quant-risk
+        kind: calc
+        text: >-
+          The board wants numbers, not ghost stories. The route-planning servers are valued at $200,000. A
+          ransomware hit would destroy about 25% of that value, and the threat intel team expects one such hit every
+          two years.
+        ask: 'What is the Annualized Loss Expectancy (ALE)?'
+        o: ['$25,000', '$50,000', '$100,000', '$12,500']
+        a: 0
+        why: >-
+          SLE = asset value x exposure factor = $200,000 x 0.25 = $50,000. ARO = once every two years = 0.5.
+          ALE = SLE x ARO = $50,000 x 0.5 = $25,000 a year. $50,000 is the SLE, a one-event loss, not a yearly one.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 2, quantitative risk analysis'
+
+      - c: control-cost-benefit
+        kind: best
+        text: >-
+          A vendor offers a backup appliance for the route-planning servers at $40,000 a year. It would cut the
+          expected ransomware loss from $25,000 a year to $5,000 a year. Dale wants to sign today.
+        ask: 'What is the BEST recommendation to the board?'
+        o:
+          - 'Buy it, because any reduction in ransomware risk is worth the cost'
+          - 'Decline as offered: it costs $20,000 a year more than it saves'
+          - 'Buy it, because the $20,000 it saves each year covers its cost'
+          - 'Skip the decision and let IT choose whatever backup tool they prefer'
+        a: 1
+        r:
+          - 'The CFO does the math out loud: $40,000 to save $20,000. The board starts calling Shifty "the expensive ghost".'
+          - 'Shifty brings two cheaper options and asks the risk owner to choose. The CFO nods. Ghosts can be thrifty.'
+          - 'The CFO catches it: saving $20,000 does not pay for a $40,000 box. The board hears "ghost math".'
+          - 'IT picks a tool nobody budgeted for. The decision that belonged to the risk owner was never made.'
+        why: >-
+          Value of the control = ALE before ($25,000) - ALE after ($5,000) - annual cost ($40,000) = -$20,000. It is
+          not cost-justified as offered: recommend a cheaper control, or let the risk owner decide with the numbers.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 2, safeguard cost/benefit'
+
+      - c: conflict-of-interest
+        kind: first
+        text: >-
+          The backup vendor's sales rep calls Shifty directly. If Halvorsen signs this week, the rep says, Shifty gets
+          a "VIP trip" to their conference in Lisbon, flights and hotel paid. The company has a gift policy that
+          Shifty has not read yet.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Decline the trip and tell management about the offer, following the gift policy'
+          - 'Accept, since a ghost does not need flights and the vendor might be good'
+          - 'Accept quietly and recuse himself from the vendor decision later'
+          - 'Ignore the call and keep evaluating the vendor as if nothing happened'
+        a: 0
+        r:
+          - 'The gift policy turns out to cap gifts at $50. Management thanks him and adds the vendor to a watch list.'
+          - 'An auditor finds the trip in the vendor''s expense report six months later. "Haunted Hotel Scandal" makes the trade press.'
+          - 'Recusing after taking the gift doesn''t undo it. The conflict happened the moment he accepted.'
+          - 'The offer was never disclosed. When it surfaces, it looks like Shifty hid it.'
+        why: >-
+          Canon 2: act honorably, honestly, justly, responsibly and legally. A gift tied to a purchase decision is a
+          conflict of interest. Decline it and disclose it under the organization's code and gift policy.
+        src: 'ISC2 Code of Ethics, canon 2; CISSP 2027 outline 1.1'
+
+      - c: ethics-canons
+        kind: rank
+        text: >-
+          Dale wants to frame the ISC2 Code of Ethics for the boardroom wall and asks which canon goes on top, "since
+          they're all basically the same". The order is the point: when canons conflict, the earlier one wins.
+        ask: 'Put the four canons in their official order, first at the top.'
+        items:
+          - 'Protect society, the common good, necessary public trust and confidence, and the infrastructure'
+          - 'Act honorably, honestly, justly, responsibly, and legally'
+          - 'Provide diligent and competent service to principals'
+          - 'Advance and protect the profession'
+        why: >-
+          Society first, then personal honor, then service to principals (employer or client), then the profession.
+          That order settles conflicts: a client's wishes never outrank public safety.
+        src: 'ISC2 Code of Ethics, Canons, isc2.org/ethics'
+    close: >-
+      By Friday there is no firewall, but there is a list of what matters, a risk appetite, and one declined trip to
+      Lisbon. The board renews Shifty's contract for another month. Dale frames the canons, upside down.
+
+  - id: k1-02
+    title: 'The chatbot that knew too much'
+    where: 'Halvorsen Labs · Thursday 14:00'
+    diff: 2
+    open: >-
+      Halvorsen Labs has built "Halvie", an AI assistant for the customer portal. It answers tracking questions,
+      approves damage refunds and, according to Dale, "basically runs itself". Launch is Monday. Rafa Lind's team
+      has found some things in testing that nobody wants to hear about. Shifty floats into the demo room, where
+      Halvie greets him as "valued customer".
+    scenes:
+      - c: ai-ethics
+        kind: first
+        diff: 2
+        text: >-
+          Rafa Lind's test results show that Halvie, Halvorsen's AI refund assistant, rejects damage refunds far
+          more often for customers in a few postcodes. Postcode seems to be standing in for ethnicity. Halvie already
+          makes final refund decisions for a pilot group of live customers. Dale says the numbers are "probably noise".
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Have Rafa retrain the model tonight without the postcode field'
+          - 'Suspend Halvie''s automated refund decisions and report the bias to the system owner'
+          - 'Add a notice that refund decisions are made by an AI system'
+          - 'Wait for a larger sample before telling anyone about it'
+        a: 1
+        trap: 0
+        r:
+          - 'The new model finds the same pattern through street names. Nobody approved the change, and the customers already rejected are never reviewed.'
+          - 'Priya, the system owner, sends pilot refunds to human agents and orders a bias review. Rafa looks relieved.'
+          - 'Customers now know an AI rejected them unfairly. Ines calls this "documenting the problem for the plaintiffs".'
+          - 'Three more weeks of skewed rejections pile up. The bigger sample confirms it, at the customers'' expense.'
+        why: >-
+          Harmful bias in a live automated decision is a present harm: stop the automated decisions and escalate to
+          the owner, who decides the fix. Retraining tonight is the engineer answer: an unreviewed change that may not
+          remove the proxy and ignores customers already affected.
+        src: 'NIST AI 100-1 (AI RMF 1.0), sec. 3 (fair, with harmful bias managed) and MANAGE function; CISSP 2027 outline 1.1'
+
+      - c: cia-authenticity
+        kind: sort
+        diff: 1
+        text: >-
+          Before launch, Kim Osei's SOC lists what could go wrong with Halvie, Halvorsen's AI customer assistant.
+          Shifty files each risk under the security property it threatens, so the board can see what is at stake.
+        ask: 'Sort each risk by the property it threatens.'
+        bins: ['Confidentiality', 'Integrity', 'Availability']
+        pairs:
+          - ['Halvie reads one customer''s address out to another customer', 0]
+          - ['Training data full of customer invoices sits in a public bucket', 0]
+          - ['A prompt trick makes Halvie change a refund amount in the database', 1]
+          - ['An attacker alters tracking records so parcels look delivered', 1]
+          - ['A flood of requests makes Halvie stop answering', 2]
+          - ['The model host''s outage takes the portal chat offline', 2]
+        why: >-
+          Confidentiality is about who can see data, integrity about unauthorized change, availability about access
+          when needed. A prompt injection that alters records is an integrity failure, even though it starts as a chat
+          message.
+        src: 'CISSP 2027 outline 1.2; FIPS 199 (security objectives: confidentiality, integrity, availability)'
+
+      - c: policy-hierarchy
+        kind: sort
+        diff: 2
+        text: >-
+          Halvorsen staff have started pasting customer files into free AI websites. Shifty is drafting the company's
+          rules for AI tools, and Dale has written everything on one whiteboard. Shifty sorts each line into the type
+          of document where it belongs.
+        ask: 'Sort each statement into the right type of document.'
+        bins: ['Policy', 'Standard', 'Guideline']
+        pairs:
+          - ['Staff must protect customer data when using any AI tool', 0]
+          - ['Management makes the CISO responsible for enforcing safe AI use', 0]
+          - ['Only the approved enterprise AI service, with SSO and logging, may be used', 1]
+          - ['AI prompts and outputs are kept for 90 days in the approved log', 1]
+          - ['Tip: remove names before asking an AI to summarize a document', 2]
+          - ['Consider asking a colleague to check AI-written customer emails', 2]
+        why: >-
+          A policy states management's intent and assigns responsibility; a standard sets specific, mandatory
+          requirements (which service, which settings); a guideline is optional advice. Mixing them means every
+          product change would need senior management's approval.
+        src: 'CISSP 2027 outline 1.6; ISC2 CISSP Official Study Guide (Sybex), ch. 1 (security policy documentation)'
+
+      - c: ethics-canons
+        kind: best
+        diff: 1
+        text: >-
+          In testing, Halvie, Halvorsen's AI assistant, tells customers that lithium batteries can be shipped loose in
+          ordinary parcels. That could start fires on trucks and planes. Dale asks Shifty, an ISC2 member, to keep it
+          quiet until after Monday's launch, "for the client's sake".
+        ask: 'Which ISC2 canon MOST directly settles what Shifty must do?'
+        o:
+          - 'Act honorably, honestly, justly, responsibly and legally'
+          - 'Provide diligent and competent service to principals'
+          - 'Protect society, the common good, public trust and the infrastructure'
+          - 'Advance and protect the profession'
+        a: 2
+        r:
+          - 'Honesty matters, but it is not the canon that decides this. The flaw endangers the public, and that comes first.'
+          - 'Serving the principal is canon 3. Dale''s "for the client" argument loses to canon 1 every time.'
+          - 'Shifty puts the safety flaw in writing and the launch waits for a fix. No trucks catch fire. Dale sulks productively.'
+          - 'The profession matters, but it is the public that is at risk of fire here.'
+        why: >-
+          Advice that can cause fires endangers the public, so canon 1 applies, and it outranks service to principals
+          (canon 3). The order of the canons resolves exactly the conflict Dale has created.
+        src: 'ISC2 Code of Ethics, Canons 1 and 3, isc2.org/ethics'
+
+      - c: ai-ethics
+        kind: best
+        diff: 2
+        text: >-
+          Halvie, Halvorsen's AI chat assistant, now writes in a warm, human tone and signs off as "Hannah from
+          Support". Customers using the EU branch's portal often think they are chatting with a person. Marketing loves
+          it. Halvorsen Labs built the system, and Shifty is asked to approve the launch.
+        ask: 'Which is the BEST condition for approving the launch?'
+        o:
+          - 'Keep the persona, but disclose the AI in the website''s terms and conditions'
+          - 'Keep the persona, because customers rate Hannah highly in surveys'
+          - 'Drop the human name but keep the human tone, with no notice'
+          - 'Tell customers at the start that it is an AI, and offer a human'
+        a: 3
+        r:
+          - 'Nobody reads the terms. Customers still think Hannah is real, and Ines reads Article 50 aloud, slowly.'
+          - 'Happy customers who were misled are still misled. The ratings will not help in front of a regulator.'
+          - 'Customers still cannot tell it is an AI. Removing a name is not telling anyone anything.'
+          - 'Hannah becomes "Halvie, Halvorsen''s AI assistant". Satisfaction dips one point. Ines stops twitching.'
+        why: >-
+          Transparency is part of trustworthy AI, and the EU AI Act requires providers to make sure people are told
+          they are interacting with an AI system, unless that is obvious. A notice buried in the terms informs nobody
+          at the moment it matters.
+        src: 'Regulation (EU) 2024/1689 (AI Act), Art. 50(1); NIST AI 100-1 (AI RMF 1.0), sec. 3 (accountable and transparent)'
+
+      - c: control-frameworks
+        kind: best
+        diff: 2
+        text: >-
+          Rafa Lind wants a framework for Halvorsen Labs' security architecture that starts from business requirements
+          (what the portal must do for customers and drivers) and traces them down, layer by layer, to logical and
+          physical components.
+        ask: 'Which framework BEST fits that need?'
+        o: ['PCI DSS', 'SABSA', 'FedRAMP', 'ISO/IEC 27002']
+        a: 1
+        r:
+          - 'PCI DSS sets requirements for card data. It says nothing about tracing portal design from business goals.'
+          - 'Rafa maps business attributes to controls, layer by layer. For once the architecture diagram explains why each box exists.'
+          - 'FedRAMP authorizes cloud services for US federal agencies. Halvorsen sells to shippers, not the government.'
+          - '27002 is a catalogue of control guidance. Useful later, but it is not an architecture method.'
+        why: >-
+          SABSA is a business-driven security architecture framework that works from contextual business requirements
+          down to components. PCI DSS and FedRAMP are compliance programs for specific contexts; ISO/IEC 27002 is
+          control guidance, not an architecture method.
+        src: 'CISSP 2027 outline 1.3; The SABSA Institute, SABSA framework; ISO/IEC 27002:2022 (title and scope)'
+
+      - c: threat-modeling
+        kind: best
+        diff: 3
+        text: >-
+          In a threat-modeling session for Halvie, Halvorsen's AI assistant, Rafa Lind notes that chat conversations
+          are not logged. A customer could have a refund approved and later say "the bot never told me that", and
+          Halvorsen could not prove otherwise.
+        ask: 'Which STRIDE threat category is this MOST clearly?'
+        o: ['Spoofing', 'Tampering', 'Elevation of privilege', 'Repudiation']
+        a: 3
+        r:
+          - 'Spoofing is pretending to be someone else. Here everyone is who they say; they just deny what happened.'
+          - 'Nothing was altered. The problem is that there is no proof of what was said.'
+          - 'Nobody gained extra rights. The gap is evidence, not privilege.'
+          - 'Rafa adds protected logging of every conversation. Disputes now end with a transcript instead of a shouting match.'
+        why: >-
+          Repudiation is denying an action when the system cannot prove it happened; the countermeasure is reliable,
+          protected logging (and signatures where needed). Tampering would mean data was altered, and here nothing
+          changed; it simply was not recorded.
+        src: 'CISSP 2027 outline 1.10; Shostack, Threat Modeling: Designing for Security (Wiley, 2014), STRIDE'
+    close: >-
+      Halvie launches two weeks late. It introduces itself as an AI, hands refunds to humans and keeps a proper log.
+      Dale complains it has "lost its sparkle". Nobody's battery shipment catches fire. Shifty adds "explain the bot"
+      to the board agenda.
+
+  - id: k1-03
+    title: 'Rotterdam calling'
+    where: 'Rotterdam branch · Tuesday 09:00'
+    diff: 2
+    open: >-
+      Halvorsen Freight B.V., the new Rotterdam company, is three months old and already busy: trucks, a warehouse,
+      forty staff and a lot of personal data. On Tuesday morning Jonas Vries calls. A laptop was stolen from a parked
+      car overnight. It held the driver HR spreadsheet, unencrypted. Shifty joins by video call, which works
+      surprisingly well for a ghost.
+    scenes:
+      - c: breach-notification
+        kind: calc
+        diff: 2
+        text: >-
+          Halvorsen's Rotterdam company is a GDPR controller. On Tuesday at 09:00, Jonas Vries confirms that a
+          stolen, unencrypted laptop held the names, addresses and bank details of 300 drivers. The breach is likely
+          to result in a risk to them. Dale asks how long they have to tell the Dutch supervisory authority.
+        ask: 'Where feasible, by when must the supervisory authority be notified at the latest?'
+        o: ['Wednesday 09:00', 'Friday 09:00', 'Tuesday 09:00 next week', 'Within 60 days']
+        a: 1
+        why: >-
+          GDPR Art. 33(1): notify without undue delay and, where feasible, within 72 hours of becoming aware. Tuesday
+          09:00 plus 72 hours is Friday 09:00. Sixty days is HIPAA's outer limit for telling individuals, a different
+          law. Telling the drivers is a separate duty under Art. 34.
+        src: 'GDPR (Regulation (EU) 2016/679), Art. 33(1) and Art. 34(1)'
+
+      - c: investigation-types
+        kind: best
+        diff: 1
+        text: >-
+          A month after the Rotterdam laptop theft, the Dutch data protection authority writes to Halvorsen. It is
+          examining whether Halvorsen met its GDPR duties, and asks for the breach records and the company's risk
+          assessment for laptops.
+        ask: 'What type of investigation is this MOST accurately?'
+        o: ['Administrative', 'Criminal', 'Civil', 'Regulatory']
+        a: 3
+        r:
+          - 'Administrative investigations are internal, about Halvorsen''s own policies. This letter came from outside, with a government seal.'
+          - 'Nobody is accused of a crime here. The thief is a police matter; this is about Halvorsen''s compliance.'
+          - 'Nobody is suing anybody. Yet. This is an agency checking that its rules were followed.'
+          - 'Ines assembles the breach log and the Article 33 record. Shifty is glad someone wrote it all down.'
+        why: >-
+          A regulatory investigation is run by a government agency to check compliance with the rules it enforces;
+          its powers and standard of proof depend on that regulator. Administrative investigations are internal,
+          civil ones are disputes between parties, criminal ones concern crimes.
+        src: 'CISSP 2027 outline 1.5; GDPR Arts. 33(5) and 58 (supervisory authority powers); ISC2 CISSP Official Study Guide (Sybex), ch. 19'
+
+      - c: export-transborder
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen HQ in Chicago wants the Rotterdam company's driver HR records copied to its US HR system. HQ is
+          not certified under the EU-US Data Privacy Framework, and Ines Albescu confirms no other adequacy decision
+          applies. Jonas Vries suggests adding a consent tick box to the drivers' employment contracts.
+        ask: 'Which is the BEST lawful basis for this transfer?'
+        o:
+          - 'Standard contractual clauses between the Rotterdam company and HQ'
+          - 'The drivers'' consent, collected through their employment contracts'
+          - 'Encrypting the files first, which takes them outside the GDPR'
+          - 'No basis is needed, because HQ owns the Rotterdam company'
+        a: 0
+        r:
+          - 'The two companies sign the Commission''s standard clauses and a transfer risk assessment. The data moves, lawfully.'
+          - 'Employees can hardly refuse their employer, so their consent is not freely given. Ines vetoes the tick box before Jonas prints it.'
+          - 'Encrypted personal data is still personal data. The transfer rules still apply, and so does the fine.'
+          - 'Common ownership is no exemption. Chapter V applies to transfers between group companies too.'
+        why: >-
+          Without an adequacy decision, Art. 46 requires appropriate safeguards, and standard contractual clauses
+          adopted by the Commission are one. Employee consent is rarely freely given, encryption does not make data
+          non-personal, and group ownership is no exemption.
+        src: 'GDPR Arts. 44, 45 and 46(2)(c); EDPB Guidelines 05/2020 on consent (employment context)'
+
+      - c: personnel-lifecycle
+        kind: best
+        diff: 1
+        text: >-
+          Anouk moved from the Rotterdam finance team to warehouse operations last month. An access review shows she
+          still has full rights to the payment system, as well as her new warehouse rights. Jonas Vries says "she's
+          trustworthy, leave it".
+        ask: 'What is the BEST action?'
+        o:
+          - 'Leave it, since Anouk is trusted and may help finance'
+          - 'Remove all of her access and make her re-request it'
+          - 'Remove the finance access that her new role does not need'
+          - 'Ask Anouk which of her access rights she wants to keep'
+        a: 2
+        r:
+          - 'Trust is not a control. Six months later her account is phished, and the payment system is the prize.'
+          - 'Anouk cannot open the warehouse system for two days. The pallets pile up, and so does Jonas''s blood pressure.'
+          - 'Her finance access goes and her warehouse access stays. The next review comes back clean.'
+          - 'Anouk keeps everything, politely. Access is decided by the role and its owner, not by the user.'
+        why: >-
+          On a transfer, access for the old job is removed and only what the new role needs is kept; otherwise
+          privileges accumulate (privilege creep). Removing everything disrupts work for no security gain, and users
+          do not decide their own access.
+        src: 'CISSP 2027 outline 1.8 (transfers); ISC2 CISSP Official Study Guide (Sybex), ch. 2 and ch. 13 (privilege creep)'
+
+      - c: risk-response
+        kind: best
+        diff: 2
+        text: >-
+          Rotterdam marketing wants to track drivers' private phone locations outside working hours to "predict
+          availability". A data protection impact assessment finds a high risk to drivers that no available control
+          reduces enough. Priya Nair, the risk owner, cancels the project.
+        ask: 'Which risk response did Priya MOST clearly choose?'
+        o: ['Mitigation', 'Avoidance', 'Transfer', 'Acceptance']
+        a: 1
+        r:
+          - 'No control was added. The project simply stopped.'
+          - 'The drivers keep their evenings private. The risk register records the decision in one line.'
+          - 'Nothing was insured or handed to a third party. The activity itself ended.'
+          - 'Accepting would mean going ahead knowingly. Priya did the opposite.'
+        why: >-
+          Avoidance removes a risk by not doing the activity that creates it. Mitigation adds controls, transfer
+          shifts part of the financial impact to someone else, and acceptance keeps the risk knowingly. Here the
+          activity was cancelled.
+        src: 'NIST SP 800-39, sec. 3.3 (risk response: accept, avoid, mitigate, share or transfer); GDPR Art. 35 (DPIA)'
+
+      - c: cia-authenticity
+        kind: best
+        diff: 3
+        text: >-
+          A Rotterdam customer claims it never sent an urgent order to reroute 20 trucks, and refuses to pay. The
+          order portal protects orders with an HMAC, using a secret key shared with each customer. Ines Albescu asks
+          what would let Halvorsen prove who sent an order in future.
+        ask: 'Which control would BEST provide non-repudiation for future orders?'
+        o:
+          - 'Keep the HMAC, but rotate the shared keys every month'
+          - 'Encrypt each order with AES before it is sent'
+          - 'Store a SHA-256 hash of every order in the portal'
+          - 'Require each order to be signed with the customer''s private key'
+        a: 3
+        r:
+          - 'Both sides still hold the same key. The customer can say Halvorsen made the tag, and a judge might agree.'
+          - 'Encryption hides orders from outsiders. It proves nothing about who wrote them.'
+          - 'A hash shows the order did not change. Anyone could have created it in the first place.'
+          - 'Only the customer holds its private key, so the signature ties the order to it. Ines likes evidence she can explain.'
+        why: >-
+          A digital signature made with a private key only the sender holds gives integrity, origin authentication and
+          non-repudiation. An HMAC uses a shared key, so either party could have made it. Encryption gives
+          confidentiality; a hash alone shows only integrity.
+        src: 'FIPS 186-5 (Digital Signature Standard); CISSP 2027 outline 1.2 (authenticity, non-repudiation)'
+
+      - c: control-frameworks
+        kind: best
+        diff: 1
+        text: >-
+          A large Dutch retailer will only sign a contract with Halvorsen's Rotterdam company if it can show an
+          independently certified information security management system (ISMS).
+        ask: 'Which standard is the BEST choice for that certification?'
+        o: ['ISO/IEC 27002', 'NIST CSF 2.0', 'COBIT', 'ISO/IEC 27001']
+        a: 3
+        r:
+          - '27002 is guidance on controls. Auditors cannot certify you against advice.'
+          - 'The CSF is a voluntary framework with no certification scheme. The retailer asks again, less politely.'
+          - 'COBIT is an IT governance framework from ISACA, not an ISMS certification standard.'
+          - 'An accredited body certifies the ISMS against 27001. The retailer signs. Jonas buys stroopwafels for everyone.'
+        why: >-
+          ISO/IEC 27001 specifies the requirements for an ISMS, and organizations are certified against it by
+          accredited bodies. ISO/IEC 27002 gives guidance on controls; NIST CSF and COBIT are frameworks without an
+          ISMS certification.
+        src: 'ISO/IEC 27001:2022 (Information security management systems: requirements); ISO/IEC 27002:2022 (Information security controls)'
+    close: >-
+      The Dutch authority closes its file with a warning and a reminder to encrypt laptops. Anouk loses access she
+      never used, and the retailer signs. Jonas laminates the 72-hour rule and tapes it to the coffee machine, where
+      Shifty can at least read it.
+
+  - id: k1-04
+    title: 'MedLink''s cold case'
+    where: 'Halvorsen MedLink depot · Saturday 06:30'
+    diff: 3
+    open: >-
+      Halvorsen MedLink carries lab samples between clinics and hospitals, and runs a specimen-tracking portal for St.
+      Brigid's Hospital. On Saturday morning a MedLink van is broken into. The coolers are fine. The clipboard is
+      gone: paper manifests with patient names, dates of birth and test orders. Dr. Amara Cole, the privacy officer,
+      is already on the phone. Shifty, who is cold anyway, takes the case.
+    scenes:
+      - c: hipaa-entities
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen MedLink transports sealed specimen coolers for St. Brigid's Hospital, a HIPAA covered entity. It
+          also runs the hospital's specimen-tracking portal, which stores patient names, dates of birth and test
+          orders. Dale argues that MedLink is "just a courier, like the post office", so HIPAA does not apply.
+        ask: 'What is MedLink''s MOST accurate status under HIPAA?'
+        o:
+          - 'A conduit, exempt in the same way as the postal service'
+          - 'A business associate of the hospital'
+          - 'A covered entity in its own right'
+          - 'Outside HIPAA, because it is not a health care provider'
+        a: 1
+        r:
+          - 'The conduit exception covers transport only. MedLink stores PHI in a portal every day, which makes it a business associate.'
+          - 'Amara pulls out the business associate agreement MedLink signed last year. Dale had never read it. Nobody is surprised.'
+          - 'MedLink does not treat patients, run a health plan or act as a clearinghouse. It works for a covered entity.'
+          - 'HIPAA applies to business associates directly. Not being a provider does not take MedLink outside it.'
+        why: >-
+          A business associate creates, receives, maintains or transmits PHI on behalf of a covered entity. The
+          conduit exception covers only transmission, with no more than random or infrequent access; storing PHI in a
+          tracking portal goes well beyond that.
+        src: '45 CFR 160.103 (definition of business associate); HHS HIPAA FAQs 245 and 2077 (conduit exception)'
+
+      - c: breach-notification
+        kind: best
+        diff: 3
+        text: >-
+          The stolen MedLink manifests list 620 patients of St. Brigid's Hospital, all living in one state. The risk
+          assessment cannot show a low probability that the PHI was compromised. MedLink is the hospital's business
+          associate. Dr. Amara Cole asks who must notify whom.
+        ask: 'Which notification plan is MOST accurate under the HIPAA Breach Notification Rule?'
+        o:
+          - 'MedLink notifies the patients directly, and the hospital never needs to be told'
+          - 'The hospital notifies the patients only, and HHS later through the annual log'
+          - 'MedLink notifies HHS within 72 hours, and patients are told if HHS agrees'
+          - 'MedLink notifies the hospital, which notifies patients, HHS and the state''s media'
+        a: 3
+        r:
+          - 'The hospital, which owns the patient relationship, learns about it from the local news. Its lawyers call Amara. Twice.'
+          - 'The annual log is for breaches affecting fewer than 500. With 620 patients in one state, HHS and the media must hear now.'
+          - 'Seventy-two hours is GDPR. HIPAA has no step where HHS approves telling patients.'
+          - 'MedLink tells St. Brigid''s the same day. The hospital sends letters, files with HHS and briefs the local press.'
+        why: >-
+          A business associate notifies the covered entity (164.410). The covered entity notifies individuals
+          (164.404); for more than 500 residents of a state it also notifies prominent media (164.406), and HHS at
+          the same time for 500 or more (164.408), all within 60 days of discovery.
+        src: '45 CFR 164.402, 164.404, 164.406, 164.408, 164.410'
+
+      - c: breach-notification
+        kind: calc
+        diff: 2
+        text: >-
+          St. Brigid's Hospital, a HIPAA covered entity, discovered a breach of unsecured PHI on March 3. Dale asks for
+          "the deadline" so the letters can wait until then. Dr. Amara Cole reminds him the letters must go out without
+          unreasonable delay anyway.
+        ask: 'What is the LATEST date the hospital may notify the affected patients?'
+        o: ['March 6', 'April 2', 'May 2', 'June 1']
+        a: 2
+        why: >-
+          Notice is due without unreasonable delay and no later than 60 days after discovery. March 3 plus
+          28 days is March 31; plus 30 days of April is April 30; plus 2 more is May 2. March 6 is GDPR's 72 hours.
+          Sixty days is a ceiling.
+        src: '45 CFR 164.404(b)'
+
+      - c: hipaa-entities
+        kind: best
+        diff: 2
+        text: >-
+          MedLink, a HIPAA business associate of St. Brigid's Hospital, wants to back up its specimen-tracking
+          database to a cloud storage vendor. The backups are encrypted, and the vendor never holds the keys. The
+          vendor says that makes it "not a business associate".
+        ask: 'Which BEST describes what HIPAA requires before the backups move to the vendor?'
+        o:
+          - 'Nothing, because the vendor cannot read the encrypted data'
+          - 'Written approval from HHS for this particular cloud vendor'
+          - 'A business associate agreement between MedLink and the vendor'
+          - 'Signed consent from every patient whose data is backed up'
+        a: 2
+        r:
+          - 'HHS says a cloud provider that stores ePHI is a business associate even without the key. Amara files the vendor''s claim under "nice try".'
+          - 'HHS does not pre-approve vendors. The duty is on MedLink to get satisfactory assurances by contract.'
+          - 'The vendor signs a subcontractor BAA. The backups go up, and MedLink can show the paper trail.'
+          - 'Backups for MedLink''s own operations need a contract with the vendor, not patient consent.'
+        why: >-
+          A business associate must get satisfactory assurances, through a business associate agreement, from any
+          subcontractor that creates, receives, maintains or transmits ePHI for it. HHS says a cloud provider storing
+          encrypted ePHI is a business associate even without the key.
+        src: '45 CFR 164.308(b)(2) and 164.502(e)(1)(ii); HHS, Guidance on HIPAA and Cloud Computing'
+
+      - c: bia-metrics
+        kind: best
+        diff: 2
+        text: >-
+          MedLink's business impact analysis lists its own servers and vans. It leaves out the hospital lab system
+          feeds, the single mobile carrier the driver app depends on, and the cloud host of the tracking portal. Tomás
+          Reyes says those are "other people's problems".
+        ask: 'What is the BEST way to treat these in the BIA?'
+        o:
+          - 'Leave them out, since MedLink cannot control them'
+          - 'List them as dependencies and assess their impact and recovery capability'
+          - 'Replace each one with an in-house system before finishing the BIA'
+          - 'Mention them in an appendix to the BIA without any analysis'
+        a: 1
+        r:
+          - 'The carrier has an outage in May. The BIA said the driver app would be fine. It was not.'
+          - 'The BIA shows the carrier is a single point of failure. MedLink adds a second carrier and asks the cloud host for its recovery times.'
+          - 'Building an in-house mobile network is a bold plan. The CFO''s laugh can be heard from the depot.'
+          - 'An appendix nobody analyses is a list, not a BIA. The carrier still takes down the app in May.'
+        why: >-
+          Critical processes depend on suppliers, carriers and cloud services, so the BIA must identify those external
+          dependencies and how fast they can recover. Leaving them out understates the impact; building everything
+          in-house is not analysis.
+        src: 'CISSP 2027 outline 1.7 (external dependencies); NIST SP 800-34 Rev. 1, sec. 3.2 (BIA)'
+
+      - c: control-types
+        kind: best
+        diff: 2
+        text: >-
+          MedLink's older handheld scanners cannot be encrypted or patched, and replacements arrive in six months.
+          Until then, Kim Osei's plan keeps the scanners on an isolated network segment that can reach only the
+          tracking portal, with extra monitoring.
+        ask: 'What type of control is Kim''s plan MOST accurately?'
+        o: ['Deterrent', 'Directive', 'Recovery', 'Compensating']
+        a: 3
+        r:
+          - 'Nothing here warns an attacker off. It protects in a different way.'
+          - 'Directive controls tell people what to do, like a policy. This is a network design.'
+          - 'Recovery controls restore operations after an incident. This one works before anything goes wrong.'
+          - 'The segment stands in for the encryption the scanners cannot do. The auditor writes "compensating control, expires in six months".'
+        why: >-
+          A compensating control gives alternative protection when the primary control cannot be used, here
+          segmentation and monitoring instead of encryption. It should be documented, approved and time-limited until
+          the real fix arrives.
+        src: 'CISSP 2027 outline 1.9 (types of controls); ISC2 CISSP Official Study Guide (Sybex), ch. 2; PCI DSS v4.0.1, Appendix B (compensating controls)'
+
+      - c: threat-modeling
+        kind: best
+        diff: 1
+        text: >-
+          Rafa Lind's team is about to design a new MedLink app that lets hospitals book specimen pickups and check
+          results status. Dale suggests they "do the threat-model thing" after launch, once real attackers show what
+          matters.
+        ask: 'When is threat modeling MOST effective for this app?'
+        o:
+          - 'During design, before the code is written'
+          - 'After launch, using real attack data'
+          - 'During the annual penetration test'
+          - 'After the first security incident'
+        a: 0
+        r:
+          - 'The team draws the data flows and trust boundaries on day two. Three design flaws die on a whiteboard instead of in production.'
+          - 'Real attackers are an expensive way to learn about your design. The fixes now mean rewriting live features.'
+          - 'The pentest finds the design flaws a year late. Each fix now costs far more.'
+          - 'The incident teaches the lesson. The patients whose data leaked did not volunteer to be the curriculum.'
+        why: >-
+          Threat modeling is most valuable early, at design time, when a flaw costs least to fix, and it is revisited
+          as the design changes. Waiting for a pentest or an incident finds the same issues later, at far higher cost.
+        src: 'CISSP 2027 outline 1.10; NIST SP 800-218 (SSDF), practice PW.1; OWASP Threat Modeling Cheat Sheet'
+    close: >-
+      The patients get letters well before May 2, the hospital files with HHS, and the local paper runs a short, boring
+      story, which is the best kind. MedLink manifests go digital. Dale is banned from saying "just a courier". Amara
+      sends Shifty a thank-you card. It falls through his hands.
+
+  - id: k1-05
+    title: 'High water'
+    where: 'Riverside warehouse · Wednesday 10:00'
+    diff: 2
+    open: >-
+      New flood maps say the river beside Halvorsen's main warehouse will flood far more often than anyone planned for.
+      The warehouse also holds the dispatch servers and MedLink's specimen freezers. Priya wants a continuity plan.
+      Dale wants to buy a hot site "today, while it's on sale". Shifty, who has haunted worse basements, starts by
+      asking how long the business can be down.
+    scenes:
+      - c: bia-metrics
+        kind: first
+        diff: 1
+        text: >-
+          Halvorsen's riverside warehouse now floods more often, and it holds the dispatch servers. Priya Nair asks
+          Shifty to lead continuity planning. Dale wants to sign a hot-site contract today, and Tomás Reyes wants to
+          start configuring replication to the cloud tonight.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Sign the hot-site contract while the price is good'
+          - 'Start configuring replication to the cloud tonight'
+          - 'Ask each department to buy its own backup equipment'
+          - 'Run a business impact analysis of the critical processes'
+        a: 3
+        trap: 1
+        r:
+          - 'The hot site is ready in hours. The BIA later shows dispatch can tolerate three days. Halvorsen paid for speed it did not need.'
+          - 'Replication runs for the wrong systems. The freezer monitoring, the thing that actually matters, is left out.'
+          - 'Six departments buy six different backup gadgets. None of them talk to each other.'
+          - 'Priya''s heads of department rank their processes and outage costs. Recovery options can now be priced against real needs.'
+        why: >-
+          The BIA identifies critical processes, outage impacts and tolerable downtime; recovery strategies such as hot
+          sites or replication are chosen from its results. Configuring replication first is the engineer answer: a
+          solution before anyone knows the requirement.
+        src: 'NIST SP 800-34 Rev. 1, sec. 3.2 (BIA) and sec. 3.4 (contingency strategies); CISSP 2027 outline 1.7'
+
+      - c: bia-metrics
+        kind: calc
+        diff: 2
+        text: >-
+          The BIA for Halvorsen's dispatch process sets a maximum tolerable downtime (MTD) of 24 hours. After the
+          dispatch system is restored, staff need 6 hours to verify data and re-enter missed orders (the work
+          recovery time, WRT).
+        ask: 'What is the longest recovery time objective (RTO) the dispatch system can have?'
+        o: ['18 hours', '24 hours', '30 hours', '6 hours']
+        a: 0
+        why: >-
+          In CISSP terms, RTO plus WRT must not exceed the MTD, so RTO is at most 24 - 6 = 18 hours. An RTO of 24 hours
+          uses the whole MTD before work can resume; 30 hours adds instead of subtracting.
+        src: 'NIST SP 800-34 Rev. 1, sec. 3.2.1 (MTD, RTO, RPO); ISC2 CISSP Official Study Guide (Sybex), ch. 3'
+
+      - c: quant-risk
+        kind: calc
+        diff: 2
+        text: >-
+          Halvorsen's riverside warehouse, contents included, is valued at $2,000,000. A major flood would destroy
+          about 40% of that value. The new flood maps predict a major flood once every 25 years. Marcus Webb, the CFO,
+          asks for the yearly figure.
+        ask: 'What is the Annualized Loss Expectancy (ALE) for a major flood?'
+        o: ['$800,000', '$80,000', '$32,000', '$12,800']
+        a: 2
+        why: >-
+          SLE = $2,000,000 x 0.40 = $800,000. ARO = 1/25 = 0.04. ALE = $800,000 x 0.04 = $32,000 a year. $800,000
+          is the SLE of one flood; $80,000 uses an ARO of 0.1; $12,800 applies the exposure factor twice.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 2 (quantitative risk analysis)'
+
+      - c: risk-response
+        kind: sort
+        diff: 2
+        text: >-
+          Priya Nair, risk owner for the riverside warehouse, reviews the proposed responses to the flood risk before
+          the board votes. Shifty sorts each proposal into the risk response it represents.
+        ask: 'Sort each proposal by the risk response it represents.'
+        bins: ['Mitigate (reduce)', 'Transfer (share)', 'Avoid']
+        pairs:
+          - ['Raise the server room to the second floor', 0]
+          - ['Install flood barriers and water sensors', 0]
+          - ['Buy flood insurance for the building and stock', 1]
+          - ['Make the landlord''s contract cover flood repair costs', 1]
+          - ['Close the riverside site and stop using it', 2]
+          - ['Cancel the plan to build a new depot on the floodplain', 2]
+        why: >-
+          Mitigation lowers likelihood or impact with controls; transfer shifts the financial impact to an insurer or
+          another party by contract; avoidance stops the activity that creates the risk. Insurance pays for damage but
+          does not stop the flood.
+        src: 'NIST SP 800-39, sec. 3.3; CISSP 2027 outline 1.9 (risk response and treatment, cybersecurity insurance)'
+
+      - c: vendor-agreements
+        kind: calc
+        diff: 2
+        text: >-
+          Halvorsen's dispatch system runs at a hosting provider whose SLA promises 99.9% availability per 30-day
+          month. The BIA says dispatch can tolerate at most 30 minutes of unplanned outage a month. Marcus Webb asks
+          whether the SLA is good enough.
+        ask: 'How much downtime per 30-day month does a 99.9% availability SLA allow?'
+        o: ['4.32 minutes', '43.2 minutes', '7.2 hours', '8.76 hours']
+        a: 1
+        why: >-
+          30 days x 24 hours x 60 minutes = 43,200 minutes; 0.1% of that is 43.2 minutes, more than the 30-minute
+          tolerance, so the SLA is not good enough. 4.32 minutes is 99.99%; 7.2 hours is 99%; 8.76 hours is 99.9% of a
+          whole year.
+        src: 'CISSP 2027 outline 1.8 (vendor agreements, SLAs); ISC2 CISSP Official Study Guide (Sybex), ch. 2'
+
+      - c: hipaa-entities
+        kind: best
+        diff: 2
+        text: >-
+          MedLink's specimen freezers at the riverside warehouse are monitored by a system that links sample IDs to
+          patient names (ePHI). MedLink is a HIPAA business associate. Dr. Amara Cole asks which HIPAA requirement
+          obliges MedLink to assess the flood and other risks to that ePHI.
+        ask: 'Which HIPAA requirement MOST directly obliges this assessment?'
+        o:
+          - 'The Privacy Rule''s minimum necessary standard'
+          - 'The Security Rule''s risk analysis'
+          - 'The Breach Notification Rule'
+          - 'The Enforcement Rule''s penalty tiers'
+        a: 1
+        r:
+          - 'Minimum necessary limits how much PHI is used or shared. It does not ask about floods.'
+          - 'MedLink runs the Security Rule risk analysis. The flood goes on the list, next to ransomware and a very old UPS.'
+          - 'That rule applies after a breach. Amara wants to stop the freezer room becoming one.'
+          - 'Penalties are what happens when you skip the risk analysis. They do not require one.'
+        why: >-
+          The Security Rule's administrative safeguards require an accurate and thorough assessment of risks to the
+          confidentiality, integrity and availability of ePHI, and business associates must comply. A flood threatens
+          availability, so it belongs in that analysis.
+        src: '45 CFR 164.308(a)(1)(ii)(A) (risk analysis); 45 CFR 164.302 (applicability)'
+
+      - c: risk-assessment-maturity
+        kind: rank
+        diff: 2
+        text: >-
+          A federal customer requires Halvorsen's new flood-monitoring system to be run under the NIST Risk Management
+          Framework. Dale has the RMF steps on sticky notes in random order. Shifty arranges the five steps between
+          Prepare and Monitor.
+        ask: 'Put these RMF steps in order, first at the top.'
+        items:
+          - 'Categorize the system and its information'
+          - 'Select the controls'
+          - 'Implement the controls'
+          - 'Assess the controls'
+          - 'Authorize the system to operate'
+        why: >-
+          NIST SP 800-37 Rev. 2 orders the RMF as Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor.
+          Controls cannot be selected before the system's impact is known, and the authorizing official accepts the
+          risk only after the controls are assessed.
+        src: 'NIST SP 800-37 Rev. 2 (Risk Management Framework), ch. 3 (RMF steps)'
+    close: >-
+      Halvorsen buys flood insurance, raises the server room and renegotiates the hosting SLA to 99.95%. Dale's hot
+      site is cancelled before it ships. Shifty floats through the new flood barrier to inspect it. It is, he reports,
+      quite damp.
+
+  - id: k1-06
+    title: 'The routers that weren''t'
+    where: 'Halvorsen receiving dock · Thursday 15:00'
+    diff: 2
+    open: >-
+      Fifty new warehouse routers arrive at Halvorsen's receiving dock at 60% off list price. The supplier is a
+      reseller nobody has heard of, chosen by Dale "because the website looked professional". The boxes look right.
+      The logos are slightly crooked. Tomás Reyes wants them installed by Monday. Shifty floats over to the pallet and
+      does not like what he feels.
+    scenes:
+      - c: scrm
+        kind: first
+        diff: 2
+        text: >-
+          Fifty warehouse routers bought cheaply from an unknown reseller have arrived at Halvorsen. The labels have
+          spelling mistakes and the serial numbers look unfamiliar. Tomás Reyes wants to flash the official firmware
+          onto them himself and install them by Monday.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Let Tomás flash the official firmware and install them on schedule'
+          - 'Quarantine the routers and verify their authenticity with the manufacturer'
+          - 'Install them on a test network to see whether they misbehave'
+          - 'Send them back to the reseller and ask for a refund'
+        a: 1
+        trap: 0
+        r:
+          - 'New firmware does not remove a hardware implant. The routers go live with whatever was soldered inside.'
+          - 'The manufacturer confirms the serials are fake. The pallet is sealed as evidence and nobody plugs anything in.'
+          - 'A test network might catch noisy behaviour. A well-made counterfeit behaves perfectly until it doesn''t.'
+          - 'The reseller sells them to the next victim. Halvorsen loses the evidence and learns nothing about its supply chain.'
+        why: >-
+          Suspected counterfeit or tampered hardware is isolated and verified with the original manufacturer before any
+          use. Reflashing is the engineer answer: firmware cannot remove a hardware implant or make a counterfeit
+          genuine. Returning it first destroys the evidence.
+        src: 'NIST SP 800-161 Rev. 1 (C-SCRM: counterfeit and tampered components); CISSP 2027 outline 1.11'
+
+      - c: ip-licensing
+        kind: best
+        diff: 1
+        text: >-
+          The manufacturer confirms that the routers Halvorsen received are counterfeits. They carry the
+          manufacturer's registered brand name and logo, so buyers believe they are genuine. Ines Albescu is preparing
+          a statement for the manufacturer's lawyers.
+        ask: 'Which intellectual property right does the fake branding MOST directly infringe?'
+        o: ['Patent', 'Trademark', 'Copyright', 'Trade secret']
+        a: 1
+        r:
+          - 'A patent protects an invention. The fakes may infringe one too, but the fake logo is about the brand.'
+          - 'The manufacturer''s lawyers pursue trademark counterfeiting. Halvorsen hands over the pallet as evidence.'
+          - 'Copyright protects original works such as code and manuals. A logo on a box is a brand mark.'
+          - 'Nothing secret was taken. The logo is the most public thing about the product.'
+        why: >-
+          A trademark protects names, logos and marks that identify the source of goods, and counterfeits trade on that
+          mark. Patents protect inventions, copyright protects original works of authorship, and trade secrets protect
+          confidential business information.
+        src: '15 U.S.C. 1114 (trademark infringement); ISC2 CISSP Official Study Guide (Sybex), ch. 4'
+
+      - c: scrm
+        kind: spot
+        diff: 2
+        text: >-
+          After the counterfeit routers, Shifty maps how network hardware reaches Halvorsen. The manufacturer ships to
+          an authorized distributor, but some orders go through an unvetted online broker that buys from anywhere.
+          Everything then passes through receiving, the IT bench and into the warehouses.
+        ask: 'Tap the point with the GREATEST risk of counterfeit hardware entering the supply chain.'
+        map:
+          nodes:
+            - { id: mfr, label: 'Manufacturer', x: 2, y: 30 }
+            - { id: dist, label: 'Authorized distributor', x: 28, y: 12 }
+            - { id: unk, label: 'Unknown sources', x: 2, y: 70 }
+            - { id: broker, label: 'Unvetted online broker', x: 28, y: 50 }
+            - { id: recv, label: 'Halvorsen receiving', x: 54, y: 30 }
+            - { id: bench, label: 'IT config bench', x: 54, y: 62 }
+            - { id: wh, label: 'Warehouse network', x: 78, y: 30 }
+          links: [[mfr, dist], [dist, recv], [unk, broker], [broker, recv], [recv, bench], [bench, wh]]
+          caption: 'How network hardware reaches Halvorsen'
+        a: broker
+        why: >-
+          Authorized distributors buy directly from the manufacturer and can trace each unit. An unvetted broker can
+          mix in parts from unknown sources, so the chain of custody breaks there. Buying only through authorized
+          channels is a basic SCRM control.
+        src: 'NIST SP 800-161 Rev. 1 (C-SCRM); CISSP 2027 outline 1.11 (counterfeits)'
+
+      - c: scrm
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen now buys genuine routers, but Kim Osei wants each device to prove at power-on that its firmware is
+          genuine and unmodified before it joins the network, so that a tampered unit cannot quietly boot.
+        ask: 'Which mitigation BEST meets Kim''s requirement?'
+        o:
+          - 'A software bill of materials from the vendor'
+          - 'An SLA with penalties for late delivery'
+          - 'A third-party SOC 2 report on the vendor'
+          - 'A silicon root of trust that verifies firmware at boot'
+        a: 3
+        r:
+          - 'An SBOM lists software components. Useful for vulnerability tracking, but it checks nothing at boot.'
+          - 'Late delivery penalties are a contract control. They do not stop tampered firmware from booting.'
+          - 'A SOC 2 report describes the vendor''s controls. It cannot check one router on Halvorsen''s dock.'
+          - 'Each router checks its firmware signature against an immutable key in silicon. A tampered image refuses to start.'
+        why: >-
+          A silicon root of trust anchors a chain of trust in hardware, so firmware is verified before it runs. An SBOM,
+          an SLA and a SOC 2 report are useful supply chain controls, but none of them verifies a device at boot.
+        src: 'NIST SP 800-193 (Platform Firmware Resiliency Guidelines), roots of trust; CISSP 2027 outline 1.11'
+
+      - c: conflict-of-interest
+        kind: first
+        diff: 2
+        text: >-
+          Shifty learns that the unknown reseller that sold Halvorsen the counterfeit routers belongs to Dale's
+          brother-in-law. Dale chose the supplier personally and never mentioned the relationship. Halvorsen's code of
+          conduct requires conflicts of interest to be disclosed.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Confront Dale and demand that he resign today'
+          - 'Keep quiet, since the routers are going back anyway'
+          - 'Report the undisclosed conflict through the code of conduct process'
+          - 'Ask Kim to search Dale''s email for proof first'
+        a: 2
+        r:
+          - 'Shifty has no authority to fire anyone, and the facts are still unchecked. Dale calls HR first.'
+          - 'The conflict stays hidden, and the next order goes to the same reseller. Silence is not neutral.'
+          - 'The ethics process takes it to the audit committee. Procurement reruns the supplier choice without Dale.'
+          - 'Searching a colleague''s mailbox without authorization breaks policy too. Now there are two problems.'
+        why: >-
+          An undisclosed conflict of interest is reported through the organization's code of conduct or ethics
+          process, which decides how to investigate. Confronting or searching email alone skips due process, and
+          silence fails canon 2.
+        src: 'ISC2 Code of Ethics, canon 2; CISSP 2027 outline 1.1 (organizational code of ethics)'
+
+      - c: export-transborder
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen wants to sell 200 surplus routers with strong built-in encryption to a buyer abroad. The buyer's
+          country is subject to US sanctions. Dale says "they're used, so export rules don't apply".
+        ask: 'What is the BEST next step?'
+        o:
+          - 'Have legal check the EAR and sanctions rules before any sale'
+          - 'Sell them, since used equipment is exempt from export controls'
+          - 'Wipe the configurations first, which removes any export issue'
+          - 'Ship them through a third country to avoid the paperwork'
+        a: 0
+        r:
+          - 'Ines finds the destination needs a licence that will not be granted. The routers go to a certified recycler instead.'
+          - 'Used goods are still controlled items. Being second-hand is not an exemption.'
+          - 'The controlled encryption is in the hardware and firmware, not the configuration. Wiping changes nothing.'
+          - 'Routing through a third country to dodge controls is the textbook violation. Ines puts her head on the desk.'
+        why: >-
+          Encryption items are dual-use goods controlled under the EAR, and sanctioned destinations add further
+          restrictions. Legal checks classification and licence requirements before the sale. Being used, wiped or
+          sent through another country does not remove the controls.
+        src: 'Export Administration Regulations, 15 CFR parts 730-774 (encryption items, Category 5 Part 2); CISSP 2027 outline 1.4'
+
+      - c: control-cost-benefit
+        kind: calc
+        diff: 2
+        text: >-
+          To stop counterfeits, Kim Osei proposes a supplier assurance program costing $30,000 a year. It would cut the
+          expected yearly loss from counterfeit hardware (ALE) from $90,000 to $40,000. Marcus Webb asks what the
+          program is worth each year.
+        ask: 'What is the annual value of the supplier assurance program?'
+        o: ['$50,000', '$60,000', '-$10,000', '$20,000']
+        a: 3
+        why: >-
+          Value = ALE before - ALE after - annual cost = $90,000 - $40,000 - $30,000 = $20,000 a year, so it is
+          cost-justified. $50,000 is the loss reduction before the cost is subtracted; $60,000 subtracts the cost from
+          the ALE before only.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 2 (safeguard cost/benefit)'
+    close: >-
+      The fake routers go to the manufacturer's lawyers, the real ones come from an authorized distributor, and each
+      one checks its own firmware at boot. Procurement picks suppliers without Dale now. His brother-in-law's website
+      says "under construction".
+
+  - id: k1-07
+    title: 'Exit, pursued by a ghost'
+    where: 'Halvorsen Labs · Friday 09:30'
+    diff: 2
+    open: >-
+      Vic Harlan, a senior developer at Halvorsen Labs, is leaving for a competitor. HR suspects he copied the
+      route-optimisation code before he goes. Rafa Lind is upset, Ines Albescu is calm, and Dale suggests "a strongly
+      worded farewell card". Shifty, who once left a job by dying, knows that endings matter.
+    scenes:
+      - c: personnel-lifecycle
+        kind: first
+        diff: 2
+        text: >-
+          At 10:00, HR will tell Vic Harlan, a Halvorsen Labs developer with admin access to the code repositories,
+          that he is being let go. HR suspects he has been copying source code. It is now 09:30.
+        ask: 'What should happen FIRST?'
+        o:
+          - 'Disable his accounts at 17:00, so he can hand over his work'
+          - 'Ask Vic to delete any company code from his personal devices'
+          - 'Disable his access tomorrow, once HR has sent the paperwork'
+          - 'Arrange with IT to disable his access as the 10:00 meeting starts'
+        a: 3
+        r:
+          - 'Seven unsupervised hours with admin rights and a grudge. Several repositories lose their history.'
+          - 'Asking nicely is not a control, and it warns him before his access is cut.'
+          - 'Vic spends the evening cloning everything he can reach. The paperwork arrives in perfect order.'
+          - 'His access goes the minute the meeting starts. He is escorted out with a box and a copy of his NDA.'
+        why: >-
+          Access is disabled no later than the moment the person is told, ideally coordinated as the meeting starts,
+          especially for privileged users. Leaving access open afterwards invites sabotage or data theft.
+        src: 'CISSP 2027 outline 1.8 (termination processes); ISC2 CISSP Official Study Guide (Sybex), ch. 2'
+
+      - c: investigation-types
+        kind: first
+        diff: 3
+        text: >-
+          Kim Osei's review of Vic Harlan's laptop, begun as an internal HR matter, shows he uploaded Halvorsen's
+          route-optimisation source code to a personal server the night before he left. Dale wants to call the police
+          right now. Kim has the laptop locked away.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Call the police now, as Dale suggests'
+          - 'Brief legal counsel, who decide on law enforcement and evidence handling'
+          - 'Have Kim log in to Vic''s personal server and delete the code'
+          - 'Close the case, since Vic no longer works at Halvorsen'
+        a: 1
+        trap: 2
+        r:
+          - 'The police are interested, but Ines hears about it from a detective. Decisions were made without the company''s lawyer.'
+          - 'Ines takes over: chain of custody for the laptop, a decision on police or civil action, and a letter to the new employer.'
+          - 'Kim deletes the copy, and the evidence with it. Logging in to Vic''s server may also be a crime in itself.'
+          - 'The code walks into a competitor. Halvorsen''s most valuable algorithm is now someone else''s.'
+        why: >-
+          The matter may now be criminal or civil, which raises the evidence bar, so legal counsel decides on involving
+          law enforcement and directs evidence handling. Hacking back to delete the copy destroys evidence and may
+          break computer crime law.
+        src: 'CISSP 2027 outline 1.5; ISC2 CISSP Official Study Guide (Sybex), ch. 19; 18 U.S.C. 1030 (Computer Fraud and Abuse Act)'
+
+      - c: ip-licensing
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's route-optimisation algorithm is its biggest competitive advantage. Priya Nair wants it protected
+          for as long as possible without publishing how it works. Ines Albescu sets out the options.
+        ask: 'Which protection BEST fits Priya''s goal?'
+        o: ['A patent', 'Copyright registration', 'Trade secret protection', 'A trademark']
+        a: 2
+        r:
+          - 'A patent publishes the method for everyone to read and expires about 20 years after filing. Not what Priya asked for.'
+          - 'Copyright covers the code''s expression, not the method. A competitor may legally rewrite the idea.'
+          - 'NDAs, need-to-know access and logging keep the algorithm secret. It is protected for as long as it stays that way.'
+          - 'A trademark protects a brand name, not how an algorithm works.'
+        why: >-
+          A trade secret is protected for as long as it is kept secret through reasonable measures such as NDAs and
+          access control, with no disclosure and no fixed term. A patent requires public disclosure and lasts about 20
+          years from filing; copyright protects expression, not methods.
+        src: '18 U.S.C. 1836 and 1839(3) (trade secrets); 35 U.S.C. 154(a)(2); 17 U.S.C. 102(b)'
+
+      - c: policy-hierarchy
+        kind: best
+        diff: 1
+        text: >-
+          After Vic's exit, Kim Osei wants a document that tells the help desk exactly how to disable a leaver's
+          accounts: which systems, in what order, and who signs off each step. Every leaver must be handled this way.
+        ask: 'Which type of document is this MOST accurately?'
+        o: ['Policy', 'Procedure', 'Guideline', 'Baseline']
+        a: 1
+        r:
+          - 'A policy says leavers'' access must be removed promptly. It does not list the clicks.'
+          - 'Kim writes the leaver procedure, step by step. The help desk follows it the next Monday, in order.'
+          - 'Guidelines are optional advice. Kim wants every step done, every time.'
+          - 'A baseline sets a minimum system configuration. This is a sequence of tasks.'
+        why: >-
+          A procedure gives mandatory, step-by-step instructions for a specific task. The policy sets the requirement,
+          a baseline sets minimum configurations, and a guideline is optional advice.
+        src: 'CISSP 2027 outline 1.6; ISC2 CISSP Official Study Guide (Sybex), ch. 1'
+
+      - c: vendor-agreements
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Labs is replacing Vic with two contract developers from a staffing agency. They will have access to
+          the code repositories. Rafa Lind wants them to start Monday and asks Shifty what the agency contract should
+          cover.
+        ask: 'What should the contract BEST include for security?'
+        o:
+          - 'Hourly billing terms and a monthly invoice schedule'
+          - 'A promise that the contractors are experienced and trustworthy'
+          - 'Permission for contractors to work on their own laptops'
+          - 'Screening, NDAs, Halvorsen''s policies and a right to audit'
+        a: 3
+        r:
+          - 'Billing is sorted. Who the contractors are, and what they may do with the code, is not.'
+          - 'A promise is not a control. If something leaks, there is nothing in the contract to enforce.'
+          - 'Halvorsen''s code now lives on two laptops it cannot manage. Vic would have loved this.'
+          - 'The agency screens both developers, they sign NDAs, and the contract lets Halvorsen audit compliance.'
+        why: >-
+          Contracts with vendors, consultants and contractors carry the security requirements: screening,
+          confidentiality agreements, compliance with the organization's policies and a right to audit. Assurances
+          without contractual obligations cannot be enforced.
+        src: 'CISSP 2027 outline 1.8 (vendor, consultant and contractor agreements and controls); ISC2 CISSP Official Study Guide (Sybex), ch. 2'
+
+      - c: control-types
+        kind: sort
+        diff: 1
+        text: >-
+          After Vic Harlan's departure, Kim Osei lists the controls Halvorsen Labs is adding or using. Shifty wants the
+          board to see the balance between stopping, finding and fixing problems.
+        ask: 'Sort each control by its type.'
+        bins: ['Preventive', 'Detective', 'Corrective']
+        pairs:
+          - ['DLP rule that blocks source code uploads to personal sites', 0]
+          - ['Disabling a leaver''s accounts as they are told', 0]
+          - ['Weekly review of repository download logs', 1]
+          - ['Alert when one account clones many repositories at once', 1]
+          - ['Restoring the repositories Vic deleted from backup', 2]
+          - ['Rolling back the code change Vic pushed on his last day', 2]
+        why: >-
+          Preventive controls stop an incident before it happens, detective controls discover it during or after,
+          and corrective controls repair the damage. Disabling access on time prevents misuse; restoring from backup
+          corrects it.
+        src: 'CISSP 2027 outline 1.9 (types of controls); ISC2 CISSP Official Study Guide (Sybex), ch. 2'
+
+      - c: governance-roles
+        kind: best
+        diff: 1
+        text: >-
+          After Vic Harlan's code theft, a board member asks who at Halvorsen is ultimately responsible for protecting
+          the company's information. Dale suggests "the IT guy, probably". Shifty, the CISO, is in the room.
+        ask: 'Who is MOST accountable, in the end, for protecting Halvorsen''s information?'
+        o:
+          - 'Shifty, as CISO'
+          - 'Tomás Reyes, as IT Director'
+          - 'Senior management and the board'
+          - 'Each employee who handles the data'
+        a: 2
+        r:
+          - 'Shifty runs the program and advises, but he cannot accept risk for the board. Accountability stays at the top.'
+          - 'IT runs many controls as a custodian. It does not own the company''s risk.'
+          - 'The board nods slowly. They had hoped it was the ghost. Shifty advises and runs the program; they decide and answer for it.'
+          - 'Every employee must follow policy, but none of them is accountable for the whole.'
+        why: >-
+          Senior management holds ultimate responsibility for security and for accepting risk; it can delegate tasks
+          but not accountability. The CISO designs and runs the program, IT acts as custodian, and users follow
+          policy.
+        src: 'CISSP 2027 outline 1.3 (organizational roles and responsibilities); ISC2 CISSP Official Study Guide (Sybex), ch. 1'
+    close: >-
+      Vic's copy of the code is recovered under a court order Ines arranged. The leaver procedure now runs on time, the
+      contractors sign their NDAs, and DLP blocks the next "personal backup" within a week. Dale sends Vic the farewell
+      card anyway. Legal intercepts it.
+
+  - id: k1-08
+    title: 'Fish Week'
+    where: 'Halvorsen Freight HQ · all week'
+    diff: 2
+    open: >-
+      Last spring's breach started with one phishing email, so the board has declared Security Awareness Week. Dale has
+      ordered 2,000 stress balls shaped like fish. Priya wants proof the program works. Rafa has found an AI tool that
+      promises to "score every employee's security behaviour". Shifty, who is invisible at most parties, prepares to be
+      the life of this one.
+    scenes:
+      - c: awareness-program
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen's awareness program has run for a year. Dale reports that 98% of staff completed the online module.
+          Kim Osei has twelve months of phishing simulation data, including how many staff reported each test email.
+          Priya Nair asks whether the program works.
+        ask: 'Which measure BEST shows whether the program is effective?'
+        o:
+          - 'The 98% completion rate for the online module'
+          - 'Staff satisfaction scores from the end-of-module survey'
+          - 'The trend in staff reporting simulated phishing over the year'
+          - 'The number of fish-shaped stress balls handed out'
+        a: 2
+        r:
+          - 'Completing a module shows attendance. Last spring''s victim had completed it too.'
+          - 'People liked the module. Liking it is not the same as acting differently on a Tuesday morning.'
+          - 'Reporting rose from 12% to 41%, and real reports reach the SOC faster. Priya finally has evidence.'
+          - 'Stress balls handed out: 2,000. Stress reduced: unclear. Breaches prevented: unknown.'
+        why: >-
+          Effectiveness is shown by changed behaviour over time, such as more staff reporting suspicious email and
+          fewer clicking. Completion and satisfaction measure activity, not results: in CISSP terms, measure outcomes,
+          not attendance.
+        src: 'CISSP 2027 outline 1.12 (program effectiveness evaluation); NIST SP 800-50 Rev. 1 (metrics and evaluation)'
+
+      - c: awareness-program
+        kind: sort
+        diff: 1
+        text: >-
+          Priya Nair is approving Halvorsen's learning plan for next year. Shifty sorts the proposed activities into
+          awareness, training and education, so that each audience gets the right depth.
+        ask: 'Sort each activity.'
+        bins: ['Awareness', 'Training', 'Education']
+        pairs:
+          - ['Posters in the warehouses about tailgating at doors', 0]
+          - ['A two-minute video on spotting phishing, shown to everyone', 0]
+          - ['Hands-on course for MedLink staff on handling PHI', 1]
+          - ['Teaching SOC analysts to use the new SIEM', 1]
+          - ['Funding Kim Osei''s master''s degree in security', 2]
+          - ['Sponsoring a security professional''s certification studies', 2]
+        why: >-
+          Awareness makes people notice an issue; training teaches a skill needed for a job; education builds deeper
+          understanding of why, often through degrees or professional certifications.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 2 (awareness, training, education); NIST SP 800-50 Rev. 1'
+
+      - c: awareness-program
+        kind: best
+        diff: 2
+        text: >-
+          Warehouse staff at Halvorsen's six sites skip the online security module: they have no desks and little
+          time. Dale suggests making it longer and compulsory. Priya Nair wants something that works and that the site
+          managers will support.
+        ask: 'Which approach is MOST likely to raise engagement at the warehouses?'
+        o:
+          - 'A security champion at each site, running short game-style challenges'
+          - 'Double the module length and make it compulsory for everyone'
+          - 'Email every warehouse worker the full security policy each month'
+          - 'Fine anyone who has not finished the module by Friday'
+        a: 0
+        r:
+          - 'Site managers nominate champions. A five-minute "spot the tailgater" game becomes a rivalry between shifts.'
+          - 'Longer and compulsory, on a phone, on a forklift. Completion goes up; attention does not.'
+          - 'A monthly 40-page email. The only thing it trains is the delete key.'
+          - 'Fines make people resent security and hide mistakes. Nobody reports a click they could be fined for.'
+        why: >-
+          Security champions bring the message into each team, and gamification makes short learning engaging;
+          involving site managers is stakeholder engagement. Longer mandatory content, policy emails and fines raise
+          compliance on paper, not behaviour.
+        src: 'CISSP 2027 outline 1.12 (security champions, gamification, stakeholder engagement); NIST SP 800-50 Rev. 1'
+
+      - c: ai-ethics
+        kind: best
+        diff: 3
+        text: >-
+          Rafa Lind demos an AI tool that scores each Halvorsen employee's "security risk" from their email and chat
+          behaviour. Dale wants low scorers to lose their bonuses automatically. Nobody can explain how the scores are
+          produced.
+        ask: 'What is the BEST position for Shifty to take?'
+        o:
+          - 'Use the scores, since the vendor is accountable for any errors'
+          - 'No automatic penalties: human review, transparency and a privacy review'
+          - 'Use the scores, but only for warehouse staff at first'
+          - 'Ban all AI tools from the security program from now on'
+        a: 1
+        r:
+          - 'Halvorsen chose to use it, so Halvorsen answers for it. The vendor''s contract says so on page 41.'
+          - 'The tool becomes one input a manager reviews. Staff are told what is monitored and why. Ines breathes out.'
+          - 'Testing an unexplained scoring system on the staff with the least power is a fairness problem, not a pilot.'
+          - 'A ban throws away useful tools. The problem is how this one would be used, not that it exists.'
+        why: >-
+          Trustworthy AI needs accountability, transparency, explainability and fairness, and decisions with
+          significant effects on people need meaningful human oversight. The organization that deploys the tool stays
+          accountable; it cannot hand that to the vendor.
+        src: 'NIST AI 100-1 (AI RMF 1.0), sec. 3 (accountable and transparent; explainable and interpretable); GDPR Art. 22; CISSP 2027 outline 1.1'
+
+      - c: business-alignment
+        kind: best
+        diff: 2
+        text: >-
+          Priya Nair asks Shifty to present next year's security plan to the board. The company strategy is to double
+          MedLink's hospital business and open two more EU depots. Shifty's first draft lists 40 tools that Kim's team
+          would like.
+        ask: 'What should be the MAIN basis of the plan?'
+        o:
+          - 'The 40 tools, ranked by Kim''s team'
+          - 'Matching what competitors say they spend'
+          - 'Last year''s audit findings, and nothing else'
+          - 'The security needs of the growth goals'
+        a: 3
+        r:
+          - 'The board sees forty logos and no reasons. Marcus asks which one helps sell to hospitals.'
+          - 'Competitors'' budgets say nothing about Halvorsen''s risks. The board is unmoved by peer pressure.'
+          - 'Audit findings matter, but they look backwards. The plan has to support where the business is going.'
+          - 'Each initiative maps to a goal: HIPAA readiness for hospitals, GDPR for the depots. The board funds most of it.'
+        why: >-
+          Governance aligns the security function with the business strategy, goals and mission, so the plan is built
+          around what the strategic objectives need. Tool wish lists, peer spending and past findings are inputs at
+          most.
+        src: 'CISSP 2027 outline 1.3 (alignment to business strategy, goals, mission and objectives); NIST SP 800-39, sec. 2'
+
+      - c: governance-roles
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen is selling its parcel locker business to another company, and the deal closes on Friday. Staff in
+          that unit are moving to the buyer, and some of the lockers still store Halvorsen customer data.
+        ask: 'Which security task is MOST important for this divestiture?'
+        o:
+          - 'Give departing staff read-only access for a smooth handover'
+          - 'Let the buyer''s IT team decide what to do with Halvorsen accounts'
+          - 'Cut departing staff''s access and remove Halvorsen data from the lockers'
+          - 'Wait until after closing to inventory what data the lockers hold'
+        a: 2
+        r:
+          - 'Read-only access to every customer record, for staff who now work for someone else. Ines winces.'
+          - 'The buyer has no duty to protect Halvorsen''s customers. That job stays with Halvorsen until it is done.'
+          - 'Accounts are cut over at closing, and the lockers are wiped of Halvorsen data before they are handed over.'
+          - 'After closing, the lockers belong to the buyer. Halvorsen can no longer check what is on them.'
+        why: >-
+          In a divestiture, the seller ends departing staff's access to its systems and makes sure its data does not
+          leave with the transferred assets, by retrieving or sanitizing it. Leaving that to the buyer, or until after
+          closing, gives up control.
+        src: 'CISSP 2027 outline 1.3 (organizational processes: acquisitions, divestitures); ISC2 CISSP Official Study Guide (Sybex), ch. 1'
+
+      - c: due-care-diligence
+        kind: best
+        diff: 2
+        text: >-
+          An assessment Halvorsen commissioned last year found that warehouse Wi-Fi used one shared password, known to
+          hundreds of former staff. The report was filed and nothing was done. This month an ex-employee used the
+          password to get in.
+        ask: 'Which failure MOST accurately describes Halvorsen''s position?'
+        o:
+          - 'A failure of due diligence'
+          - 'A failure of separation of duties'
+          - 'A failure of data classification'
+          - 'A failure of due care'
+        a: 3
+        r:
+          - 'The assessment was done, so the finding-out happened. Acting on it is what is missing.'
+          - 'Separation of duties is about splitting tasks. Nobody was doing anything, together or apart.'
+          - 'Classification decides how data is protected. The issue here is a known weakness left unfixed.'
+          - 'They knew and did not act: a failure of due care. Ines notes that "we had a report" will not help.'
+        why: >-
+          Due diligence is finding out and verifying, and the assessment did that. Due care is acting reasonably on what
+          you know; ignoring a known weakness is a failure of due care and can amount to negligence.
+        src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 1 (due care and due diligence); CISSP 2027 outline 1.3'
+    close: >-
+      The fish stress balls go to a school. Phishing reports keep rising, the AI tool becomes advice instead of a
+      judge, and the locker sale closes clean. Priya calls it the first awareness week with a result. Dale calls it
+      Fish Week and wants it every year.
+
+  - id: k1-09
+    title: 'Twelve minutes with the board'
+    where: 'Halvorsen boardroom · Quarter end'
+    diff: 3
+    open: >-
+      Shifty's first quarterly report to the board is due. The last CISO who presented showed 140 slides of
+      vulnerability counts and was never invited back. Marcus wants numbers, Priya wants decisions, and Dale wants a
+      slide with a ghost on it. Meanwhile a supplier scandal is trending. Shifty has not been nervous since he died.
+      He is nervous now.
+    scenes:
+      - c: risk-assessment-maturity
+        kind: best
+        diff: 2
+        text: >-
+          Shifty is preparing Halvorsen's quarterly risk report for the board. Kim Osei offers a 140-page export of
+          every vulnerability found, by severity. Priya Nair says the board meets for 20 minutes and must make two
+          funding decisions.
+        ask: 'What should be the MAIN content of the board report?'
+        o:
+          - 'The full vulnerability export, so the board sees everything'
+          - 'A list of the security tools bought this quarter'
+          - 'Only good news, to keep confidence in the program'
+          - 'Top risks against appetite, their trends, and decisions needed'
+        a: 3
+        r:
+          - 'Page 3 of 140 and the chair is checking her phone. Neither funding decision is made.'
+          - 'Tools are inputs. The board wants to know whether risk is going down.'
+          - 'When the bad news arrives later, the board stops trusting the reports. Reporting has to be honest.'
+          - 'Five risks, one trend chart, two decisions. The board settles both in twelve minutes.'
+        why: >-
+          Internal risk reporting to senior management presents the key risks in business terms against risk
+          appetite, shows trends from continuous monitoring, and asks for the decisions management must make. Raw
+          technical detail belongs in operational reporting.
+        src: 'CISSP 2027 outline 1.9 (continuous monitoring and measurement, reporting); NIST SP 800-39, sec. 3.4 (monitoring risk)'
+
+      - c: risk-assessment-maturity
+        kind: rank
+        diff: 3
+        text: >-
+          The board wants to know how mature Halvorsen's risk management process is, on the five CMMI maturity levels.
+          Shifty puts the levels in order on a slide before placing Halvorsen on it (honestly: level 2).
+        ask: 'Put the CMMI maturity levels in order, lowest at the top.'
+        items:
+          - 'Initial: ad hoc, depends on individuals'
+          - 'Managed: planned and tracked, project by project'
+          - 'Defined: a standard process across the organization'
+          - 'Quantitatively managed: measured and controlled with data'
+          - 'Optimizing: continuous, data-driven improvement'
+        why: >-
+          CMMI levels run Initial, Managed, Defined, Quantitatively Managed, Optimizing. Each builds on the one below:
+          a process cannot be managed with statistics before it is defined and used across the organization.
+        src: 'CMMI Institute (ISACA), CMMI maturity levels 1-5; CISSP 2027 outline 1.9 (continuous improvement, maturity modeling)'
+
+      - c: scrm
+        kind: best
+        diff: 2
+        text: >-
+          A news investigation reveals that one of Halvorsen's packaging suppliers uses forced labour. Nothing
+          technical went wrong and no data was lost, but Halvorsen's name is in the headlines. Priya Nair asks how to
+          manage this kind of supplier risk in future.
+        ask: 'Which measure BEST reduces this risk going forward?'
+        o:
+          - 'Encrypt all the data shared with the supplier'
+          - 'Ask the supplier for its software bill of materials'
+          - 'Assess and monitor suppliers'' conduct, with contract duties'
+          - 'Treat it as a public relations issue, outside security'
+        a: 2
+        r:
+          - 'Encryption protects data. The headline was about how the supplier treats people.'
+          - 'An SBOM lists software components. Cardboard boxes do not have one.'
+          - 'Onboarding now checks labour practices and sanctions lists, and contracts allow audits. The next scandal is caught before signing.'
+          - 'The 2027 outline lists reputational risk as a supply chain risk. It is part of Shifty''s job.'
+        why: >-
+          Supply chain risk includes reputational harm from a supplier's conduct. It is managed like any supplier
+          risk: due diligence before selection, requirements in the contract, and ongoing third-party assessment and
+          monitoring.
+        src: 'CISSP 2027 outline 1.11 (reputational risk; third-party assessment and monitoring); NIST SP 800-161 Rev. 1'
+
+      - c: awareness-program
+        kind: calc
+        diff: 1
+        text: >-
+          Kim Osei's latest phishing simulation went to 400 Halvorsen staff. 60 clicked the link and 120 reported the
+          email to the SOC, including 10 who reported it after clicking. The board wants the report rate as a key
+          awareness metric.
+        ask: 'What percentage of recipients reported the email?'
+        o: ['15%', '27.5%', '30%', '45%']
+        a: 2
+        why: >-
+          Report rate = reporters / recipients = 120 / 400 = 30%. 15% is the click rate (60 / 400); 27.5% wrongly drops
+          the 10 who clicked first, though they still reported; 45% adds clickers and reporters together.
+        src: 'CISSP 2027 outline 1.12 (program effectiveness evaluation); NIST SP 800-50 Rev. 1 (metrics)'
+
+      - c: risk-response
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen's cyber insurer will renew the policy only if MFA covers all remote access. Marcus Webb suggests
+          that, with the insurance in place, the board no longer needs to worry about ransomware risk at all.
+        ask: 'Which statement about cyber insurance as a risk response is MOST accurate?'
+        o:
+          - 'It shares part of the financial impact; accountability and residual risk remain'
+          - 'It eliminates the risk, so no further controls are needed'
+          - 'It is a form of risk avoidance'
+          - 'It hands Halvorsen''s security decisions to the insurer'
+        a: 0
+        r:
+          - 'Marcus keeps the insurance and funds MFA. The board minutes say "transfer, not removal".'
+          - 'The insurer pays some costs after an attack. The trucks still stop and the customers still leave.'
+          - 'Avoidance means stopping the activity. Halvorsen still runs remote access; it just bought cover.'
+          - 'The insurer sets conditions, but Halvorsen''s board stays accountable for its own risks.'
+        why: >-
+          Insurance transfers (shares) part of a risk's financial impact. It does not stop the incident, the operational
+          and reputational harm remains, and senior management stays accountable for the residual risk.
+        src: 'NIST SP 800-39, sec. 3.3 (risk sharing or transfer); CISSP 2027 outline 1.9 (cybersecurity insurance)'
+
+      - c: control-frameworks
+        kind: best
+        diff: 2
+        text: >-
+          The board wants Halvorsen's security program described using NIST Cybersecurity Framework 2.0. Priya Nair
+          asks which CSF function covers risk management strategy, roles, policy and oversight of suppliers.
+        ask: 'Which CSF 2.0 function BEST matches that description?'
+        o: ['Identify', 'Govern', 'Protect', 'Respond']
+        a: 1
+        r:
+          - 'Identify covers understanding assets and risks. Strategy and oversight sit a level above it.'
+          - 'Govern, new in CSF 2.0, covers strategy, roles, policy, oversight and supply chain risk. Priya uses it to frame the report.'
+          - 'Protect covers safeguards such as access control and training.'
+          - 'Respond covers what happens during an incident.'
+        why: >-
+          CSF 2.0 has six functions: Govern, Identify, Protect, Detect, Respond and Recover. Govern, added in 2.0,
+          covers organizational context, risk management strategy, roles and responsibilities, policy, oversight and
+          cybersecurity supply chain risk management.
+        src: 'NIST CSWP 29, The NIST Cybersecurity Framework (CSF) 2.0 (2024), Govern function'
+    close: >-
+      The report takes twelve minutes. Two decisions are made, the supplier is suspended pending an audit, and the
+      board invites Shifty back next quarter. Dale gets his ghost slide: it is the cover. Priya says it is the first
+      board report she has understood. Shifty floats home slightly higher than usual.

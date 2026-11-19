@@ -1,0 +1,87 @@
+# CISSP shift ("Ghost CISO"). Bump content_version on every content change that ships.
+content_version: '1.0.0'
+exam:
+  code: CISSP
+  name: Certified Information Systems Security Professional
+  outline: 'ISC2 CISSP Exam Outline, effective April 15, 2027'
+  url: 'https://www.isc2.org/certifications/cissp/cissp-certification-exam-outline'
+  refs: 'https://www.isc2.org/certifications/References'
+  # CAT exam facts, from the official outline (checked 2026-11-18)
+  items: '100 to 150'
+  hours: 3
+  pass: 700
+# Domain weights from the 2027 outline (% of the exam, sum 100).
+domains:
+  - { n: 1, name: 'Security Governance and Risk Management', short: 'Governance & risk', w: 13.6, color: '#fbbf24' }
+  - { n: 2, name: 'Asset Security', short: 'Assets', w: 12, color: '#3ee68a' }
+  - { n: 3, name: 'Security Architecture and Engineering', short: 'Architecture', w: 12.8, color: '#22d3ee' }
+  - { n: 4, name: 'Communication and Network Security', short: 'Networks', w: 12.8, color: '#38bdf8' }
+  - { n: 5, name: 'Identity and Access Management (IAM)', short: 'IAM', w: 13.6, color: '#a78bfa' }
+  - { n: 6, name: 'Security Assessment and Testing', short: 'Testing', w: 11.2, color: '#f472b6' }
+  - { n: 7, name: 'Security Operations', short: 'SecOps', w: 12.8, color: '#fb923c' }
+  - { n: 8, name: 'Software Development Security', short: 'AppSec', w: 11.2, color: '#ff4d5e' }
+# Every objective in the 2027 outline (number: short title). The build fails if any has fewer than 2 graded scenes.
+# Titles are shortened from ISC2's wording; the outline PDF is the authority.
+objectives:
+  '1.1': 'Professional ethics (ISC2 Code, organizational code, ethics in AI)'
+  '1.2': 'Security concepts (CIA, authenticity, non-repudiation)'
+  '1.3': 'Governance: evaluate, apply and sustain (roles, frameworks, due care and due diligence)'
+  '1.4': 'Legal, regulatory and compliance (cybercrime, IP, import/export, transborder data, privacy incl. HIPAA)'
+  '1.5': 'Investigation types (administrative, criminal, civil, regulatory)'
+  '1.6': 'Policy, standards, procedures and guidelines'
+  '1.7': 'Business continuity requirements (BIA, external dependencies)'
+  '1.8': 'Personnel security (screening, agreements, onboarding/transfers/termination, vendor controls and SLAs)'
+  '1.9': 'Risk management (analysis, response, control types, assessments, monitoring, reporting, maturity, frameworks)'
+  '1.10': 'Threat modeling'
+  '1.11': 'Supply chain risk management (tampering, counterfeits, implants, reputational; SBOM, root of trust, PUF)'
+  '1.12': 'Security awareness, education and training (measure it, engage stakeholders)'
+  '2.1': 'Classify information and assets'
+  '2.2': 'Handling requirements (physical, digital, encryption, secure media destruction)'
+  '2.3': 'Provision information and assets securely (ownership, inventory, asset management)'
+  '2.4': 'Data lifecycle (data management policy, data roles, collection to destruction, remanence)'
+  '2.5': 'Asset management (EOL/EOS, policy, retention, retirement)'
+  '2.6': 'Data security controls (data states, scoping and tailoring, DRM, DLP, CASB, CNAPP)'
+  '3.1': 'Secure design principles (least privilege, DiD, fail securely, SoD, ZT, SASE, well-architected, two-person integrity)'
+  '3.2': 'Security models (Bell-LaPadula, Biba, Star, and friends)'
+  '3.3': 'Select controls from system security requirements'
+  '3.4': 'Security capabilities of systems (memory protection, TPM, HSM, encryption)'
+  '3.5': 'Vulnerabilities of architectures (client, server, DB, crypto, OT/ICS, cloud, IoT, containers, supply chain, autonomous, quantum)'
+  '3.6': 'Cryptographic solutions (lifecycle, symmetric, asymmetric, ECC, post-quantum, PKI, key management, signatures)'
+  '3.7': 'Cryptanalytic and other attacks (side-channel, AitM, pass the hash, Kerberos, ransomware, zero-day, AI threats)'
+  '3.8': 'Security principles in site and facility design'
+  '3.9': 'Site and facility controls (wiring closets, data centers, evidence storage, HVAC, fire, power)'
+  '3.10': 'Information system lifecycle (requirements to secure disposal, continuous security review)'
+  '4.1': 'Secure network architecture (OSI/TCP-IP, IPv6, protocols, segmentation, wireless, cellular, CDN, SDN, VPC, software-defined security)'
+  '4.2': 'Secure network components (infrastructure, media, NAC, endpoint security)'
+  '4.3': 'Secure communication channels (voice/video, remote access and remote working, data comms, third-party connectivity)'
+  '5.1': 'Physical and logical access to assets (information, systems, devices, facilities, apps, services, identities)'
+  '5.2': 'Identification and authentication strategy (AAA, sessions, proofing, FIM, SSO, JIT, passwordless)'
+  '5.3': 'Federated identity with third parties (on-prem, cloud, hybrid)'
+  '5.4': 'Authorization mechanisms (RBAC, RuBAC, MAC, DAC, ABAC, RAdAC, PDP/PEP)'
+  '5.5': 'Identity and access provisioning lifecycle (reviews, provisioning, roles, privilege escalation, service accounts)'
+  '5.6': 'Authentication and authorization systems'
+  '6.1': 'Assessment, test and audit strategies (internal, external, third-party, location)'
+  '6.2': 'Security control testing (vuln assessment, pentest, logs, synthetic transactions, code review, misuse cases, coverage, interfaces, attack simulations, compliance)'
+  '6.3': 'Security process data (account management, management review, KPIs/KRIs, backup verification, training, DR/BC)'
+  '6.4': 'Analyze test and audit output (remediation, exception handling, responsible disclosure)'
+  '6.5': 'Security audits (internal, external, third-party, location)'
+  '7.1': 'Investigations (evidence handling, techniques, forensics, artifacts, reporting)'
+  '7.2': 'Logging and monitoring (IDPS, SIEM, SOAR, continuous monitoring, egress/DLP, log management, threat intel, UEBA)'
+  '7.3': 'Configuration management (provisioning, baselining, automation)'
+  '7.4': 'Foundational security operations concepts (DiD, need-to-know, SoD, privileged accounts, job rotation)'
+  '7.5': 'Resource protection (media management and protection, data states)'
+  '7.6': 'Incident management (detection, response, mitigation, reporting, recovery, remediation, lessons learned)'
+  '7.7': 'Detective and preventive measures (firewalls, IDS/IPS, allow/deny lists, DDoS scrubbing, MSSP, sandboxing, honeypots, EDR/XDR, ML/AI tools)'
+  '7.8': 'Patch and vulnerability management'
+  '7.9': 'Change management'
+  '7.10': 'Recovery strategies (backups incl. immutable/encrypted, cold/warm/hot sites, multiple sites, HA, QoS, fault tolerance)'
+  '7.11': 'Disaster recovery processes (response, personnel, communications, assessment, restoration, training, lessons learned, MTTR/MTBF)'
+  '7.12': 'Test DR plans (read-through/tabletop, walkthrough, simulation, parallel, full interruption, communications)'
+  '7.13': 'Business continuity planning exercises'
+  '7.14': 'Physical security (external and internal controls)'
+  '7.15': 'Personnel safety and security (travel, training, emergency management, duress)'
+  '8.1': 'Security in the SDLC (methodologies, maturity models, change management, IPT, SSDF and SBOM, shift left)'
+  '8.2': 'Controls in development ecosystems (memory-safe languages, libraries, CI/CD, repos, SAST/DAST)'
+  '8.3': 'Effectiveness of software security (change auditing and logging, risk analysis)'
+  '8.4': 'Security impact of acquired software (COTS, open source and SCA, third-party, managed and cloud services)'
+  '8.5': 'Secure coding (source-level weaknesses, API security, secure coding practices)'

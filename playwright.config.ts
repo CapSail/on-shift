@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 // Tests run against the production build served by `vite preview` (npm test builds first).
-// One build, two projects: each shift's own suite, plus the tests of the shell that joins them.
+// One build: each shift's own suite, plus the tests of the shell that joins them.
 const ORIGIN = 'http://127.0.0.1:4173';
 
 export default defineConfig({
@@ -22,6 +22,12 @@ export default defineConfig({
       name: 'ai',
       testDir: './tests/ai',
       use: { storageState: { cookies: [], origins: [{ origin: ORIGIN, localStorage: [{ name: 'onshift.shift', value: 'ai' }] }] } },
+    },
+    // the Ghost CISO (CISSP): every mode, and every scene answered through the UI
+    {
+      name: 'cissp',
+      testDir: './tests/cissp',
+      use: { storageState: { cookies: [], origins: [{ origin: ORIGIN, localStorage: [{ name: 'onshift.shift', value: 'cissp' }] }] } },
     },
     // the shell: switching shifts, deep links, progress carry-over from the standalone SHIFTY-1
     { name: 'shell', testDir: './tests/shell' },

@@ -1,0 +1,1094 @@
+# Domain 4: Communication and Network Security (12.8%)
+# Format and rules: docs/cissp/DESIGN.md and docs/cissp/AUTHORING.md. Ids are stable forever.
+# Facts and sources checked: docs/cissp/sources-d3-d4-d8.md
+
+concepts:
+  # ---------------------------------------------------------------- 4.1 secure network architecture
+  - id: osi-model
+    obj: '4.1'
+    name: 'OSI and TCP/IP models'
+    rule: 'Know each layer''s job, devices and protocols, and what encapsulation implies.'
+    learn:
+      - 'OSI, bottom up: 1 Physical, 2 Data Link, 3 Network, 4 Transport, 5 Session, 6 Presentation, 7 Application. TCP/IP folds these into four layers.'
+      - 'Switches forward frames by MAC address (layer 2); routers forward packets by IP address (layer 3); TCP and UDP ports live at layer 4.'
+      - 'Multilayer protocols such as DNP3 over TCP/IP gain reach but inherit IP''s exposure, and encapsulation can hide covert channels or slip past filters.'
+    ghost: 'Shifty passes through all seven layers at once. Packets have to do it in order.'
+    src: 'ISO/IEC 7498-1 (OSI basic reference model); RFC 1122 (Internet host layers); ISC2 OSG ch. 11'
+
+  - id: ip-addressing
+    obj: '4.1'
+    name: 'IPv4, IPv6 and delivery types'
+    rule: 'Unicast reaches one, broadcast all, multicast a group, anycast the nearest.'
+    learn:
+      - 'Unicast goes to one host; broadcast to every host on the segment (IPv4 only); multicast to subscribed group members.'
+      - 'Anycast gives one address to many servers and routing delivers to the nearest, which is why DNS and CDNs use it.'
+      - 'IPv6 has 128-bit addresses and no broadcast (multicast replaces it); dual-stack networks must filter and monitor IPv6 too, or it becomes a blind spot.'
+    src: 'RFC 4291 (IPv6 Addressing Architecture); RFC 791 (IPv4); RFC 4786 (Operation of Anycast Services)'
+
+  - id: secure-protocols
+    obj: '4.1'
+    name: 'IPsec, SSH and TLS'
+    rule: 'Replace cleartext protocols: IPsec at layer 3, TLS for applications, SSH for admin.'
+    learn:
+      - 'IPsec: AH gives integrity and origin authentication but no encryption; ESP adds confidentiality. Tunnel mode wraps the whole packet; transport mode protects the payload.'
+      - 'TLS secures application traffic (HTTPS on 443). SSL and TLS 1.0/1.1 are deprecated; TLS 1.3 requires forward secrecy and AEAD ciphers.'
+      - 'SSH (port 22) replaces Telnet, rlogin and FTP for remote administration and file transfer, encrypting credentials and sessions.'
+    src: 'RFC 4301, RFC 4302, RFC 4303 (IPsec, AH, ESP); RFC 8446 (TLS 1.3); RFC 8996 (deprecating TLS 1.0 and 1.1); RFC 4251 (SSH)'
+
+  - id: converged-protocols
+    obj: '4.1'
+    name: 'Converged protocols'
+    rule: 'Storage, voice and memory traffic on shared networks need their own protection.'
+    learn:
+      - 'iSCSI carries SCSI storage commands over TCP/IP; FCoE carries Fibre Channel over Ethernet. Isolate storage networks and authenticate initiators (CHAP).'
+      - 'VoIP uses SIP for signaling and RTP for media; SRTP and SIP over TLS protect them from eavesdropping and spoofing.'
+      - 'InfiniBand over Ethernet (RoCE) and Compute Express Link (CXL, built on PCIe) move data at memory speed; physical access and trust boundaries matter.'
+    src: 'RFC 7143 (iSCSI); RFC 3261 (SIP); RFC 3711 (SRTP); CXL Consortium, Compute Express Link Specification'
+
+  - id: transport-performance
+    obj: '4.1'
+    name: 'Transport architecture and metrics'
+    rule: 'Separate the planes; know bandwidth, throughput, latency and jitter apart.'
+    learn:
+      - 'The data plane forwards traffic; the control plane decides paths (routing protocols); the management plane configures devices and needs the most protection.'
+      - 'Cut-through switching forwards after reading the destination address (fast, no error check); store-and-forward receives the whole frame and checks it first.'
+      - 'Bandwidth is capacity, throughput is what actually gets through, latency is delay, jitter is variation in delay, SNR is signal against noise.'
+    src: 'CISSP 2027 outline 4.1 (transport architecture, performance metrics); ISC2 OSG ch. 11; RFC 3393 (packet delay variation)'
+
+  - id: segmentation
+    obj: '4.1'
+    name: 'Segmentation and traffic flows'
+    rule: 'Segment physically, logically and per workload; watch east-west as well as north-south.'
+    learn:
+      - 'Physical segmentation: separate hardware, out-of-band management networks, air gaps. Logical: VLANs, VPNs, virtual routing and forwarding (VRF), virtual domains.'
+      - 'North-south traffic enters or leaves the data center; east-west traffic moves laterally between internal systems, which is how attackers spread.'
+      - 'Micro-segmentation puts policy around each workload (distributed firewalls, overlays), a core Zero Trust approach. Public servers go in a screened subnet (DMZ).'
+    ghost: 'Walls are only useful if they are in the right places. Shifty has strong opinions about walls.'
+    src: 'NIST SP 800-207, sec. 3.1.2 (micro-segmentation); NIST SP 800-41 Rev. 1 (firewall architectures, DMZ); CISSP 2027 outline 4.1'
+
+  - id: wireless-cellular
+    obj: '4.1'
+    name: 'Wireless and cellular networks'
+    rule: 'Use WPA3, treat Bluetooth and Zigbee as attack surface, know 5G''s protections.'
+    learn:
+      - 'WPA3-Personal replaces the pre-shared key handshake with SAE, which resists offline dictionary attacks; WPA3-Enterprise uses 802.1X with RADIUS.'
+      - 'Bluetooth attacks: bluejacking sends unsolicited messages, bluesnarfing steals data, bluebugging takes control. Zigbee (IEEE 802.15.4) is low-power mesh for IoT.'
+      - '5G conceals the subscriber''s permanent identity (SUCI), blunting IMSI catchers; satellite links add latency and broadcast over wide areas.'
+    src: 'Wi-Fi Alliance, WPA3 Specification; IEEE 802.11 (SAE); NIST SP 800-121 Rev. 2 (Bluetooth security); 3GPP TS 33.501 (5G security)'
+
+  - id: sdn-cloud-networks
+    obj: '4.1'
+    name: 'SDN, SD-WAN, VPC and CDN'
+    rule: 'Software defines the network now: protect the controller, its APIs and cloud network policy.'
+    learn:
+      - 'SDN separates the control plane (a central controller) from the data plane (switches); northbound APIs face applications, southbound APIs program devices.'
+      - 'SD-WAN steers WAN traffic across links by policy; NFV runs firewalls and routers as software; software-defined security applies policy as code.'
+      - 'A VPC is a logically isolated network in a public cloud with its own subnets, routes and security rules; a CDN serves content from edge servers.'
+    src: 'RFC 7426 (SDN layers and architecture terminology); NIST SP 800-215 (SD-WAN, SASE); CISSP 2027 outline 4.1'
+
+  - id: net-observability
+    obj: '4.1'
+    name: 'Monitoring, observability and edges'
+    rule: 'See flows, not just up or down; filter what enters and leaves every edge.'
+    learn:
+      - 'Network observability correlates flows, metrics and logs to explain why something happens, not just whether a link is up.'
+      - 'Traffic shaping and capacity management keep critical flows working; fault detection and handling find failures and route around them.'
+      - 'Edge networks: filter ingress (drop spoofed internal addresses arriving from outside) and egress (only approved sources and destinations leave); secure peering points.'
+    src: 'RFC 2827 / BCP 38 (ingress filtering); RFC 7011 (IPFIX flow export); NIST SP 800-41 Rev. 1; CISSP 2027 outline 4.1'
+
+  # ---------------------------------------------------------------- 4.2 secure network components
+  - id: nac-endpoint
+    obj: '4.2'
+    name: 'NAC and endpoint security'
+    rule: 'Check who and what connects before granting access; protect each endpoint itself.'
+    learn:
+      - 'IEEE 802.1X: the supplicant (device) asks, the authenticator (switch or access point) relays, the authentication server (usually RADIUS) decides.'
+      - 'NAC can check device posture before admission and keep checking after; it comes as physical appliances and as virtual or cloud solutions.'
+      - 'Host-based controls (host firewall, HIDS, EDR, disk encryption, patching) protect endpoints wherever they connect, inside or outside the network.'
+    src: 'IEEE 802.1X (port-based network access control); RFC 3580 (802.1X RADIUS usage); CISSP 2027 outline 4.2'
+
+  - id: media-infrastructure
+    obj: '4.2'
+    name: 'Transmission media and infrastructure'
+    rule: 'Pick media for distance, interference and tapping risk; keep gear redundant and supported.'
+    learn:
+      - 'Twisted-pair Ethernet runs up to 100 meters and suffers EMI and crosstalk; fiber resists EMI, runs much further and is hard to tap unnoticed.'
+      - 'Protect cable runs and wiring closets physically (conduits, locks, logs); attenuation and interference degrade signal propagation quality.'
+      - 'Operating infrastructure: redundant power supplies and feeds, current warranty and support contracts, and spares so failures are fixed fast.'
+    src: 'IEEE 802.3 (Ethernet, 100 m twisted-pair segments); ISC2 OSG ch. 11; CISSP 2027 outline 4.2'
+
+  # ---------------------------------------------------------------- 4.3 secure communication channels
+  - id: remote-access
+    obj: '4.3'
+    name: 'Remote access and remote working'
+    rule: 'Authenticate remote users strongly, manage their devices, isolate admin access.'
+    learn:
+      - 'Remote access uses VPN or ZTNA with MFA. Full tunnels inspect all traffic; split tunneling sends some traffic straight out, bypassing company controls.'
+      - 'Network administrative functions go through hardened jump hosts or out-of-band management, never management interfaces exposed to the internet.'
+      - 'Remote working needs managed, patched devices, guidance for home networks, screen privacy and clear rules for personal devices.'
+    ghost: 'Shifty has worked remotely since 1998. He recommends MFA, and not dying.'
+    src: 'NIST SP 800-46 Rev. 2 (enterprise telework, remote access and BYOD security); CISSP 2027 outline 4.3'
+
+  - id: collab-thirdparty
+    obj: '4.3'
+    name: 'Voice, video and third-party links'
+    rule: 'Encrypt collaboration, lock down meeting rooms, contract and monitor every third-party link.'
+    learn:
+      - 'Conferencing needs encryption, meeting passcodes or lobbies and host controls; room systems with always-on mics and cameras need patching and privacy settings.'
+      - 'Data communications such as backhaul and satellite links cross third-party networks, so encrypt end to end over them.'
+      - 'Third-party connections (telecom carriers, hardware support) need a written agreement such as an ISA, least-privilege access and monitoring.'
+    src: 'NIST SP 800-47 Rev. 1 (Managing the Security of Information Exchanges); CISSP 2027 outline 4.3'
+
+cases:
+  # ======================================================================== k4-01
+  - id: k4-01
+    title: 'The flat network'
+    where: 'Halvorsen Freight HQ, network room · Tuesday'
+    diff: 1
+    open: >-
+      Tomás Reyes confesses that Halvorsen Freight's headquarters network is "basically one big room": the portal
+      web server, the payroll database, the printers and the guest Wi-Fi all share one subnet. That is how last
+      spring's attacker strolled from a printer to payroll. The board wants walls. Shifty, an expert in walls, is
+      delighted.
+    scenes:
+      - c: segmentation
+        kind: spot
+        text: >-
+          Tomás Reyes redraws Halvorsen Freight's headquarters network: internet, outer firewall, a screened subnet,
+          inner firewall, internal LAN. The public customer portal web server must be reachable from the internet,
+          but a compromise of it must not expose the internal LAN.
+        ask: 'Tap where the public web server belongs.'
+        map:
+          nodes:
+            - { id: inet, label: 'Internet', x: 39, y: 2 }
+            - { id: outer, label: 'Outer firewall', x: 39, y: 20 }
+            - { id: dmz, label: 'Screened subnet', x: 39, y: 38 }
+            - { id: inner, label: 'Inner firewall', x: 39, y: 56 }
+            - { id: printers, label: 'Printers', x: 2, y: 76 }
+            - { id: lan, label: 'Internal LAN', x: 39, y: 76 }
+            - { id: payroll, label: 'Payroll database', x: 76, y: 76 }
+          links: [[inet, outer], [outer, dmz], [dmz, inner], [inner, lan], [lan, printers], [lan, payroll]]
+          caption: 'HQ network, redesigned'
+        a: dmz
+        why: >-
+          Public-facing servers go in a screened subnet (DMZ) between the outer and inner firewalls. Internet users
+          reach only the DMZ; if the web server is compromised, the inner firewall still blocks the way to the
+          internal LAN.
+        src: 'NIST SP 800-41 Rev. 1 (Guidelines on Firewalls and Firewall Policy: DMZ architectures); ISC2 OSG ch. 11'
+
+      - c: segmentation
+        kind: sort
+        diff: 2
+        text: >-
+          Kim Osei wants Halvorsen Freight's new firewalls to log traffic by direction. She lists flows seen in the
+          headquarters data center last week and asks Shifty to label each one north-south or east-west.
+        ask: 'Sort each flow: north-south or east-west?'
+        bins: ['North-south', 'East-west']
+        pairs:
+          - ['A customer on the internet loads the portal', 0]
+          - ['The route server downloads updates from a vendor site', 0]
+          - ['An employee at home connects in over VPN', 0]
+          - ['The portal web server queries the internal database', 1]
+          - ['A file server replicates to a backup server nearby', 1]
+          - ['An infected PC scans other internal PCs', 1]
+        why: >-
+          North-south traffic crosses the boundary, into or out of the data center or network. East-west traffic
+          moves laterally between internal systems, where attackers spread after getting in, so it needs internal
+          segmentation and monitoring too.
+        src: 'CISSP 2027 outline 4.1 (traffic flows: north-south, east-west); NIST SP 800-207 (lateral movement)'
+
+      - c: osi-model
+        kind: best
+        text: >-
+          Halvorsen Freight's new segmentation uses VLANs on headquarters switches. Dale asks at which OSI layer a
+          switch makes its forwarding decision when it delivers a frame to the right port using the destination MAC
+          address.
+        ask: 'Which OSI layer BEST describes where this decision happens?'
+        o:
+          - 'Layer 1, Physical'
+          - 'Layer 2, Data Link'
+          - 'Layer 3, Network'
+          - 'Layer 4, Transport'
+        a: 1
+        r:
+          - 'Layer 1 only moves bits over the cable. It has no idea what a MAC address is.'
+          - 'Right: frames, MAC addresses and VLAN tags all live at layer 2. Dale writes "2" on his hand.'
+          - 'Routers forward by IP address at layer 3. A plain switch doesn''t look that far into the packet.'
+          - 'Ports and TCP live at layer 4. The switch never looks at them to forward a frame.'
+        why: >-
+          Switches forward frames by MAC address at layer 2, Data Link, and VLANs (IEEE 802.1Q) are a layer 2
+          construct too. Routers forward packets by IP address at layer 3. Ports belong to layer 4; layer 1 only
+          moves bits.
+        src: 'ISO/IEC 7498-1 (OSI reference model); IEEE 802.1Q (VLANs); ISC2 OSG ch. 11'
+
+      - c: nac-endpoint
+        kind: spot
+        diff: 2
+        text: >-
+          Tomás Reyes adds IEEE 802.1X to every Halvorsen Freight headquarters switch port. A laptop plugs in and
+          presents its certificate. Its port stays closed except for authentication traffic, which is passed on to a
+          RADIUS server that checks the credentials and tells the port to open.
+        ask: 'Tap the component acting as the 802.1X authenticator.'
+        map:
+          nodes:
+            - { id: ca, label: 'Certificate authority', x: 76, y: 8 }
+            - { id: laptop, label: 'Staff laptop', x: 2, y: 40 }
+            - { id: switch, label: 'Access switch', x: 39, y: 40 }
+            - { id: radius, label: 'RADIUS server', x: 76, y: 40 }
+            - { id: printer, label: 'Printer', x: 2, y: 74 }
+            - { id: core, label: 'Core router', x: 39, y: 74 }
+            - { id: dir, label: 'Directory service', x: 76, y: 74 }
+          links: [[laptop, switch], [switch, radius], [radius, dir], [radius, ca], [switch, core], [printer, switch]]
+          caption: '802.1X at a headquarters switch port'
+        a: switch
+        why: >-
+          In 802.1X the supplicant (the laptop) requests access, the authenticator (the switch or wireless access
+          point) controls the port and relays EAP messages, and the authentication server (RADIUS) decides.
+        src: 'IEEE 802.1X (port-based network access control); RFC 3580 (IEEE 802.1X RADIUS usage guidelines)'
+
+      - c: ip-addressing
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Freight is enabling IPv6 at headquarters. An old monitoring script discovers devices by sending
+          one broadcast to the whole subnet. Tomás Reyes asks what IPv6 uses instead, since the script won't work
+          there.
+        ask: 'Which IPv6 mechanism BEST replaces broadcast?'
+        o:
+          - 'Anycast'
+          - 'Unicast'
+          - 'Network address translation'
+          - 'Multicast'
+        a: 3
+        r:
+          - 'Anycast reaches the nearest one of many servers. The script wants everyone, not the closest.'
+          - 'Unicast reaches exactly one host. The script would have to guess every address in a /64. That''s a lot of guessing.'
+          - 'NAT translates addresses. It has nothing to do with reaching every device.'
+          - 'Right: IPv6 uses multicast groups, such as all-nodes, instead of broadcast. Tomás rewrites the script and adds IPv6 to the firewall rules too.'
+        why: >-
+          IPv6 has no broadcast. Functions that used broadcast use multicast, such as the all-nodes group and
+          neighbor discovery. Anycast delivers to the nearest one of many servers; unicast reaches a single host.
+        src: 'RFC 4291 (IPv6 Addressing Architecture), sec. 2 (no broadcast addresses in IPv6)'
+
+      - c: net-observability
+        kind: best
+        diff: 2
+        text: >-
+          Last spring, Halvorsen Freight's attacker moved between internal servers for weeks unnoticed, because
+          monitoring only checked that links and servers were up. Kim Osei wants to see who talks to whom inside the
+          data center and spot unusual patterns.
+        ask: 'Which capability BEST meets Kim''s goal?'
+        o:
+          - 'Ping and uptime checks on every server every minute'
+          - 'Flow-based observability (such as IPFIX) on internal traffic'
+          - 'A larger internet link to reduce congestion'
+          - 'Traffic shaping to give the portal priority'
+        a: 1
+        r:
+          - 'Every server answers its ping, cheerfully, while the attacker copies payroll. Alive is not the same as fine.'
+          - 'Within a week Kim spots a printer talking to the payroll database at 3 a.m. Printers have no business there.'
+          - 'Faster pipes, same blindness. The attacker''s traffic was never the bottleneck.'
+          - 'The portal gets faster. Kim still can''t see who is talking to whom.'
+        why: >-
+          Observability means understanding behavior: flow records (NetFlow/IPFIX), metrics and logs show which
+          systems talk, how much and when, exposing lateral movement. Uptime checks only say a device is alive;
+          bandwidth and shaping address performance, not visibility.
+        src: 'RFC 7011 (IPFIX); CISSP 2027 outline 4.1 (monitoring and management: network observability)'
+    close: >-
+      By month end the portal lives in a screened subnet, every port asks for a certificate, and Kim can watch
+      east-west traffic like a hawk. The printer that let the attacker in has its own VLAN, and a sign: "Do not
+      trust me."
+
+  # ======================================================================== k4-02
+  - id: k4-02
+    title: 'Drivers on the road'
+    where: 'Halvorsen depot 12, yard office · Thursday 06:00'
+    diff: 2
+    open: >-
+      Halvorsen Freight's drivers live on the road: tablets in the cab, Bluetooth headsets, depot Wi-Fi at dawn and
+      hotel Wi-Fi at night. Tomás Reyes wants them secured without slowing a single delivery. Dale wants every
+      driver on "the strongest Wi-Fi password ever invented". Shifty rides along in a truck, terrifying a driver
+      named Bo.
+    scenes:
+      - c: wireless-cellular
+        kind: best
+        text: >-
+          Depot 12's Wi-Fi at Halvorsen Freight still uses WPA2 with one shared passphrase every driver knows. Tomás
+          Reyes wants protection against attackers capturing the handshake and cracking the passphrase offline,
+          while keeping a simple passphrase-based setup for the depot's tablets.
+        ask: 'Which option BEST meets this requirement?'
+        o:
+          - 'WPA2-Personal with a much longer passphrase'
+          - 'WEP with MAC address filtering'
+          - 'WPA3-Personal using SAE'
+          - 'An open network with a captive portal'
+        a: 2
+        trap: 0
+        r:
+          - 'Dale''s 40-character passphrase is written on the yard whiteboard within a day. Captured handshakes can still be cracked offline, just more slowly.'
+          - 'WEP was broken decades ago, and MAC addresses are spoofed in seconds.'
+          - 'SAE stops offline guessing of captured handshakes and adds forward secrecy. The tablets join with the same simple setup.'
+          - 'Anyone in the car park can read open Wi-Fi traffic. The captive portal is a welcome mat, not a lock.'
+        why: >-
+          WPA3-Personal replaces the WPA2 pre-shared key handshake with Simultaneous Authentication of Equals (SAE),
+          which resists offline dictionary attacks and adds forward secrecy. A longer WPA2 passphrase only slows
+          cracking; WEP is broken; MAC filters are easily spoofed.
+        src: 'Wi-Fi Alliance, WPA3 Specification (SAE); IEEE 802.11 (Simultaneous Authentication of Equals)'
+
+      - c: wireless-cellular
+        kind: sort
+        text: >-
+          Halvorsen Freight drivers pair their phones and tablets with Bluetooth headsets in the cab. Kim Osei runs a
+          briefing on Bluetooth attacks and asks Shifty to sort the incidents the drivers have reported.
+        ask: 'Sort each incident: bluejacking, bluesnarfing, or bluebugging?'
+        bins: ['Bluejacking', 'Bluesnarfing', 'Bluebugging']
+        pairs:
+          - ['A stranger''s unsolicited message pops up on a driver''s phone', 0]
+          - ['Anonymous joke contact cards appear on tablets at a truck stop', 0]
+          - ['A driver''s contacts and calendar are copied without permission', 1]
+          - ['Delivery photos are pulled off a tablet over Bluetooth', 1]
+          - ['Someone places calls from a driver''s phone remotely', 2]
+          - ['An attacker turns on a phone''s microphone to listen in', 2]
+        why: >-
+          Bluejacking sends unsolicited messages (annoying, little harm). Bluesnarfing steals data such as contacts,
+          calendars and files. Bluebugging takes control of the device, for example making calls or listening
+          through the microphone.
+        src: 'NIST SP 800-121 Rev. 2 (Guide to Bluetooth Security); ISC2 OSG ch. 11'
+
+      - c: remote-access
+        kind: best
+        text: >-
+          Halvorsen Freight drivers connect to the dispatch system from hotel Wi-Fi over the company VPN. Tomás Reyes
+          finds the VPN uses split tunneling: dispatch traffic goes through the tunnel, but web browsing goes
+          straight to the internet, skipping the company's web filter and monitoring.
+        ask: 'What is the MAIN security concern with this configuration?'
+        o:
+          - 'The VPN tunnel uses too much hotel bandwidth'
+          - 'Drivers can no longer reach the dispatch system'
+          - 'The VPN encrypts the dispatch traffic twice'
+          - 'Internet traffic bypasses company security controls'
+        a: 3
+        r:
+          - 'Split tunneling actually saves bandwidth. That''s why it was turned on.'
+          - 'Dispatch works fine. That was never the problem.'
+          - 'Nothing is double-encrypted. The issue is what isn''t inspected at all.'
+          - 'Right: a tablet that picks up malware while browsing is also inside the company network. Tomás moves the fleet to full tunnel.'
+        why: >-
+          With split tunneling, a device is on the open internet and the company network at once, and its internet
+          traffic skips company inspection, so a compromised device can bridge in. Full tunneling or cloud-delivered
+          security (SASE) closes the gap.
+        src: 'NIST SP 800-46 Rev. 2 (telework and remote access: tunneling); ISC2 OSG ch. 12'
+
+      - c: remote-access
+        kind: spot
+        text: >-
+          Halvorsen Freight's network engineers sometimes manage depot routers from home. Tomás Reyes's diagram shows
+          the home laptop, internet, VPN gateway, a hardened jump host, the management network and the depot routers.
+          Admin sessions must use MFA, be recorded, and never reach routers straight from the VPN.
+        ask: 'Tap where admin sessions should be authenticated and recorded before reaching the routers.'
+        map:
+          nodes:
+            - { id: home, label: 'Engineer laptop', x: 2, y: 4 }
+            - { id: inet, label: 'Internet', x: 39, y: 4 }
+            - { id: vpn, label: 'VPN gateway', x: 76, y: 4 }
+            - { id: routers, label: 'Depot routers', x: 2, y: 40 }
+            - { id: mgmt, label: 'Management network', x: 39, y: 40 }
+            - { id: jump, label: 'Hardened jump host', x: 76, y: 40 }
+            - { id: users, label: 'Depot user LAN', x: 2, y: 76 }
+            - { id: siem, label: 'SIEM', x: 76, y: 76 }
+          links: [[home, inet], [inet, vpn], [vpn, jump], [jump, mgmt], [mgmt, routers], [routers, users], [jump, siem]]
+          caption: 'Remote administration path to the depot routers'
+        a: jump
+        why: >-
+          Network administrative functions should pass through a hardened jump host (bastion) that enforces MFA,
+          limits who reaches the management network and records sessions. The VPN gateway only lets a user join the
+          network; it shouldn't open a direct path to routers.
+        src: 'NIST SP 800-46 Rev. 2; CISSP 2027 outline 4.3 (remote access: network administrative functions)'
+
+      - c: secure-protocols
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen Freight links Depot 12's network to headquarters across the internet. Tomás Reyes wants the two
+          gateways to encrypt and authenticate every packet between the sites, hiding even the internal IP addresses
+          of the depot's hosts.
+        ask: 'Which IPsec configuration BEST meets this requirement?'
+        o:
+          - 'ESP in tunnel mode'
+          - 'AH in transport mode'
+          - 'AH in tunnel mode'
+          - 'ESP in transport mode'
+        a: 0
+        r:
+          - 'Right: ESP encrypts, and tunnel mode wraps the whole original packet, inner addresses and all. The standard site-to-site VPN.'
+          - 'AH never encrypts, and transport mode leaves the original IP header in view. Two misses.'
+          - 'Tunnel mode wraps the packet, but AH authenticates without encrypting. Anyone on the path can read the payload.'
+          - 'ESP encrypts the payload, but transport mode keeps the original IP header, so internal addresses show.'
+        why: >-
+          ESP provides confidentiality (plus integrity), and tunnel mode encapsulates the entire original packet,
+          hiding the inner IP headers: the usual choice between gateways. AH authenticates but never encrypts;
+          transport mode leaves the original IP header exposed.
+        src: 'RFC 4301 (IPsec architecture: tunnel and transport modes); RFC 4302 (AH); RFC 4303 (ESP)'
+
+      - c: collab-thirdparty
+        kind: first
+        text: >-
+          Halvorsen Freight's tablet hardware vendor wants a permanent, always-on remote connection into the depot
+          networks to diagnose faults "before you even notice". The support contract says nothing about security.
+          Tomás Reyes likes the idea of fewer support calls.
+        ask: 'What should Shifty require FIRST, before any connection is set up?'
+        o:
+          - 'A shared admin password for the vendor, to keep it simple'
+          - 'A written agreement defining security terms, scope and monitoring'
+          - 'Connect now, and review security at contract renewal'
+          - 'A permanent block on all vendor remote access'
+        a: 1
+        r:
+          - 'Every vendor technician now shares one password, forever. When one leaves, nobody knows.'
+          - 'The agreement sets scope, MFA, logging, time-limited access and breach notice. Then the connection goes in, on Halvorsen''s terms.'
+          - 'The connection goes live with no rules. At renewal, two years later, there is nothing to enforce.'
+          - 'The vendor can''t support the tablets at all. A real business need goes unmet.'
+        why: >-
+          Third-party connectivity starts with an agreement (such as an interconnection security agreement) that
+          defines purpose, controls, access limits and monitoring; then access is least-privilege and logged.
+          Connecting first leaves no terms; a total block may cost needed support.
+        src: 'NIST SP 800-47 Rev. 1 (Managing the Security of Information Exchanges); CISSP 2027 outline 4.3 (third-party connectivity: hardware support)'
+    close: >-
+      Depot Wi-Fi moves to WPA3, the VPN goes full tunnel, admin sessions get recorded, and the tablet vendor signs
+      an agreement before plugging in anything. Bo the driver asks if the ghost could ride with someone else next
+      time.
+
+  # ======================================================================== k4-03
+  - id: k4-03
+    title: 'Rotterdam goes live'
+    where: 'Rotterdam branch office · Monday 08:00'
+    diff: 2
+    open: >-
+      The Rotterdam branch opens next week, and Jonas Vries needs it connected to everything: headquarters, the
+      cloud, the phones, the customers. A telecom carrier is pulling fiber, the phone vendor is unpacking desk
+      phones, and Dale has ordered a neon sign that says SYNERGY. Shifty crosses the Atlantic the ghost way, by
+      simply appearing.
+    scenes:
+      - c: sdn-cloud-networks
+        kind: best
+        text: >-
+          Halvorsen Freight's Rotterdam branch will connect to headquarters over a broadband link and a 5G backup.
+          Jonas Vries wants traffic steered automatically: voice and dispatch on the best link, bulk backups on the
+          cheaper one, all managed centrally by policy.
+        ask: 'Which technology BEST fits this requirement?'
+        o:
+          - 'A single leased line with static routing'
+          - 'Network address translation on the branch router'
+          - 'A wireless mesh between the two offices'
+          - 'Software-defined wide area networking (SD-WAN)'
+        a: 3
+        r:
+          - 'One line, no choice and no failover. When the carrier digs up the street, Rotterdam goes dark.'
+          - 'NAT translates addresses. It doesn''t pick links or know what voice traffic is.'
+          - 'A wireless mesh across the Atlantic would be an engineering marvel. And a very long ladder.'
+          - 'SD-WAN sends calls over the best link, backups over the cheap one, and fails over when the broadband drops. Jonas manages it all from one console.'
+        why: >-
+          SD-WAN applies central, application-aware policy to steer traffic across multiple links (broadband,
+          cellular, MPLS) and fail over automatically. Static routing over one line has neither choice nor failover;
+          NAT only translates addresses.
+        src: 'NIST SP 800-215 (SD-WAN in the enterprise network landscape); CISSP 2027 outline 4.1 (SDN, SD-WAN)'
+
+      - c: secure-protocols
+        kind: best
+        text: >-
+          The Rotterdam customer portal's load balancer still accepts SSL 3.0, TLS 1.0 and TLS 1.1 "for old
+          browsers". Ines Albescu, General Counsel, asks what Halvorsen Freight should allow, since EU customers'
+          personal data passes through it.
+        ask: 'Which configuration is BEST?'
+        o:
+          - 'Keep all versions so no customer is locked out'
+          - 'Allow TLS 1.2 and TLS 1.3 only'
+          - 'Allow SSL 3.0 only, since it is the most tested'
+          - 'Allow TLS 1.0 and 1.1 but disable TLS 1.3'
+        a: 1
+        r:
+          - 'An attacker on café Wi-Fi forces a downgrade to SSL 3.0. Compatibility wins; the customer loses.'
+          - 'Old protocols switched off, modern ones on. A handful of ancient browsers complain; the data stays safe.'
+          - 'SSL 3.0 is "the most tested" in the sense that it has been thoroughly broken.'
+          - 'Turning off the newest, strongest version to keep deprecated ones is the exact reverse of the goal.'
+        why: >-
+          SSL 3.0 and TLS 1.0/1.1 are formally deprecated (RFC 7568, RFC 8996) because of known weaknesses; TLS 1.2
+          and 1.3 protect the data. Keeping old versions lets attackers force a downgrade.
+        src: 'RFC 8996 (Deprecating TLS 1.0 and TLS 1.1); RFC 7568 (Deprecating SSL 3.0); RFC 8446 (TLS 1.3)'
+
+      - c: ip-addressing
+        kind: best
+        text: >-
+          Halvorsen Freight's DNS provider tells Jonas Vries that the same DNS server IP address is announced from 30
+          sites worldwide, so Rotterdam's queries are answered by the nearest site, and an attack on one site
+          doesn't take DNS down.
+        ask: 'Which delivery method does this MOST accurately describe?'
+        o:
+          - 'Broadcast'
+          - 'Multicast'
+          - 'Anycast'
+          - 'Unicast'
+        a: 2
+        r:
+          - 'Broadcast reaches every host on one local segment. It doesn''t cross the internet at all.'
+          - 'Multicast delivers to every member of a group. A DNS query wants one answer, not thirty.'
+          - 'Right: one address, many sites, nearest one answers. When one site is flooded, routing shifts queries elsewhere.'
+          - 'Unicast is one address, one host. Here one address lives in thirty places.'
+        why: >-
+          Anycast announces one address from many locations, and routing delivers each packet to the nearest one,
+          spreading load and absorbing attacks. Multicast delivers to every group member; broadcast to every host on
+          a segment; unicast to exactly one host.
+        src: 'RFC 4786 (Operation of Anycast Services); RFC 4291 (IPv6 addressing: anycast)'
+
+      - c: transport-performance
+        kind: sort
+        text: >-
+          Rotterdam's video calls to Halvorsen Freight headquarters stutter. The carrier's report lists several
+          measurements, and Jonas Vries asks Shifty what each term means before the meeting with the carrier.
+        ask: 'Sort each description: latency, jitter, or throughput?'
+        bins: ['Latency', 'Jitter', 'Throughput']
+        pairs:
+          - ['Time for a packet to travel from Rotterdam to HQ', 0]
+          - ['Delay that makes callers talk over each other', 0]
+          - ['Variation in delay from one packet to the next', 1]
+          - ['Uneven packet arrival that makes video stutter', 1]
+          - ['Data actually delivered per second on the link', 2]
+          - ['Only 300 Mbps arrives over a 1 Gbps link', 2]
+        why: >-
+          Latency is delay; jitter is variation in that delay, which makes voice and video choppy; throughput is
+          what actually gets through, often less than bandwidth, the link's rated capacity. Jitter buffers and QoS
+          help real-time traffic.
+        src: 'CISSP 2027 outline 4.1 (performance metrics); RFC 3393 (IP packet delay variation)'
+
+      - c: collab-thirdparty
+        kind: best
+        text: >-
+          The telecom carrier connecting Rotterdam to Halvorsen Freight headquarters runs the circuit through its own
+          backhaul network. Jonas Vries asks whether Halvorsen can trust the carrier with its traffic, since the
+          contract only covers uptime.
+        ask: 'What is the BEST way to protect Halvorsen''s data on the carrier''s network?'
+        o:
+          - 'Encrypt it end to end, for example in an IPsec tunnel'
+          - 'Trust the carrier, since the circuit is private'
+          - 'Ask the carrier to promise not to look at it'
+          - 'Buy a faster circuit so data spends less time in transit'
+        a: 0
+        r:
+          - 'The carrier''s network now carries only ciphertext. Jonas adds security terms to the contract renewal too.'
+          - '"Private" means routed separately, not confidential. A carrier technician with a tap sees everything.'
+          - 'A promise is not a control. The auditor asks for evidence and gets a pinky swear.'
+          - 'Faster cleartext is still cleartext.'
+        why: >-
+          Backhaul and carrier networks are third-party infrastructure that Halvorsen doesn't control, so encrypt
+          end to end across them (IPsec or TLS) and add security terms to the contract. A private circuit is private
+          in routing, not in confidentiality.
+        src: 'CISSP 2027 outline 4.3 (data communications: backhaul; third-party connectivity: telecom providers); NIST SP 800-47 Rev. 1'
+
+      - c: converged-protocols
+        kind: best
+        text: >-
+          Rotterdam's new desk phones use VoIP, with SIP for call setup and RTP for the audio, on the same network
+          as the laptops. Ines Albescu worries that anyone on the network could record calls with EU customers or
+          spoof caller identities.
+        ask: 'Which measures BEST address both concerns?'
+        o:
+          - 'A separate VLAN for the phones and nothing else'
+          - 'SIP over TLS for signaling and SRTP for the media'
+          - 'Plain RTP with stronger SIP passwords'
+          - 'Disabling call recording on the phone system'
+        a: 1
+        trap: 0
+        r:
+          - 'The voice VLAN helps quality and containment, but the calls still travel unencrypted. Anyone on that VLAN can record them.'
+          - 'SRTP encrypts and authenticates the audio, and SIP over TLS protects call setup. Recording a call now captures noise.'
+          - 'Stronger passwords for setup, but the audio itself is still readable by anyone who captures it.'
+          - 'Halvorsen stops recording calls. Attackers don''t.'
+        why: >-
+          SRTP encrypts and authenticates the voice stream, stopping eavesdropping; SIP over TLS protects call setup
+          and credentials against tampering and spoofing. A voice VLAN helps quality but encrypts nothing; plain RTP
+          is readable by anyone who captures it.
+        src: 'RFC 3711 (SRTP); RFC 3261 (SIP), sec. 26 (security considerations)'
+    close: >-
+      Rotterdam goes live on time. Calls are encrypted, the carrier's backhaul carries only ciphertext, and the DNS
+      shrugs off its first flood. The neon sign arrives spelled SINERGY. Jonas keeps it.
+
+  # ======================================================================== k4-04
+  - id: k4-04
+    title: 'The SAN in the broom closet'
+    where: 'Halvorsen Freight HQ, IDF 3 · Wednesday 15:00'
+    diff: 3
+    open: >-
+      Tomás Reyes finds headquarters' storage network running through a broom closet on the third floor, sharing
+      switches with the office LAN, next to a mop bucket. Cables snake down a public stairwell. Rafa Lind wants to
+      add new memory-pooling servers in the same closet. Shifty floats through the wall, then backs out to fetch
+      someone with hands.
+    scenes:
+      - c: converged-protocols
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Freight's servers reach their storage over iSCSI. Tomás Reyes discovers that the iSCSI traffic
+          shares switches and a VLAN with the office LAN, and that the storage targets accept connections from any
+          host that asks.
+        ask: 'What is the BEST improvement?'
+        o:
+          - 'Move iSCSI to an unusual TCP port number'
+          - 'Isolate iSCSI on a dedicated network and require CHAP'
+          - 'Rely on the internet-edge firewall to protect it'
+          - 'Rename the storage targets so they are hard to guess'
+        a: 1
+        r:
+          - 'A port scan finds it in seconds. Obscurity is not isolation.'
+          - 'Storage gets its own switches, and only authenticated servers can connect. An office laptop can no longer mount the payroll volume.'
+          - 'The edge firewall never sees this traffic. The danger is inside the building.'
+          - 'Discovery lists the targets anyway. A guessable name was never the main problem.'
+        why: >-
+          iSCSI carries block storage commands over ordinary TCP/IP, so anyone who reaches it can read or write
+          disks. Isolate it on a dedicated network or VLAN, authenticate initiators (CHAP), and add IPsec where
+          needed. Port changes and renaming are obscurity.
+        src: 'RFC 7143 (Internet Small Computer System Interface (iSCSI) Protocol, security considerations)'
+
+      - c: converged-protocols
+        kind: best
+        text: >-
+          Rafa Lind wants new Halvorsen Labs servers that share pooled memory with accelerators at near-memory speed,
+          using an open, cache-coherent interconnect built on the PCI Express physical layer. Dale asks if that is
+          "just faster Ethernet".
+        ask: 'Which converged protocol is Rafa MOST likely describing?'
+        o:
+          - 'iSCSI'
+          - 'Fibre Channel over Ethernet'
+          - 'Compute Express Link (CXL)'
+          - 'Voice over IP'
+        a: 2
+        r:
+          - 'iSCSI is storage over TCP/IP, much slower than memory, and it isn''t built on PCIe.'
+          - 'FCoE carries storage traffic over Ethernet. No cache coherence, no memory pooling.'
+          - 'Right. CXL runs over the PCIe physical layer to link CPUs, memory and accelerators. Tomás notes the closet now needs memory-grade physical security.'
+          - 'Dale suggests phoning the memory. Nobody laughs.'
+        why: >-
+          Compute Express Link (CXL) runs over the PCIe physical layer to give CPUs, memory and accelerators
+          cache-coherent, memory-speed connections, including pooled memory. It is not Ethernet; iSCSI and FCoE
+          carry storage traffic over Ethernet networks.
+        src: 'CXL Consortium, Compute Express Link Specification; CISSP 2027 outline 4.1 (converged protocols)'
+
+      - c: transport-performance
+        kind: sort
+        text: >-
+          Tomás Reyes is choosing new switches for Halvorsen Freight's dispatch room, where the closet switches keep
+          forwarding corrupted frames. The vendor offers two switching modes. Shifty sorts the vendor's feature list
+          so Tomás knows which mode does what.
+        ask: 'Sort each trait: cut-through or store-and-forward switching?'
+        bins: ['Cut-through', 'Store-and-forward']
+        pairs:
+          - ['Starts forwarding once it reads the destination address', 0]
+          - ['Gives the lowest switching latency', 0]
+          - ['Can pass corrupted frames along', 0]
+          - ['Buffers the entire frame before forwarding', 1]
+          - ['Checks the frame check sequence (CRC) first', 1]
+          - ['Drops frames that fail the error check', 1]
+        why: >-
+          Cut-through switching forwards after reading the destination MAC address: lower latency, but no error
+          check, so corrupted frames pass. Store-and-forward buffers the whole frame and checks its frame check
+          sequence (CRC) first, adding latency but dropping bad frames.
+        src: 'CISSP 2027 outline 4.1 (transport architecture: cut-through, store-and-forward); ISC2 OSG ch. 11'
+
+      - c: media-infrastructure
+        kind: best
+        diff: 2
+        text: >-
+          Halvorsen Freight must run a link from the headquarters IDF to a warehouse office 350 meters away, past
+          heavy motors and welding equipment. Part of the run crosses a public stairwell. Tomás Reyes wants a
+          reliable signal and resistance to tapping.
+        ask: 'Which transmission medium BEST fits?'
+        o:
+          - 'Unshielded twisted pair (Cat 6)'
+          - 'Shielded twisted pair (Cat 6A)'
+          - 'Coaxial cable'
+          - 'Fiber-optic cable in a protected conduit'
+        a: 3
+        r:
+          - 'At 350 meters, Cat 6 is over three times the Ethernet limit, and the welders turn the signal to static.'
+          - 'Shielding helps with the welders, but 350 meters is still far beyond twisted pair''s 100-meter limit.'
+          - 'Coax is old, EMI-sensitive and easy to tap with the right connector.'
+          - 'Light ignores the welders, the run fits easily, and a tap would show up. The conduit keeps stairwell visitors off it.'
+        why: >-
+          Fiber carries light, so it is immune to electromagnetic interference, runs far beyond the 100-meter limit
+          of twisted-pair Ethernet, and is hard to tap without detection. A conduit adds physical protection in the
+          public stairwell.
+        src: 'IEEE 802.3 (100 m maximum segment for twisted-pair Ethernet such as 1000BASE-T); ISC2 OSG ch. 11 (cabling)'
+
+      - c: media-infrastructure
+        kind: best
+        diff: 1
+        text: >-
+          The core switch in Halvorsen Freight's IDF 3 has a single power supply on one circuit, its warranty expired
+          two years ago, and there is no support contract. Tomás Reyes says it "has never failed".
+        ask: 'Which action BEST reduces the operational risk?'
+        o:
+          - 'Keep it as is, since it has never failed'
+          - 'Label it "do not touch" and lock the closet'
+          - 'Add redundant power and renew warranty and support'
+          - 'Turn off its logging to reduce the load on it'
+        a: 2
+        r:
+          - 'It fails on a Tuesday. No spare, no support, no warranty. Headquarters is offline for four days.'
+          - 'A lock is good, but the power supply still dies of old age behind it.'
+          - 'A second power supply on a separate circuit, a support contract with next-day parts, and a replacement in next year''s budget.'
+          - 'Now when it fails, nobody will know why.'
+        why: >-
+          Operating infrastructure securely means availability: redundant power supplies and feeds, valid warranty and
+          support contracts, and spares or replacement plans. A history without failures predicts nothing; locks and
+          labels don't fix a single point of failure.
+        src: 'CISSP 2027 outline 4.2 (operation of infrastructure: redundant power, warranty, support)'
+
+      - c: osi-model
+        kind: best
+        text: >-
+          Halvorsen Freight's warehouse controllers speak DNP3, a protocol designed for serial industrial links, now
+          wrapped inside TCP/IP so it can cross the corporate network. Kim Osei warns that this convenience has
+          security side effects.
+        ask: 'What is the GREATEST security implication of running this multilayer protocol over TCP/IP?'
+        o:
+          - 'It gains encryption automatically by running over TCP'
+          - 'It is exposed to IP-borne attacks and can slip past filters'
+          - 'It can no longer be routed between different networks'
+          - 'It stops working on ordinary layer 2 switches'
+        a: 1
+        r:
+          - 'TCP adds no encryption at all. The DNP3 commands still travel in the clear.'
+          - 'Right: anything that can reach it over IP can now talk to the controllers. Kim adds DNP3-aware filtering at the OT boundary.'
+          - 'The whole point of wrapping it in TCP/IP was to make it routable.'
+          - 'Switches forward the frames without caring what is inside them.'
+        why: >-
+          Multilayer protocols such as DNP3 over TCP/IP gain reach but are exposed to anything that can reach them
+          over IP, and encapsulation can carry covert channels or slip past filters that don't inspect the inner
+          protocol. TCP adds no encryption.
+        src: 'CISSP 2027 outline 4.1 (implications of multilayer protocols); ISC2 OSG ch. 11 (DNP3, multilayer protocols)'
+    close: >-
+      The storage network gets its own switches, fiber replaces the stairwell copper, and the core switch gets a
+      twin and a support contract. The mop bucket is evicted. Rafa's CXL servers move to the data center, where
+      ghosts, but not mops, are welcome.
+
+  # ======================================================================== k4-05
+  - id: k4-05
+    title: 'The cloud network'
+    where: 'Halvorsen Labs, cloud ops · Tuesday 13:00'
+    diff: 2
+    open: >-
+      The route platform now lives in Halvorsen's cloud account, and Rafa Lind built its network by clicking until
+      things worked. Every server has a public IP. The firewall rules say "allow any" in four places. Kim Osei reads
+      them aloud to Shifty like a ghost story. Dale asks whether the cloud has a lobby.
+    scenes:
+      - c: sdn-cloud-networks
+        kind: spot
+        text: >-
+          Rafa Lind redesigns Halvorsen Freight's virtual private cloud (VPC): a load balancer in a public subnet,
+          app servers and a database in private subnets, a NAT gateway for outbound updates, plus backup storage and
+          a log collector. Kim Osei asks which component alone should accept connections from the internet.
+        ask: 'Tap the only component that should accept inbound internet connections.'
+        map:
+          nodes:
+            - { id: inet, label: 'Internet', x: 39, y: 2 }
+            - { id: lb, label: 'Load balancer', x: 39, y: 24 }
+            - { id: nat, label: 'NAT gateway', x: 76, y: 24 }
+            - { id: app, label: 'App servers', x: 39, y: 48 }
+            - { id: logs, label: 'Log collector', x: 2, y: 72 }
+            - { id: db, label: 'Database', x: 39, y: 72 }
+            - { id: backup, label: 'Backup storage', x: 76, y: 72 }
+          links: [[inet, lb], [inet, nat], [lb, app], [app, db], [app, nat], [app, logs], [db, backup]]
+          caption: 'Route platform VPC: public subnet above, private subnets below'
+        a: lb
+        why: >-
+          Only the load balancer in the public subnet should face the internet; app servers and the database sit in
+          private subnets with no public addresses. The NAT gateway lets private hosts reach out for updates but
+          accepts no inbound connections.
+        src: 'CISSP 2027 outline 4.1 (Virtual Private Cloud); NIST SP 800-41 Rev. 1 (screened subnet principle)'
+
+      - c: segmentation
+        kind: best
+        text: >-
+          Inside Halvorsen Freight's cloud, the route platform's 40 workloads can all reach each other on any port.
+          Kim Osei wants each workload allowed to talk only to the specific services it needs, enforced at the
+          workload itself, even within the same subnet.
+        ask: 'Which approach BEST meets this requirement?'
+        o:
+          - 'One larger subnet with a stronger perimeter firewall'
+          - 'A VLAN for each department'
+          - 'An IDS sensor at the internet gateway'
+          - 'Micro-segmentation with workload-level firewall policy'
+        a: 3
+        trap: 0
+        r:
+          - 'The perimeter is lovely. Inside it, every workload can still talk to every other one.'
+          - 'Departments aren''t workloads. Forty services in one department VLAN still trust each other completely.'
+          - 'The sensor watches the front door. The problem is the hallways.'
+          - 'Each workload gets its own allow list. When the pricing service is later compromised, it can reach exactly two things.'
+        why: >-
+          Micro-segmentation applies policy around each workload, often through distributed firewalls or overlays,
+          so even neighbors in the same subnet can't talk without permission: a core Zero Trust approach. Perimeter
+          firewalls and department VLANs leave east-west traffic wide open.
+        src: 'NIST SP 800-207, sec. 3.1.2 (ZTA using micro-segmentation); CISSP 2027 outline 4.1 (micro-segmentation)'
+
+      - c: sdn-cloud-networks
+        kind: best
+        diff: 3
+        text: >-
+          Halvorsen Freight's data center now runs software-defined networking: one central controller programs every
+          switch through southbound APIs, and orchestration tools call its northbound API. Tomás Reyes asks which
+          asset, if compromised, would let an attacker reconfigure the whole network at once.
+        ask: 'Which asset is the MOST critical to protect?'
+        o:
+          - 'The SDN controller and its APIs'
+          - 'Any single access switch'
+          - 'The DHCP server'
+          - 'A user workstation on the network'
+        a: 0
+        r:
+          - 'Right. The controller gets its own management network, authenticated APIs and full logging. It is now the most boring, best-guarded box in the building.'
+          - 'One switch affects only its own traffic. And it takes orders from somewhere else.'
+          - 'A rogue DHCP server is a nuisance. It can''t rewrite every switch''s forwarding table.'
+          - 'A workstation is a foothold, not the steering wheel.'
+        why: >-
+          SDN moves the control plane into a central controller. Whoever controls it, or its northbound and
+          southbound APIs, can reprogram every switch at once. Harden it, authenticate API calls and isolate its
+          management network. One switch affects only its own traffic.
+        src: 'RFC 7426 (SDN layers and architecture terminology); CISSP 2027 outline 4.1 (SDN, API)'
+
+      - c: nac-endpoint
+        kind: best
+        text: >-
+          Halvorsen Freight's cloud servers and field laptops spend most of their time outside the headquarters
+          network, so the perimeter firewall never sees their traffic. Kim Osei wants protection that travels with
+          each machine, detects attacks on it and records what happened.
+        ask: 'Which control BEST meets this goal?'
+        o:
+          - 'A second perimeter firewall at headquarters'
+          - 'A network IDS on the headquarters core'
+          - 'MAC address filtering on the office Wi-Fi'
+          - 'Host-based firewall and EDR on each machine'
+        a: 3
+        r:
+          - 'Two perimeters, both far from where the laptops actually are.'
+          - 'The IDS sees headquarters traffic. A laptop in a Lisbon hotel is invisible to it.'
+          - 'The machines aren''t on the office Wi-Fi, and MAC filters are trivial to spoof anyway.'
+          - 'Protection now lives on each machine. When a laptop in Lisbon runs something odd, EDR blocks it and Kim sees the whole story.'
+        why: >-
+          Endpoint security is host-based: the host firewall, EDR and HIDS run on the machine and protect it wherever
+          it is, recording activity for investigation. Network controls at headquarters only see traffic that passes
+          through headquarters.
+        src: 'CISSP 2027 outline 4.2 (endpoint security, host-based); NIST SP 800-46 Rev. 2'
+
+      - c: sdn-cloud-networks
+        kind: best
+        diff: 1
+        text: >-
+          Halvorsen Freight's tracking page slows down when customers worldwide check parcels during the holidays,
+          and last year a flood of junk traffic knocked it offline. Rafa Lind wants pages served close to each
+          customer, with the origin servers hidden behind something that can absorb floods.
+        ask: 'Which service BEST fits Rafa''s needs?'
+        o:
+          - 'A content delivery network (CDN)'
+          - 'A bigger origin server'
+          - 'A site-to-site VPN'
+          - 'Network access control'
+        a: 0
+        r:
+          - 'Pages come from edge servers near each customer, and the CDN''s capacity soaks up the flood. The origin''s address stops being public.'
+          - 'Bigger, but still in one place with one pipe. The next flood fills the pipe.'
+          - 'A VPN links two networks. Customers don''t join Halvorsen''s VPN to track a parcel.'
+          - 'NAC checks devices joining Halvorsen''s own network. Customers aren''t joining it.'
+        why: >-
+          A CDN caches and serves content from edge servers near users, cutting latency, and its distributed
+          capacity absorbs much flood traffic while hiding the origin. A bigger origin server still sits in one
+          place behind one pipe.
+        src: 'CISSP 2027 outline 4.1 (Content Delivery Networks)'
+
+      - c: net-observability
+        kind: best
+        diff: 1
+        text: >-
+          Halvorsen Freight's cloud route platform slows every Monday at 08:00 when depots upload weekend data, and
+          twice a failed link went unnoticed for hours. Tomás Reyes wants to plan for growth and catch failures
+          quickly.
+        ask: 'Which pair of practices BEST addresses both problems?'
+        o:
+          - 'A stronger firewall plus longer passwords'
+          - 'More encryption plus shorter log retention'
+          - 'Capacity management plus automated fault detection'
+          - 'Network address translation plus static IP addresses'
+        a: 2
+        r:
+          - 'Safer, maybe. Monday is still slow, and the next dead link still goes unnoticed.'
+          - 'Encryption slows Monday a little more. Shorter logs make the next outage harder to explain.'
+          - 'Utilization trends show the Monday peak coming, and alerts fire within a minute of a link failing, with automatic failover.'
+          - 'Addressing choices don''t make links bigger or failures louder.'
+        why: >-
+          Capacity management tracks utilization trends so links grow before peaks hit, and traffic shaping can
+          protect critical flows. Fault detection and handling alerts on failures and fails over automatically.
+          Firewalls, encryption and NAT address neither problem.
+        src: 'CISSP 2027 outline 4.1 (monitoring and management: capacity management, fault detection and handling)'
+    close: >-
+      The cloud network now has a front door, walls inside it and someone watching the hallways. The four "allow
+      any" rules are gone. Kim reads the new rules to Shifty at bedtime. They are very boring, which is the point.
+
+  # ======================================================================== k4-06
+  - id: k4-06
+    title: 'The haunted conference room'
+    where: 'Halvorsen Freight HQ, Boardroom 2 · Thursday'
+    diff: 2
+    open: >-
+      Boardroom 2's new video system switches itself on at night. Staff swear they can hear the room listening.
+      Everyone blames Shifty. Shifty, deeply offended, sets out to prove it isn't him, which takes him through the
+      meeting room gear, home workers' laptops, a strange phone signal in the car park and a cable nobody can
+      explain.
+    scenes:
+      - c: collab-thirdparty
+        kind: best
+        text: >-
+          Halvorsen Freight's Boardroom 2 has a smart video system with an always-on microphone, a default admin
+          password, two-year-old firmware, and a cloud management portal that anyone in IT reaches with one shared
+          account. It wakes itself at night.
+        ask: 'What is the BEST set of fixes?'
+        o:
+          - 'Tape over the camera and leave the rest as it is'
+          - 'Unplug the microphone only during board meetings'
+          - 'Patch it, set named admin accounts and privacy controls'
+          - 'Swap it for the same model from another reseller'
+        a: 2
+        r:
+          - 'The camera sees tape. The microphone still hears the merger talks.'
+          - 'Somebody forgets on the first day. Also, the room listens between meetings too.'
+          - 'Firmware updated, default password gone, named accounts on the portal, wake rules set. The room stops listening.'
+          - 'Same model, same default password, same old firmware. A fresh box with the same problems.'
+        why: >-
+          Meeting-room systems are networked computers with cameras and microphones. Patch them, remove default
+          credentials, use named accounts for the management portal, and set privacy controls (mute, wake rules).
+          Tape covers one sensor and fixes nothing else.
+        src: 'CISSP 2027 outline 4.3 (voice, video and collaboration: video meeting rooms)'
+
+      - c: remote-access
+        kind: best
+        diff: 1
+        text: >-
+          Several Halvorsen Freight finance staff now work from home three days a week, on personal laptops shared
+          with their families, over home Wi-Fi routers with default passwords. CFO Marcus Webb asks what the remote
+          working policy should require.
+        ask: 'Which requirement BEST reduces the risk?'
+        o:
+          - 'Staff promise to keep children away from the laptop'
+          - 'Company-managed, patched devices with MFA for access'
+          - 'Using incognito browser mode for company work'
+          - 'Working only between 9 and 5 local time'
+        a: 1
+        r:
+          - 'The children are very sorry. The game they installed with a keylogger is not.'
+          - 'Finance gets managed laptops, MFA and a short guide to securing home routers. Payroll stays off the family PC.'
+          - 'Incognito mode hides browsing history from the family. Malware can still see everything.'
+          - 'Attackers also work flexible hours.'
+        why: >-
+          Remote working needs devices the company can manage and patch (or tightly controlled access for personal
+          ones), MFA and secure connections. Promises, incognito mode and working hours don't protect data on a
+          shared, unmanaged machine.
+        src: 'NIST SP 800-46 Rev. 2 (telework client device security); CISSP 2027 outline 4.3 (remote working)'
+
+      - c: wireless-cellular
+        kind: best
+        diff: 3
+        text: >-
+          Kim Osei detects a fake cell tower in the Halvorsen Freight car park trying to collect phones' permanent
+          subscriber identities. Most company phones now connect through a 5G standalone network. Dale asks whether
+          "the 5G" helps at all.
+        ask: 'Which 5G feature MOST directly reduces this risk?'
+        o:
+          - 'Higher bandwidth than 4G'
+          - 'Lower latency for video calls'
+          - 'Concealing the permanent subscriber identity (SUCI)'
+          - 'Network slicing for IoT traffic'
+        a: 2
+        r:
+          - 'Faster downloads, same exposure. Speed isn''t a privacy feature.'
+          - 'Calls get snappier. The fake tower doesn''t care.'
+          - 'The phones send only an encrypted, concealed identifier. The fake tower collects gibberish. Dale is pleased he asked.'
+          - 'Slicing separates traffic types inside the operator''s network. It doesn''t hide who you are from a fake tower.'
+        why: >-
+          5G encrypts the subscriber's permanent identity (SUPI) into a concealed identifier (SUCI) before sending
+          it, so a fake base station can't simply ask for it as 4G IMSI catchers did. Bandwidth, latency and slicing
+          are performance and service features.
+        src: '3GPP TS 33.501 (Security architecture and procedures for 5G System: subscription identifier privacy)'
+
+      - c: media-infrastructure
+        kind: spot
+        diff: 1
+        text: >-
+          Tracing the mystery cable, Tomás Reyes maps Halvorsen Freight's third floor: the wiring closet (IDF),
+          Boardroom 2, open offices, a kitchen, a public visitor lounge, the stairwell and the elevators. The IDF
+          door is propped open with a fire extinguisher, and an unknown device is plugged into its patch panel.
+        ask: 'Tap the location with the MOST urgent physical security gap.'
+        map:
+          nodes:
+            - { id: board, label: 'Boardroom 2', x: 2, y: 6 }
+            - { id: offices, label: 'Open offices', x: 39, y: 6 }
+            - { id: kitchen, label: 'Kitchen', x: 76, y: 6 }
+            - { id: idf, label: 'Wiring closet (IDF)', x: 2, y: 44 }
+            - { id: lift, label: 'Elevators', x: 39, y: 44 }
+            - { id: lounge, label: 'Visitor lounge', x: 76, y: 44 }
+            - { id: stairs, label: 'Stairwell', x: 39, y: 80 }
+          caption: 'Halvorsen HQ, third floor'
+        a: idf
+        why: >-
+          Wiring closets hold the patch panels and switches the whole floor depends on; an open IDF lets anyone tap
+          the network or plug in a device. It must stay locked, access-logged and checked, and the unknown device
+          handled as possible evidence.
+        src: 'CISSP 2027 outline 4.2 (physical security of transmission media) and 3.9 (wiring closets/IDF)'
+
+      - c: secure-protocols
+        kind: best
+        diff: 1
+        text: >-
+          Tomás Reyes finds that Boardroom 2's video system and several Halvorsen Freight switches are managed over
+          Telnet, so admin usernames and passwords cross the network in clear text.
+        ask: 'Which protocol is the BEST replacement for remote administration?'
+        o:
+          - 'SNMPv1'
+          - 'HTTP'
+          - 'SSH'
+          - 'FTP'
+        a: 2
+        r:
+          - 'SNMPv1 sends its community strings in clear text. Same problem, different protocol.'
+          - 'Plain HTTP shows the admin password to anyone listening, just in a nicer font.'
+          - 'SSH encrypts the whole session, credentials included. Telnet is switched off across the floor.'
+          - 'FTP moves files, with passwords in clear text. Not an admin console at all.'
+        why: >-
+          SSH encrypts the whole session, including credentials, and authenticates the server, replacing Telnet for
+          remote administration (TCP port 22). FTP, HTTP and SNMPv1 all send credentials in clear text.
+        src: 'RFC 4251 (The Secure Shell (SSH) Protocol Architecture); ISC2 OSG ch. 11'
+
+      - c: net-observability
+        kind: best
+        text: >-
+          The mystery is solved: Boardroom 2's video system was sending recordings to an unknown overseas server at
+          night. Kim Osei notes that Halvorsen Freight's firewalls inspect inbound traffic carefully but let almost
+          anything out.
+        ask: 'Which control would BEST have stopped the recordings leaving?'
+        o:
+          - 'Stricter ingress filtering on inbound traffic'
+          - 'Egress filtering that allows only approved destinations'
+          - 'A faster internet link to make uploads noticeable'
+          - 'Turning off firewall logging to save space'
+        a: 1
+        r:
+          - 'The recordings left through a connection the box itself opened outward. Inbound rules never saw them.'
+          - 'Meeting-room gear may now reach only its vendor''s update service. The overseas server gets nothing more.'
+          - 'Faster uploads are harder to notice, not easier.'
+          - 'The logs were the only reason anyone found out. Keep them.'
+        why: >-
+          Egress filtering controls what leaves: allow only approved destinations and ports for each device class. A
+          meeting-room system has no reason to talk to random overseas servers. Ingress rules alone don't stop data
+          leaving through an outbound connection.
+        src: 'CISSP 2027 outline 4.1 (edge networks: ingress/egress); NIST SP 800-41 Rev. 1 (egress filtering)'
+    close: >-
+      It wasn't Shifty. It was a meeting-room box with a default password and an overseas friend. It is patched, the
+      IDF is locked, and egress is locked down. Staff apologize to Shifty. He accepts, graciously, from inside the
+      wall.

@@ -6,7 +6,7 @@ import { app, toast } from '../engine/ui';
 import { $, $$ } from '../engine/util';
 
 /** The SOC closet's six (the graduation cap belongs to SHIFTY-1). */
-type Item = Exclude<HatId, '' | 'grad'>;
+type Item = Exclude<HatId, '' | 'grad' | 'tophat'>;
 
 const UNLOCKS: Record<Item, { need: string; ok: () => boolean }> = {
   beanie: { need: 'Finish a round', ok: () => S.shifts >= 1 },

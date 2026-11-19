@@ -1,0 +1,1254 @@
+# Domain 5: Identity and Access Management (IAM) (13.6%)
+# Format and rules: docs/cissp/DESIGN.md and docs/cissp/AUTHORING.md. Ids are stable forever.
+# Sources checked for this file: docs/cissp/sources-d5-d7.md
+
+concepts:
+  - id: access-asset-lifecycle
+    obj: '5.1'
+    name: 'Manage access to every asset type'
+    rule: 'Provision, control, review and revoke access for every asset, physical and logical.'
+    learn:
+      - 'The 2027 outline lists the assets: information, systems, devices, facilities, applications, services and identities. Each needs an owner and an access process.'
+      - 'The cycle is the same for a badge reader and a database: provision on approval, control use, review regularly, revoke promptly.'
+      - 'Physical and logical access should be tied to one identity so a single leaver action closes doors and logins together.'
+    ghost: 'Shifty walks through doors without a badge. Everyone else should need one, and lose it the day they leave.'
+    src: 'CISSP 2027 outline 5.1; NIST SP 800-53 Rev. 5, AC-2 (account management) and PE-2/PE-3 (physical access)'
+
+  - id: identities-as-assets
+    obj: '5.1'
+    name: 'Identities are assets too'
+    rule: 'Protect identities themselves: attackers log in rather than break in.'
+    learn:
+      - 'The 2027 outline adds identities to the assets whose access must be managed: user, service and device identities are targets in their own right.'
+      - 'Stolen credentials, session tokens and over-privileged accounts give an attacker legitimate-looking access that perimeter controls do not stop.'
+      - 'Protect identities with inventory, ownership, strong authentication, least privilege and monitoring of how each identity is used.'
+    ghost: 'Shifty''s own identity was stolen once. By a medium at a seance. He takes this personally.'
+    src: 'CISSP 2027 outline 5.1 (identities); NIST SP 800-207 sec. 2.1 (tenets: access decided per identity and session)'
+
+  - id: aaa-model
+    obj: '5.2'
+    name: 'Identification, authentication, AAA'
+    rule: 'Identify (claim), authenticate (prove), authorize (permit), account (record).'
+    learn:
+      - 'Identification is claiming an identity (a username). Authentication proves the claim. Authorization decides what the proven identity may do.'
+      - 'Accounting (auditing) records what the identity did, which gives accountability and supports non-repudiation.'
+      - 'Accountability needs unique identities: shared accounts break the link between an action and a person.'
+    ghost: 'Shifty claims to be the CISO (identification). The badge reader disagrees (authentication). The board decides (authorization).'
+    src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 13; CISSP 2027 outline 5.2 (AAA)'
+
+  - id: authn-factors-aal
+    obj: '5.2'
+    name: 'Factors and assurance levels'
+    rule: 'MFA means different factor types; NIST AALs rate authentication strength 1 to 3.'
+    learn:
+      - 'Factor types: something you know, have, are. Two passwords are still one factor type.'
+      - 'SP 800-63B-4: AAL2 needs two factors and must offer a phishing-resistant option; AAL3 needs phishing resistance and a non-exportable private key.'
+      - 'Syncable authenticators (synced passkeys) can reach AAL2 but are not allowed at AAL3, because their keys are exportable.'
+    src: 'NIST SP 800-63B-4 sec. 2.1-2.3 (AALs) and App. B (syncable authenticators)'
+
+  - id: identity-proofing
+    obj: '5.2'
+    name: 'Registration and identity proofing'
+    rule: 'Prove who someone is before you issue them a credential.'
+    learn:
+      - 'Registration and proofing establish the identity: collect evidence, validate it, verify it belongs to the applicant, then enroll.'
+      - 'SP 800-63A-4 sets IAL1-3. IAL3 adds an on-site attended session with a trained proofing agent and collection of a biometric.'
+      - 'Account recovery is proofing again: a weak help-desk reset undoes a strong authenticator.'
+    ghost: 'Ghosts have no ID and no fingerprints. HR spent a week proofing Shifty and still is not sure.'
+    src: 'NIST SP 800-63A-4 sec. 4 (identity assurance levels); CISSP 2027 outline 5.2'
+
+  - id: session-management
+    obj: '5.2'
+    name: 'Session management'
+    rule: 'Sessions need timeouts, reauthentication and protected, invalidated tokens.'
+    learn:
+      - 'After login, the session token is the credential. Protect it in transit, bind it to the session and invalidate it at logout.'
+      - 'SP 800-63B-4: AAL2 reauthentication at least every 24 hours, inactivity 1 hour; AAL3 overall 12 hours, inactivity 15 minutes.'
+      - 'Timeouts and reauthentication for sensitive actions limit what a stolen or abandoned session can do.'
+    src: 'NIST SP 800-63B-4 sec. 2.2 and 2.3 (reauthentication), sec. 5 (session); OWASP ASVS (session management)'
+
+  - id: passwordless-fido
+    obj: '5.2'
+    name: 'Passwordless: FIDO2, WebAuthn, passkeys'
+    rule: 'Passkeys use origin-bound public keys: nothing reusable to phish or steal from servers.'
+    learn:
+      - 'FIDO2 is W3C WebAuthn (browser API) plus FIDO CTAP (authenticator protocol). The private key stays on the authenticator; the server stores only the public key.'
+      - 'Credentials are scoped to the relying party, so a look-alike phishing site cannot use them. Synced passkeys are convenient; device-bound keys give higher assurance.'
+      - 'A biometric or PIN only unlocks the key locally; the biometric never goes to the server.'
+    ghost: 'Shifty cannot type a password anyway. A passkey on his assistant''s phone is the first login he respects.'
+    src: 'W3C Web Authentication Level 3, sec. 1 (credentials scoped to relying party); FIDO Alliance, Passkeys (fidoalliance.org/passkeys)'
+
+  - id: credential-vault
+    obj: '5.2'
+    name: 'Credential management systems'
+    rule: 'Keep secrets in a managed vault: checked out, rotated and logged.'
+    learn:
+      - 'A credential management system (password vault) stores secrets encrypted, controls who may retrieve them and logs every checkout.'
+      - 'Privileged vaults can rotate a password after each use, so a borrowed admin password stops working.'
+      - 'The vault becomes a high-value target: protect it with strong MFA, least privilege and break-glass procedures.'
+    src: 'CISSP 2027 outline 5.2 (credential management systems, e.g., password vault); NIST SP 800-53 Rev. 5, IA-5 (authenticator management)'
+
+  - id: just-in-time-access
+    obj: '5.2'
+    name: 'Just-In-Time access'
+    rule: 'Grant privilege when needed, for a limited time, then remove it automatically.'
+    learn:
+      - 'Just-In-Time (JIT) access replaces standing privilege: an admin requests elevation, it is approved and time-boxed, then it expires.'
+      - 'Fewer standing admin accounts means less for an attacker to steal and fewer privileges to review.'
+      - 'JIT requests and grants are logged, giving an audit trail of who held privilege, when and why.'
+    ghost: 'Shifty approves admin rights the way he haunts: briefly, with paperwork, and then gone.'
+    src: 'CISSP 2027 outline 5.2 (Just-In-Time); NIST SP 800-53 Rev. 5, AC-2(2) temporary accounts and AC-6 least privilege'
+
+  - id: federation-sso
+    obj: '5.3'
+    name: 'SSO and federated identity'
+    rule: 'The IdP authenticates; the service provider trusts its signed assertion.'
+    learn:
+      - 'SSO lets one login reach many systems. Federation extends that trust across organizations: an identity provider (IdP) vouches for users to service providers (SPs).'
+      - 'SAML 2.0 sends signed XML assertions. OpenID Connect adds authentication (an ID token) on top of OAuth 2.0, which is for authorization.'
+      - 'Federation can be on-premises, cloud or hybrid; the trust, attribute mapping and deprovisioning must be agreed with the third party.'
+    src: 'OASIS SAML 2.0 Core; OpenID Connect Core 1.0 sec. 1; RFC 6749 sec. 1 (OAuth 2.0); CISSP 2027 outline 5.3'
+
+  - id: mac-dac
+    obj: '5.4'
+    name: 'MAC vs DAC'
+    rule: 'DAC: the owner decides. MAC: the system enforces labels nobody can override.'
+    learn:
+      - 'Discretionary access control (DAC): the data owner grants access at their discretion, often with ACLs. Flexible, but users can over-share.'
+      - 'Mandatory access control (MAC): the system compares subject clearances with object labels; users cannot change the rules.'
+      - 'MAC suits classified, label-driven environments; DAC suits most business file sharing.'
+    src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14 (access control models); NIST IR 7316 (Assessment of Access Control Systems)'
+
+  - id: rbac-rubac-abac
+    obj: '5.4'
+    name: 'RBAC, rule-based and ABAC'
+    rule: 'RBAC uses job roles, RuBAC global rules, ABAC attributes of subject, object, environment.'
+    learn:
+      - 'Role-based (RBAC): permissions attach to roles, users get roles. Good for stable jobs; watch for role explosion.'
+      - 'Rule-based (RuBAC): rules apply to everyone, like firewall rules or "no logins outside 06:00-20:00".'
+      - 'Attribute-based (ABAC, SP 800-162): decisions combine subject, object, action and environment attributes, so policy can be fine-grained and contextual.'
+    src: 'NIST SP 800-162 sec. 2 (ABAC); ANSI/INCITS 359 (RBAC); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14'
+
+  - id: radac
+    obj: '5.4'
+    name: 'Risk-Adaptable Access Control'
+    rule: 'RAdAC weighs current security risk against operational need for each request.'
+    learn:
+      - 'Risk-Adaptable Access Control (RAdAC) evaluates each request in real time: how risky is it now, and how strong is the operational need?'
+      - 'Risk inputs include device health, location, authentication strength and threat level; policy may let urgent mission need outweigh risk, with extra conditions.'
+      - 'Unlike fixed ABAC rules, RAdAC adapts: the same user may be allowed, stepped up to stronger authentication, or denied.'
+    src: 'NIST CSRC Glossary, "risk adaptive (adaptable) access control" (from CNSSI 4009); McGraw, RAdAC paper, NIST Privilege Management Workshop (2009)'
+
+  - id: pdp-pep
+    obj: '5.4'
+    name: 'Policy decision and enforcement points'
+    rule: 'The PDP decides; the PEP enforces the decision in front of the resource.'
+    learn:
+      - 'In SP 800-207 the policy decision point (PDP) is the policy engine (decides) plus the policy administrator (sets up or tears down the session).'
+      - 'The policy enforcement point (PEP) sits in the data path: it enables, monitors and terminates connections as the PDP instructs.'
+      - 'Inputs such as device posture, threat intel and activity logs feed the policy engine''s trust algorithm.'
+    ghost: 'Shifty is a fine PDP. He would make a terrible PEP: requests go straight through him.'
+    src: 'NIST SP 800-207 sec. 3 (logical components: PE, PA, PEP)'
+
+  - id: provisioning-reviews
+    obj: '5.5'
+    name: 'Provisioning, transfers, reviews'
+    rule: 'Grant on approval, adjust on transfer, remove on exit, and review regularly.'
+    learn:
+      - 'Provisioning needs an approved request; deprovisioning must happen promptly at termination, and immediately for a hostile exit.'
+      - 'Transfers cause privilege creep: when someone changes role, remove the old access, not just add the new.'
+      - 'Periodic access reviews by managers or data owners catch creep and orphaned accounts, for user, system and service accounts alike.'
+    src: 'NIST SP 800-53 Rev. 5, AC-2 (account management) and PS-4/PS-5 (termination, transfer); CISSP 2027 outline 5.5'
+
+  - id: privilege-escalation
+    obj: '5.5'
+    name: 'Privilege escalation and PoLP'
+    rule: 'Run with least privilege; elevate on purpose (sudo, admin groups) and audit every use.'
+    learn:
+      - 'Principle of Least Privilege (PoLP): accounts get only the rights their job needs. Admins use a normal account for daily work.'
+      - 'Controlled escalation (sudo, membership in administrator groups) should be limited, approved and logged.'
+      - 'Review admin group membership and sudo logs: unexpected escalation is a classic sign of compromise.'
+    src: 'CISSP 2027 outline 5.5 (privilege escalation, PoLP); NIST SP 800-53 Rev. 5, AC-6, AC-6(2), AC-6(9)'
+
+  - id: service-accounts
+    obj: '5.5'
+    name: 'Service account management'
+    rule: 'Every service account needs an owner, least privilege, vaulted rotated secrets and reviews.'
+    learn:
+      - 'Service accounts let applications talk to each other. They often have broad rights, never-expiring passwords and nobody watching them.'
+      - 'Give each one a named owner, only the rights it needs, no interactive logon, and secrets kept in a vault and rotated.'
+      - 'Include service accounts in access reviews and monitor them: a service account logging in interactively is suspicious.'
+    src: 'CISSP 2027 outline 5.5 (service accounts management, account access review); NIST SP 800-53 Rev. 5, AC-2, IA-5'
+
+  - id: kerberos-sso
+    obj: '5.6'
+    name: 'Kerberos'
+    rule: 'The KDC issues tickets; passwords never cross the network.'
+    learn:
+      - 'The Key Distribution Center has an Authentication Service (issues the ticket-granting ticket, TGT) and a Ticket-Granting Service (issues service tickets).'
+      - 'Kerberos uses symmetric keys and timestamps, so clocks must be synchronized; the KDC is a single point of failure and a prime target.'
+      - 'If the KDC''s secret key is stolen, attackers can forge tickets for anyone.'
+    src: 'RFC 4120 (Kerberos V5) sec. 1 and 3; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14'
+
+  - id: aaa-protocols
+    obj: '5.6'
+    name: 'RADIUS, TACACS+ and OAuth vs OIDC'
+    rule: 'RADIUS: UDP, hides only the password. TACACS+: TCP, whole body, separate AAA.'
+    learn:
+      - 'RADIUS (RFC 2865) runs over UDP and protects only the user password; it is common for network and Wi-Fi access.'
+      - 'TACACS+ runs over TCP 49, protects the whole body (CISSP says encrypts; RFC 8907 says obfuscates) and separates the three As: good for device admin.'
+      - 'OAuth 2.0 grants delegated authorization (access tokens). OpenID Connect adds authentication on top of it.'
+    src: 'RFC 2865 sec. 5.2; RFC 8907 sec. 4.5 and 10.1 (body obfuscation); RFC 6749 sec. 1; OpenID Connect Core 1.0'
+
+cases:
+  - id: k5-01
+    title: 'Passkeys for the drivers'
+    where: 'Halvorsen Labs, driver app team · Tue 07:30'
+    diff: 1
+    open: >-
+      Forty drivers just fell for the same fake "payroll login" text message. Their passwords now belong to someone
+      in a hoodie. Rafa Lind wants a "passwordless thing" for the driver app by Friday. Dale wants it by lunch and
+      thinks a passkey is a car key with Wi-Fi. Shifty, who has never typed a password in his afterlife, is
+      cautiously excited.
+    scenes:
+      - c: passwordless-fido
+        kind: best
+        text: >-
+          Forty Halvorsen drivers typed their passwords into a fake payroll page after a text message. Rafa Lind
+          proposes three fixes for the driver app: SMS one-time codes, security questions, or FIDO2 passkeys with
+          WebAuthn. Dale suggests a longer password with more symbols.
+        ask: 'Which option BEST stops this kind of phishing from working again?'
+        o:
+          - 'Add one-time codes sent by SMS to every login'
+          - 'Require longer passwords with special characters'
+          - 'Move drivers to FIDO2 passkeys bound to the app''s domain'
+          - 'Add three security questions after the password'
+        a: 2
+        r:
+          - 'The next fake page simply asks for the SMS code too, and relays it in real time. Ten more drivers lose their accounts.'
+          - 'Drivers type their new 18-character passwords into the next fake page just as happily.'
+          - 'A week later the phishers try again. The passkeys will not answer a look-alike domain. Kim Osei sees zero takeovers.'
+          - 'The phishing page adds the three questions. Drivers answer them. The attacker now knows their first pet, too.'
+        why: >-
+          FIDO2/WebAuthn credentials are scoped to the real relying party, so a look-alike site gets nothing usable,
+          and there is no shared secret to type. SMS codes and security questions are still secrets a user can hand
+          to a fake page in real time.
+        src: 'W3C Web Authentication Level 3, sec. 1; NIST SP 800-63B-4 sec. 3.2.5 (phishing resistance)'
+
+      - c: aaa-model
+        kind: sort
+        text: >-
+          Dale asks what the new driver login actually does, step by step. Shifty sorts what happens when driver
+          Sanne opens the Halvorsen app and picks up a delivery job.
+        ask: 'Sort each step: identification, authentication or authorization?'
+        bins: ['Identification (claim)', 'Authentication (prove)', 'Authorization (permit)']
+        pairs:
+          - ['Sanne enters her driver ID', 0]
+          - ['The app shows her badge number as her account name', 0]
+          - ['Her phone signs a challenge with her passkey', 1]
+          - ['She unlocks the passkey with her fingerprint', 1]
+          - ['The app lets her see only her own routes', 2]
+          - ['She is allowed to mark deliveries done, not edit pay', 2]
+        why: >-
+          Identification is the claim (an ID or username). Authentication proves it (the passkey signature, unlocked
+          locally by the fingerprint). Authorization decides what the proven identity may do. Accounting, the fourth
+          A, would log her actions.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 13; CISSP 2027 outline 5.2'
+
+      - c: authn-factors-aal
+        kind: best
+        text: >-
+          Halvorsen's dispatch admins handle payment routing and need the strongest login tier. Rafa Lind proposes
+          synced passkeys stored in the admins' phone password managers. Kim Osei wants to meet NIST SP 800-63B-4
+          AAL3 for these accounts.
+        ask: 'Which authenticator BEST meets AAL3 for the dispatch admins?'
+        o:
+          - 'Synced passkeys in each admin''s phone password manager'
+          - 'A password plus a one-time code sent by SMS'
+          - 'A password plus an authenticator app push approval'
+          - 'A hardware security key with a non-exportable private key'
+        a: 3
+        r:
+          - 'The auditor reads Appendix B aloud: syncable authenticators are not permitted at AAL3. Rafa sighs and orders keys.'
+          - 'SMS is a restricted authenticator and not phishing resistant. The auditor does not even finish the sentence.'
+          - 'Push approval is not phishing resistant and keys are not hardware-bound. It is fine for AAL2, not AAL3.'
+          - 'The admins get hardware keys with PINs. The auditor ticks the AAL3 box and asks where Shifty keeps his.'
+        why: >-
+          AAL3 requires phishing resistance and a cryptographic authenticator with a non-exportable private key.
+          Synced passkeys are allowed up to AAL2 but excluded from AAL3 because their keys can be exported. SMS and
+          push approvals are not phishing resistant.
+        src: 'NIST SP 800-63B-4 sec. 2.3 and App. B (syncable authenticators)'
+
+      - c: identity-proofing
+        kind: first
+        text: >-
+          A caller tells the Halvorsen help desk she is driver Sanne de Wit, her phone was stolen, and she needs a new
+          passkey registered on a new phone right now to start her shift. The help desk can see Sanne's name and
+          badge number in the HR system.
+        ask: 'What should the help desk do FIRST?'
+        o:
+          - 'Register the new phone, since the caller knows Sanne''s badge number'
+          - 'Verify the caller''s identity per the account recovery procedure'
+          - 'Email a new passkey link to the address the caller gives'
+          - 'Disable the app for all drivers until the theft is investigated'
+        a: 1
+        trap: 3
+        r:
+          - 'The "real Sanne" turns up at the depot an hour later, with her phone. Someone else just enrolled a passkey on her account.'
+          - 'The depot supervisor checks Sanne''s ID in person and the help desk enrolls the new phone. Strong login, strong recovery.'
+          - 'The address is a fresh webmail account. The attacker clicks the link before Sanne finishes her coffee.'
+          - 'Two hundred drivers sit in their trucks. Priya Nair asks why one lost phone stopped the whole fleet.'
+        why: >-
+          Account recovery is identity proofing again: verify the person to the same assurance as enrollment before
+          binding a new authenticator. A badge number is not proof. Shutting down every driver is a heavy-handed
+          technical response to one unverified request.
+        src: 'NIST SP 800-63A-4 sec. 4 (identity proofing); NIST SP 800-63B-4 sec. 4 (authenticator events: recovery)'
+
+      - c: session-management
+        kind: best
+        text: >-
+          Halvorsen's dispatch web console is used at AAL2. Rafa Lind's draft lets a session last 30 days with no
+          inactivity limit, "so dispatchers never get annoyed". Kim Osei points to NIST SP 800-63B-4.
+        ask: 'Which session rule MOST closely matches the AAL2 limits in SP 800-63B-4?'
+        o:
+          - 'Keep 30 days, but log the dispatcher out when the browser closes'
+          - 'Reauthenticate at least every 24 hours, and after 1 hour of inactivity'
+          - 'Reauthenticate every 12 hours, and after 15 minutes of inactivity'
+          - 'Reauthenticate every 5 minutes for every dispatcher'
+        a: 1
+        r:
+          - 'Dispatchers keep browsers open for weeks. The 30-day session lives on. The auditor frowns.'
+          - 'Rafa sets 24 hours overall and 1 hour idle. Dispatchers grumble once a day. Kim calls that a fair trade.'
+          - 'That is the AAL3 profile. Stricter than needed here; the dispatch floor revolts by Wednesday.'
+          - 'Dispatchers start writing their PINs on the monitors. Security just got worse.'
+        why: >-
+          SP 800-63B-4 sets AAL2 reauthentication at least every 24 hours overall and an inactivity timeout of no
+          more than 1 hour. 12 hours and 15 minutes are the AAL3 values, stricter than this console needs.
+        src: 'NIST SP 800-63B-4 sec. 2.2 and 2.3 (reauthentication)'
+        diff: 2
+    close: >-
+      The phishers send a new batch of texts on Thursday. Not one passkey answers them. Drivers log in with a thumb
+      and get on the road. Dale tells the board he invented "passwordlessness". Shifty lets him: the drivers are
+      safe, and that was the point.
+
+  - id: k5-02
+    title: 'One login to rule them all'
+    where: 'Halvorsen Freight HQ, IT floor · Wed 10:00'
+    diff: 2
+    open: >-
+      Halvorsen staff juggle eleven passwords: payroll, the portal, the HR cloud, the routing tool. Tomás Reyes
+      proposes single sign-on. Dale hears "single" and asks if that means one password for the whole company,
+      written on the fridge. Shifty, haunting the whiteboard, draws boxes and arrows. Nobody can see the marker
+      because he cannot hold it.
+    scenes:
+      - c: federation-sso
+        kind: spot
+        text: >-
+          Halvorsen staff will log in to a cloud HR app through SAML 2.0. An employee opens the HR app, is redirected
+          to Halvorsen's identity provider, logs in there, and is sent back with a signed assertion. Tomás Reyes asks
+          which box actually checks the employee's credentials.
+        ask: 'Tap the component that authenticates the user and issues the SAML assertion.'
+        map:
+          caption: 'SAML 2.0 web SSO, cloud HR app'
+          nodes:
+            - { id: user, label: 'Employee browser', x: 4, y: 40 }
+            - { id: sp, label: 'Cloud HR app (SP)', x: 70, y: 12 }
+            - { id: idp, label: 'Halvorsen IdP', x: 70, y: 66 }
+            - { id: dir, label: 'HR database (SP side)', x: 70, y: 39 }
+            - { id: fw, label: 'Office firewall', x: 37, y: 40 }
+          links: [[user, fw], [fw, sp], [fw, idp], [sp, dir]]
+        a: idp
+        why: >-
+          In SAML web SSO the identity provider authenticates the user and issues a signed assertion. The service
+          provider (the HR app) never sees the password; it validates the assertion's signature and trusts it. The
+          firewall only passes traffic.
+        src: 'OASIS SAML 2.0 Core (assertions); OASIS SAML 2.0 Profiles, Web Browser SSO profile'
+
+      - c: aaa-protocols
+        kind: best
+        text: >-
+          Tomás Reyes wants central login for Halvorsen's 300 routers and switches. Network admins must be authorized
+          per command, every command must be logged, and the whole exchange with the AAA server should be protected,
+          not just the password.
+        ask: 'Which protocol is the BEST fit for administering the network devices?'
+        o:
+          - 'RADIUS, because it is widely supported and already runs the Wi-Fi'
+          - 'TACACS+, because it separates AAA and protects the whole body'
+          - 'OAuth 2.0, because it issues access tokens'
+          - 'SAML 2.0, because it is used for web SSO'
+        a: 1
+        r:
+          - 'RADIUS works, but it combines authentication and authorization and protects only the password. Per-command logging gets awkward.'
+          - 'Tomás sets up TACACS+. Each admin command is authorized and logged separately. Kim Osei finally has device audit trails.'
+          - 'OAuth delegates web API access. The routers have no idea what to do with an access token.'
+          - 'SAML is for browser-based federated login. The switch console does not speak XML.'
+        why: >-
+          TACACS+ runs over TCP, protects the whole packet body and separates authentication, authorization and
+          accounting, so per-command authorization and logging are natural. RADIUS (UDP) protects only the password
+          and is the usual choice for network access, not device administration.
+        src: 'RFC 8907 (TACACS+) sec. 1 and 4.5; RFC 2865 (RADIUS) sec. 5.2'
+
+      - c: kerberos-sso
+        kind: rank
+        text: >-
+          Inside the head office, Windows sign-on uses Kerberos. Dale asks how a user gets from typing in a password to
+          opening the file server without the password ever crossing the network. Shifty walks him through it.
+        ask: 'Put the Kerberos steps in order, first at the top.'
+        items:
+          - 'The user requests a ticket-granting ticket from the Authentication Service'
+          - 'The KDC returns a TGT, encrypted so only the KDC can read it'
+          - 'The client presents the TGT to the Ticket-Granting Service for the file server'
+          - 'The TGS issues a service ticket for the file server'
+          - 'The client presents the service ticket to the file server'
+        why: >-
+          Kerberos: the Authentication Service issues a TGT; the client uses the TGT to ask the Ticket-Granting
+          Service for a service ticket; the service ticket is presented to the target service. The password itself
+          is never sent.
+        src: 'RFC 4120 sec. 1 and 3.1-3.3 (AS, TGS and client/server exchanges)'
+
+      - c: federation-sso
+        kind: best
+        text: >-
+          Halvorsen Labs is building a customer portal login with "Sign in with" a partner's identity platform. Rafa
+          Lind wants to use plain OAuth 2.0 access tokens as proof of who the customer is. Kim Osei says that is the
+          wrong tool.
+        ask: 'Which protocol choice BEST authenticates the customer to the portal?'
+        o:
+          - 'OAuth 2.0 access tokens, since the API accepted them'
+          - 'OpenID Connect, which adds an ID token about the user'
+          - 'RADIUS, since it was built for authentication'
+          - 'Kerberos tickets issued by the partner''s KDC'
+        a: 1
+        r:
+          - 'A token issued to some other app gets replayed at the portal and accepted. OAuth said "may access", never "is this user".'
+          - 'Rafa switches to OpenID Connect. The portal checks the ID token''s issuer, audience and signature. Kim nods.'
+          - 'RADIUS is for network access servers. The partner does not run one for web customers.'
+          - 'Kerberos across the internet to a partner''s KDC for customers? Tomás laughs for a full minute.'
+        why: >-
+          OAuth 2.0 is an authorization framework: an access token grants access, it does not authenticate the user
+          to the client. OpenID Connect adds an authentication layer on OAuth 2.0, with a signed ID token describing
+          the user and the authentication event.
+        src: 'RFC 6749 sec. 1; OpenID Connect Core 1.0 sec. 1 and 2 (ID token)'
+        diff: 3
+
+      - c: session-management
+        kind: first
+        text: >-
+          After SSO goes live, Kim Osei learns that an attacker stole a valid SSO session cookie from a Halvorsen
+          finance clerk's laptop through malware. The clerk's password was never captured. The attacker is using the
+          session to browse payroll right now.
+        ask: 'What should Kim do FIRST?'
+        o:
+          - 'Force a password reset for the clerk and wait for the next login'
+          - 'Revoke the clerk''s active sessions and tokens at the IdP'
+          - 'Rebuild the clerk''s laptop from the gold image'
+          - 'Email all staff a warning about cookie theft'
+        a: 1
+        trap: 2
+        r:
+          - 'The password changes. The stolen session cookie keeps working for hours. Payroll is still being browsed.'
+          - 'Every session for the clerk dies at once. The attacker''s browser goes blank. Now Kim can investigate the laptop.'
+          - 'The laptop is wiped, along with the evidence. The stolen cookie, on the attacker''s machine, still works.'
+          - 'Staff read the email. The attacker, still logged in as the clerk, reads it too.'
+        why: >-
+          After login, the session token is the credential. A password reset does not kill an existing session;
+          revoking sessions and tokens does. Rebuilding the laptop first destroys evidence and leaves the stolen
+          session alive.
+        src: 'NIST SP 800-63B-4 sec. 5 (session management); OWASP Session Management Cheat Sheet (session invalidation)'
+    close: >-
+      Eleven passwords become one login, plus a passkey. Payroll is quiet again. Dale proudly removes the password
+      from the fridge, then asks where SSO keeps the password now. Shifty explains the IdP. Dale writes "IdP" on the
+      fridge instead.
+
+  - id: k5-03
+    title: 'Who gets to see the lab results?'
+    where: 'Halvorsen MedLink, records office · Thu 14:00'
+    diff: 2
+    open: >-
+      Halvorsen MedLink moves lab results and patient data for three hospitals. Right now every courier, clerk and
+      intern can open every record, because "it was easier". Dr. Amara Cole wants that fixed before the hospitals'
+      auditors arrive. Dale suggests "a big password on the folder". Shifty floats through the filing cabinets,
+      appalled at what he can read.
+    scenes:
+      - c: rbac-rubac-abac
+        kind: sort
+        text: >-
+          Dr. Amara Cole, MedLink's privacy officer, lists the access rules she wants. Shifty sorts each one by the
+          access control model it describes, so Tomás Reyes knows what to build.
+        ask: 'Sort each rule: role-based, rule-based or attribute-based?'
+        bins: ['Role-based (RBAC)', 'Rule-based (RuBAC)', 'Attribute-based (ABAC)']
+        pairs:
+          - ['Everyone in the Courier role can view pickup addresses', 0]
+          - ['Billing clerks get the Billing role''s permissions', 0]
+          - ['No one may log in between 23:00 and 05:00', 1]
+          - ['Block all file uploads larger than 50 MB', 1]
+          - ['Nurses may view results for their own hospital, on managed devices', 2]
+          - ['Contractors may edit only records tagged with their project', 2]
+        why: >-
+          RBAC grants by job role. Rule-based applies the same rule to every user, like a firewall or a time window.
+          ABAC combines attributes of the subject, the object and the environment (hospital, device, tag), which is
+          why it can express contextual rules.
+        src: 'NIST SP 800-162 sec. 2; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14'
+
+      - c: mac-dac
+        kind: best
+        text: >-
+          On the MedLink file share, any employee who creates a folder can share it with anyone. A clerk shared a
+          folder of lab results with the whole company "just for a day". Dr. Cole asks what kind of access control
+          let that happen.
+        ask: 'Which access control model is MOST likely in use on that share?'
+        o:
+          - 'Mandatory access control, enforced by system labels'
+          - 'Discretionary access control, set by each owner'
+          - 'Rule-based access control, applied to all users'
+          - 'Risk-Adaptable Access Control, set by live risk'
+        a: 1
+        r:
+          - 'Under MAC, the clerk could not have relabeled the folder. The system would have refused.'
+          - 'Right: the owner of the folder decided, at their discretion. Dr. Cole now wants owners trained and sharing restricted.'
+          - 'A rule-based system applies one rule to everyone. Here each owner made their own choice.'
+          - 'Nothing weighed risk here. The share did whatever the clerk clicked.'
+        why: >-
+          DAC lets the owner of an object decide who can access it, which is exactly how one clerk over-shared. Under
+          MAC, users cannot change access: the system enforces labels and clearances.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14; NIST IR 7316 (Assessment of Access Control Systems)'
+        diff: 1
+
+      - c: pdp-pep
+        kind: spot
+        text: >-
+          Tomás Reyes sketches MedLink's new zero trust design from NIST SP 800-207. A courier's tablet asks for a lab
+          result. The policy engine and policy administrator decide, and a gateway in front of the records system
+          lets the session through or cuts it off.
+        ask: 'Tap the policy enforcement point (PEP).'
+        map:
+          caption: 'MedLink zero trust access to lab results'
+          nodes:
+            - { id: tab, label: 'Courier tablet', x: 2, y: 44 }
+            - { id: pep, label: 'Access gateway', x: 38, y: 44 }
+            - { id: rec, label: 'Lab results system', x: 76, y: 44 }
+            - { id: pe, label: 'Policy engine', x: 26, y: 8 }
+            - { id: pa, label: 'Policy administrator', x: 52, y: 8 }
+            - { id: cdm, label: 'Device health (CDM)', x: 14, y: 80 }
+            - { id: ti, label: 'Threat intel feed', x: 62, y: 80 }
+          links: [[tab, pep], [pep, rec], [pe, pa], [pa, pep], [cdm, pe], [ti, pe]]
+        a: pep
+        why: >-
+          In SP 800-207 the PEP sits in the data path between subject and resource and enables, monitors and
+          terminates the connection. The policy engine and policy administrator together form the PDP: they decide,
+          and the administrator tells the PEP what to do.
+        src: 'NIST SP 800-207 sec. 3 (logical components) and Figure 2'
+
+      - c: radac
+        kind: best
+        text: >-
+          At 02:00 a MedLink courier asks for a patient's lab result from an unmanaged phone in another country. A
+          hospital surgeon urgently needs that same result. Dr. Cole wants a model that weighs the live risk of each
+          request against the operational need.
+        ask: 'Which access control model BEST matches what Dr. Cole describes?'
+        o:
+          - 'Role-based access control'
+          - 'Discretionary access control'
+          - 'Risk-Adaptable Access Control'
+          - 'Mandatory access control'
+        a: 2
+        r:
+          - 'RBAC sees "Courier role" and either always allows or always denies. It cannot weigh the 02:00 foreign phone.'
+          - 'DAC leaves it to the record''s owner. The owner is asleep.'
+          - 'RAdAC scores the courier''s request as high risk and denies it, while the surgeon on a managed device gets in. Dr. Cole smiles.'
+          - 'MAC compares labels and clearances. The phone''s location never enters the decision.'
+        why: >-
+          RAdAC makes each decision from current security risk (device, location, threat level) balanced against
+          operational need. RBAC and MAC apply fixed policy regardless of the situation, and DAC leaves it to owners.
+        src: 'NIST CSRC Glossary, risk adaptive (adaptable) access control (CNSSI 4009); McGraw, RAdAC (NIST 2009)'
+
+      - c: access-asset-lifecycle
+        kind: first
+        text: >-
+          Before the hospital audit, Dr. Cole asks Shifty to clean up access to MedLink's lab records, the specimen
+          fridge room and the courier tablets. Nobody knows who currently has access to any of them, or who approved
+          it.
+        ask: 'What should Shifty do FIRST?'
+        o:
+          - 'Revoke everyone''s access and let people reapply'
+          - 'Buy an identity governance tool to automate it'
+          - 'Have each asset owner review who has access today'
+          - 'Change the fridge room lock code tonight'
+        a: 2
+        trap: 3
+        r:
+          - 'Couriers cannot open the fridge room. Lab samples sit in a hot van. A hospital calls Priya Nair, loudly.'
+          - 'The tool arrives in four months. The audit is in two weeks. The tool cannot tell you who should have access anyway.'
+          - 'Owners find 60 people who should not have access, including two ex-interns and a vending machine account. Removals begin.'
+          - 'The new code is texted to the whole team, including the ex-interns. Nothing about who should have access changed.'
+        why: >-
+          Access management runs provision, control, review, revoke, for information, facilities and devices alike.
+          With no record, start with an owner-led review of current access, then revoke what is not justified.
+          Mass revocation breaks the mission; a new code fixes nothing.
+        src: 'CISSP 2027 outline 5.1 (provision, control, review, revoke); NIST SP 800-53 Rev. 5, AC-2(j) and PE-2'
+        diff: 1
+
+      - c: mac-dac
+        kind: best
+        text: >-
+          Halvorsen wins a government contract to move sealed defense parts. The contract requires that access to
+          shipment files follow classification labels and user clearances, and that no user can change a file's
+          label or grant access to others.
+        ask: 'Which access control model does the contract MOST clearly require?'
+        o:
+          - 'Discretionary access control'
+          - 'Role-based access control'
+          - 'Attribute-based access control'
+          - 'Mandatory access control'
+        a: 3
+        r:
+          - 'Under DAC, a file owner could share the file with anyone. The contract officer reaches for a red pen.'
+          - 'Roles help, but roles do not compare labels with clearances, and admins can still change role permissions.'
+          - 'ABAC could model labels, but the contract describes the classic labeled, non-discretionary model by name.'
+          - 'Tomás deploys labels and clearances the system enforces. Nobody, not even Dale, can relabel a file.'
+        why: >-
+          Mandatory access control compares subject clearances with object classification labels, and users cannot
+          change labels or pass access on. That is the definition the contract describes. DAC is the opposite: owners
+          decide.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14 (MAC); NIST IR 7316 (Assessment of Access Control Systems)'
+        diff: 2
+    close: >-
+      The hospital auditors find roles, rules, a zero trust gateway and only the people who need lab results able to
+      see them. Dr. Cole buys Shifty a coffee he cannot drink. Dale asks if "RAdAC" is a band. Shifty says yes, to keep
+      the meeting short.
+
+  - id: k5-04
+    title: 'The leaver who never left'
+    where: 'Halvorsen Freight HQ, HR wing · Mon 08:15'
+    diff: 2
+    open: >-
+      An internal audit finds that Halvorsen has 1,140 active accounts and 960 employees. Some of the extras belong to
+      people who left in 2023. One of them logged in last night. Ines Albescu wants answers. Dale wants to know if
+      ghosts count as employees, since Shifty does. Shifty points out that he, at least, has a badge.
+    scenes:
+      - c: provisioning-reviews
+        kind: first
+        text: >-
+          Audit shows that the account of Lars, a Halvorsen planner who resigned 14 months ago, logged in to the
+          routing system last night from an unknown device. HR never sent IT a leaver notice. Kim Osei is on the
+          call.
+        ask: 'What should Shifty have Kim do FIRST?'
+        o:
+          - 'Disable Lars''s account and kill its sessions'
+          - 'Ask HR why the leaver notice was never sent'
+          - 'Start a full review of every account in the company'
+          - 'Call Lars and ask whether he logged in'
+        a: 0
+        r:
+          - 'The account dies mid-session. Whoever was using it is locked out. Now the investigation and the root cause can follow.'
+          - 'HR digs through emails for an hour. The account stays active and someone keeps using it.'
+          - 'A full review is the right follow-up. Started first, it takes weeks while the intruder keeps working.'
+          - 'Lars says it was not him. The intruder has had another hour in the routing system.'
+        why: >-
+          An active, unauthorized login is an incident: contain it first by disabling the account and its sessions.
+          Then fix the cause (the broken HR-to-IT leaver process) and review all accounts. Deprovisioning should
+          happen at termination.
+        src: 'NIST SP 800-53 Rev. 5, AC-2 and PS-4 (personnel termination); CISSP 2027 outline 5.5'
+        diff: 1
+
+      - c: provisioning-reviews
+        kind: best
+        text: >-
+          Kim Osei finds that Noor in Finance moved from Accounts Payable to Treasury last year. She still has full
+          Accounts Payable rights and now also has Treasury rights, so she can both create a vendor and send payments
+          to it.
+        ask: 'What is the BEST fix to prevent this from recurring?'
+        o:
+          - 'Remove Noor''s Treasury access and leave the rest'
+          - 'Make the transfer process remove old access when new access is granted'
+          - 'Tell Noor in writing not to use her old Accounts Payable rights again'
+          - 'Ask the auditors to check every one of Noor''s payments at year end'
+        a: 1
+        r:
+          - 'Noor cannot do her new job. And the next person who transfers will collect rights just the same.'
+          - 'Transfers now start with removal. Next quarter''s review finds no new privilege creep. Marcus Webb is delighted.'
+          - 'A request is not a control. The rights are still there for anyone who steals her account.'
+          - 'The auditors find the problem a year later, after the money is gone.'
+        why: >-
+          Privilege creep comes from transfers that add access without removing the old. The root-cause fix is a
+          transfer process that revokes prior access, backed by periodic reviews. It also restores separation of
+          duties between creating vendors and paying them.
+        src: 'NIST SP 800-53 Rev. 5, PS-5 (personnel transfer) and AC-2; CISSP 2027 outline 5.5 (role definition and transition)'
+
+      - c: service-accounts
+        kind: best
+        text: >-
+          Among the extra accounts, Kim finds "svc_routing": a service account with Domain Admin rights, a password
+          set in 2019 that never expires, no named owner, and interactive logon allowed. The routing platform breaks
+          if it stops working.
+        ask: 'What is the BEST action for svc_routing?'
+        o:
+          - 'Delete it today, because nobody owns it'
+          - 'Leave it alone, because the routing platform depends on it'
+          - 'Assign an owner, cut it to needed rights, vault and rotate its password'
+          - 'Change its password and email the new one to the routing team'
+        a: 2
+        r:
+          - 'The routing platform stops. 400 trucks have no routes. Priya Nair finds Shifty in the boardroom ceiling.'
+          - 'The account sits there with Domain Admin and a 2019 password. Attackers love an account like this.'
+          - 'Rafa''s team confirms what it needs. Rights drop to two servers, interactive logon is blocked, the vault rotates the secret.'
+          - 'The new password now lives in twelve inboxes. That is not an improvement.'
+        why: >-
+          Service accounts need a named owner, least privilege, no interactive logon, secrets in a vault with
+          rotation, and inclusion in reviews. Deleting it breaks the business; leaving it keeps a critical exposure.
+        src: 'CISSP 2027 outline 5.5 (service accounts management); NIST SP 800-53 Rev. 5, AC-2, AC-6, IA-5'
+
+      - c: identities-as-assets
+        kind: best
+        text: >-
+          Kim Osei briefs the board: last year's breach began with a stolen login, not a software exploit. Dale says
+          the fix is a bigger firewall. Marcus Webb asks what Halvorsen should treat as the thing to protect.
+        ask: 'Which statement BEST reflects how the 2027 CISSP outline frames this risk?'
+        o:
+          - 'Identities are assets whose access must be managed and protected'
+          - 'The network perimeter is the main asset to protect'
+          - 'Only systems and data are assets; identities are just labels'
+          - 'Stolen logins are an HR issue, not a security asset issue'
+        a: 0
+        r:
+          - 'The board adds identities to the asset register: owners, reviews, strong authentication and monitoring. Kim gets budget for it.'
+          - 'Dale buys the bigger firewall. The next attacker logs in through it with a valid password.'
+          - 'Labels do not get phished. Identities do, and then they open every door the label was allowed through.'
+          - 'HR cannot see the attacker using the account at 3 a.m. The SOC can, if identities are monitored.'
+        why: >-
+          The 2027 outline adds identities to the assets in 5.1. A valid stolen identity passes perimeter controls,
+          so identities need inventory, ownership, strong authentication, least privilege and monitoring like any
+          other critical asset.
+        src: 'CISSP 2027 outline 5.1 (identities); NIST SP 800-207 sec. 2.1 (tenets)'
+        diff: 1
+
+      - c: privilege-escalation
+        kind: sort
+        text: >-
+          Kim Osei reviews what the planners' accounts can do on the Linux routing servers. Shifty sorts the findings
+          into what fits the Principle of Least Privilege and what violates it.
+        ask: 'Sort each finding: fits PoLP or violates PoLP?'
+        bins: ['Fits least privilege', 'Violates least privilege']
+        pairs:
+          - ['Planners use sudo for one restart command, and each use is logged', 0]
+          - ['Admins do email from a normal, unprivileged account', 0]
+          - ['The admin group is reviewed monthly by the server owner', 0]
+          - ['Every planner is in the sudoers file with ALL privileges', 1]
+          - ['A shared root password is taped under the keyboard', 1]
+          - ['Interns were added to the admin group "temporarily" in 2022', 1]
+        why: >-
+          PoLP gives only the rights a job needs, with escalation limited, logged and reviewed. Blanket sudo, shared
+          root and stale admin membership all grant far more than needed and break accountability.
+        src: 'CISSP 2027 outline 5.5 (privilege escalation: admin groups/sudo, auditing, PoLP); NIST SP 800-53 Rev. 5, AC-6(2), AC-6(9)'
+        diff: 1
+
+      - c: access-asset-lifecycle
+        kind: best
+        text: >-
+          Lars, the planner who resigned 14 months ago, still had a working door badge as well as a working login.
+          The badge system and the directory are run by different teams and never compared. Ines Albescu wants this
+          fixed for good.
+        ask: 'Which change BEST closes both gaps for future leavers?'
+        o:
+          - 'Ask every leaver to hand in their badge and laptop at the exit interview'
+          - 'Tie badge and logical accounts to one identity, deprovisioned by one HR trigger'
+          - 'Audit the badge system once a year'
+          - 'Change all door codes every month'
+        a: 1
+        r:
+          - 'Lars''s badge was never handed in. Neither will the next one be. And the login stays open.'
+          - 'Leaving now triggers one workflow that closes the badge, the login and the cloud apps together. The gap closes.'
+          - 'A yearly audit finds the problem up to a year late, with a door open the whole time.'
+          - 'Badges do not use codes. And nothing about the logins changed.'
+        why: >-
+          Physical and logical access are both part of 5.1. Linking them to one identity and one authoritative leaver
+          trigger revokes everything promptly. Collection and yearly audits rely on people remembering, and are late.
+        src: 'CISSP 2027 outline 5.1 (facilities, systems; revoke); NIST SP 800-53 Rev. 5, PS-4 and PE-2'
+    close: >-
+      The account count drops to 961: 960 employees and svc_routing, which now has an owner and a vault. The intruder
+      turns out to have bought Lars's password on a forum. Lars is horrified. Dale asks if Shifty can be the 962nd.
+      Payroll says no.
+
+  - id: k5-05
+    title: 'Root for everyone'
+    where: 'Halvorsen Labs, server room · Fri 16:45'
+    diff: 2
+    open: >-
+      It is Friday afternoon at Halvorsen Labs. Forty-one people have permanent Domain Admin "because deploys are
+      faster". The admin passwords live in a spreadsheet called passwords_FINAL_v3.xlsx. Rafa Lind defends it. Kim
+      Osei hides her face. Dale asks for admin rights too, for "synergy". Shifty settles in for a long weekend of
+      paperwork.
+    scenes:
+      - c: just-in-time-access
+        kind: best
+        text: >-
+          Forty-one Halvorsen Labs staff hold permanent Domain Admin rights. Most need admin a few times a month for
+          deployments. Rafa Lind is worried that removing it will slow releases.
+        ask: 'Which approach BEST reduces the risk while keeping deployments possible?'
+        o:
+          - 'Keep standing admin, but require longer passwords'
+          - 'Remove admin rights from everyone, including the deploy team'
+          - 'Give admin only to Rafa, who runs every deployment for the team'
+          - 'Use Just-In-Time elevation: requested, approved, time-limited, logged'
+        a: 3
+        r:
+          - 'Forty-one standing admin accounts remain. A longer password does not stop a stolen session.'
+          - 'Nobody can deploy the Monday hotfix. Rafa finds the old spreadsheet and the admins come back by Tuesday.'
+          - 'Rafa becomes the bottleneck and a single point of failure. Also, his account is now the only target that matters.'
+          - 'Standing admins drop to two break-glass accounts. Deploys take an extra minute. The attack surface shrinks by 39 accounts.'
+        why: >-
+          Just-In-Time access removes standing privilege: rights are granted for a task and a time window, then expire,
+          with a log of each grant. Removing all admin breaks the work; one super-admin concentrates risk.
+        src: 'CISSP 2027 outline 5.2 (Just-In-Time); NIST SP 800-53 Rev. 5, AC-2(2) and AC-6'
+
+      - c: credential-vault
+        kind: best
+        text: >-
+          Halvorsen Labs keeps admin and service passwords in a shared spreadsheet, passwords_FINAL_v3.xlsx, on a file
+          share. Kim Osei wants a credential management system instead.
+        ask: 'Which feature of a password vault MOST reduces the risk the spreadsheet creates?'
+        o:
+          - 'It shows passwords in a nicer interface'
+          - 'It encrypts secrets, controls checkout, logs use and rotates passwords'
+          - 'It lets everyone see every password, but only from the office'
+          - 'It prints a backup copy of all passwords each week'
+        a: 1
+        r:
+          - 'A pretty interface over the same uncontrolled secrets. Kim is not amused.'
+          - 'Each checkout is approved and logged, and the vault rotates the password afterward. The spreadsheet is deleted, for real.'
+          - 'Everyone still sees everything. An attacker inside the office does too.'
+          - 'A weekly printout of every admin password. Shifty floats over to the printer to make sure it is shredded.'
+        why: >-
+          A credential management system stores secrets encrypted, restricts who may retrieve them, logs each
+          checkout and can rotate passwords after use, giving control and accountability the spreadsheet lacks.
+        src: 'CISSP 2027 outline 5.2 (credential management systems, e.g., password vault); NIST SP 800-53 Rev. 5, IA-5'
+        diff: 1
+
+      - c: privilege-escalation
+        kind: first
+        text: >-
+          Kim Osei's monitoring shows that a Halvorsen Labs intern's account was added to the Domain Admins group at
+          03:12 last night. No change request exists, and the intern says she did not ask for it. The account is
+          still a member.
+        ask: 'What should Kim do FIRST?'
+        o:
+          - 'Remove the account from Domain Admins and treat it as an incident'
+          - 'Wait for the monthly access review to catch it'
+          - 'Ask the intern''s manager to approve it after the fact'
+          - 'Reinstall the domain controllers over the weekend'
+        a: 0
+        trap: 3
+        r:
+          - 'The rogue membership is gone in a minute. Kim opens an incident to find out who added it and how.'
+          - 'Three weeks of Domain Admin for an attacker. The review finds a very different domain.'
+          - 'A signature after the fact does not explain who added it at 03:12. It just hides the alarm.'
+          - 'A weekend rebuild, with the evidence of how it happened gone, and no clue whether the attacker is still in.'
+        why: >-
+          Unapproved escalation into an admin group is a classic compromise indicator. Contain it (remove the
+          membership) and handle it as an incident so the cause is found. Rebuilding first destroys evidence; waiting
+          leaves an attacker with full privilege.
+        src: 'CISSP 2027 outline 5.5 (privilege escalation, auditing its use); NIST SP 800-53 Rev. 5, AC-2(4) and AC-6(9)'
+
+      - c: service-accounts
+        kind: first
+        text: >-
+          While moving secrets into the vault, Rafa Lind finds the password for the payment API's service account
+          committed in plain text to a public code repository three months ago.
+        ask: 'What should Rafa do FIRST?'
+        o:
+          - 'Delete the commit from the repository history and force-push the cleanup'
+          - 'Rotate the service account''s credential and check its recent use'
+          - 'Make the repository private'
+          - 'Add a secret-scanning tool to the build pipeline'
+        a: 1
+        r:
+          - 'The commit is gone, but forks and caches have it. The password still works.'
+          - 'The old password is dead within minutes. Kim checks three months of logs for any use from outside Halvorsen.'
+          - 'Private now, public for three months. Anyone who copied it still has a working password.'
+          - 'Good for next time. This time, the exposed password still opens the payment API.'
+        why: >-
+          An exposed secret must be assumed compromised: rotate it so it stops working, then check whether it was
+          used. Scrubbing history or making the repo private does not invalidate copies; scanning prevents future
+          leaks only.
+        src: 'NIST SP 800-53 Rev. 5, IA-5 (authenticator management: change on compromise); CISSP 2027 outline 5.5'
+        diff: 1
+
+      - c: kerberos-sso
+        kind: best
+        text: >-
+          Kim Osei's incident review finds attackers stole the secret key of Halvorsen's Kerberos KDC service account
+          (krbtgt) and are issuing themselves valid-looking tickets for any user. Rafa Lind asks why this is so bad.
+        ask: 'What is the MAIN reason a stolen KDC key is so damaging?'
+        o:
+          - 'It lets attackers forge ticket-granting tickets for any identity'
+          - 'It reveals every user''s password in clear text to the attacker'
+          - 'It disables time synchronization across the domain'
+          - 'It only affects the one server where it was stolen'
+        a: 0
+        r:
+          - 'Right. With the KDC key they mint TGTs for anyone, so the key must be reset (twice) and every ticket distrusted.'
+          - 'Kerberos does not store clear-text passwords for them to read. The danger is forged tickets, not a password list.'
+          - 'Clocks keep ticking normally. The tickets are what is fake.'
+          - 'The key is trusted across the whole realm. Every service will accept the forged tickets.'
+        why: >-
+          The KDC encrypts ticket-granting tickets with its own secret key. Whoever holds that key can forge TGTs for
+          any identity, which every service in the realm will accept. That is why the KDC is the crown jewel of
+          Kerberos.
+        src: 'RFC 4120 sec. 1 and 5.3 (tickets encrypted in the server key); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14'
+        diff: 3
+    close: >-
+      By Monday, 41 standing admins are two break-glass accounts and a JIT queue. The spreadsheet is gone, the
+      payment key is rotated, and the KDC key has been reset twice. Rafa admits deploys take one minute longer. Dale
+      still does not get admin rights.
+
+  - id: k5-06
+    title: 'Rotterdam goes cloud'
+    where: 'Halvorsen EU branch, Rotterdam · Tue 09:00'
+    diff: 3
+    open: >-
+      The Rotterdam branch is moving to a cloud office suite. Jonas Vries wants it live next week. Head office still
+      runs its directory on-premises in the basement. Rotterdam staff are tired of two logins. Dale proposes copying
+      everyone's passwords to the cloud "in a nice spreadsheet". Shifty takes the ferry over, which is slow but free
+      for ghosts.
+    scenes:
+      - c: federation-sso
+        kind: best
+        text: >-
+          Halvorsen keeps its main user directory on-premises. The Rotterdam branch is adopting a cloud office suite.
+          Jonas Vries wants staff to use their existing Halvorsen login, and wants leavers disabled in one place.
+        ask: 'Which design BEST meets both goals?'
+        o:
+          - 'Create separate cloud accounts with their own passwords'
+          - 'Export all passwords to the cloud provider in a file'
+          - 'Federate the cloud suite to Halvorsen''s identity provider (hybrid)'
+          - 'Share one cloud admin login for the whole branch'
+        a: 2
+        r:
+          - 'Two logins again, and leavers stay active in the cloud when HR forgets. Jonas is unimpressed.'
+          - 'A file of every password, sent to a third party. Ines Albescu''s GDPR alarm goes off.'
+          - 'The cloud suite trusts Halvorsen''s IdP. One login for staff, and disabling a leaver at home disables them in the cloud.'
+          - 'One shared login, zero accountability. Who deleted the shipping folder? "Rotterdam" did.'
+        why: >-
+          Hybrid federation keeps the authoritative identity on-premises while the cloud service trusts the
+          identity provider's assertions. Users keep one login, and deprovisioning at the source cuts off cloud access.
+          Separate accounts drift; shared logins destroy accountability.
+        src: 'CISSP 2027 outline 5.3 (on-premises, cloud, hybrid); OASIS SAML 2.0 Core; OpenID Connect Core 1.0'
+
+      - c: radac
+        kind: best
+        text: >-
+          Jonas Vries asks for access rules for the cloud suite. On a managed laptop in the office, staff should just
+          get in. From a new country at night, they should be asked for a passkey again or blocked if the risk is
+          high, unless a manager confirms an urgent need.
+        ask: 'Which access control approach does Jonas MOST clearly describe?'
+        o:
+          - 'Discretionary access control'
+          - 'Risk-Adaptable Access Control'
+          - 'Mandatory access control'
+          - 'Role-based access control'
+        a: 1
+        r:
+          - 'DAC lets file owners share as they like. It says nothing about country or time.'
+          - 'The policy scores each request''s risk and weighs it against need: allow, step up or deny. Rotterdam gets adaptive access.'
+          - 'MAC compares labels and clearances. It does not change its answer at night in Lisbon.'
+          - 'RBAC gives the same answer to everyone in a role, wherever and whenever they are.'
+        why: >-
+          RAdAC evaluates each request against current risk (device, location, time, threat) and operational need,
+          and can allow, require stronger authentication or deny. DAC, MAC and RBAC give the same answer regardless
+          of context.
+        src: 'NIST CSRC Glossary, risk adaptive (adaptable) access control (CNSSI 4009); McGraw, RAdAC (NIST 2009)'
+        diff: 2
+
+      - c: pdp-pep
+        kind: best
+        text: >-
+          Tomás Reyes explains the Rotterdam design. A policy engine scores each access request using device health and
+          threat intel. A gateway in front of the cloud suite then lets the session through or blocks it. Dale asks
+          which part "makes the call".
+        ask: 'In NIST SP 800-207 terms, which component is the MAIN access decision-maker?'
+        o:
+          - 'The policy enforcement point, the gateway in front of the suite'
+          - 'The policy engine, part of the policy decision point'
+          - 'The device health system that feeds it data'
+          - 'The cloud suite itself, after the session starts'
+        a: 1
+        r:
+          - 'The gateway enforces. It acts on the decision; it does not make it.'
+          - 'Right. The policy engine decides, the policy administrator configures the gateway, and the gateway enforces.'
+          - 'The device health system is an input, like threat intel. It informs, it does not decide.'
+          - 'By then the decision has been made. The suite just sees an allowed session.'
+        why: >-
+          In SP 800-207 the policy engine makes and logs the grant or deny decision; with the policy administrator it
+          forms the PDP. The PEP enforces it in the data path. CDM and threat intel are data sources.
+        src: 'NIST SP 800-207 sec. 3 (policy engine, policy administrator, PEP, data sources)'
+
+      - c: identities-as-assets
+        kind: first
+        text: >-
+          A week after go-live, Kim Osei sees Jonas Vries's cloud identity create a mail forwarding rule that sends all
+          his email to an outside address. Jonas is on holiday in a cabin with no signal and did not do it.
+        ask: 'What should Kim do FIRST?'
+        o:
+          - 'Wait until Jonas is back to ask him about the rule'
+          - 'Delete the forwarding rule and keep watching'
+          - 'Disable the identity, revoke its sessions, then investigate'
+          - 'Report the address to the email provider'
+        a: 2
+        r:
+          - 'A week of Jonas''s mail flows to the attacker, including a payment approval. Marcus Webb is not on holiday any more.'
+          - 'The attacker, still logged in as Jonas, makes a new rule five minutes later.'
+          - 'The attacker is cut off. Kim finds how the identity was taken over and resets its authenticators with Jonas''s verified help.'
+          - 'Worth doing later. The attacker is still inside Jonas''s identity meanwhile.'
+        why: >-
+          A compromised identity is a live incident: contain it by disabling the account and revoking sessions and
+          tokens, then investigate and recover it. Deleting only the rule leaves the attacker holding the identity.
+        src: 'CISSP 2027 outline 5.1 (identities) and 7.6 (incident management); NIST SP 800-61 Rev. 3'
+
+      - c: identity-proofing
+        kind: best
+        text: >-
+          Halvorsen is hiring contractors in Rotterdam who will approve customs payments. Ines Albescu wants their
+          identities proofed at the highest NIST SP 800-63A-4 level before they get accounts. HR offers a remote
+          selfie check.
+        ask: 'What does IAL3 MOST importantly add over IAL2?'
+        o:
+          - 'A longer and more complex password chosen at enrollment'
+          - 'Two pieces of evidence instead of one'
+          - 'An on-site attended session with a trained proofing agent'
+          - 'A credit-history check'
+        a: 2
+        r:
+          - 'Passwords are authenticators, not proof of identity.'
+          - 'Evidence strength matters at IAL2 as well. The step up to IAL3 is about who checks it, and where.'
+          - 'Contractors come to the Rotterdam office, where a trained agent checks their evidence and collects a biometric. Ines signs off.'
+          - 'Credit checks are not what IAL3 requires, and they raise GDPR questions in Rotterdam.'
+        why: >-
+          In SP 800-63A-4, IAL3 adds an on-site attended session in which a trained proofing agent interacts directly
+          with the applicant, plus collection of a biometric. Remote unattended proofing can serve IAL1 and IAL2.
+        src: 'NIST SP 800-63A-4 sec. 4.3 (IAL3)'
+        diff: 3
+
+      - c: aaa-protocols
+        kind: best
+        text: >-
+          Rotterdam's new office Wi-Fi must check staff against the Halvorsen directory using 802.1X. Tomás Reyes needs
+          an AAA protocol between the Wi-Fi access points and the authentication server.
+        ask: 'Which protocol is MOST commonly used for this purpose?'
+        o:
+          - 'RADIUS'
+          - 'SAML 2.0'
+          - 'OAuth 2.0'
+          - 'LDAP over port 389 in clear text'
+        a: 0
+        r:
+          - 'The access points talk RADIUS to the authentication server, which checks the directory. Staff join the Wi-Fi with their own identity.'
+          - 'SAML is web browser federation. Access points do not run browser redirects.'
+          - 'OAuth delegates API access. It does not authenticate a laptop to an access point.'
+          - 'Clear-text directory queries from every access point. Kim Osei says no before Tomás finishes.'
+        why: >-
+          802.1X network access normally uses RADIUS between the access point (the authenticator) and the
+          authentication server. SAML and OAuth serve web federation and delegated authorization, not network access.
+        src: 'RFC 2865 (RADIUS) sec. 1; RFC 3580 (IEEE 802.1X RADIUS usage guidelines)'
+        diff: 1
+      - c: mac-dac
+        kind: best
+        text: >-
+          In the new cloud suite, Jonas Vries wants each Rotterdam project lead to decide who may open their project
+          folders, adding or removing colleagues as they see fit. There are no classification labels in the
+          branch.
+        ask: 'Which access control model does Jonas MOST clearly describe?'
+        o:
+          - 'Mandatory access control'
+          - 'Rule-based access control'
+          - 'Discretionary access control'
+          - 'Risk-Adaptable Access Control'
+        a: 2
+        r:
+          - 'MAC would take the decision away from the project leads and give it to labels the branch does not have.'
+          - 'A rule-based system applies the same rule to everyone. Jonas wants each owner to choose.'
+          - 'Each project lead manages their own folder''s sharing. Shifty adds a quarterly review so over-sharing gets caught.'
+          - 'RAdAC weighs live risk per request. Jonas just wants owners to decide.'
+        why: >-
+          In discretionary access control the owner of an object decides who can access it. MAC uses system-enforced
+          labels and clearances that owners cannot change; rule-based applies global rules.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14; NIST IR 7316 (Assessment of Access Control Systems)'
+        diff: 1
+    close: >-
+      Rotterdam goes live with one login, adaptive access and contractors proofed in person. Jonas comes back from
+      the cabin to find his mailbox safe and a rule he never made, deleted. Dale asks for a ferry ticket for Shifty.
+      Ghosts ride free.
+
+  - id: k5-07
+    title: 'Night shift at the MedLink lab'
+    where: 'Halvorsen MedLink sample lab · Thu 23:00'
+    diff: 2
+    open: >-
+      Halvorsen MedLink's sample lab runs all night. Six technicians share one login called "lab1", the admin password
+      for the lab system is on a sticky note, and a vendor has had permanent remote access since 2021. Dr. Amara Cole
+      has a HIPAA audit in a month. Dale suggests a nicer sticky note. Shifty haunts the lab until dawn, taking notes
+      he cannot write.
+    scenes:
+      - c: aaa-model
+        kind: best
+        text: >-
+          Six MedLink lab technicians on the night shift all log in to the sample tracking system as "lab1". Last week
+          someone changed a patient's sample result, and nobody can say who. Dr. Amara Cole asks what failed.
+        ask: 'What is the MAIN problem the shared "lab1" account causes?'
+        o:
+          - 'It slows the system down for everyone'
+          - 'Nobody can tell which person did what: no accountability'
+          - 'It uses up a software licence that could go elsewhere'
+          - 'Its password is too easy to remember'
+        a: 1
+        r:
+          - 'The system is fast enough. The problem is who did what.'
+          - 'Each technician gets an individual account. The next change to a result is logged with a name.'
+          - 'Licences are a budget issue. The audit issue is accountability.'
+          - 'A harder password, still shared by six people, still says nothing about who changed the result.'
+        why: >-
+          Accountability needs unique identification: the audit log can only tie an action to a person if each person
+          has their own identity. A shared account breaks identification, and so accounting and non-repudiation.
+        src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 13 (identification, accountability); NIST SP 800-53 Rev. 5, IA-2'
+        diff: 1
+
+      - c: authn-factors-aal
+        kind: sort
+        text: >-
+          Dr. Amara Cole wants multifactor authentication for the MedLink lab system. Tomás Reyes lists the
+          authenticators he could combine. Shifty sorts them by factor type, because two of the same type are still
+          one factor.
+        ask: 'Sort each authenticator by factor type.'
+        bins: ['Something you know', 'Something you have', 'Something you are']
+        pairs:
+          - ['A 6-digit PIN', 0]
+          - ['The answer to a security question', 0]
+          - ['A smart card in the badge', 1]
+          - ['A FIDO2 hardware security key', 1]
+          - ['A fingerprint scan', 2]
+          - ['A face scan on the lab tablet', 2]
+        why: >-
+          Knowledge (PIN, security answers), possession (smart card, hardware key) and inherence (fingerprint, face).
+          True MFA combines different types: a smart card plus a PIN is two factors; a password plus a security
+          question is one factor twice.
+        src: 'NIST SP 800-63B-4 sec. 2.2 (two distinct factors) and sec. 3.1; ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 13'
+        diff: 1
+
+      - c: passwordless-fido
+        kind: best
+        text: >-
+          MedLink technicians will log in to the lab system with passkeys on company phones, unlocked by fingerprint.
+          Dr. Amara Cole worries about HIPAA and asks whether MedLink will now store the technicians' fingerprints on
+          its servers.
+        ask: 'Which statement about this passkey login is MOST accurate?'
+        o:
+          - 'The fingerprint unlocks a key on the phone; the server sees a signature'
+          - 'The fingerprint template is sent to the server at each login'
+          - 'The server stores each technician''s private key for backup'
+          - 'The phone sends a hash of the fingerprint as a password'
+        a: 0
+        r:
+          - 'Dr. Cole relaxes. No biometric database to protect, and no password database to steal either.'
+          - 'Not in FIDO. The biometric match happens locally and never leaves the phone.'
+          - 'The server holds only the public key. A stolen server database gives attackers nothing they can log in with.'
+          - 'There is no fingerprint hash going anywhere. The phone signs a challenge with its private key.'
+        why: >-
+          With FIDO2/WebAuthn the biometric is checked locally to unlock the private key, which signs the server's
+          challenge. The server stores only the public key and never receives the biometric.
+        src: 'FIDO Alliance, Passkeys (fidoalliance.org/passkeys); W3C Web Authentication Level 3, sec. 1 and 4 (user verification)'
+        diff: 2
+
+      - c: credential-vault
+        kind: best
+        text: >-
+          The MedLink lab system's admin password is on a sticky note, known to six technicians and two vendors. Some
+          nights a technician truly needs admin rights to restart a stuck analyzer. Tomás Reyes wants to keep that
+          possible.
+        ask: 'What is the BEST way to give emergency admin access?'
+        o:
+          - 'Put the password in a locked drawer instead of on the monitor'
+          - 'Check it out from a password vault that logs use and rotates it afterward'
+          - 'Give every technician permanent admin rights'
+          - 'Email the password to the technicians each month'
+        a: 1
+        r:
+          - 'Better than the monitor. Still one static password, still no record of who used it.'
+          - 'The technician checks it out, the vault records who and when, and the password changes after use.'
+          - 'Six admins on the night shift, and every phishing email now targets an admin.'
+          - 'A monthly email of the admin password. The phishers will be delighted.'
+        why: >-
+          A credential management system releases a privileged password only to authorized users, logs each checkout
+          and rotates the password after use, so access is possible, accountable and short-lived.
+        src: 'CISSP 2027 outline 5.2 (credential management systems); NIST SP 800-53 Rev. 5, IA-5 and AC-6(9)'
+        diff: 1
+
+      - c: just-in-time-access
+        kind: best
+        text: >-
+          The lab system's vendor has had a permanent remote admin account at MedLink since 2021. It is used about
+          twice a year, for upgrades. The next upgrade is Thursday from 20:00 to 22:00.
+        ask: 'What is the BEST way to manage the vendor''s access?'
+        o:
+          - 'Keep the permanent account, but change its password yearly'
+          - 'Disable it permanently and do upgrades without the vendor'
+          - 'Share a technician''s account with the vendor on upgrade nights'
+          - 'Grant time-limited access for the window, approved and logged, then expire it'
+        a: 3
+        r:
+          - 'The account is still live 363 days a year for anyone who steals it.'
+          - 'Nobody at MedLink knows how to upgrade the analyzers. The upgrade fails.'
+          - 'Now nobody can tell vendor actions from the technician''s. Accountability is gone.'
+          - 'The vendor gets access at 19:55, it expires at 22:00, and every action is recorded.'
+        why: >-
+          Just-In-Time access grants privilege only for an approved task and window, then removes it, eliminating a
+          standing account that is rarely used but always exposed. Sharing accounts destroys accountability.
+        src: 'CISSP 2027 outline 5.2 (Just-In-Time); NIST SP 800-53 Rev. 5, AC-2(2) and AC-17'
+
+      - c: rbac-rubac-abac
+        kind: best
+        text: >-
+          MedLink has 200 lab staff in five stable job types: technician, senior technician, supervisor, courier and
+          billing clerk. People in the same job need the same access. Staff join and leave every month.
+        ask: 'Which access control model is the BEST fit?'
+        o:
+          - 'Role-based access control'
+          - 'Discretionary access control'
+          - 'Mandatory access control'
+          - 'Risk-Adaptable Access Control'
+        a: 0
+        r:
+          - 'Five roles, each with the right permissions. A new technician gets the role and is ready on day one.'
+          - 'Each data owner granting access person by person, for 200 people. The audit finds every possible inconsistency.'
+          - 'Labels and clearances for a lab with no classification scheme. A lot of work for little gain.'
+          - 'Live risk scoring is more than this stable, job-based setup needs.'
+        why: >-
+          RBAC assigns permissions to roles and users to roles, which fits stable job functions with frequent joiners
+          and leavers. DAC scatters decisions across owners; MAC and RAdAC address other needs.
+        src: 'ANSI/INCITS 359 (RBAC); ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 14'
+        diff: 1
+
+      - c: provisioning-reviews
+        kind: best
+        text: >-
+          For the HIPAA audit, MedLink must review who has access to the patient results system each quarter. Tomás
+          Reyes's admins can list the accounts, but they do not know who still needs access.
+        ask: 'Who is the BEST person to confirm whether each user still needs access?'
+        o:
+          - 'The admin who created the accounts'
+          - 'Each user, confirming their own access'
+          - 'The data owner of the patient results system'
+          - 'The external HIPAA auditor'
+        a: 2
+        r:
+          - 'The admin can see accounts, not whether the job still needs them.'
+          - 'Everyone confirms they need everything. Nobody ever says no to their own access.'
+          - 'Dr. Cole, as data owner, removes 14 people who changed jobs. Admins carry out the removals.'
+          - 'The auditor checks that reviews happen. Doing them is MedLink''s job.'
+        why: >-
+          Access reviews are performed by the data or system owner (or managers), who know the business need; admins
+          implement the result. Self-certification and auditors cannot judge need, and auditors must stay independent.
+        src: 'NIST SP 800-53 Rev. 5, AC-2(j) (review accounts); HIPAA Security Rule 45 CFR 164.308(a)(4) (information access management)'
+        diff: 2
+    close: >-
+      By the audit, "lab1" is gone, every technician has a passkey, the sticky note is in the shredder and the vendor
+      gets two hours of access at a time. The auditor finds nothing. Dale asks if the sticky note can go in a frame
+      next to the ethics canons.
