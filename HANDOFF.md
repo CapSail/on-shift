@@ -54,5 +54,19 @@ Cap asked (2026-11-18) for a CISSP module, as quirky as the others, with a story
   - The full suite passed, including the test that SOC and SHIFTY-1 saves stay byte-identical.
 - **Shipped:** commit 92465ee, deployed to gh-pages (93b94a9) and verified live. main is pushed. Content is version 1.2.0.
 
+## 2026-11-19 (evening): Ghost CISO board exam gets its own 250-question pool
+
+- **What's new:** 250 exam-only questions in `content/cissp/exam/d1-d8.yaml`.
+  - Real-exam style, weighted like the 2027 outline, with every objective covered at least twice.
+  - They never appear in cases, drills or flashbacks. The board exam draws only from this pool, least-served first.
+  - The exam screen shows how many are still unseen.
+- **Checks:**
+  - The validator enforces format, coverage, no copied case wording, and the answer-cue limits.
+  - Two independent accuracy reviews made 9 fixes and changed no keys (`docs/cissp/review-exam-pool-*.md`).
+- **Also fixed:** spot diagrams now re-fit their labels after late layout (a 2px overflow on k3-02.3).
+- **Not built:** at Cap's request, score entry from outside practice tests was dropped. The app connects to nothing outside itself.
+- **Tests:** 105/106 passed in the full run. The one failure was the SHIFTY-1 carry-over test timing out under parallel load; it passed 24/24 when run alone.
+- **Shipped:** commit f4c8061 is deployed and verified live (250 of 250 unseen, items x*). main is pushed. Content is version 1.3.0.
+
 ## Requests from other apps
 (none)
