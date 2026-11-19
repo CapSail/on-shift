@@ -70,7 +70,8 @@ console.log(`quips: SHIFTY-1 ${all.length} lines (Shifty ${shifty}, Dale ${all.f
   pool('ciso.flash', cm.flash, 10, 120);
   const CD = cm.dale ?? {};
   pool('ciso.dale.intro', CD.intro, 1, 400);
-  for (const k of ['perfect', 'good', 'bad', 'exam', 'daily']) pool(`ciso.dale.${k}`, CD[k], 8, 120);
+  for (const k of ['perfect', 'good', 'bad', 'exam', 'daily', 'drill']) pool(`ciso.dale.${k}`, CD[k], 8, 120);
+  pool('ciso.closeBad', cm.closeBad, 6, 140);
   pool('ciso.dale.streak', CD.streak, 8, 120, '{n}');
   const mine = all.slice(before), seenC = new Map<string, string>();
   for (const [n, t] of mine) { const k = norm(t); if (seenC.has(k)) errs.push(`duplicate (${seenC.get(k)} / ${n}): ${t}`); else seenC.set(k, n); }

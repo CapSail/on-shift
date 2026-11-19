@@ -76,6 +76,24 @@
       "{n} days in a row. The auditors noticed. In a good way, for once.",
       "{n}-day streak. That's governance you can sustain, Chief.",
       "{n} days. Keep showing up. That's literally the job."
+    ],
+    "drill": [
+      "Drill done. Repetition is boring. So is failing an audit. Pick one.",
+      "Nice drill. I don't know what you drilled, but the board loves the word 'drill'.",
+      "Weak spots, slightly less weak. That's how it works, apparently.",
+      "Drilling, huh? Very proactive. I'm putting 'proactive' in my report.",
+      "Done! Those concepts will come back as flashbacks. Like you came back.",
+      "Good reps. The exam doesn't care how you felt, only what you remember.",
+      "Drill finished. I tried it once. I drilled a hole in the server room wall.",
+      "That's practice the auditors can't see, but the exam will."
     ]
-  }
+  },
+  "closeBad": [
+    "The board reads the minutes twice in silence. Shifty's contract is extended, 'on probation'. Dale calls it a win.",
+    "Legal asks for a written account of every decision. Shifty has a lot of floating to do before Friday.",
+    "The case gets closed, technically. The board schedules a 'lessons learned' session, mostly about Shifty.",
+    "Nobody got hurt, but nobody's happy. Priya adds 'review CISO judgement' to the next board agenda.",
+    "The auditors take notes. Many notes. Shifty pretends he's transparent. He is, literally.",
+    "It's over, and it wasn't pretty. Dale says every CISO has a week like this. Then he checks his phone."
+  ]
 }

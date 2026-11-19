@@ -11,10 +11,13 @@ export const brain = (): 0 | 1 | 2 => { const r = rankOf(S.xp); return r <= 2 ? 
 
 const SH: Record<'home' | 'ok' | 'no', string[][]> = { home: home.home, ok: feedback.ok, no: feedback.no };
 export const FLASH: string[] = misc.flash;
-export const DALE: Record<'intro' | 'perfect' | 'good' | 'bad' | 'exam' | 'daily' | 'streak', string[]> = misc.dale;
+export const DALE: Record<'intro' | 'perfect' | 'good' | 'bad' | 'exam' | 'daily' | 'streak' | 'drill', string[]> = misc.dale;
+/** The ending when a case went badly (grade D or F): the authored ending assumes it went well. */
+export const CLOSE_BAD: string[] = misc.closeBad;
 
 /** Deal the next line (decks saved between visits, so every line is heard before any repeats). */
 export const line = createDealer('cissp.decks');
 export const sh = (k: keyof typeof SH): string => line(SH[k][brain()], `${k}${brain()}`);
 export const flash = (): string => line(FLASH, 'flash');
+export const closeBad = (): string => line(CLOSE_BAD, 'closeBad');
 export const dale = (k: keyof typeof DALE, n?: number): string => line(DALE[k], 'dale' + k).replace('{n}', String(n ?? ''));

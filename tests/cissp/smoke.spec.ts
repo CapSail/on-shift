@@ -17,7 +17,7 @@ const today = () => { const [y, m, d] = new Intl.DateTimeFormat('en-CA', { timeZ
 test('first visit: the ghost-CISO story, case 1 from opening to verdict, then home', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByText('GHOST CISO', { exact: true })).toBeVisible();
-  await expect(page.getByText('nobody alive will take the CISO job')).toBeVisible();
+  await expect(page.getByText("I'm the CISO now")).toBeVisible();
   await shot(page, '01_onboarding');
   await page.getByText('OPEN CASE 1').click();
   await expect(page.locator('.casetitle')).toHaveText(content.cases[0].title);
@@ -148,4 +148,32 @@ test('case board lists every case; about names the sources and the ISC2 notice; 
   await page.locator('#about').click();
   await expect(page.getByText('Not affiliated with, endorsed by, or sponsored by ISC2')).toBeVisible();
   await expect(page.getByText('Where the content comes from')).toBeVisible();
+});
+
+test('round-2 fixes: the dateline is not a button, the exam shows no XP float, other choices are explained, quitting asks first', async ({ page }) => {
+  await seed(page, { onb: true });
+  await page.goto('./');
+  await page.locator('#go').click();
+  await expect(page.locator('.dateline.lead')).toBeVisible();
+  await expect(page.locator('.interlude .big')).toHaveCount(0);
+  await page.locator('.dock button').click();
+  const s = content.cases[0].scenes[0];
+  await page.locator(`.scene .opt[data-i="${s.a}"]`).click();
+  await expect(page.locator('details.others')).toBeVisible();
+  await page.locator('details.others summary').click();
+  await expect(page.locator('.others .alt')).toHaveCount(3);
+  let asked = false;
+  page.once('dialog', (d) => { asked = true; void d.dismiss(); });
+  await page.locator('#quit').click();
+  expect(asked).toBe(true);
+  await expect(page.locator('.scene')).toBeVisible(); // dismissed: still in the case
+  // board exam: no XP float while answering
+  await page.goto('./');
+  page.on('dialog', (d) => void d.accept());
+  await page.locator('#exam').click();
+  await page.locator('#e25').click();
+  const { answer } = await import('./helpers');
+  await answer(page, true);
+  await page.waitForTimeout(150);
+  await expect(page.locator('.xpf')).toHaveCount(0);
 });

@@ -1,7 +1,7 @@
 // Concept-level spaced repetition (the SHIFTY-1 rules). A scene's grade moves its CONCEPT; flashbacks serve a
 // different scene for that concept, ideally from a different case.
 import type { CState, Scene } from './types';
-import { CASES, CONCEPTS, DOMAINS, scenesOf } from './content';
+import { CASES, CONCEPTS, DOMAINS, sceneById, scenesOf } from './content';
 import { S } from './state';
 import { today } from './time';
 import { pick, shuffle } from '../engine/util';
@@ -51,6 +51,9 @@ export function sceneFor(cid: string, o: { notCase?: string; exclude?: string[] 
   if (other.length) ss = other;
   if (!ss.length) ss = scenesOf(cid);
   const seen = S.cs[cid]?.seen ?? [];
+  // a flashback should not drop the player into a case they haven't opened (strangers, spoilers): played cases first
+  const playedCase = ss.filter((s) => S.done[s.case]);
+  if (playedCase.length) ss = playedCase;
   const fresh = ss.filter((s) => !seen.includes(s.id));
   if (fresh.length) return pick(fresh);
   return ss.slice().sort((a, b) => seen.indexOf(a.id) - seen.indexOf(b.id))[0];
@@ -77,10 +80,10 @@ export function readiness(): { dom: number[]; score: number } {
   return { dom, score: Math.round(1000 * total) };
 }
 
-/** How often a miss was the engineer answer (the hands-on fix CISSP doesn't want). */
+/** How often you fell for the engineer answer when one was on offer (the hands-on fix CISSP doesn't want). */
 export function engineerRate(): { eng: number; misses: number } {
-  const misses = S.log.filter((e) => !e.ok && (e.kind === 'first' || e.kind === 'best'));
-  return { eng: misses.filter((e) => e.eng).length, misses: misses.length };
+  const traps = S.log.filter((e) => sceneById.get(e.id)?.trap !== undefined);
+  return { eng: traps.filter((e) => e.eng).length, misses: traps.length };
 }
 
 /** Weakest introduced concepts (for the drill). */

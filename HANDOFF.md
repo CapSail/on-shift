@@ -28,5 +28,17 @@ Status at the end of 2026-11-15
 - The SHIFTY-1 save format is no longer tied to the old app, so it may change from now on, with a migration in `src/ai/state.ts` and a bumped `SAVE_VERSION`.
 - If the forwarding page ever needs a change: edit `cutover/shifty-1/` here (tests: `tests/shell/forward.spec.ts`), copy it to `shifty_1/forward/`, push that repo.
 
+## 2026-11-18/19: the Ghost CISO (CISSP) shift
+
+Cap asked (2026-11-18) for a CISSP module, as quirky as the others, with a story, a new format (not cards), accuracy from reputable sources, and the same QC. His choices: the **2027 outline** (ISC2, effective April 15, 2027), **case files** as the format, the **Ghost CISO** story. Design: `docs/cissp/DESIGN.md`; authoring rules: `docs/cissp/AUTHORING.md`.
+
+- Third shift in the switch ("CISO", Shifty in a top hat), `src/cissp/`, content `content/cissp/` (d1-d8.yaml, quips), save `cissp.v1`. Deep links `#cissp`, `#scene=<id>`.
+- Content 1.1.0: 50 cases, 435 scenes, 133 concepts; every 2027 objective has 2+ scenes; every scene cites its source (ISC2 outline/Code of Ethics/OSG, NIST SP/FIPS, RFCs, GDPR/HIPAA text, FIDO/W3C, OWASP, CISA). Cap's downloaded `cissp-2027-prep` repo (third-party, MIT) was used only as a cross-check, never copied.
+- Modes: next case (with up to 3 flashbacks first), daily case, board exam (adaptive, 25/50/125), flashbacks on demand, weak-spot drill, briefing book (readiness, exam date, every objective), case board, closet.
+- QC: 3 writers, then 3 accuracy reviewers (one per domain group: no wrong keys found, ~11 fixes; `docs/cissp/review-accuracy-*.md`), then a learning-design review (138 scenes improved; the "pick the longest option" shortcut went from 60% to 21%, chance is 25%), a phone playtest (2 blockers, 6 majors, all fixed) and a code critique + stress test (7 bugs fixed with tests, new `stress` project). `npm test` = 104/104 (soc, ai, cissp incl. every scene through the UI and every diagram fitting a phone, shell, stress).
+- Also fixed in SHIFTY-1: quitting a benchmark right after an answer no longer draws the next question over home (save format untouched).
+- Left for later (in the review docs): the "key is the multi-part option" cue is still ~41%; a few non-option scenes have no story reaction; the board exam score is a difficulty-weighted %, labelled as such, not an IRT estimate.
+- Writer agents hit the Pro 5-hour limit once overnight; resumed after the reset with SendMessage.
+
 ## Requests from other apps
 (none)

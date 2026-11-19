@@ -166,7 +166,9 @@ export function play(mode: Mode, items: Item[], title: string): void {
   let hp = 100, hearts = 3;
   const hits = 6;
   const t0 = Date.now();
-  setLeaving(() => { stopDock(); hush(); setRunActive(false); });
+  // `live` goes false when the player leaves: a pending benchmark timer must not draw this run over home
+  let live = true;
+  setLeaving(() => { live = false; stopDock(); hush(); setRunActive(false); });
 
   const nCards = () => items.filter((x) => x.t === 'card').length;
   const nDone = () => res.length;
@@ -181,6 +183,7 @@ ${mode === 'bench' ? `<div class="benchbar"><span>${esc(title)}</span><span>Q${n
 
   let clock: number | undefined;
   function step(): void {
+    if (!live) return;
     clearInterval(clock);
     stopDock();
     hush();

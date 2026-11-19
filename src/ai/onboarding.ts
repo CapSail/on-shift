@@ -22,6 +22,7 @@ ${shiftyHtml('shock', 96, 'lg')}
 <li>Misses come back as a <b>different</b> card for the same idea, on a schedule that spaces them out.</li>
 <li>Everything maps to the ${esc(C.exam.name)} exam (${esc(C.exam.code)}).</li></ul></div>
 ${otherShiftLink('soc', 'Here for the SOC alert game instead? Open the SOC shift →')}
+${otherShiftLink('cissp', 'Studying for CISSP? Open the Ghost CISO →')}
 </div>`;
   wireSwitch(app);
   $('#go').onclick = () => { S.onb = true; save(); go(startRun); };

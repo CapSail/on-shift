@@ -2,8 +2,8 @@
 import { RANKS, S, liveStreak, rankOf, save } from './state';
 import { C, CASES, CONCEPTS, caseById } from './content';
 import { dueConcepts, nextCase, readiness, weakest } from './srs';
-import { startCase, startDaily, startDrill, startExam } from './play';
-import { app, go } from '../engine/ui';
+import { startCase, startDaily, startDrill, startExam, startFlashbacks } from './play';
+import { app, go, toast } from '../engine/ui';
 import { shiftyHtml } from '../engine/shifty-live';
 import { sh } from './lines';
 import { today, dailyNumber } from './time';
@@ -27,10 +27,11 @@ export function home(): void {
   const met = Object.keys(S.cs).length;
   const rd = readiness();
   const days = S.examDay ? S.examDay - today() : null;
+  const early = Math.ceil(CONCEPTS.length * 0.2);
   app.innerHTML = `<div class="scr cissp">
 <div class="hdr"><span class="logo px">GHOST<b>·</b>CISO</span><span class="chip" style="margin-left:auto" title="Tenure: days in a row you finished something">🔥 ${liveStreak()}</span><span class="chip">${S.xp} XP</span></div>
 ${switchHtml()}
-<button class="corner" id="poke">${shiftyHtml('dead', 64, '', false)}<div class="bubble sm" id="shline">${esc(sh('home'))}</div></button>
+<button class="corner" id="poke">${shiftyHtml('happy', 64, '', false)}<div class="bubble sm" id="shline">${esc(sh('home'))}</div></button>
 <div class="rank"><div class="t">STANDING ${r + 1}/${RANKS.length} · CISO, Halvorsen Freight</div><div class="n">${esc(cur[1])} <small class="flav">${esc(cur[2])}</small></div><div class="xpb"><i style="width:${pct}%"></i></div>
 <div class="t" style="margin-top:6px">${nxt ? `${nxt[0] - S.xp} XP to ${esc(nxt[1])}` : 'Top of the org chart. Dale wants it framed.'}</div></div>
 <button class="big" id="go"><span class="px">${k ? 'NEXT CASE' : 'REPLAY A CASE'}</span><small>${k ? `${esc(k.title)} · ${k.scenes.length} scenes` : 'Every case closed. Replay any from the case board.'}${due ? ` · ${Math.min(due, 3)} flashback${due > 1 ? 's' : ''} first` : ''}</small></button>
@@ -38,9 +39,9 @@ ${switchHtml()}
  <button class="tile" id="daily" style="--c:var(--cy)"><span class="k">Daily case #${dailyNumber()}</span><span class="v">${daily ? `${daily.score}/${daily.n} ${daily.grid}` : 'Same case for everyone'}</span><small>${daily ? 'Done. Tap to share.' : 'Shareable grid'}</small></button>
  <button class="tile" id="exam" style="--c:var(--grn)"><span class="k">Board exam</span><span class="v">Mock CAT</span><small>${S.exams.length ? `last ${S.exams[S.exams.length - 1].score}/1000` : 'Adaptive, no hints'}</small></button>
  <button class="tile" id="board" style="--c:var(--yl)"><span class="k">Case board</span><span class="v">${done}/${CASES.length} closed</span><small>Pick or replay any case</small></button>
- <button class="tile" id="book" style="--c:var(--pu)"><span class="k">Briefing book</span><span class="v">${met ? `≈${rd.score}/1000` : 'No data yet'}</span><small>${met}/${CONCEPTS.length} concepts · ${days !== null ? (days >= 0 ? `exam in ${days} day${days === 1 ? '' : 's'}` : 'exam date passed') : 'readiness'}</small></button>
+ <button class="tile" id="book" style="--c:var(--pu)"><span class="k">Briefing book</span><span class="v">${met >= early ? `Retention ≈${rd.score}` : `${met}/${CONCEPTS.length} met`}</span><small>${met}/${CONCEPTS.length} concepts · ${days !== null ? (days >= 0 ? `exam in ${days} day${days === 1 ? '' : 's'}` : 'exam date passed') : 'readiness'}</small></button>
  <button class="tile" id="weak" style="--c:var(--r1)"><span class="k">Weak spots</span><span class="v">Drill</span><small>${met ? 'Your 5 weakest concepts' : 'After your first case'}</small></button>
- <button class="tile" id="aboutt" style="--c:var(--pk)"><span class="k">The exam</span><span class="v">CISSP 2027</span><small>${esc(C.exam.items)} items · ${C.exam.hours} h · pass ${C.exam.pass}</small></button>
+ <button class="tile" id="flash" style="--c:var(--pk)"><span class="k">Flashbacks</span><span class="v">${due ? `${due} due` : 'All caught up'}</span><small>${due ? 'Spaced review, up to 8' : 'Come back tomorrow'}</small></button>
 </div>
 ${!isStandalone() && (canInstall() || isIosSafari()) ? `<button class="next ghost" id="inst">${canInstall() ? '📲 Install the app' : '📲 Add to Home Screen (Share → Add to Home Screen)'}</button>` : ''}
 <div class="sec">The CISO's wardrobe</div>${closetHtml()}
@@ -51,9 +52,9 @@ ${!isStandalone() && (canInstall() || isIosSafari()) ? `<button class="next ghos
   $('#exam').onclick = () => go(examPick);
   $('#board').onclick = () => go(caseBoard);
   $('#book').onclick = () => go(briefing);
-  $('#weak').onclick = () => { if (met) go(() => startDrill(weakest(5))); };
+  $('#weak').onclick = () => { if (met) go(() => startDrill(weakest(5))); else toast('Close a case first: weak spots come from your answers'); };
+  $('#flash').onclick = () => { if (due) go(startFlashbacks); else toast('Nothing due today. Flashbacks come back on a schedule.'); };
   $('#about').onclick = () => go(about);
-  $('#aboutt').onclick = () => go(about);
   $('#snd').onclick = () => { S.sound = !S.sound; save(); home(); };
   const inst = document.getElementById('inst');
   if (inst) inst.onclick = () => { if (canInstall()) void promptInstall(); };

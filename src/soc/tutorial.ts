@@ -20,7 +20,8 @@ export function tutorial(): void {
  <p>👉 <b style="color:var(--red)">Escalate</b> (swipe right) if it's a real attack.<br>👈 <b style="color:var(--grn)">Close</b> (swipe left) if it's benign.<br>⚡ Tap <b>SURE</b> before you swipe when you're certain: +15 if right, −10 if wrong. Otherwise it's a lean: +8 if right, nothing lost if wrong.</p>
  <p>Then point at the line that gave it away. That's the skill.</p></div>
  <button class="next" id="t">Start training (3 alerts)</button>
- ${otherShiftLink('ai', 'Here for the AI cert instead? Open the AI school →')}</div>`;
+ ${otherShiftLink('ai', 'Here for the AI cert instead? Open the AI school →')}
+ ${otherShiftLink('cissp', 'Studying for CISSP? Open the Ghost CISO →')}</div>`;
   wireSwitch(app);
   $('#t').onclick = () => go(() => {
     const queue: QueueAlert[] = (D.tutorial || []).map((id) => byId[id]).filter(Boolean).map((a) => ({ ...a }));

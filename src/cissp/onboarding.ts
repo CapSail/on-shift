@@ -11,7 +11,7 @@ import { otherShiftLink, wireSwitch } from '../engine/switcher';
 export function onboarding(): void {
   app.innerHTML = `<div class="scr gate cissp">
 ${shiftyHtml('shock', 96, 'lg')}
-<div class="bubble">It's me, <b>Shifty</b>. Night-shift SOC ghost, then a very dumb AI. Now the company got breached and <b>nobody alive will take the CISO job</b>. So it's me. Small problem: my hands go straight through keyboards. I can't fix anything myself. I have to <b>lead</b>.</div>
+<div class="bubble">It's me, <b>Shifty</b>. I'm the CISO now. I can't touch a keyboard, so I have to <b>lead</b>.</div>
 <div class="dale"><div class="av">👔</div><div><b>DALE · CHIEF SYNERGY OFFICER</b><p>${esc(dale('intro'))}</p></div></div>
 <h1 class="px gateh">GHOST CISO</h1>
 <button class="big" id="go"><span class="px">OPEN CASE 1</span><small>About 6 minutes. Set an exam date later in the briefing book.</small></button>
@@ -22,6 +22,7 @@ ${shiftyHtml('shock', 96, 'lg')}
 <li>Tap <b>🎯 Sure</b> only when you could explain why. Misses come back as <b>flashbacks</b>: a different scene for the same idea, spaced out over days.</li>
 <li>Everything maps to the ${esc(C.exam.outline)}.</li></ul></div>
 ${otherShiftLink('soc', 'Here for the SOC alert game instead? Open the SOC shift →')}
+${otherShiftLink('ai', 'Studying for AWS AI Practitioner? Open the AI school →')}
 </div>`;
   $('#go').onclick = () => { S.onb = true; save(); go(() => startCase()); };
   wireSwitch(app);

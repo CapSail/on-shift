@@ -10,6 +10,7 @@ import { $, $$, esc } from '../engine/util';
 
 export function briefing(): void {
   const rd = readiness();
+  const met = Object.keys(S.cs).filter((id) => conceptById.has(id)).length;
   const eng = engineerRate();
   const sureN = S.log.filter((e) => e.sure && e.mode !== 'exam');
   const sureWrong = sureN.filter((e) => !e.ok).length;
@@ -18,10 +19,10 @@ export function briefing(): void {
   const iso = S.examDay ? new Date(S.examDay * DAY).toISOString().slice(0, 10) : '';
   app.innerHTML = `<div class="scr cissp"><div class="bar"><button class="x" id="quit" aria-label="Back">✕</button><b>Briefing book</b></div>
 <div class="sk">${shiftyHtml('happy', 56, 'sm')}<h3>Readiness</h3>
-<div class="grade ${rd.score >= 700 ? 'pass' : ''}" style="font-size:40px">≈${rd.score}</div>
-<p class="note">An estimate from how well your concepts are holding up (spaced repetition), weighted like the exam. 700 is the real pass line. Only the board exam and the real thing measure it properly.</p>
+${met < Math.ceil(CONCEPTS.length * 0.2) ? `<p class="note"><b>Too early for a number:</b> ${met} of ${CONCEPTS.length} concepts met. Close a few more cases.</p>` : `<div class="grade ${rd.score >= 700 ? 'pass' : ''}" style="font-size:40px">≈${rd.score}<small style="font-size:16px">/1000</small></div>`}
+<p class="note"><b>Retention</b>: how well the concepts you've met are holding up in spaced review, weighted like the exam. It grows as you cover more of the outline. It is not an exam score: the board exam is the better check, and the real exam the only true one.</p>
 ${DOMAINS.map((d, j) => `<div class="meter"><div class="row"><span>D${d.n} ${esc(d.short)} <small>(${d.w}%)</small></span><b>${Math.round(rd.dom[j] * 100)}%</b></div><div class="bb"><i style="width:${rd.dom[j] * 100}%;background:${d.color}"></i></div></div>`).join('')}
-<div class="weak"><b>🔧 Engineer answers</b><span>${eng.misses ? `${eng.eng} of ${eng.misses} misses (${Math.round((100 * eng.eng) / eng.misses)}%)` : 'no misses yet'}</span></div>
+<div class="weak"><b>🔧 Engineer answers</b><span>${eng.misses ? `picked in ${eng.eng} of ${eng.misses} scenes that had one (${Math.round((100 * eng.eng) / eng.misses)}%)` : 'none met yet'}</span></div>
 <div class="weak"><b>🎯 Sure but wrong</b><span>${sureN.length ? `${sureWrong} of ${sureN.length} sure answers` : 'no sure answers yet'}</span></div>
 <p class="note">Engineer answers are the hands-on fixes CISSP marks wrong. If that number is high, slow down and ask "who decides, and what does the plan say?"</p></div>
 <div class="sk"><h3>Exam date</h3><p class="note">${days !== null ? (days >= 0 ? `${days} day${days === 1 ? '' : 's'} to go.` : 'That date has passed.') : 'Set it to see the countdown.'} The 2027 outline applies from April 15, 2027.</p>
@@ -64,7 +65,7 @@ export function caseBoard(): void {
 <p class="note">Every case Shifty has worked at Halvorsen Freight. Replays count for practice and flashbacks; the board keeps your best grade.</p>
 ${DOMAINS.map((d) => `<div class="sec"><i class="dot" style="--c:${d.color}"></i> D${d.n} ${esc(d.short)}</div>${CASES.filter((k) => k.d === d.n).map((k) => {
     const g = S.done[k.id]?.grade;
-    return `<button class="inc" data-k="${esc(k.id)}"><div class="ic">${g ? esc(g) : '📁'}</div><div><b>${esc(k.title)}</b><span>${esc(k.where)} · ${k.scenes.length} scenes · ${'★'.repeat(k.diff)}</span></div>${g ? '<span class="done">CLOSED</span>' : ''}</button>`;
+    return `<button class="inc" data-k="${esc(k.id)}"><div class="ic">${g ? esc(g) : '📁'}</div><div><b>${esc(k.title)}</b><span>${esc(k.where)} · ${k.scenes.length} scenes · ${'★'.repeat(k.diff)}${'☆'.repeat(3 - k.diff)}</span></div>${g ? '<span class="done">CLOSED</span>' : ''}</button>`;
   }).join('')}`).join('')}
 </div>`;
   $('#quit').onclick = () => history.back();

@@ -4,6 +4,7 @@ import type { Scene } from './types';
 import { caseById, conceptById, domainOf } from './content';
 import { esc, shuffle, $$ } from '../engine/util';
 import { buzz, sfx } from '../engine/ui';
+import { S } from './state';
 
 export interface Played { ok: boolean; sure: boolean; partial: boolean; eng: boolean }
 export interface SceneOpts {
@@ -31,7 +32,8 @@ export function renderScene(host: HTMLElement, s: Scene, o: SceneOpts): void {
   const head = o.mode === 'exam'
     ? `<div class="dom"><b>QUESTION</b> · ${KIND_LABEL[s.kind]}</div>`
     : `<div class="dom"><i class="dot" style="--c:${dom.color}"></i>D${dom.n} ${esc(dom.short)} · ${esc(con.obj)} · <b>${KIND_LABEL[s.kind]}</b> ${FLAG[o.mode] ?? ''}</div>`;
-  const where = o.mode === 'flash' || o.mode === 'drill' || o.mode === 'preview' ? `<div class="dateline">from case: ${esc(caseById.get(s.case)?.title ?? '')}</div>` : '';
+  const played = !!S.done[s.case] || o.mode === 'preview';
+  const where = o.mode === 'flash' || o.mode === 'drill' || o.mode === 'preview' ? `<div class="dateline">${played ? `from case: ${esc(caseById.get(s.case)?.title ?? '')}` : 'from a case still to come'}</div>` : '';
   // option order is shuffled at runtime; data-i keeps the authored index
   const order = (n: number) => shuffle(Array.from({ length: n }, (_, i) => i));
   let body = '';
@@ -40,7 +42,7 @@ export function renderScene(host: HTMLElement, s: Scene, o: SceneOpts): void {
       body = `<div class="opts">${order(4).map((i) => `<button class="opt" data-i="${i}">${esc(s.o![i])}</button>`).join('')}</div>`;
       break;
     case 'rank':
-      body = `<p class="hint">Tap them in order. Tap a placed one to take it back.</p><ol class="placed" id="placed"></ol><div class="opts" id="pool">${order(s.items!.length).map((i) => `<button class="opt st" data-i="${i}">${esc(s.items![i])}</button>`).join('')}</div><button class="lock" id="lock" disabled>Lock in</button>`;
+      body = `<p class="hint">Tap them in order. Tap a placed one to take it back.</p><div class="opts" id="pool">${order(s.items!.length).map((i) => `<button class="opt st" data-i="${i}">${esc(s.items![i])}</button>`).join('')}</div><ol class="placed" id="placed"></ol><button class="lock" id="lock" disabled>Lock in</button>`;
       break;
     case 'sort':
       body = `<p class="hint">Tap a bin for each item.</p><div class="sorts">${order(s.pairs!.length).map((i) => `<div class="srow" data-i="${i}"><span>${esc(s.pairs![i][0])}</span><div class="bins">${s.bins!.map((b, j) => `<button class="bin" data-b="${j}">${esc(b)}</button>`).join('')}</div></div>`).join('')}</div><button class="lock" id="lock" disabled>Lock in</button>`;
@@ -198,12 +200,17 @@ export function answerText(s: Scene): string {
 export function feedback(el: HTMLElement, s: Scene, ok: boolean, partial: boolean, picked: number | null, eng: boolean, fresh: boolean): HTMLElement {
   const con = conceptById.get(s.c)!;
   const story = s.r && picked !== null ? `<div class="story ${ok ? 'ok' : 'no'}"><b>WHAT HAPPENED</b><p>${esc(s.r[picked])}</p></div>` : '';
-  const brief = fresh || !ok ? `<div class="sk brief"><h3>Briefing · ${esc(con.name)}</h3><ul class="learn">${con.learn.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>${con.ghost ? `<p class="note ghostline">👻 ${esc(con.ghost)}</p>` : ''}</div>` : '';
-  el.innerHTML = `<div class="verdict ${ok ? 'ok' : partial ? 'mid' : 'no'}"><div class="vt"><span>${ok ? '✔ Right call' : partial ? '◐ Close' : '✘ Not the CISSP answer'}</span><small id="xpl"></small></div><div class="sub" id="shl"></div>${ok ? '' : `<div class="ansline">✔ ${esc(answerText(s))}</div>`}</div>
+  const briefBody = `<ul class="learn">${con.learn.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>${con.ghost ? `<p class="note ghostline">👻 ${esc(con.ghost)}</p>` : ''}`;
+  const brief = fresh ? `<div class="sk brief"><h3>New concept · ${esc(con.name)}</h3>${briefBody}</div>`
+    : `<details class="sk brief"${ok ? '' : ''}><summary>Briefing · ${esc(con.name)}</summary>${briefBody}</details>`;
+  const others = s.r && picked !== null ? [0, 1, 2, 3].filter((j) => j !== picked && j !== s.a).sort((x, y) => (x === s.trap ? -1 : y === s.trap ? 1 : 0)) : [];
+  const alt = others.length ? `<details class="others"><summary>What the other choices would have done</summary>${[...(picked !== s.a ? [s.a as number] : []), ...others].map((j) => `<div class="alt${j === s.a ? ' ok' : ''}"><b>${j === s.a ? '✔ ' : j === s.trap ? '🔧 ' : ''}${esc(s.o![j])}</b><p>${esc(s.r![j])}</p></div>`).join('')}</details>` : '';
+  el.innerHTML = `<div class="verdict ${ok ? 'ok' : partial ? 'mid' : 'no'}"><div class="vt"><span>${ok ? '✔ Right call' : partial ? '◐ Close' : '✘ Not the CISSP answer'}</span><small id="xpl"></small></div><div class="sub" id="shl"></div>${ok ? '' : s.kind === 'sort' ? '<div class="ansline">The right bin for each item is outlined in green above.</div>' : s.kind === 'rank' ? '<div class="ansline">The correct order is shown above.</div>' : `<div class="ansline">✔ ${esc(answerText(s))}</div>`}</div>
 ${story}
 ${eng ? '<div class="enganswer"><b>🔧 ENGINEER ANSWER</b><p>The hands-on fix. Useful, but not the manager\'s move here, and Shifty\'s hands go through the keyboard anyway.</p></div>' : ''}
 <div class="rule"><b>RULE · ${esc(con.name.toUpperCase())}</b><p>${esc(con.rule)}</p></div>
 <div class="tell">${esc(s.why)}</div>
+${alt}
 ${brief}
 <p class="srcline">Source: ${esc(s.src)}</p>`;
   return el.querySelector('.verdict') as HTMLElement;

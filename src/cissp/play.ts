@@ -2,13 +2,13 @@
 // adaptive board exam. A case reads like a story: the dateline and opening, one decision per scene with the story
 // reacting, then the ending and the board's verdict.
 import type { Case, Scene } from './types';
-import { CASES, DOMAINS, SCENES, caseById, conceptById, domainOf } from './content';
+import { CASES, DOMAINS, SCENES, caseById, conceptById, domainOf, sceneById } from './content';
 import { S, logEv, save, RANKS, rankOf } from './state';
 import { today, dailyNumber } from './time';
 import { cs, dueConcepts, grade, gradeOf, introduced, markSeen, nextCase, sceneFor } from './srs';
 import { answerText, renderScene, type SceneOpts } from './scene';
 import { addXP, earnStreak, setRunActive } from './progress';
-import { dale, flash, sh } from './lines';
+import { closeBad, dale, flash, sh } from './lines';
 import { app, confetti, dock, go, routes, setLeaving, sfx, stopDock, toast } from '../engine/ui';
 import { shiftyHtml, shiftyReact } from '../engine/shifty-live';
 import { $, esc, mulberry, resetRng, setRng, shuffle } from '../engine/util';
@@ -102,6 +102,8 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
   setRunActive(true);
   setLeaving(() => { live = false; stopDock(); setRunActive(false); });
 
+  const flashN = () => items.filter((x) => x.t === 'scene' && x.mode === 'flash').length;
+  let examXp = 0; // the board exam shows nothing until the end, not even an XP float
   const total = () => (mode === 'exam' ? examN : items.filter((x) => x.t === 'scene').length);
   function bar(): string {
     const pct = Math.round((100 * res.length) / Math.max(1, total()));
@@ -115,12 +117,12 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
     stopDock();
     if (i >= items.length) return end();
     const it = items[i];
-    if (it.t === 'flashhead') return interlude(`<div class="sec">FLASHBACKS</div>${shiftyHtml('sleepy', 72, 'lg')}<div class="bubble">${esc(flash())}</div><p class="note">Before the new case: ${items.filter((x) => x.t === 'scene' && x.mode === 'flash').length} scene(s) from old cases whose concepts are due today.</p>`, 'Show me');
-    if (it.t === 'open') return interlude(`<div class="dateline big">${esc(it.k.where)}</div><h2 class="casetitle">${esc(it.k.title)}</h2>${shiftyHtml('happy', 72, 'lg')}<p class="story-open">${esc(it.k.open)}</p><div class="dom center"><i class="dot" style="--c:${domainOf(it.k.d).color}"></i>D${it.k.d} ${esc(domainOf(it.k.d).short)} · ${it.k.scenes.length} scenes · ${'★'.repeat(it.k.diff)}${'☆'.repeat(3 - it.k.diff)}</div>`, 'Take the case');
+    if (it.t === 'flashhead') return interlude(`<div class="sec">FLASHBACKS</div>${shiftyHtml('sleepy', 72, 'lg')}<div class="bubble">${esc(flash())}</div><p class="note">Before the new case: ${flashN()} scene${flashN() === 1 ? '' : 's'} for concepts that are due today, each from a different case than before.</p>`, 'Show me');
+    if (it.t === 'open') return interlude(`<div class="dateline lead">${esc(it.k.where)}</div><h2 class="casetitle">${esc(it.k.title)}</h2>${shiftyHtml('happy', 72, 'lg')}<p class="story-open">${esc(it.k.open)}</p><div class="dom center"><i class="dot" style="--c:${domainOf(it.k.d).color}"></i>D${it.k.d} ${esc(domainOf(it.k.d).short)} · ${it.k.scenes.length} scenes · ${'★'.repeat(it.k.diff)}${'☆'.repeat(3 - it.k.diff)}</div>`, 'Take the case');
     const s = it.s;
     app.innerHTML = `<div class="scr run cissp">${bar()}<div id="slot"></div></div>`;
     app.scrollTop = 0;
-    $('#quit').onclick = () => history.back();
+    $('#quit').onclick = quit;
     // never graded = first real meeting (a concept first seen in the board exam got no feedback there)
     const fresh = (S.cs[s.c]?.n ?? 0) === 0;
     renderScene($('#slot'), s, {
@@ -131,6 +133,11 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
       stakes: mode === 'daily' ? 'on: counts as 🟩' : mode === 'exam' ? 'tracks your calibration' : '+15 / −10 when on',
       onAnswer: (p, fb) => answered(s, it.mode, p, fb),
     });
+  }
+
+  function quit(): void {
+    if (res.length && kase && !confirm('Leave the case? Your answers so far still count for flashbacks, but the case stays open.')) return;
+    history.back();
   }
 
   function interlude(html: string, btn: string): void {
@@ -154,7 +161,7 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
     if (sm === 'case' || mode === 'daily') conf = Math.max(0, conf - (p.ok ? 0 : p.partial ? 8 : p.sure ? 25 : 15));
     let gain = mode === 'exam' ? (p.ok ? 6 : 0) : p.ok ? (p.sure ? 15 : 8) : p.sure ? -10 : 0;
     if (mode !== 'exam' && p.ok && combo >= 2) gain += Math.min(10, 2 * (combo - 1));
-    addXP(gain, fb?.querySelector('#xpl') as HTMLElement | null, true);
+    if (mode === 'exam') examXp += gain; else addXP(gain, fb?.querySelector('#xpl') as HTMLElement | null, true);
     const xpl = fb?.querySelector('#xpl');
     if (xpl) xpl.textContent = (gain > 0 ? '+' : '') + gain + ' XP';
     const shl = fb?.querySelector('#shl');
@@ -182,7 +189,8 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
     const caseRes = res.filter((r) => r.mode === 'case' || r.mode === 'daily');
     let extra = '';
     let daleLine = n && right === n ? dale('perfect') : n && right / n >= 0.6 ? dale('good') : dale('bad');
-    let head = mode === 'drill' ? 'DRILL COMPLETE' : 'RESULTS';
+    let head = mode === 'drill' ? `${title.toUpperCase()} COMPLETE` : 'RESULTS';
+    if (mode === 'drill') daleLine = dale('drill');
     if (kase) {
       const g = letter(conf);
       head = mode === 'daily' ? `DAILY CASE #${dailyNumber()}` : 'CASE CLOSED';
@@ -191,7 +199,7 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
       S.cases++;
       const bonus = g === 'A' ? 25 : g === 'B' ? 10 : 0;
       if (bonus) addXP(bonus);
-      extra = `<div class="casetitle">${esc(kase.title)}</div><p class="story-open">${esc(kase.close)}</p><div class="grade">${g}</div><p class="note center">Board confidence ${conf}/100 · ${caseRes.filter((r) => r.ok).length}/${caseRes.length} calls right${bonus ? ` · +${bonus} XP case bonus` : ''}</p>`;
+      extra = `<div class="casetitle">${esc(kase.title)}</div><p class="story-open">${esc(g === 'D' || g === 'F' ? closeBad() : kase.close)}</p><div class="grade">${g}</div><p class="note center">Board confidence ${conf}/100 · ${caseRes.filter((r) => r.ok).length}/${caseRes.length} calls right${bonus ? ` · +${bonus} XP case bonus` : ''}</p>`;
       if (mode === 'daily') {
         const grid = caseRes.map((r) => (r.ok ? (r.sure ? '🟩' : '🟨') : '🟥')).join('');
         if (!S.daily[today()]) S.daily[today()] = { score: caseRes.filter((r) => r.ok).length, n: caseRes.length, grid };
@@ -206,11 +214,12 @@ export function play(mode: Mode, items: Item[], title: string, examN = 0): void 
       const wok = res.reduce((t, r) => t + (r.ok ? r.s.diff : 0), 0);
       const scaled = Math.round(1000 * (wsum ? wok / wsum : 0));
       S.exams.push({ day: today(), score: scaled, n, dom: per.map((x) => Math.round(x * 100)) });
+      if (examXp) addXP(examXp);
       if (S.exams.length > 30) S.exams.shift();
       daleLine = dale('exam');
       const pass = scaled >= 700;
       const band = Math.round(1000 * Math.sqrt(Math.max(0.04, (scaled / 1000) * (1 - scaled / 1000)) / Math.max(1, n)));
-      extra = `<div class="grade ${pass ? 'pass' : 'fail'}">${scaled}</div><p class="note center">Estimate, likely ${Math.max(0, scaled - band)}–${Math.min(1000, scaled + band)} (${n} scenes). Pass line on the real exam: 700. ${pass ? 'Above it.' : 'Not yet.'} · ${fmtClock(Date.now() - t0)} (exam pace ≈ ${fmtClock(n * 72000)})</p>
+      extra = `<div class="grade ${pass ? 'pass' : 'fail'}">${scaled}</div><p class="note center">A difficulty-weighted score, not an official scale: harder scenes count more. Likely ${Math.max(0, scaled - band)}–${Math.min(1000, scaled + band)} (${n} scenes). Pass line on the real exam: 700. ${pass ? 'Above it.' : 'Not yet.'} · ${fmtClock(Date.now() - t0)} (exam pace ≈ ${fmtClock(n * 72000)})</p>
 <div class="sk">${DOMAINS.map((d, j) => `<div class="meter"><div class="row"><span>D${d.n} ${esc(d.short)} <small>(${d.w}%)</small></span><b>${Math.round(per[j] * 100)}%</b></div><div class="bb"><i style="width:${per[j] * 100}%;background:${d.color}"></i></div></div>`).join('')}</div>
 <div class="sec">Review your misses</div>${res.filter((r) => !r.ok).map((r) => missRow(r.s, r.eng)).join('') || '<p class="note">No misses.</p>'}`;
     }
@@ -231,8 +240,8 @@ ${extra}
 ${met.length ? `<div class="sk" style="text-align:left"><h3>New in your briefing book</h3>${met.slice(0, 6).map((x) => `<div class="weak"><b>${esc(x)}</b><span>flashback tomorrow</span></div>`).join('')}</div>` : ''}
 <div class="dale"><div class="av">👔</div><div><b>DALE · CHIEF SYNERGY OFFICER</b><p>${esc(daleLine)}</p></div></div>
 ${promoted ? `<div class="upg"><b>⬆ PROMOTED</b><p>Shifty is now <b>${esc(tier[1])}</b>: ${esc(tier[2])}.</p></div>` : ''}
-${missedC.length ? `<button class="next" id="drillm">Drill these misses (${missedC.length})</button>` : ''}
-${nxt ? `<button class="next ${missedC.length ? 'ghost' : ''}" id="again">Next case</button>` : ''}
+${nxt ? '<button class="next" id="again">Next case</button>' : ''}
+${missedC.length ? `<button class="next ${nxt ? 'ghost' : ''}" id="drillm">Drill these misses (${missedC.length})</button>` : ''}
 <button class="next ghost" id="home">Home</button>
 </div>`;
     app.scrollTop = 0;
@@ -249,12 +258,11 @@ ${nxt ? `<button class="next ${missedC.length ? 'ghost' : ''}" id="again">Next c
   }
 
   step();
-  void title;
 }
 
 function shareText(): string {
   const d = S.daily[today()];
-  return `ON SHIFT · Ghost CISO daily case #${dailyNumber()}  ${d.score}/${d.n}\n${d.grid}\n${location.origin + location.pathname}#cissp`;
+  return `ON SHIFT · Ghost CISO daily case #${dailyNumber()}\n${d.score}/${d.n} ${d.grid}\n${location.origin + location.pathname}#cissp`;
 }
 const shareBlock = () => `<div class="share" id="sharetxt">${esc(shareText())}</div><button class="next" id="share">Share result</button>`;
 function wireShare(): void {
@@ -269,7 +277,7 @@ function wireShare(): void {
 
 function missRow(s: Scene, eng: boolean): string {
   const c = conceptById.get(s.c)!;
-  return `<div class="miss"><div class="mq">${esc(s.ask)}</div><div class="ma">✔ ${esc(answerText(s))}</div>${eng ? '<div class="mw">🔧 You picked the engineer answer.</div>' : ''}<div class="mr"><b>${esc(c.name)}:</b> ${esc(c.rule)}</div><div class="mw">${esc(s.why)}</div><div class="cid">${esc(s.id)}</div></div>`;
+  return `<div class="miss"><details class="mctx"><summary>The scenario</summary><p>${esc(s.text)}</p></details><div class="mq">${esc(s.ask)}</div><div class="ma">✔ ${esc(answerText(s))}</div>${eng ? '<div class="mw">🔧 You picked the engineer answer.</div>' : ''}<div class="mr"><b>${esc(c.name)}:</b> ${esc(c.rule)}</div><div class="mw">${esc(s.why)}</div><div class="cid">${esc(s.id)}</div></div>`;
 }
 
 const fmtClock = (ms: number) => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -281,6 +289,11 @@ export function startCase(id?: string): void {
   play('case', buildCase(k), k.title);
 }
 export function startDrill(cids: string[]): void { play('drill', buildDrill(cids), 'Drill'); }
+/** Flashbacks on demand: up to 8 due concepts, each a scene from a case other than the last one seen. */
+export function startFlashbacks(): void {
+  const items: Item[] = dueConcepts().slice(0, 8).map((c) => ({ t: 'scene', s: sceneFor(c, { notCase: S.cs[c]?.seen.length ? sceneById.get(S.cs[c].seen[S.cs[c].seen.length - 1])?.case : undefined }), mode: 'flash' }));
+  play('drill', items, 'Flashbacks');
+}
 export function startExam(n: number): void { play('exam', [], `Board exam · ${n}`, n); }
 export function startDaily(): void {
   if (S.daily[today()]) {

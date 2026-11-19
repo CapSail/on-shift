@@ -33,6 +33,8 @@ A case is a short story in 4 to 7 **scenes**: a ransomware night at a hospital, 
 | **Next case** | one new case, plus up to 3 flashback scenes for concepts that are due (a different scene for the same concept). About 6 to 8 minutes. |
 | **Daily case** | the same case for everyone (America/Chicago day), shareable grid |
 | **Board exam** | adaptive mock: single scenes, difficulty follows your answers like CAT, weighted by the 2027 domain weights, 25 / 50 / 125 items, scored as an estimate 0 to 1000 (pass line 700) |
+| **Flashbacks** | on demand: up to 8 due concepts, each served as a scene from a case other than the last one seen (cases already played first) |
+| **Weak spots** | a drill of your 5 weakest concepts |
 | **Briefing book** | every objective and concept, with the lesson and a drill |
 | **Readiness** | strength by domain, estimated score, engineer-answer rate, sure-but-wrong rate, weakest concepts |
 | **Closet** | hats, as in the other shifts |

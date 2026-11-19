@@ -99,6 +99,7 @@ test('the board-confidence counter is on screen during a case (not swept away wi
 });
 
 test('quit mid-case with ✕ and with browser back, then start again: no ghost run, XP counted once', async ({ page }) => {
+  page.on('dialog', (d) => void d.accept()); // "Leave the case?" once an answer is in
   await seed(page, { onb: true });
   await page.goto('./');
   await page.locator('#go').click();
@@ -146,7 +147,7 @@ test('browser back from every CISSP screen lands on a clean home', async ({ page
   await seed(page, { onb: true, xp: 30 });
   await page.goto('./');
   await home(page);
-  for (const id of ['#board', '#book', '#about', '#aboutt', '#exam', '#daily']) {
+  for (const id of ['#board', '#book', '#about', '#exam', '#daily']) {
     await page.locator(id).click();
     await expect(page.locator('#go')).toHaveCount(0);
     await page.goBack();
@@ -408,7 +409,7 @@ test('spaced repetition across long gaps (90+ days): promotions, a lapse and a s
   await expect(page.locator('#go')).toContainText('3 flashbacks first');
   await page.locator('#book').click();
   await expect(page.getByText('Readiness')).toBeVisible(); // heavily overdue strengths clamp at 0, no NaN
-  await expect(page.locator('.grade')).toHaveText(/^≈\d+$/);
+  await expect(page.getByText('Too early for a number')).toBeVisible(); // 3 concepts met is too few for a readiness number
   await page.goBack();
   await openCase(page, target.id);
   await expect(page.getByText('FLASHBACKS')).toBeVisible();

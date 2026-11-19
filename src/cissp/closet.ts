@@ -17,7 +17,7 @@ export const HATS: { id: Hat; how: string; got: () => boolean }[] = [
 export function checkHats(): void {
   for (const h of HATS) if (h.got() && !S.hatsSeen.includes(h.id)) {
     S.hatsSeen.push(h.id);
-    setTimeout(() => toast(`🎩 Unlocked: ${HAT_NAMES[h.id]}`), 1800);
+    setTimeout(() => toast(`🎩 Unlocked: ${HAT_NAMES[h.id]}`), 400);
   }
   save();
 }
