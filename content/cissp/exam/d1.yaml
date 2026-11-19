@@ -1,0 +1,643 @@
+# Board-exam pool, Domain 1: Security and Risk Management. Exam-only items (never in cases, drills or flashbacks).
+# Format and rules: docs/cissp/AUTHORING.md, "The board-exam pool". Ids are stable forever.
+# Log: docs/cissp/exam-pool-d1-d2-d8.md
+
+items:
+  # ---------------------------------------------------------------- 1.1 professional ethics
+  - id: x1-001
+    c: ethics-canons
+    kind: best
+    diff: 1
+    text: >-
+      During a paid assessment, a security consultant finds that a client's industrial control product has a flaw
+      that could injure members of the public. The client asks the consultant to say nothing until after a major
+      product launch.
+    ask: 'Under the ISC2 Code of Ethics, which canon carries the MOST weight in this decision?'
+    o:
+      - 'Provide diligent and competent service to principals'
+      - 'Act honorably, honestly, justly, responsibly and legally'
+      - 'Protect society, the common good and the infrastructure'
+      - 'Advance and protect the profession'
+    a: 2
+    why: >-
+      The canons are listed in priority order, and protecting society comes first. Serving principals is the third
+      canon, so a client's wish for silence cannot outweigh a risk of harm to the public.
+    src: 'ISC2 Code of Ethics (canons); ISC2 CISSP Official Study Guide ch. 19; CISSP 2027 outline 1.1'
+
+  - id: x1-002
+    c: conflict-of-interest
+    kind: first
+    diff: 2
+    text: >-
+      A security manager is leading the selection of a new SIEM product from three shortlisted vendors. One vendor
+      offers the manager two free passes to an overseas conference, and the manager's spouse owns a large block of
+      shares in a different shortlisted vendor.
+    ask: 'What should the security manager do FIRST?'
+    o:
+      - 'Disclose the offer and the spouse''s shares to the project sponsor'
+      - 'Decline the passes and keep leading the evaluation'
+      - 'Quietly drop the vendor whose shares the spouse owns, so no appearance of bias can arise later'
+      - 'Accept the passes but score that vendor more strictly to offset any possible influence'
+    a: 0
+    why: >-
+      Conflicts are handled by disclosure, so the organization can decide whether to reassign or recuse. Declining
+      the gift still hides the spouse's financial interest, and quietly dropping a vendor denies the employer the
+      fair evaluation it is owed.
+    src: 'ISC2 Code of Ethics, canons 2 and 3; ISC2 CISSP Official Study Guide ch. 19 (ethics)'
+
+  - id: x1-003
+    c: ai-ethics
+    kind: best
+    diff: 2
+    text: >-
+      A lender uses a machine learning model to recommend approving or denying small-business loans. Testing shows
+      applicants from certain postal codes are denied far more often than similar applicants elsewhere, and loan
+      officers cannot explain individual denials when applicants ask.
+    ask: 'Which response BEST addresses the ethical problems with this model?'
+    o:
+      - 'Remove the postal code field, retrain the model, and redeploy it once its accuracy matches the original'
+      - 'Tell every declined applicant in writing that an automated system made the decision, and keep using the model as it is'
+      - 'Obtain the vendor''s written assurance that the algorithm is fair, and keep the model in use meanwhile'
+      - 'Keep a named person accountable for each decision and test the model for harmful bias and explainability'
+    a: 3
+    trap: 0
+    why: >-
+      NIST's AI RMF calls for AI that is fair with harmful bias managed, explainable, and accountable to people.
+      Dropping one field leaves other proxies for the same bias and still leaves denials unexplained; a disclosure
+      or a vendor letter fixes neither.
+    src: 'NIST AI 100-1 (AI RMF 1.0) sec. 3 (trustworthy AI characteristics); CISSP 2027 outline 1.1 (ethics in AI)'
+
+  # ---------------------------------------------------------------- 1.2 security concepts
+  - id: x1-004
+    c: cia-authenticity
+    kind: best
+    diff: 1
+    text: >-
+      An online procurement platform receives electronic bids from suppliers. After an award, a losing supplier
+      claims it never submitted the low bid that disqualified it from a second contract. The platform needs to be
+      able to prove that the supplier did send it.
+    ask: 'Which security property is the platform MOST concerned with?'
+    o: ['Confidentiality', 'Non-repudiation', 'Availability', 'Integrity']
+    a: 1
+    why: >-
+      Non-repudiation means a sender cannot credibly deny an action, typically through a digital signature made with
+      the sender's private key. Integrity shows the bid was not altered, but on its own it does not prove who sent it.
+    src: 'CISSP 2027 outline 1.2; FIPS 186-5 (digital signatures: integrity, origin authentication, non-repudiation)'
+
+  - id: x1-005
+    c: cia-authenticity
+    kind: best
+    diff: 3
+    text: >-
+      Two internal systems protect each message they exchange with an HMAC computed under a secret key that both
+      systems hold. A compliance reviewer says the design gives integrity and origin assurance between the two
+      systems, but cannot give non-repudiation to an outside party such as a court.
+    ask: 'Which reason BEST supports the reviewer''s statement?'
+    o:
+      - 'An HMAC cannot detect changes made to a message while it is in transit'
+      - 'The hash inside an HMAC can be reversed by anyone who captures the message'
+      - 'Either system could have produced any valid tag, so a tag cannot show which one did'
+      - 'An HMAC protects confidentiality only, so it cannot show where a message came from'
+    a: 2
+    why: >-
+      With a shared symmetric key, both holders can compute every valid tag, so an outsider cannot tell which one
+      created a message. Non-repudiation needs a digital signature made with a private key only the signer holds.
+      An HMAC does detect tampering.
+    src: 'FIPS 198-1 (HMAC); FIPS 186-5 (digital signatures); ISC2 CISSP Official Study Guide ch. 6 and 7'
+
+  # ---------------------------------------------------------------- 1.3 governance
+  - id: x1-006
+    c: due-care-diligence
+    kind: best
+    diff: 2
+    text: >-
+      An internal assessment at a regional insurer found eleven internet-facing servers missing critical security
+      patches. The infrastructure team then installed the patches on all eleven servers within the week and
+      confirmed each installation.
+    ask: 'In CISSP terms, installing and confirming the patches is the BEST example of which concept?'
+    o: ['Due care', 'Due diligence', 'Risk transference', 'Defense in depth']
+    a: 0
+    why: >-
+      Due care is acting on what you know, as a reasonable organization would: here, fixing the weaknesses found.
+      The assessment that found them was due diligence, the investigating and checking. Nothing here moves risk to
+      another party.
+    src: 'ISC2 CISSP Official Study Guide ch. 1 (due care and due diligence); CISSP 2027 outline 1.3'
+
+  - id: x1-007
+    c: governance-roles
+    kind: best
+    diff: 1
+    text: >-
+      A mid-size manufacturer is writing the charter for its information security program. Several leaders disagree
+      about who should ultimately answer to regulators and shareholders if customer data is poorly protected.
+    ask: 'Who holds the PRIMARY accountability for protecting the organization''s information?'
+    o:
+      - 'The chief information security officer'
+      - 'The internal audit function'
+      - 'The IT operations team that runs the systems'
+      - 'Senior management and the board'
+    a: 3
+    why: >-
+      Senior management is ultimately accountable for security and owns the organization's risk decisions. The CISO
+      designs and runs the program and advises leadership, but that accountability cannot be handed to the CISO.
+    src: 'ISC2 CISSP Official Study Guide ch. 1 (security roles and responsibilities); CISSP 2027 outline 1.3'
+
+  - id: x1-008
+    c: control-frameworks
+    kind: best
+    diff: 1
+    text: >-
+      Enterprise customers of a payroll software company keep asking for proof that its information security
+      management system meets an international standard, verified by an accredited independent body.
+    ask: 'Against which standard should the company MOST likely seek certification?'
+    o: ['ISO/IEC 27002', 'ISO/IEC 27001', 'NIST Cybersecurity Framework 2.0', 'COBIT 2019']
+    a: 1
+    why: >-
+      ISO/IEC 27001 sets the requirements for an ISMS and is the standard accredited bodies certify against.
+      ISO/IEC 27002 is guidance on controls and is not certifiable, and the NIST CSF is a voluntary framework with no
+      certification scheme.
+    src: 'ISO/IEC 27001:2022 (ISMS requirements); ISO/IEC 27002:2022; CISSP 2027 outline 1.3 (control frameworks)'
+
+  # ---------------------------------------------------------------- 1.4 legal, regulatory, compliance
+  - id: x1-009
+    c: ip-licensing
+    kind: best
+    diff: 1
+    text: >-
+      A logistics software firm has developed a proprietary load-balancing algorithm that gives it a clear edge over
+      competitors. Leadership wants legal protection that does not require publishing how the algorithm works and
+      has no fixed expiry date.
+    ask: 'Which form of intellectual property protection BEST meets these goals?'
+    o: ['Utility patent', 'Copyright', 'Trade secret', 'Registered trademark']
+    a: 2
+    why: >-
+      A trade secret lasts as long as the owner keeps it secret through reasonable measures, with nothing published.
+      A patent requires public disclosure and expires about 20 years after filing; copyright protects expression,
+      not the method itself.
+    src: '18 U.S.C. 1839(3) (trade secret); 35 U.S.C. 154(a)(2) (patent term); 17 U.S.C. 102(b); ISC2 CISSP Official Study Guide ch. 4'
+
+  - id: x1-010
+    c: export-transborder
+    kind: first
+    diff: 2
+    text: >-
+      A US network equipment maker has an order from a foreign distributor for VPN appliances with strong
+      encryption. The sales director wants them shipped this week to close the quarter.
+    ask: 'What should the company do FIRST?'
+    o:
+      - 'Ship the appliances now, since commercial encryption is exempt from export rules'
+      - 'Disable the encryption features before shipping, so that no export rules can apply'
+      - 'Ship once the distributor signs a statement that the use is civilian only'
+      - 'Have trade compliance classify the product and confirm any license need under the EAR'
+    a: 3
+    why: >-
+      US exports of encryption items are controlled under the Export Administration Regulations (Category 5, Part 2),
+      so classification and any license or exception come before shipping. Commercial encryption is not
+      automatically exempt, and an end-use statement does not replace classification.
+    src: 'Export Administration Regulations, 15 CFR parts 730-774 (Category 5, Part 2); CISSP 2027 outline 1.4'
+
+  - id: x1-011
+    c: export-transborder
+    kind: best
+    diff: 2
+    text: >-
+      A retailer established in the EU wants to send its customer records to a support contractor in a country that
+      has no EU adequacy decision. The contractor will process the records only on the retailer's instructions.
+    ask: 'Which measure BEST makes this transfer lawful under Chapter V of the GDPR?'
+    o:
+      - 'Sign the Commission''s standard data protection clauses with the contractor'
+      - 'Encrypt the records in transit with TLS 1.3 and require encryption at rest at the contractor'
+      - 'Obtain the contractor''s ISO/IEC 27001 certificate before any records are transferred'
+      - 'Notify the supervisory authority before the first transfer'
+    a: 0
+    trap: 1
+    why: >-
+      Without an adequacy decision, Article 46 requires appropriate safeguards, such as the Commission's standard
+      data protection clauses. Strong encryption and ISO certification are good security, but neither is a transfer
+      mechanism under Chapter V.
+    src: 'GDPR Art. 44, 45 and 46(2)(c); CISSP 2027 outline 1.4 (transborder data flow)'
+
+  - id: x1-012
+    c: breach-notification
+    kind: best
+    diff: 3
+    text: >-
+      A payroll provider processes employee data on behalf of an EU-based manufacturer. The provider discovers that
+      an attacker copied the manufacturer's payroll files from one of the provider's servers.
+    ask: 'Under the GDPR, what is the payroll provider''s PRIMARY notification duty?'
+    o:
+      - 'Notify the competent supervisory authority within 72 hours of becoming aware of the breach'
+      - 'Notify the manufacturer without undue delay after becoming aware of the breach'
+      - 'Notify each affected employee directly once the scope of the breach is confirmed'
+      - 'Notify the police first, then the manufacturer once the police give permission'
+    a: 1
+    why: >-
+      The provider is a processor, and Article 33(2) requires a processor to notify the controller without undue
+      delay. The 72-hour notice to the supervisory authority is the controller's duty under Article 33(1), as is
+      deciding whether to tell employees under Article 34.
+    src: 'GDPR Art. 33(1), 33(2) and 34; CISSP 2027 outline 1.4'
+
+  - id: x1-013
+    c: hipaa-entities
+    kind: best
+    diff: 3
+    text: >-
+      A clinic stores encrypted electronic health records with a cloud storage company. The cloud company never
+      receives the decryption key and says it cannot view any patient information, so it refuses to sign a business
+      associate agreement.
+    ask: 'Which statement BEST describes the cloud company''s status under HIPAA?'
+    o:
+      - 'It is not a business associate, because encrypted records are not PHI'
+      - 'It falls under the conduit exception, since it only passes data along'
+      - 'It is a business associate, because it maintains ePHI for the clinic even without the key'
+      - 'It becomes a business associate only if it gains access to the clinic''s decryption key'
+    a: 2
+    why: >-
+      HHS guidance says a cloud provider that creates, receives, maintains or transmits ePHI for a covered entity is
+      a business associate even without the key. The conduit exception covers transmission-only services with no
+      persistent storage.
+    src: 'HHS, Guidance on HIPAA and Cloud Computing; 45 CFR 160.103 (business associate); CISSP 2027 outline 1.4'
+
+  - id: x1-014
+    c: breach-notification
+    kind: best
+    diff: 2
+    text: >-
+      A US hospital discovers a breach of unsecured protected health information affecting 1,200 patients, all
+      living in one state. A comparable breach at the hospital last year affected 300 patients.
+    ask: 'Which HIPAA notice is required for this breach that was NOT required for last year''s? Choose the BEST answer.'
+    o:
+      - 'Notice to prominent media outlets serving the state'
+      - 'Written notice to each affected individual within 60 days'
+      - 'An entry in the breach log reported to HHS after year end'
+      - 'Notice to the state attorney general within 72 hours'
+    a: 0
+    why: >-
+      Media notice is required when more than 500 residents of a state or jurisdiction are affected (164.406).
+      Individual notice within 60 days applies to every breach, and the annual HHS log is for breaches affecting
+      fewer than 500.
+    src: '45 CFR 164.404, 164.406 and 164.408; CISSP 2027 outline 1.4'
+
+  # ---------------------------------------------------------------- 1.5 investigation types
+  - id: x1-015
+    c: investigation-types
+    kind: best
+    diff: 1
+    text: >-
+      HR reports that an employee appears to be running a personal side business on company laptops during work
+      hours. There is no sign of fraud or any other crime, but it may break the acceptable use policy.
+    ask: 'Which type of investigation is MOST appropriate?'
+    o: ['Criminal, with law enforcement', 'Civil, between private parties', 'Regulatory, by a government agency', 'Administrative, by the employer']
+    a: 3
+    why: >-
+      Administrative investigations examine internal policy violations and operational issues, and usually end in
+      discipline. A criminal investigation needs a suspected crime and involves law enforcement; nothing here
+      suggests one.
+    src: 'ISC2 CISSP Official Study Guide ch. 19 (investigation types); CISSP 2027 outline 1.5'
+
+  - id: x1-016
+    c: investigation-types
+    kind: best
+    diff: 2
+    text: >-
+      A software company sues a former partner, claiming the partner leaked its product designs in breach of a
+      nondisclosure agreement. The company is preparing the evidence it will present in court.
+    ask: 'Which standard of proof will the company MOST likely need to meet?'
+    o: ['Proof beyond a reasonable doubt', 'Preponderance of the evidence', 'Probable cause', 'Reasonable suspicion']
+    a: 1
+    why: >-
+      A contract dispute is a civil case, and civil cases are decided on the preponderance of the evidence: more
+      likely than not. Beyond a reasonable doubt is the higher bar used in criminal cases.
+    src: 'ISC2 CISSP Official Study Guide ch. 19 (civil investigations); CISSP 2027 outline 1.5'
+
+  # ---------------------------------------------------------------- 1.6 policy, standards, procedures, guidelines
+  - id: x1-017
+    c: policy-hierarchy
+    kind: best
+    diff: 1
+    text: >-
+      A company document states: "All company laptops must use full-disk encryption with AES and a 256-bit key." It
+      applies to every department, and exceptions need written approval.
+    ask: 'Which type of document is this statement MOST likely from?'
+    o: ['A policy', 'A guideline', 'A standard', 'A procedure']
+    a: 2
+    why: >-
+      A standard is a mandatory requirement that names specific technologies or settings to put a policy into
+      effect. A policy states high-level intent and would not usually name an algorithm; a guideline is only advice.
+    src: 'ISC2 CISSP Official Study Guide ch. 1 (policies, standards, procedures, guidelines); CISSP 2027 outline 1.6'
+
+  - id: x1-018
+    c: policy-hierarchy
+    kind: best
+    diff: 3
+    text: >-
+      A security team wants a new encryption requirement to be mandatory across the company. The approved
+      algorithms and key lengths will change several times a year as guidance evolves, and the board approves
+      policies only once a year.
+    ask: 'Where is the BEST place to put the algorithm and key-length requirements?'
+    o:
+      - 'In a standard issued under the encryption policy'
+      - 'In the encryption policy itself, so the board''s authority stands behind every setting'
+      - 'In a guideline, so that teams can adopt new algorithms as soon as they are released'
+      - 'In each team''s procedures, so the people doing the configuration hold the requirement'
+    a: 0
+    why: >-
+      Policies state stable, high-level intent; standards carry mandatory, specific requirements and can be updated
+      under the policy's authority. Settings in the policy would force board changes every year, and a guideline
+      would make the requirement optional.
+    src: 'ISC2 CISSP Official Study Guide ch. 1 (policies, standards, procedures, guidelines); CISSP 2027 outline 1.6'
+
+  # ---------------------------------------------------------------- 1.7 business continuity requirements
+  - id: x1-019
+    c: bia-metrics
+    kind: calc
+    diff: 2
+    text: >-
+      A business impact analysis sets the maximum tolerable downtime of an online ordering process at 48 hours.
+      After the systems are restored, staff need 10 hours to verify data, clear the backlog and resume normal work.
+    ask: 'What is the longest recovery time objective the systems can be given?'
+    o: ['48 hours', '38 hours', '58 hours', '10 hours']
+    a: 1
+    why: >-
+      In CISSP terms, RTO plus work recovery time must fit within the MTD: 48 - 10 = 38 hours. An RTO of the full
+      48 hours leaves no room for the 10 hours of work recovery.
+    src: 'ISC2 CISSP Official Study Guide ch. 3 (BIA: MTD, RTO, WRT); NIST SP 800-34 Rev. 1 sec. 3.2'
+
+  - id: x1-020
+    c: bia-metrics
+    kind: first
+    diff: 1
+    text: >-
+      A credit union has approved the scope of its business continuity program and named an executive sponsor and a
+      planning team. The team is eager to start buying recovery capabilities.
+    ask: 'What should the team do FIRST?'
+    o:
+      - 'Sign a contract for a warm site that can take over the core banking system'
+      - 'Copy all critical servers to immutable backup storage in a second region'
+      - 'Write the annual test schedule for the plans'
+      - 'Perform a business impact analysis of the credit union''s processes'
+    a: 3
+    why: >-
+      The BIA identifies critical processes and their MTD, RTO and RPO, and recovery strategies are then chosen to
+      meet them. Buying a warm site or backups first risks paying for the wrong capability.
+    src: 'NIST SP 800-34 Rev. 1 sec. 3 (BIA before contingency strategies); CISSP 2027 outline 1.7'
+
+  - id: x1-021
+    c: bia-metrics
+    kind: best
+    diff: 3
+    text: >-
+      A business impact analysis gives payroll a maximum tolerable downtime of 12 hours. The internal payroll
+      application can be restored in 4 hours, but payroll cannot run without a third-party tax calculation service
+      whose contract promises restoration within 24 hours.
+    ask: 'Which conclusion is BEST for the continuity plan?'
+    o:
+      - 'Record payroll''s recovery time as 4 hours, since the provider''s recovery is outside the organization''s control'
+      - 'Raise payroll''s maximum tolerable downtime to 24 hours so that it matches the provider''s commitment'
+      - 'Treat 24 hours as the real recovery time for payroll and close the gap by contract or an alternate method'
+      - 'Accept the gap, because the provider''s service level agreement transfers the continuity risk to the provider'
+    a: 2
+    why: >-
+      A process recovers no faster than its slowest dependency, so the plan must count the 24-hour provider. MTD
+      comes from business impact, not from a vendor's promise, and a contract can share financial loss but never the
+      organization's accountability.
+    src: 'NIST SP 800-34 Rev. 1 sec. 3.2 (BIA); CISSP 2027 outline 1.7 (external dependencies)'
+
+  # ---------------------------------------------------------------- 1.8 personnel security
+  - id: x1-022
+    c: personnel-lifecycle
+    kind: first
+    diff: 1
+    text: >-
+      A systems administrator with access to production servers and the firewalls will be dismissed for misconduct
+      at a meeting with HR at 3 p.m. today.
+    ask: 'Regarding the administrator''s access, what should happen FIRST?'
+    o:
+      - 'Disable the administrator''s accounts as the dismissal is communicated'
+      - 'Hold an exit interview that reminds the administrator of the confidentiality agreement'
+      - 'Ask the administrator to hand over shared passwords'
+      - 'Collect the badge and laptop at the end of the day, once the meeting has finished'
+    a: 0
+    why: >-
+      Access for a departing employee, above all a privileged one dismissed for cause, should end when the decision
+      is communicated, leaving no window for sabotage. Exit interviews and asset return matter, but they come after
+      access is cut.
+    src: 'ISC2 CISSP Official Study Guide ch. 2 (termination processes); CISSP 2027 outline 1.8'
+
+  - id: x1-023
+    c: vendor-agreements
+    kind: best
+    diff: 2
+    text: >-
+      A company is outsourcing its service desk to a managed provider. The draft contract says only that the
+      provider "will make reasonable efforts to handle security incidents promptly."
+    ask: 'Which change to the contract BEST protects the company?'
+    o:
+      - 'Require all provider staff to sign the company''s acceptable use policy'
+      - 'Set measurable service levels for incident notice and resolution, with remedies if missed'
+      - 'Add a clause that the provider will comply with all applicable laws'
+      - 'Ask for the provider''s latest penetration test summary to be attached before signing'
+    a: 1
+    why: >-
+      Vague wording cannot be enforced. A service level agreement with measurable targets, such as notice within a
+      set time, and remedies when they are missed makes the obligation real. A general compliance clause sets no
+      measurable expectation.
+    src: 'ISC2 CISSP Official Study Guide ch. 2 (SLAs and vendor controls); CISSP 2027 outline 1.8'
+
+  # ---------------------------------------------------------------- 1.9 risk management
+  - id: x1-024
+    c: quant-risk
+    kind: calc
+    diff: 1
+    text: >-
+      A warehouse holds inventory worth $400,000. A flood would destroy an estimated 25% of it, and the company
+      expects such a flood once every five years.
+    ask: 'What is the annualized loss expectancy for flooding?'
+    o: ['$100,000', '$80,000', '$500,000', '$20,000']
+    a: 3
+    why: >-
+      SLE = $400,000 x 0.25 = $100,000. ARO = 1/5 = 0.2. ALE = $100,000 x 0.2 = $20,000. $100,000 is the SLE (ARO
+      forgotten), and $80,000 skips the exposure factor.
+    src: 'ISC2 CISSP Official Study Guide ch. 2 (quantitative risk analysis)'
+
+  - id: x1-025
+    c: control-cost-benefit
+    kind: calc
+    diff: 2
+    text: >-
+      An online retailer's annualized loss expectancy for credential-stuffing fraud is $90,000. A bot management
+      service would reduce it to $30,000 and costs $45,000 a year.
+    ask: 'How much is the bot management service worth to the retailer each year?'
+    o: ['$15,000', '$60,000', '-$15,000', '$45,000']
+    a: 0
+    why: >-
+      Value = ALE before - ALE after - annual cost = $90,000 - $30,000 - $45,000 = $15,000. $60,000 is the loss
+      reduction before the cost is subtracted. A positive result means the control is worth buying.
+    src: 'ISC2 CISSP Official Study Guide ch. 2 (cost/benefit of safeguards)'
+
+  - id: x1-026
+    c: risk-response
+    kind: best
+    diff: 2
+    text: >-
+      An assessment puts the annualized loss from an old file-transfer server at $50,000. The only available
+      control would cost $70,000 a year. Senior management signs a documented decision to leave the situation as it
+      is and to review it every year.
+    ask: 'Which risk response does this decision BEST represent?'
+    o: ['Risk avoidance', 'Risk transference', 'Risk acceptance', 'Risk rejection']
+    a: 2
+    why: >-
+      Acceptance is a deliberate, documented decision by management to bear a risk, here because the control costs
+      more than the loss it prevents. Rejection (ignoring the risk) is not a valid response; avoidance would mean
+      retiring the server.
+    src: 'NIST SP 800-39 sec. 3.3 (risk response); ISC2 CISSP Official Study Guide ch. 2'
+
+  - id: x1-027
+    c: control-types
+    kind: best
+    diff: 2
+    text: >-
+      A bank branch has only two employees, so the same person must sometimes open accounts and approve their first
+      deposits. Because separation of duties cannot be enforced there, a regional manager reviews every branch
+      transaction the next morning.
+    ask: 'Given the reason it was added, which control category BEST describes the regional manager''s review?'
+    o: ['Corrective', 'Compensating', 'Deterrent', 'Directive']
+    a: 1
+    why: >-
+      A compensating control stands in for a primary control that cannot be used, here separation of duties. The
+      review finds errors after the fact but fixes nothing itself, so it is not corrective, and it does not steer
+      behaviour in advance like a deterrent or directive.
+    src: 'ISC2 CISSP Official Study Guide ch. 2 (control types); NIST SP 800-53 Rev. 5 (compensating controls); CISSP 2027 outline 1.9'
+
+  - id: x1-028
+    c: risk-assessment-maturity
+    kind: best
+    diff: 2
+    text: >-
+      The board of a hospital network asks the CISO for a quarterly cyber risk report that directors can use to make
+      decisions.
+    ask: 'Which content would BEST serve the board?'
+    o:
+      - 'Counts of open vulnerabilities by CVSS severity, with trend lines for each data center'
+      - 'A list of the security tools bought this quarter'
+      - 'Firewall and intrusion detection alert volumes, with the number of events blocked'
+      - 'Top risks in business-impact terms, with trend against appetite and owners'
+    a: 3
+    why: >-
+      Boards decide on risk, so reporting should translate technical data into impact on objectives, compare it with
+      risk appetite and name owners. Vulnerability counts and alert volumes are operational metrics that do not tell
+      directors what to decide.
+    src: 'NIST SP 800-39 sec. 3.4 (risk monitoring); NIST CSF 2.0 (Govern function); CISSP 2027 outline 1.9 (risk reporting)'
+
+  # ---------------------------------------------------------------- 1.10 threat modeling
+  - id: x1-029
+    c: threat-modeling
+    kind: best
+    diff: 1
+    text: >-
+      While threat modeling a mobile banking app with STRIDE, a design team notes that an attacker on the network
+      path could change the amount of a transfer after the customer submits it.
+    ask: 'Which STRIDE category does this threat BEST fit?'
+    o: ['Tampering', 'Spoofing', 'Information disclosure', 'Elevation of privilege']
+    a: 0
+    why: >-
+      Tampering is unauthorized modification of data, here the transfer amount in transit. Spoofing is pretending to
+      be someone else, and information disclosure exposes data without changing it.
+    src: 'Shostack, Threat Modeling: Designing for Security (2014), STRIDE; CISSP 2027 outline 1.10'
+
+  - id: x1-030
+    c: threat-modeling
+    kind: best
+    diff: 3
+    text: >-
+      A payments app lets users approve transfers from their phones. A threat modeling review finds the app keeps no
+      tamper-evident record tying each approval to an authenticated user, so a customer could later deny approving a
+      transfer and the company could not show otherwise.
+    ask: 'Which STRIDE threat category does this finding MOST directly describe?'
+    o: ['Spoofing', 'Tampering', 'Repudiation', 'Elevation of privilege']
+    a: 2
+    why: >-
+      Repudiation is the threat that a user denies an action and the system cannot prove otherwise; it is countered
+      by protected, attributable logs and signatures. Spoofing would be someone posing as the user, which the
+      finding does not describe.
+    src: 'Shostack, Threat Modeling: Designing for Security (2014), STRIDE; CISSP 2027 outline 1.10'
+
+  # ---------------------------------------------------------------- 1.11 supply chain risk management
+  - id: x1-031
+    c: scrm
+    kind: best
+    diff: 2
+    text: >-
+      To beat a supply shortage, a data center team buys network switches from an unauthorized online broker at a
+      steep discount. On arrival, some units have serial numbers that the manufacturer's lookup tool does not
+      recognize.
+    ask: 'Which action is BEST?'
+    o:
+      - 'Reflash every unit with the manufacturer''s firmware, then deploy them in an isolated segment'
+      - 'Quarantine the units until the manufacturer verifies them, and use authorized channels'
+      - 'Deploy the units whose serials were recognized, and return only the ones that failed the lookup'
+      - 'Ask the broker to certify in writing that every unit is authentic'
+    a: 1
+    trap: 0
+    why: >-
+      Unrecognized serials suggest counterfeit or tampered hardware, which new firmware cannot make trustworthy.
+      Supply chain guidance is to verify provenance with the original manufacturer and buy through authorized
+      channels. A broker's own certificate proves nothing.
+    src: 'NIST SP 800-161 Rev. 1 (C-SCRM: counterfeits and tampering); CISSP 2027 outline 1.11'
+
+  - id: x1-032
+    c: scrm
+    kind: best
+    diff: 3
+    text: >-
+      A maker of smart meters wants each chip to prove its identity using a value that comes from tiny,
+      uncontrollable variations in the silicon itself, so the identity cannot be cloned and no secret key has to be
+      stored in the chip's nonvolatile memory.
+    ask: 'Which technology BEST meets this requirement?'
+    o:
+      - 'A trusted platform module endorsement key'
+      - 'A hardware security module at the factory'
+      - 'A software bill of materials for each chip'
+      - 'A physically unclonable function'
+    a: 3
+    why: >-
+      A PUF derives a device-unique response from manufacturing variations, so the secret is never stored and cannot
+      be copied to another chip. A TPM endorsement key is a stored key, and an SBOM lists software components; it
+      proves no identity.
+    src: 'CISSP 2027 outline 1.11 (physical unclonable function); Herder et al., Physical Unclonable Functions and Applications: A Tutorial, Proc. IEEE, 2014'
+
+  # ---------------------------------------------------------------- 1.12 awareness, education, training
+  - id: x1-033
+    c: awareness-program
+    kind: best
+    diff: 2
+    text: >-
+      A company has run monthly phishing awareness campaigns for a year. The CISO must show the executive committee
+      whether the program is changing how employees behave.
+    ask: 'Which metric would BEST show that?'
+    o:
+      - 'The trend in staff reporting of simulated phishing emails'
+      - 'The percentage of staff who completed the annual awareness module'
+      - 'The average end-of-module quiz score'
+      - 'The number of awareness emails and posters sent out each quarter'
+    a: 0
+    why: >-
+      Behaviour change is measured by what people do, such as reporting simulated phishing more often over time.
+      Completion rates and quiz scores show attendance and short-term recall, not whether behaviour changed.
+    src: 'NIST SP 800-50 Rev. 1 (learning program metrics and evaluation); CISSP 2027 outline 1.12'
+
+  - id: x1-034
+    c: awareness-program
+    kind: best
+    diff: 1
+    text: >-
+      A company wants its software developers to be able to write code that resists injection attacks, through
+      hands-on lab exercises tied to their daily work.
+    ask: 'Which kind of program BEST matches this goal?'
+    o: ['Awareness', 'Training', 'Education', 'Briefing']
+    a: 1
+    why: >-
+      Training builds specific job skills, such as secure coding through hands-on labs. Awareness only draws
+      attention to issues, and education builds broader understanding of concepts, typically through degrees or
+      certifications.
+    src: 'NIST SP 800-50 Rev. 1; ISC2 CISSP Official Study Guide ch. 2 (awareness, training, education); CISSP 2027 outline 1.12'

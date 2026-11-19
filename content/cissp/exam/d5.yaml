@@ -1,0 +1,650 @@
+# Board-exam pool, Domain 5 (Identity and Access Management). Items appear only in the board exam.
+# See docs/cissp/AUTHORING.md, "The board-exam pool". Log: docs/cissp/exam-pool-d5-d7.md
+items:
+  - id: x5-001
+    c: access-asset-lifecycle
+    kind: best
+    diff: 1
+    text: >-
+      A university gives contract researchers both a building badge and an account on its lab systems. An audit
+      finds that 40 contractors whose projects ended months ago still have working badges, although their lab
+      system accounts were disabled on the day each project ended.
+    ask: 'Which gap does this finding MOST directly reveal?'
+    o:
+      - 'The badge readers do not record failed entry attempts at the lab doors'
+      - 'Offboarding removes logical access but not physical access to facilities'
+      - 'Contractor accounts on the lab systems lack multifactor authentication'
+      - 'Background screening for contract researchers is not thorough enough'
+    a: 1
+    why: >-
+      Access management covers facilities as well as systems, so offboarding must revoke badges along with
+      accounts. MFA on the lab accounts is irrelevant here: those accounts were already disabled on time.
+    src: 'CISSP 2027 outline 5.1 (physical and logical access); NIST SP 800-53 Rev. 5 PS-4, PE-2'
+
+  - id: x5-002
+    c: identities-as-assets
+    kind: best
+    diff: 2
+    text: >-
+      A retailer's annual threat review finds that most recent intrusions against companies in its sector began
+      with valid usernames and passwords bought from initial access brokers, not with exploited software flaws.
+      The CISO has extra budget for one major program next year.
+    ask: 'Which program BEST addresses the threat the review describes?'
+    o:
+      - 'Faster patching of internet-facing servers and VPN appliances across all sites'
+      - 'An annual external penetration test focused on the public web applications'
+      - 'Phishing-resistant MFA plus monitoring of the directory and identity provider'
+      - 'A second perimeter firewall from a different vendor in front of the first'
+    a: 2
+    why: >-
+      Attackers are logging in with real credentials, so the identity is the asset to protect: phishing-resistant
+      MFA makes stolen passwords useless and identity monitoring catches misuse. Faster patching targets software
+      flaws, which the review says were not the way in.
+    src: 'CISSP 2027 outline 5.1 (identities); NIST SP 800-63B-4 sec. 3.2.5 (phishing resistance)'
+
+  - id: x5-003
+    c: access-asset-lifecycle
+    kind: first
+    diff: 2
+    text: >-
+      A hospital is adding smart infusion pumps that join the clinical network and are managed through a vendor
+      web console. The project team wants to go live next week. Nobody has yet decided who may log in to the
+      console or change pump settings.
+    ask: 'What should the security manager do FIRST?'
+    o:
+      - 'Get the clinical service that owns the pumps to define console rights'
+      - 'Put the pumps on an isolated network segment with strict access lists'
+      - 'Replace the vendor default console password with a long random one'
+      - 'Send all console activity logs to the SIEM before the pumps go live'
+    a: 0
+    trap: 1
+    why: >-
+      Access cannot be provisioned or enforced until the owner decides who needs what, so that decision comes
+      first. Segmenting the pumps is a sound control, but it is the engineer's answer and still leaves console
+      rights undefined.
+    src: 'CISSP 2027 outline 5.1 (access to devices and applications); NIST SP 800-53 Rev. 5 AC-2'
+
+  - id: x5-004
+    c: identities-as-assets
+    kind: best
+    diff: 1
+    text: >-
+      A logistics firm discovers that an attacker has used a former contractor's cloud account, which was never
+      disabled, for three weeks. No malware was found, and every action the attacker took used normal console
+      features.
+    ask: 'Which lesson does this incident MOST clearly teach?'
+    o:
+      - 'Antivirus signatures and scans on the cloud servers were out of date'
+      - 'The perimeter firewall rules allowed too much inbound traffic'
+      - 'Cloud platforms are unsuitable for the firm''s sensitive workloads'
+      - 'Identities are assets whose entire lifecycle must be controlled'
+    a: 3
+    why: >-
+      The attacker logged in rather than broke in: an orphaned identity was the way in. Antivirus and firewalls
+      look for malicious code and traffic, and nothing here was malicious except who was using a valid account.
+    src: 'CISSP 2027 outline 5.1 (identities); NIST SP 800-53 Rev. 5 AC-2(3) (disable accounts)'
+
+  - id: x5-005
+    c: session-management
+    kind: best
+    diff: 3
+    text: >-
+      A firm's cloud administrators sign in through the corporate identity provider with MFA. Malware on one
+      administrator's laptop stole a valid session cookie, and the attacker replayed it from another country for
+      two days without ever seeing an MFA prompt.
+    ask: 'Which control would MOST directly have limited this attack?'
+    o:
+      - 'Device-bound session tokens that are continuously re-evaluated after sign-in'
+      - 'Moving administrators from simple push approval to number-matching push MFA'
+      - 'Requiring longer and more complex passwords for all administrator accounts'
+      - 'Adding a second identity provider as a backup sign-in path for administrators'
+    a: 0
+    why: >-
+      The attacker skipped authentication by replaying a session token, so the fix lies in session management:
+      bind the token to the device and keep evaluating risk. Stronger MFA such as number matching protects only
+      the sign-in, which had already happened.
+    src: 'NIST SP 800-63B-4 sec. 5 (session management); NIST SP 800-207 sec. 2.1 (dynamic authentication and authorization)'
+
+  - id: x5-006
+    c: aaa-model
+    kind: best
+    diff: 1
+    text: >-
+      An employee types her username at a login screen, then touches a fingerprint reader. The system checks her
+      group membership to decide whether she may open the payroll folder, and it writes a log entry naming each
+      file she opens.
+    ask: 'Which step BEST represents the accounting part of AAA?'
+    o:
+      - 'Typing her username at the login screen'
+      - 'Touching the fingerprint reader to prove it'
+      - 'Logging the name of every file she opens'
+      - 'Checking her group membership for payroll'
+    a: 2
+    why: >-
+      Accounting records what an authenticated user did. Typing the username is identification, the fingerprint
+      is authentication, and the group check is authorization: it decides what she may do but records nothing.
+    src: 'ISC2 CISSP Official Study Guide (Sybex, 9th ed.), ch. 13 (AAA); CISSP 2027 outline 5.2'
+
+  - id: x5-007
+    c: authn-factors-aal
+    kind: best
+    diff: 1
+    text: >-
+      A credit union's online banking asks members for a password and then for the answer to a security question
+      about the street they grew up on. Its marketing material calls this "two-factor protection."
+    ask: 'Which statement BEST describes this login?'
+    o:
+      - 'Single-factor, because both items are something the member knows'
+      - 'Two-factor, because two separate secrets must both be correct'
+      - 'Two-factor, because the question is asked on a separate screen'
+      - 'Multifactor, because the two checks happen at different moments in the login'
+    a: 0
+    why: >-
+      Factors are counted by type, not by number. A password and a security answer are both something you know,
+      so this is single-factor. Two secrets on two screens are still one factor type.
+    src: 'NIST SP 800-63B-4 sec. 3.1 (authenticator types: something you know, have, are); ISC2 CISSP OSG (9th ed.) ch. 13'
+
+  - id: x5-008
+    c: authn-factors-aal
+    kind: best
+    diff: 3
+    text: >-
+      A defense contractor's policy requires AAL3, as defined in NIST SP 800-63B-4, for administrators of a sensitive design system. The
+      help desk proposes passkeys that sync through each administrator's cloud account, arguing that passkeys are
+      phishing resistant and AAL3 asks for nothing more.
+    ask: 'Which response is BEST?'
+    o:
+      - 'Accept it, as phishing resistance is the only extra requirement at AAL3'
+      - 'Accept it, provided each synced passkey is unlocked with a device PIN'
+      - 'Reject it, since AAL3 needs a non-exportable, device-bound key'
+      - 'Reject it, since AAL3 forbids public-key methods and needs OTP hardware'
+    a: 2
+    why: >-
+      AAL3 requires a cryptographic authenticator whose private key cannot be exported, and SP 800-63B-4 says
+      syncable authenticators shall not be used at AAL3. Phishing resistance is necessary but not sufficient, and
+      a device PIN does not make a synced key non-exportable.
+    src: 'NIST SP 800-63B-4 sec. 2.3, 2.3.2 and Appendix B (syncable authenticators)'
+
+  - id: x5-009
+    c: authn-factors-aal
+    kind: calc
+    diff: 2
+    text: >-
+      During a pilot of a fingerprint system, testers made 4,000 impostor attempts and 5,000 genuine attempts. The
+      system accepted 8 of the impostor attempts and rejected 150 of the genuine attempts.
+    ask: 'What is the false acceptance rate (FAR) in this pilot?'
+    o: ['3.0%', '0.16%', '0.2%', '3.75%']
+    a: 2
+    why: >-
+      FAR = false accepts / impostor attempts = 8 / 4,000 = 0.2%. 3.0% is the false rejection rate (150 / 5,000),
+      the Type I error; 0.16% divides by the wrong attempt count.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 13 (biometric error rates: FRR Type I, FAR Type II)'
+
+  - id: x5-010
+    c: identity-proofing
+    kind: best
+    diff: 2
+    text: >-
+      A state benefits agency is moving enrollment online. Today applicants show a photo ID at a counter. The
+      agency wants remote enrollment that still gives strong confidence each applicant is the real person named on
+      the application.
+    ask: 'Which approach BEST meets this goal?'
+    o:
+      - 'Validating the ID document and matching the applicant''s live photo to it'
+      - 'A one-time link sent to the email address entered on the application'
+      - 'Knowledge-based questions drawn from the applicant''s public credit records'
+      - 'Collecting an uploaded scan of the photo ID and keeping it on file'
+    a: 0
+    why: >-
+      Identity proofing validates the evidence, then verifies that the applicant is its owner, for example by a
+      live facial comparison. Storing a scan collects evidence without validating or verifying it, and knowledge
+      questions use data attackers can often buy.
+    src: 'NIST SP 800-63A-4 (identity resolution, validation and verification); CISSP 2027 outline 5.2'
+
+  - id: x5-011
+    c: session-management
+    kind: best
+    diff: 1
+    text: >-
+      A web application keeps users signed in for 30 days with the same session token. Testers find that the token
+      still works after the user clicks "log out", and it never changes when the user signs in again.
+    ask: 'Which fix BEST addresses the testers'' finding?'
+    o:
+      - 'Encrypt the session token with a stronger cipher in the browser'
+      - 'Apply a stronger password policy to every user account'
+      - 'Carry the session token in the URL rather than in a cookie'
+      - 'Invalidate tokens on the server at logout and enforce timeouts'
+    a: 3
+    why: >-
+      A session must end on the server at logout, expire after set limits and get a fresh token at each sign-in.
+      Encrypting a token that never dies only hides a credential an attacker can still replay.
+    src: 'NIST SP 800-63B-4 sec. 5 (session management); OWASP Session Management Cheat Sheet'
+
+  - id: x5-012
+    c: passwordless-fido
+    kind: best
+    diff: 3
+    text: >-
+      Attackers build an exact copy of a company's login page on a look-alike domain and relay each victim's input
+      to the real site in real time. Some employees use push MFA with number matching; others use FIDO2 passkeys.
+    ask: 'Which statement BEST describes the likely outcome?'
+    o:
+      - 'Both groups are safe, since each method needs a device the attacker lacks'
+      - 'Push users are safe, since number matching defeats real-time relaying'
+      - 'Neither group is safe, since a real-time relay defeats every MFA method'
+      - 'Passkey users are safe, since the key is bound to the real site''s origin'
+    a: 3
+    why: >-
+      WebAuthn credentials are scoped to the real relying party, so the look-alike origin gets no usable
+      signature. Number matching stops blind push approvals (MFA fatigue), but a user can still type the number for
+      a relayed login.
+    src: 'W3C Web Authentication Level 3, sec. 1 and 4; NIST SP 800-63B-4 sec. 3.2.5 (phishing resistance)'
+
+  - id: x5-013
+    c: credential-vault
+    kind: best
+    diff: 2
+    text: >-
+      A manufacturer's 20 network engineers share one local administrator password for 300 switches. It sits in a
+      spreadsheet on a file share and has not changed in two years. No one can say who made a given switch change.
+    ask: 'Which solution BEST fixes the underlying problem?'
+    o:
+      - 'Encrypt the spreadsheet and limit the file share to the 20 engineers'
+      - 'A credential vault issuing each engineer logged, rotated checkouts'
+      - 'Change the shared password every 90 days and email engineers the value'
+      - 'Add the password rules to the engineers'' acceptable use agreement'
+    a: 1
+    why: >-
+      A credential management system checks the secret out to a named person, logs it and rotates it, fixing both
+      the stale secret and the lost accountability. Encrypting the spreadsheet protects the file but leaves one
+      unchanging secret shared by 20 people.
+    src: 'CISSP 2027 outline 5.2 (credential management systems); NIST SP 800-53 Rev. 5 IA-5'
+
+  - id: x5-014
+    c: just-in-time-access
+    kind: best
+    diff: 2
+    text: >-
+      A software company's 12 database administrators hold permanent production admin rights, but each uses them
+      only a few hours a month for scheduled changes. Management wants to cut standing privilege without slowing
+      urgent fixes.
+    ask: 'Which approach BEST meets management''s goal?'
+    o:
+      - 'Quarterly reviews confirming that all 12 administrators still need the rights'
+      - 'Separate admin accounts per person, kept permanently in the admin group'
+      - 'One shared break-glass account in a safe, used for every production change'
+      - 'Time-boxed admin rights requested for each task that expire on their own'
+    a: 3
+    why: >-
+      Just-in-time access removes standing privilege: rights exist only for the approved window, then disappear.
+      Quarterly reviews confirm the need but leave permanent rights in place between reviews.
+    src: 'CISSP 2027 outline 5.2 (just-in-time); NIST SP 800-53 Rev. 5 AC-2(6) (dynamic privilege management)'
+
+  - id: x5-015
+    c: federation-sso
+    kind: best
+    diff: 1
+    text: >-
+      A university lets students sign in to an outside e-learning platform with their campus accounts. The platform
+      never receives the students' passwords; it receives a signed statement that each student has signed in.
+    ask: 'Which party BEST fits the role of identity provider?'
+    o:
+      - 'The e-learning platform, which hosts the courses'
+      - 'The authority that issued the platform''s TLS certificate'
+      - 'Each student''s browser, which carries the statement'
+      - 'The university, which authenticates the students'
+    a: 3
+    why: >-
+      The identity provider authenticates the user and issues the signed assertion; here that is the university.
+      The platform is the service provider (relying party) that trusts the assertion. The browser only carries it.
+    src: 'CISSP 2027 outline 5.3; NIST SP 800-63C-4 sec. 3 (federation roles: IdP and RP)'
+
+  - id: x5-016
+    c: federation-sso
+    kind: best
+    diff: 2
+    text: >-
+      A health insurer federates with a network of partner clinics so clinic staff can reach its claims portal
+      with their own clinic credentials. The insurer's counsel asks how the insurer can be sure that departed clinic
+      staff lose portal access.
+    ask: 'Which arrangement BEST manages this risk?'
+    o:
+      - 'A trust agreement making clinics deprovision leavers, subject to audit'
+      - 'Local insurer accounts for every clinic employee, kept as a backup'
+      - 'Re-entry of the clinic password, with MFA, on each portal page'
+      - 'Monthly direct review of each clinic''s HR records by insurer staff'
+    a: 0
+    why: >-
+      In federation the partner's IdP controls the identities, so the insurer manages the risk through the trust
+      agreement: deprovisioning duties and the right to audit them. Local backup accounts would create a second set
+      of identities that also need deprovisioning.
+    src: 'CISSP 2027 outline 5.3 (federation with third parties); NIST SP 800-63C-4 sec. 3.5 (trust agreements)'
+
+  - id: x5-017
+    c: federation-sso
+    kind: best
+    diff: 3
+    text: >-
+      During a review of a SAML single sign-on integration, a tester finds that the service provider accepts
+      assertions with the XML signature removed, provided the issuer field names the company's identity provider.
+    ask: 'What is the MOST serious consequence of this flaw?'
+    o:
+      - 'Network observers can read the contents of every assertion sent in transit'
+      - 'Users will be prompted to sign in twice during each session'
+      - 'An attacker can forge an assertion for any user they choose'
+      - 'The identity provider''s private signing key is now exposed'
+    a: 2
+    why: >-
+      The signature proves an assertion came unchanged from the IdP. Without checking it, an attacker can write
+      their own assertion for any user. Reading assertions in transit is a confidentiality issue that encryption
+      addresses, not a forgery.
+    src: 'OASIS SAML 2.0 Core sec. 5 (XML Signature) and Profiles sec. 4.1.4.5 (POST assertions must be signed); OWASP SAML Security Cheat Sheet; CISSP 2027 outline 5.3'
+
+  - id: x5-018
+    c: mac-dac
+    kind: best
+    diff: 1
+    text: >-
+      In a government agency's system, every file carries a classification label and every user a clearance. A
+      file's author cannot give a colleague access to the file if the colleague's clearance is below the file's
+      label.
+    ask: 'Which access control model does this MOST accurately describe?'
+    o: ['Mandatory access control', 'Role-based access control', 'Discretionary access control', 'Rule-based access control']
+    a: 0
+    why: >-
+      In MAC the system enforces labels and clearances, and no user, not even the author, can override them. In
+      DAC the author, as owner, could share the file with anyone.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 14; NIST IR 7316 (access control models)'
+
+  - id: x5-019
+    c: mac-dac
+    kind: best
+    diff: 2
+    text: >-
+      In a design firm's shared drive, whoever creates a project folder decides who else may read or change it. A
+      departing employee had shared a client folder with an outside freelancer, and nobody else knew.
+    ask: 'Which feature of the access model MOST contributed to this exposure?'
+    o:
+      - 'Labels were set centrally by a security officer'
+      - 'Rights were attached to job roles, not to people'
+      - 'Sharing was left to each creator''s discretion'
+      - 'The same access rules applied to every single user'
+    a: 2
+    why: >-
+      This is discretionary access control: the owner may grant access to anyone, without central oversight.
+      Central labels (MAC) or job roles (RBAC) would have stopped one user from sharing outside the firm.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 14; NIST IR 7316 (DAC)'
+
+  - id: x5-020
+    c: rbac-rubac-abac
+    kind: best
+    diff: 2
+    text: >-
+      A bank wants traders to reach its trading platform only from managed devices, only during their market's
+      opening hours, and only for desks in their own region. Using roles alone would need hundreds of near-identical
+      roles.
+    ask: 'Which access control model BEST fits these requirements?'
+    o:
+      - 'Mandatory access control'
+      - 'Role-based access control'
+      - 'Discretionary access control'
+      - 'Attribute-based access control'
+    a: 3
+    why: >-
+      ABAC decides on attributes of the subject (region, desk), the resource and the environment (device state,
+      time), avoiding role explosion. Adding more roles is exactly the explosion the bank wants to avoid.
+    src: 'NIST SP 800-162 sec. 2 (ABAC); CISSP 2027 outline 5.4'
+
+  - id: x5-021
+    c: rbac-rubac-abac
+    kind: best
+    diff: 2
+    text: >-
+      A water utility's firewall drops all traffic to the control network outside a weekly maintenance window. The
+      rule applies to every user and every device, whoever they are and whatever their job.
+    ask: 'Which access control approach does this policy BEST represent?'
+    o: ['Role-based access control', 'Rule-based access control', 'Discretionary access control', 'Risk-Adaptable Access Control']
+    a: 1
+    why: >-
+      Rule-based access control applies global rules to all subjects regardless of identity or role; firewall rules
+      are the classic example. Role-based control would decide by each person's job, which this rule ignores.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 14 (rule-based access control); CISSP 2027 outline 5.4'
+
+  - id: x5-022
+    c: radac
+    kind: best
+    diff: 3
+    text: >-
+      A coalition logistics system normally blocks access to shipment data from outside its secure network. During
+      a disaster response, it can let a field officer in after weighing the current threat level against the
+      mission need behind that officer's specific request.
+    ask: 'Which access control approach does this BEST describe?'
+    o: ['Attribute-based access control', 'Mandatory access control', 'Rule-based access control', 'Risk-Adaptable Access Control']
+    a: 3
+    why: >-
+      RAdAC estimates the security risk of each request and weighs it against operational need, so it can allow
+      access fixed policy would refuse. ABAC also uses context, but it applies set policy to attributes; it does not
+      trade risk against mission need.
+    src: 'NIST CSRC Glossary, risk-adaptable access control (from CNSSI 4009); CISSP 2027 outline 5.4'
+
+  - id: x5-023
+    c: pdp-pep
+    kind: best
+    diff: 1
+    text: >-
+      In a zero trust design, a gateway in front of an HR application sends each access request to a central policy
+      engine and then allows or blocks the session according to the answer.
+    ask: 'Which role BEST describes the gateway in NIST SP 800-207 terms?'
+    o: ['Policy decision point', 'Policy enforcement point', 'Policy administrator', 'Threat intelligence feed']
+    a: 1
+    why: >-
+      The policy enforcement point sits in front of the resource and enables, monitors or terminates the
+      connection. The decision itself is made by the policy decision point (policy engine and policy administrator).
+    src: 'NIST SP 800-207 sec. 3 (logical components)'
+
+  - id: x5-024
+    c: pdp-pep
+    kind: best
+    diff: 3
+    text: >-
+      Logs from a company's zero trust pilot show that the policy engine denied a contractor's request to a file
+      server, yet the contractor still reached the server over an old site-to-site VPN route that bypasses the
+      access gateway.
+    ask: 'Which design flaw does this MOST clearly show?'
+    o:
+      - 'The policy engine uses too few attributes when deciding'
+      - 'The policy administrator failed to log the denial'
+      - 'The server is reachable without passing an enforcement point'
+      - 'The contractor''s IdP is not federated with the company'
+    a: 2
+    why: >-
+      A PDP decision means nothing if a path to the resource avoids the enforcement point; every access must pass
+      a PEP. More attributes would only refine a decision that the VPN route ignores anyway.
+    src: 'NIST SP 800-207 sec. 2.1 and 3 (access through a PEP)'
+
+  - id: x5-025
+    c: provisioning-reviews
+    kind: best
+    diff: 1
+    text: >-
+      Over five years an employee moved from accounts payable to treasury and then to procurement. A review finds
+      she can still approve invoices, release payments and create new vendors.
+    ask: 'Which problem does this MOST clearly show?'
+    o:
+      - 'Weak identity proofing when she was first hired'
+      - 'Privilege creep built up over her two job transfers'
+      - 'Missing encryption on the payments system database tables'
+      - 'Weak password complexity rules on finance systems'
+    a: 1
+    why: >-
+      Each transfer added rights but never removed old ones: privilege creep, which here also breaks separation of
+      duties. Proofing at hiring confirms identity; it has nothing to do with rights gathered later.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 14 (privilege creep); NIST SP 800-53 Rev. 5 PS-5 (personnel transfer)'
+
+  - id: x5-026
+    c: provisioning-reviews
+    kind: best
+    diff: 2
+    text: >-
+      A company is starting periodic access reviews for its finance application, which has 400 users across six
+      departments. The IT team that grants access offers to run the reviews itself, since it already has the user
+      lists.
+    ask: 'Who is BEST placed to confirm that each user''s access is still needed?'
+    o:
+      - 'The IT administrators who originally granted the access'
+      - 'Internal audit, which is independent of the finance team'
+      - 'Each user, through a yearly self-certification form'
+      - 'Business managers who know each user''s current duties'
+    a: 3
+    why: >-
+      Managers and the data owner know whether each person still needs the access, so they certify it. IT can run
+      the mechanics, but reviewing its own grants is no independent check of need. Audit verifies that reviews
+      happen; it does not decide need.
+    src: 'NIST SP 800-53 Rev. 5 AC-2 (account reviews); ISC2 CISSP OSG (9th ed.) ch. 14'
+
+  - id: x5-027
+    c: privilege-escalation
+    kind: best
+    diff: 1
+    text: >-
+      Developers on a Linux build server must restart one service several times a day. Today each of them is given
+      the root password to do it.
+    ask: 'Which change BEST applies least privilege while keeping their work moving?'
+    o:
+      - 'A sudo rule allowing only the restart command'
+      - 'Weekly root password rotation through a vault'
+      - 'Personal accounts in a root-equivalent group'
+      - 'Operations restarts it for them on request'
+    a: 0
+    why: >-
+      Least privilege grants only the elevation the task needs: one command through sudo, logged per person. A
+      vault and rotation improve password hygiene but still hand every developer full root.
+    src: 'NIST SP 800-53 Rev. 5 AC-6 and AC-6(9) (log use of privileged functions); CISSP 2027 outline 5.5'
+
+  - id: x5-028
+    c: privilege-escalation
+    kind: best
+    diff: 2
+    text: >-
+      A tester signed in as an ordinary customer of an online bank changes the account number in a request and is
+      shown another customer's statements. She cannot reach any administrative function.
+    ask: 'Which term BEST describes what the tester achieved?'
+    o: ['Horizontal privilege escalation', 'Session fixation', 'Vertical privilege escalation', 'Abuse of a federated identity trust']
+    a: 0
+    why: >-
+      Horizontal escalation reaches another user's resources at the same privilege level. Vertical escalation
+      would mean gaining higher rights, such as admin functions, which she could not reach.
+    src: 'OWASP Web Security Testing Guide, WSTG-ATHZ-03 (privilege escalation) and WSTG-ATHZ-04 (insecure direct object references); CISSP 2027 outline 5.5'
+
+  - id: x5-029
+    c: service-accounts
+    kind: best
+    diff: 2
+    text: >-
+      A retailer's inventory application connects to its database with a service account created eight years ago
+      by an engineer who has since left. The account is a domain administrator, and its password never expires
+      because staff fear something might break.
+    ask: 'Which action BEST reduces the risk from this account?'
+    o:
+      - 'Disable the account at once, then see which systems stop working'
+      - 'Set the password to expire every 30 days, like ordinary user accounts'
+      - 'Rename the account so attackers cannot guess what it is for'
+      - 'Have a named manager trim its rights and vault its secret'
+    a: 3
+    trap: 0
+    why: >-
+      Service accounts need an accountable owner, least privilege and a managed, rotated secret. Disabling it
+      blind is the engineer's answer: it breaks production without fixing the governance gap.
+    src: 'CISSP 2027 outline 5.5 (service account management); NIST SP 800-53 Rev. 5 AC-2, AC-6, IA-5'
+
+  - id: x5-030
+    c: kerberos-sso
+    kind: best
+    diff: 1
+    text: >-
+      An employee signs in to a Windows domain in the morning. Later she opens a file share and an intranet site
+      that use Kerberos, and she is not asked for her password again.
+    ask: 'Which item BEST explains why she is not asked again?'
+    o:
+      - 'A copy of her password hash cached on each server'
+      - 'The ticket-granting ticket issued at sign-in'
+      - 'A SAML assertion stored by her web browser'
+      - 'A RADIUS accept message held by the client'
+    a: 1
+    why: >-
+      At sign-in the authentication service issues a ticket-granting ticket; the client presents it to the TGS
+      for a service ticket to each resource. In Kerberos, servers never receive or cache her password hash.
+    src: 'RFC 4120 sec. 1 and 3 (Kerberos V5)'
+
+  - id: x5-031
+    c: kerberos-sso
+    kind: best
+    diff: 3
+    text: >-
+      After a breach, investigators learn the attackers copied the key of the krbtgt account from a domain
+      controller. The response team has already reset every user's password, including all administrators.
+    ask: 'Why is the domain MOST likely still at risk?'
+    o:
+      - 'Attackers can still forge valid ticket-granting tickets'
+      - 'Kerberos sends the new passwords across the network'
+      - 'Old service tickets stay valid for several months'
+      - 'The KDC will replicate the new passwords to attackers'
+    a: 0
+    why: >-
+      TGTs are encrypted with the krbtgt key, so whoever holds it can forge TGTs for any user; resetting user
+      passwords does not change it. Service tickets are short-lived, and Kerberos never sends passwords across the
+      network.
+    src: 'RFC 4120 sec. 1 and 5.3 (tickets encrypted in the server key)'
+
+  - id: x5-032
+    c: aaa-protocols
+    kind: best
+    diff: 2
+    text: >-
+      A network team wants to authenticate administrators to routers and switches, authorize each command
+      separately, and record every command entered. It also wants protection for the whole message body, not
+      only the password.
+    ask: 'Which protocol BEST fits these needs?'
+    o: ['RADIUS', 'TACACS+', 'LDAP', 'Kerberos']
+    a: 1
+    why: >-
+      TACACS+ (TCP 49) separates authentication, authorization and accounting, allows per-command authorization
+      and protects the whole body (CISSP says encrypts; RFC 8907 calls it weak obfuscation). RADIUS combines
+      authentication and authorization and hides only the password.
+    src: 'RFC 8907 sec. 4.5 and 10.1; RFC 2865 sec. 5.2; ISC2 CISSP OSG (9th ed.) ch. 14'
+
+  - id: x5-033
+    c: aaa-protocols
+    kind: best
+    diff: 3
+    text: >-
+      A mobile app developer accepts OAuth 2.0 access tokens from a social platform as proof that a person has
+      signed in to the developer's own app. A security reviewer says this misuses the protocol.
+    ask: 'Which change BEST corrects the design?'
+    o:
+      - 'Use SAML 2.0, since OAuth cannot work on mobile devices'
+      - 'Keep OAuth but ask for longer-lived access tokens'
+      - 'Adopt OpenID Connect ID tokens validated for this app'
+      - 'Use RADIUS so the platform returns an accept message'
+    a: 2
+    why: >-
+      OAuth 2.0 is an authorization framework: an access token grants access to an API, not proof of who signed in
+      to your app. OpenID Connect adds an ID token, bound to the client as audience, for authentication. Longer-lived
+      tokens make things worse.
+    src: 'RFC 6749 sec. 1; OpenID Connect Core 1.0 sec. 2 (ID token) and 3.1.3.7 (ID token validation)'
+
+  - id: x5-034
+    c: aaa-protocols
+    kind: best
+    diff: 1
+    text: >-
+      A college wants its wireless access points to check each user's directory credentials before letting a
+      laptop onto the campus network.
+    ask: 'Which combination is MOST commonly used for this?'
+    o: ['TACACS+ with SAML assertions', 'Kerberos with WPA2-Personal', '802.1X with a RADIUS server', 'OAuth 2.0 with a pre-shared key']
+    a: 2
+    why: >-
+      802.1X port-based access control, with the access point as authenticator and a RADIUS server checking
+      credentials, is the standard enterprise Wi-Fi design. WPA2-Personal uses one pre-shared key, not per-user
+      credentials.
+    src: 'RFC 3580 (IEEE 802.1X RADIUS usage guidelines); RFC 2865'

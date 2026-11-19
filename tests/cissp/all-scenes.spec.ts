@@ -3,7 +3,7 @@
  * "not right" with its feedback). This proves each answer key, shuffle, diagram and interaction for the whole bank.
  */
 import { test, expect } from '@playwright/test';
-import { SCENES, answer } from './helpers';
+import { POOL, SCENES, answer } from './helpers';
 
 test('every scene: the right answer is graded right', async ({ page }) => {
   test.setTimeout(30 * 60_000);
@@ -21,6 +21,23 @@ test('every scene: the right answer is graded right', async ({ page }) => {
   }
   expect(bad, 'scenes whose right answer was graded wrong').toEqual([]);
   expect(noStory, 'scenes whose story did not react to a right answer').toEqual([]);
+});
+
+test('every board-exam item: the right answer is graded right, the wrong one wrong, with the why and the source', async ({ page }) => {
+  test.setTimeout(20 * 60_000);
+  expect(POOL.length, 'the exam pool is built').toBeGreaterThanOrEqual(250);
+  await page.goto('./#scene=' + POOL[0].id);
+  const bad: string[] = [];
+  for (const [i, s] of POOL.entries()) {
+    await page.evaluate((id) => { location.hash = 'scene=' + id; location.reload(); }, s.id);
+    await page.locator('.scene .cid').waitFor();
+    const right = i % 5 !== 0;
+    await answer(page, right);
+    if ((await page.locator('#slot').getAttribute('data-result')) !== (right ? 'ok' : 'no')) bad.push(`${s.id} (${right ? 'right' : 'wrong'})`);
+    if (!right && !(await page.locator('.ansline').textContent())?.includes(s.o![s.a as number])) bad.push(`${s.id} (answer line)`);
+  }
+  expect(bad).toEqual([]);
+  await expect(page.locator('.dateline')).toHaveText('board exam question');
 });
 
 test('one scene of every kind: a wrong answer is graded wrong, with the rule, the why and the source', async ({ page }) => {

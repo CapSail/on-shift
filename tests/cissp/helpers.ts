@@ -5,7 +5,9 @@ import type { Content, Scene } from '../../src/cissp/types';
 
 export const content = JSON.parse(readFileSync('src/generated/cissp.json', 'utf8')) as Content;
 export const SCENES: Scene[] = content.cases.flatMap((k) => k.scenes);
-export const byId = new Map(SCENES.map((s) => [s.id, s]));
+/** Board-exam-only items (content/cissp/exam): never served outside the board exam. */
+export const POOL: Scene[] = content.pool ?? [];
+export const byId = new Map([...SCENES, ...POOL].map((s) => [s.id, s]));
 
 export const KEY = 'cissp.v1';
 export const seed = (page: Page, state: Record<string, unknown>) =>

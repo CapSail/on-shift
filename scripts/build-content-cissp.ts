@@ -198,10 +198,74 @@ for (const c of concepts) {
 for (const o of OBJ) if ((byObj[o] ?? 0) < 2) err(`objective ${o}: has ${byObj[o] ?? 0} scene(s) (min 2): ${meta.objectives[o]}`);
 for (const d of meta.domains) if (cases.filter((k) => k.d === d.n).length < 4) err(`domain ${d.n}: has ${cases.filter((k) => k.d === d.n).length} case(s) (min 4)`);
 if (lenN && rightLongest / lenN > 0.2) warn(`the right answer is clearly the longest option in ${rightLongest}/${lenN} scenes (a test-wise guesser would exploit it; aim ≤20%)`);
+// ---------------------------------------------------------------- the exam pool
+// content/cissp/exam/d<n>.yaml, `items:`: board-exam-only questions, never served in cases, drills or flashbacks.
+// Real-exam style: neutral organizations (not Halvorsen), one question, 4 options, no story. Kinds first/best/calc.
+// Targets per domain: about two full 125-item exams' worth, weighted like the outline, every difficulty and objective.
+const POOL_TARGET: Record<number, number> = { 1: 34, 2: 30, 3: 32, 4: 32, 5: 34, 6: 28, 7: 32, 8: 28 };
+const pool: Scene[] = [];
+{
+  const raw: Scene[] = [];
+  for (const dom of meta.domains) {
+    const file = `${DIR}/exam/d${dom.n}.yaml`;
+    let doc: { items?: Scene[] } = {};
+    try { doc = parse(readFileSync(file, 'utf8')) ?? {}; } catch (e) { err(`${file}: ${(e as NodeJS.ErrnoException).code === 'ENOENT' ? 'missing' : 'invalid YAML: ' + (e as Error).message}`); continue; }
+    for (const s of doc.items ?? []) raw.push({ ...s, d: dom.n, case: '' });
+  }
+  const ids = new Set<string>();
+  const ngrams = (t: string, n = 8) => {
+    const w = t.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(Boolean);
+    const out = new Set<string>();
+    for (let i = 0; i + n <= w.length; i++) out.add(w.slice(i, i + n).join(' '));
+    return out;
+  };
+  const caseGrams = new Set<string>();
+  for (const s of scenes) for (const g of ngrams(`${s.text} ${s.ask}`)) caseGrams.add(g);
+  const CAST = /halvorsen|shifty|\bdale\b|priya|kim osei|tom[aá]s reyes|ines albescu|marcus webb|rafa lind|amara cole|jonas vries/i;
+  for (const s of raw) {
+    const at = `exam item ${s.id ?? '?'} (d${s.d})`;
+    if (!isStr(s.id) || !/^x\d-\d{3}$/.test(s.id) || s.id[1] !== String(s.d)) err(`${at}: id must be x${s.d}-NNN`);
+    if (ids.has(s.id)) err(`${at}: duplicate id`);
+    ids.add(s.id);
+    const con = cById.get(s.c);
+    if (!con) err(`${at}: unknown concept '${s.c}'`);
+    else if (con.d !== s.d) err(`${at}: concept ${s.c} is in domain ${con.d}, not ${s.d}`);
+    if (!['first', 'best', 'calc'].includes(s.kind)) err(`${at}: kind must be first, best or calc`);
+    for (const f of ['text', 'ask', 'why', 'src'] as const) if (!isStr(s[f])) err(`${at}: missing ${f}`);
+    if (words(s.text) > 90) err(`${at}: text is ${words(s.text)} words (max 90)`);
+    if (words(s.why) > 50) err(`${at}: why is ${words(s.why)} words (max 50)`);
+    if (![1, 2, 3].includes(s.diff)) err(`${at}: diff must be 1-3`);
+    if (CAST.test(`${s.text} ${s.ask} ${(s.o ?? []).join(' ')} ${s.why}`)) err(`${at}: exam items use neutral organizations, not the Halvorsen story or cast`);
+    const ask = String(s.ask ?? '');
+    if (s.kind === 'first' && !/\bFIRST\b/.test(ask)) err(`${at}: a 'first' item must ask what to do FIRST (in capitals)`);
+    if (s.kind === 'best' && !/\b(BEST|MOST|LEAST|PRIMARY|GREATEST|MAIN)\b/.test(ask)) err(`${at}: a 'best' item must ask for the BEST/MOST/LEAST/PRIMARY option (in capitals)`);
+    if (s.kind !== 'first' && /\bFIRST\b/.test(ask)) err(`${at}: asks FIRST but kind is '${s.kind}'`);
+    if (!Array.isArray(s.o) || s.o.length !== 4 || !s.o.every(isStr)) { err(`${at}: needs exactly 4 options`); continue; }
+    if (new Set(s.o.map((x) => x.trim().toLowerCase())).size !== 4) err(`${at}: duplicate options`);
+    s.o.forEach((x) => { if (BANNED.test(x)) err(`${at}: banned option wording "${x}"`); if (words(x) > 30) err(`${at}: option over 30 words`); });
+    if (typeof s.a !== 'number' || s.a < 0 || s.a > 3) err(`${at}: a must be 0-3`);
+    if (s.kind === 'calc' && !s.o.every((x) => /\d/.test(x))) err(`${at}: calc options must contain numbers`);
+    if (s.trap !== undefined && (s.kind === 'calc' || typeof s.trap !== 'number' || s.trap < 0 || s.trap > 3 || s.trap === s.a)) err(`${at}: trap must be a wrong option's index (first/best only)`);
+    if (s.r !== undefined || s.rr !== undefined) err(`${at}: exam items have no story reactions`);
+    const g = [...ngrams(`${s.text} ${s.ask}`)].find((x) => caseGrams.has(x));
+    if (g) err(`${at}: reuses case wording ("${g}"); exam items must be new scenarios, not copies of case scenes`);
+    pool.push(s);
+  }
+  for (const d of meta.domains) {
+    const ds = pool.filter((s) => s.d === d.n);
+    if (ds.length < POOL_TARGET[d.n]) err(`exam pool domain ${d.n}: ${ds.length} items (need ${POOL_TARGET[d.n]})`);
+    for (const df of [1, 2, 3]) if (ds.length && ds.filter((s) => s.diff === df).length < Math.ceil(ds.length * 0.2)) err(`exam pool domain ${d.n}: too few difficulty-${df} items (need ≥20% for the adaptive exam)`);
+  }
+  for (const o of OBJ) { const n = pool.filter((s) => cById.get(s.c)?.obj === o).length; if (n < 2) err(`exam pool: objective ${o} has ${n} item(s) (min 2): ${meta.objectives[o]}`); }
+  const posP = [0, 1, 2, 3].map((i) => pool.filter((s) => s.a === i).length);
+  if (pool.length >= 40 && posP.some((p) => p / pool.length > 0.35)) warn(`exam pool: right-answer positions ${posP.join('/')} (options are shuffled at runtime, but spread them anyway)`);
+}
+
 // Test-wiseness: a guesser who always taps the option with the most of some surface feature must not beat chance
 // (25%) by much. Same metric as scripts/check-cues-cissp.mjs (ties count 1/k). Per domain for clauses, the multi-part cue.
-{
-  const fb = scenes.filter((s) => (s.kind === 'first' || s.kind === 'best') && Array.isArray(s.o) && s.o.length === 4);
+// Checked separately for the case scenes and the exam pool.
+for (const [label, src] of [['case scenes', scenes], ['exam pool', pool]] as const) {
+  const fb = src.filter((s) => (s.kind === 'first' || s.kind === 'best') && Array.isArray(s.o) && s.o.length === 4);
   const HEDGE = /\b(per|policy|plan|approved|owner|legal|procedure|process|risk|management|agreed|documented)\b/gi;
   const cues: Record<string, (o: string) => number> = {
     longest: (o) => o.length, shortest: (o) => -o.length, words: (o) => words(o),
@@ -214,11 +278,11 @@ if (lenN && rightLongest / lenN > 0.2) warn(`the right answer is clearly the lon
   const rate = (ss: Scene[], f: (o: string) => number) => ss.reduce((n, s) => n + hit(s, f), 0) / Math.max(1, ss.length);
   if (fb.length >= 40) for (const [name, f] of Object.entries(cues)) {
     const r = rate(fb, f);
-    if (r > 0.28) warn(`answer cue '${name}' picks the key in ${(100 * r).toFixed(1)}% of FIRST/BEST scenes (chance 25%; keep ≤28%). See scripts/check-cues-cissp.mjs`);
+    if (r > 0.28) warn(`${label}: answer cue '${name}' picks the key in ${(100 * r).toFixed(1)}% of FIRST/BEST items (chance 25%; keep ≤28%). See scripts/check-cues-cissp.mjs`);
   }
   for (const d of meta.domains) {
     const ss = fb.filter((s) => s.d === d.n), r = rate(ss, cues.clauses);
-    if (ss.length >= 10 && r > 0.35) warn(`domain ${d.n}: the multi-part cue picks the key in ${(100 * r).toFixed(1)}% of FIRST/BEST scenes (keep ≤35%)`);
+    if (ss.length >= 10 && r > 0.35) warn(`${label}, domain ${d.n}: the multi-part cue picks the key in ${(100 * r).toFixed(1)}% of FIRST/BEST scenes (keep ≤35%)`);
   }
 }
 const posN = aPos.reduce((x, y) => x + y, 0);
@@ -227,7 +291,7 @@ const trapN = scenes.filter((s) => s.trap !== undefined).length;
 
 // ---------------------------------------------------------------- report
 const kinds = per((s) => s.kind);
-console.log(`cissp: concepts ${concepts.length}, cases ${cases.length}, scenes ${scenes.length} · kinds ${JSON.stringify(kinds)} · engineer traps ${trapN}`);
+console.log(`cissp: concepts ${concepts.length}, cases ${cases.length}, scenes ${scenes.length}, exam pool ${pool.length} · kinds ${JSON.stringify(kinds)} · engineer traps ${trapN}`);
 console.log('cissp: per domain ' + meta.domains.map((d) => `D${d.n} ${cases.filter((k) => k.d === d.n).length}k/${scenes.filter((s) => s.d === d.n).length}s`).join(' · '));
 for (const w of warns) console.warn('warn: ' + w);
 if (errors.length) {
@@ -237,7 +301,7 @@ if (errors.length) {
   console.error('CISSP_DRAFT=1 (dev only): writing anyway. Never ship this.');
 } else console.log(`cissp ok: 0 errors, ${warns.length} warning(s)`);
 if (!CHECK) {
-  const out: Content = { version: meta.content_version, exam: meta.exam, domains: meta.domains, objectives: meta.objectives, concepts, cases };
+  const out: Content = { version: meta.content_version, exam: meta.exam, domains: meta.domains, objectives: meta.objectives, concepts, cases, pool };
   mkdirSync('src/generated', { recursive: true });
   writeFileSync('src/generated/cissp.json', JSON.stringify(out));
   console.log('wrote src/generated/cissp.json');

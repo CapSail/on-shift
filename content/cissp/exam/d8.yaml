@@ -1,0 +1,553 @@
+# Board-exam pool, Domain 8: Software Development Security. Exam-only items (never in cases, drills or flashbacks).
+# Format and rules: docs/cissp/AUTHORING.md, "The board-exam pool". Ids are stable forever.
+# Log: docs/cissp/exam-pool-d1-d2-d8.md
+
+items:
+  # ---------------------------------------------------------------- 8.1 security in the SDLC
+  - id: x8-001
+    c: sdlc-methods
+    kind: best
+    diff: 1
+    text: >-
+      A product team wants to deliver working software every two weeks, change its priorities based on customer
+      feedback after each delivery, and work as a small, self-organizing team.
+    ask: 'Which development methodology BEST fits these goals?'
+    o: ['Waterfall', 'Agile', 'Cleanroom', 'Spiral']
+    a: 1
+    why: >-
+      Agile delivers working software in short iterations and adapts to customer feedback through small,
+      self-organizing teams. Spiral is also iterative, but each loop is organized around risk analysis, usually with
+      longer cycles; Waterfall runs its phases once, in sequence.
+    src: 'Manifesto for Agile Software Development (2001); ISC2 CISSP Official Study Guide ch. 20 (development methodologies); CISSP 2027 outline 8.1'
+
+  - id: x8-002
+    c: sdlc-methods
+    kind: best
+    diff: 2
+    text: >-
+      A defense supplier starts a new avionics software program. From the first requirements meeting through
+      operations, developers, testers, security engineers, operations staff and customer representatives work as one
+      team and share decisions.
+    ask: 'Which term BEST describes this team structure?'
+    o:
+      - 'A change advisory board'
+      - 'A joint application development session'
+      - 'A software assurance working group'
+      - 'An integrated product team'
+    a: 3
+    why: >-
+      An integrated product team brings every needed discipline, including security and the customer, together for
+      the whole life cycle with shared decisions. A change advisory board only reviews changes, and joint
+      application development is a workshop technique for gathering requirements.
+    src: 'DoD Integrated Product and Process Development Handbook (1998); CISSP 2027 outline 8.1 (integrated product team)'
+
+  - id: x8-003
+    c: maturity-models
+    kind: best
+    diff: 2
+    text: >-
+      An assessment finds that a company's software development process is documented, standardized and followed by
+      every team, but the company does not yet collect quantitative measures of process quality.
+    ask: 'Which SW-CMM maturity level BEST describes the company?'
+    o: ['Level 2, Repeatable', 'Level 4, Managed', 'Level 3, Defined', 'Level 5, Optimizing']
+    a: 2
+    why: >-
+      At Level 3, Defined, the process is documented and standardized across the organization. Level 4, Managed,
+      adds quantitative measurement and control, which the company lacks; Level 2 has only basic, project-level
+      repeatability.
+    src: 'SEI, Capability Maturity Model for Software v1.1 (CMU/SEI-93-TR-024); CISSP 2027 outline 8.1'
+
+  - id: x8-004
+    c: maturity-models
+    kind: best
+    diff: 3
+    text: >-
+      A software company wants to assess how mature its software security practices are across the organization,
+      compare itself with a target state and build an improvement roadmap. It wants an open model focused on
+      software security rather than general process maturity.
+    ask: 'Which model BEST meets this need?'
+    o: ['OWASP SAMM', 'OWASP ASVS', 'CMMI for Development', 'ISO/IEC 27001']
+    a: 0
+    why: >-
+      OWASP SAMM is an open maturity model for software security practices, built for assessments and roadmaps. ASVS
+      is a verification standard listing requirements for testing an application, not a model of organizational
+      maturity; CMMI covers general process maturity.
+    src: 'OWASP SAMM v2; OWASP ASVS 4.0; CISSP 2027 outline 8.1 (maturity models)'
+
+  - id: x8-005
+    c: ssdf-sbom
+    kind: best
+    diff: 1
+    text: >-
+      A government customer asks a software supplier to attest that it follows a recognized framework of secure
+      development practices covering preparing the organization, protecting the software, producing well-secured
+      software and responding to vulnerabilities.
+    ask: 'Which publication MOST directly defines those practices?'
+    o: ['NIST SP 800-53', 'NIST SP 800-37', 'NIST SP 800-218', 'NIST SP 800-63']
+    a: 2
+    why: >-
+      NIST SP 800-218, the Secure Software Development Framework, groups its practices as Prepare the Organization,
+      Protect the Software, Produce Well-Secured Software and Respond to Vulnerabilities. SP 800-53 is a catalog of
+      security and privacy controls for systems.
+    src: 'NIST SP 800-218 v1.1 (SSDF); CISSP 2027 outline 8.1'
+
+  - id: x8-006
+    c: ssdf-sbom
+    kind: best
+    diff: 2
+    text: >-
+      A critical vulnerability is announced in a widely used open source compression library. A software vendor with
+      60 products must tell customers within a day which of its products include the affected library and version.
+    ask: 'Which artifact would MOST quickly answer that question?'
+    o:
+      - 'Each product''s threat model'
+      - 'Each product''s software bill of materials'
+      - 'Each product''s latest penetration test report'
+      - 'Each product''s static analysis results'
+    a: 1
+    why: >-
+      An SBOM is a machine-readable inventory of each product's components and versions, so affected products can be
+      found by search. Threat models and test reports describe risks and findings, not a complete list of
+      components.
+    src: 'NTIA, The Minimum Elements for a Software Bill of Materials (2021); Executive Order 14028 sec. 4; CISSP 2027 outline 8.1'
+
+  - id: x8-007
+    c: shift-left
+    kind: best
+    diff: 2
+    text: >-
+      A development group finds most of its security defects in a penetration test held two weeks before each
+      release, which causes repeated delays and costly redesigns.
+    ask: 'Which change BEST applies the shift-left principle?'
+    o:
+      - 'Hire a second penetration testing firm so that the tests finish much faster'
+      - 'Deploy a web application firewall to block attacks the tests would find'
+      - 'Move the penetration test to production, after release, to avoid delays'
+      - 'Add security requirements, threat modeling and code analysis to each sprint'
+    a: 3
+    why: >-
+      Shift left moves security work earlier: requirements, design review and automated analysis during
+      development, where defects are cheaper to fix. A faster test or a firewall still finds or masks problems late,
+      without preventing them.
+    src: 'CISSP 2027 outline 8.1 (shift left); NIST SP 800-218 v1.1, PO.1, PW.1 and PW.7'
+
+  - id: x8-008
+    c: sw-change-mgmt
+    kind: first
+    diff: 2
+    text: >-
+      At 2 a.m., a developer pushed an emergency fix straight to production to stop an outage that was halting
+      customer orders. The fix worked, but it bypassed the normal change review.
+    ask: 'What should happen FIRST the next business day?'
+    o:
+      - 'Record the change and submit it for retrospective review'
+      - 'Roll the fix back, because it was never reviewed or approved'
+      - 'Discipline the developer for bypassing the change review'
+      - 'Leave it as is, since the fix solved the outage and needs no follow-up'
+    a: 0
+    why: >-
+      Emergency changes may skip prior review, but they must be recorded and reviewed afterward so the change is
+      understood, authorized and tested. Rolling back a working fix would restart the outage, and discipline ignores
+      that emergency changes are expected to move fast.
+    src: 'NIST SP 800-53 Rev. 5, CM-3 (configuration change control); ISC2 CISSP Official Study Guide ch. 16; CISSP 2027 outline 8.1'
+
+  - id: x8-009
+    c: sw-change-mgmt
+    kind: best
+    diff: 3
+    text: >-
+      In a small development team, one engineer writes code, merges it to the main branch and deploys it to
+      production with no one else involved. Auditors flag the arrangement.
+    ask: 'Which control BEST addresses the auditors'' concern?'
+    o:
+      - 'Require the engineer to write detailed comments explaining each change'
+      - 'Run automated unit tests on every merge before it reaches production'
+      - 'Require a second person to approve each change before deployment'
+      - 'Keep full backups of production so any bad change can be rolled back'
+    a: 2
+    why: >-
+      One person controlling code from writing to production breaks separation of duties, so unauthorized or
+      malicious changes go unchecked. Independent review before deployment restores it. Automated tests catch
+      defects, not a deliberate change that passes its tests.
+    src: 'NIST SP 800-53 Rev. 5, CM-5 (access restrictions for change) and AC-5 (separation of duties); OWASP Top 10 CI/CD Security Risks; CISSP 2027 outline 8.1'
+
+  # ---------------------------------------------------------------- 8.2 development ecosystems
+  - id: x8-010
+    c: memory-safe
+    kind: best
+    diff: 2
+    text: >-
+      A company is starting a new network service that will parse untrusted input from the internet. Its past
+      products, written in C, suffered repeated buffer overflows and use-after-free bugs.
+    ask: 'Which choice BEST removes these classes of vulnerability from the new service?'
+    o:
+      - 'Write it in C, compiled with stack canaries and address randomization'
+      - 'Write the service in a memory-safe language such as Rust or Go'
+      - 'Write it in C and run dynamic scans against every release'
+      - 'Write it in C and place it behind a web application firewall'
+    a: 1
+    trap: 0
+    why: >-
+      Memory-safe languages prevent buffer overflows and use-after-free by design, removing those classes of bug.
+      Stack canaries and address randomization only make exploitation harder; the bugs remain. Scanning and
+      firewalls find or block some attacks after the fact.
+    src: 'CISA et al., The Case for Memory Safe Roadmaps (Dec. 2023); NSA, Software Memory Safety (Nov. 2022); CISSP 2027 outline 8.2'
+
+  - id: x8-011
+    c: memory-safe
+    kind: best
+    diff: 3
+    text: >-
+      A vendor maintains several million lines of C++ in a mature product. After a memory-corruption exploit, an
+      executive demands that the entire product be rewritten in a memory-safe language before the next annual
+      release.
+    ask: 'Which response is MOST consistent with published US government guidance on memory safety?'
+    o:
+      - 'Rewrite the whole product in Rust before the next release, pausing new features'
+      - 'Keep C++ throughout, and rely on more fuzzing and code review to find bugs'
+      - 'Wait for C++ compilers to add memory-safety guarantees, then recompile'
+      - 'Publish a roadmap: new code memory-safe, riskiest parts rewritten first'
+    a: 3
+    why: >-
+      CISA and partners urge memory-safety roadmaps: new code in memory-safe languages, the highest-risk components,
+      such as parsers of untrusted input, migrated first, and the rest hardened meanwhile. A full rewrite in a year is
+      rarely realistic and adds its own risk.
+    src: 'CISA et al., The Case for Memory Safe Roadmaps (Dec. 2023); CISSP 2027 outline 8.2'
+
+  - id: x8-012
+    c: cicd-repos
+    kind: best
+    diff: 2
+    text: >-
+      An attacker used a stolen developer access token to push malicious code directly to a repository's main
+      branch. The CI/CD pipeline built and deployed it automatically within minutes.
+    ask: 'Which control would MOST directly have stopped the code reaching production?'
+    o:
+      - 'Branch protection requiring a reviewed pull request before merging to main'
+      - 'Antivirus software on the build servers that run the pipeline jobs'
+      - 'Container image scanning for known vulnerabilities before each deployment to production'
+      - 'Rotating all developer access tokens every ninety days'
+    a: 0
+    why: >-
+      Branch protection with required review stops any single identity pushing unreviewed code to main, so a stolen
+      token is not enough. Rotation only shortens a token's life, and image scanning finds known flaws, not
+      malicious logic.
+    src: 'OWASP Top 10 CI/CD Security Risks, CICD-SEC-1 (insufficient flow control mechanisms); NIST SP 800-204D; CISSP 2027 outline 8.2'
+
+  - id: x8-013
+    c: cicd-repos
+    kind: first
+    diff: 2
+    text: >-
+      A routine scan finds a production cloud API key hardcoded in a configuration file that was committed to a
+      company's source repository eight months ago. The repository is shared with two contractors.
+    ask: 'What should be done FIRST?'
+    o:
+      - 'Delete the file and commit the change so the key no longer appears'
+      - 'Rewrite the repository history to remove every trace of the key'
+      - 'Revoke the exposed key and issue a new one from the secrets manager'
+      - 'Ask the contractors to confirm that they never copied the key'
+    a: 2
+    trap: 1
+    why: >-
+      The key has been exposed for months, so the immediate danger is that it still works: revoke and replace it
+      first. Deleting the file or rewriting history leaves the key valid and does not remove copies already cloned.
+    src: 'OWASP Secrets Management Cheat Sheet; NIST SP 800-218 v1.1, PS.1; CISSP 2027 outline 8.2'
+
+  - id: x8-014
+    c: app-sec-testing
+    kind: best
+    diff: 1
+    text: >-
+      A team wants a tool that examines its application's source code for weaknesses such as injection flaws, early
+      in development and without running the application.
+    ask: 'Which type of testing BEST fits?'
+    o:
+      - 'Dynamic application security testing (DAST)'
+      - 'Fuzz testing'
+      - 'Penetration testing'
+      - 'Static application security testing (SAST)'
+    a: 3
+    why: >-
+      SAST analyzes source code, bytecode or binaries without executing them, so it can run early, even on every
+      commit. DAST and penetration tests attack a running application, and fuzzing feeds malformed input to running
+      code.
+    src: 'OWASP Web Security Testing Guide; NIST SP 800-218 v1.1, PW.7 and PW.8; CISSP 2027 outline 8.2'
+
+  - id: x8-015
+    c: app-sec-testing
+    kind: best
+    diff: 2
+    text: >-
+      A company is buying a hosted web application from a vendor and has no access to its source code. Before go-live
+      it wants to test the deployed staging site for weaknesses such as poor session handling and misconfiguration.
+    ask: 'Which testing approach is MOST suitable?'
+    o:
+      - 'Dynamic application security testing'
+      - 'Static application security testing'
+      - 'Software composition analysis of the source'
+      - 'Manual secure code review'
+    a: 0
+    why: >-
+      DAST tests the running application from outside, needs no source code, and finds runtime issues such as
+      session handling and misconfiguration. SAST, source-based SCA and code review all need the code, which the
+      company does not have.
+    src: 'OWASP Web Security Testing Guide; CISSP 2027 outline 8.2 (SAST/DAST)'
+
+  # ---------------------------------------------------------------- 8.3 effectiveness of software security
+  - id: x8-016
+    c: sw-risk-audit
+    kind: best
+    diff: 1
+    text: >-
+      Auditors at a payments company find that several changes to production application code cannot be traced to
+      the person who made them, because deployments run under a shared service account.
+    ask: 'Which control BEST addresses the audit finding?'
+    o:
+      - 'Give the shared service account a longer, more complex password'
+      - 'Review the production code each quarter to look for any unexpected changes'
+      - 'Tie every commit and deployment to an individual authenticated identity'
+      - 'Restrict the shared account to deployments during business hours'
+    a: 2
+    why: >-
+      Change auditing needs accountability: each change logged against an individual identity, so it can be traced
+      and reviewed. A stronger shared password or time limits still leave the person behind each change unknown.
+    src: 'NIST SP 800-53 Rev. 5, AU-10 (non-repudiation) and CM-5; CISSP 2027 outline 8.3 (change auditing and logging)'
+
+  - id: x8-017
+    c: sw-risk-audit
+    kind: best
+    diff: 2
+    text: >-
+      A static analysis run on a large application returns 400 findings. Developers can fix about 40 per sprint, and
+      product managers want to know which to address first.
+    ask: 'Which approach is BEST?'
+    o:
+      - 'Fix the findings in the order the tool reported them until all are closed'
+      - 'Rank the findings by likely exploitability and impact before fixing'
+      - 'Suppress the low-severity findings and fix the rest in any order'
+      - 'Run a second tool and fix only the findings both tools report'
+    a: 1
+    why: >-
+      Software risk analysis ranks weaknesses by how exploitable they are and what harm they would cause, so limited
+      effort removes the most risk. Tool order is arbitrary, and fixing only findings two tools agree on drops real
+      issues one tool misses.
+    src: 'NIST SP 800-218 v1.1, RV.2 (assess, prioritize and remediate vulnerabilities); CISSP 2027 outline 8.3 (risk analysis)'
+
+  - id: x8-018
+    c: sw-risk-audit
+    kind: best
+    diff: 3
+    text: >-
+      Over three releases, a security team keeps finding and fixing SQL injection flaws in different modules of the
+      same application. Each fix is quick, but new ones appear in the next release.
+    ask: 'Which action BEST deals with the problem?'
+    o:
+      - 'Fix each new injection flaw within 24 hours of its discovery'
+      - 'Add a web application firewall rule set, tuned to block injection'
+      - 'Run penetration tests more often, to find the flaws sooner'
+      - 'Remove the underlying cause, like having no safe data-access layer'
+    a: 3
+    trap: 0
+    why: >-
+      Recurring flaws of one class point to a design or process cause, such as no shared parameterized data-access
+      layer or missing training. SSDF RV.3 calls for root cause analysis so the class stops recurring. Faster fixes
+      and more testing treat symptoms.
+    src: 'NIST SP 800-218 v1.1, RV.3 (analyze vulnerabilities to identify their root causes); CISSP 2027 outline 8.3'
+
+  - id: x8-019
+    c: sw-risk-audit
+    kind: best
+    diff: 2
+    text: >-
+      A software director wants one measure, reported quarterly, of whether the secure development program is
+      actually reducing security problems for customers.
+    ask: 'Which measure BEST serves this purpose?'
+    o:
+      - 'Security defects that reach production in each release'
+      - 'The number of static analysis scans run each quarter'
+      - 'The percentage of developers who finished secure coding training'
+      - 'The total lines of code covered by automated scanning tools'
+    a: 0
+    why: >-
+      Vulnerabilities that escape to production measure the outcome customers experience, and the trend shows
+      whether the program works. Scan counts, training completion and coverage measure activity, not results.
+    src: 'OWASP SAMM v2 (Governance: Strategy and Metrics); NIST SP 800-55 (measurement guide); CISSP 2027 outline 8.3'
+
+  # ---------------------------------------------------------------- 8.4 acquired software
+  - id: x8-020
+    c: sca-open-source
+    kind: best
+    diff: 1
+    text: >-
+      A development team builds applications from hundreds of open source packages. It wants an automated way to
+      list the components it ships, flag known vulnerabilities in them and identify their licenses.
+    ask: 'Which tool type BEST meets this need?'
+    o:
+      - 'Static application security testing'
+      - 'Software composition analysis'
+      - 'Dynamic application security testing'
+      - 'Interactive application security testing'
+    a: 1
+    why: >-
+      SCA identifies third-party and open source components, matches them against vulnerability databases and
+      reports their licenses. SAST examines the team's own code for weaknesses and does not track licenses.
+    src: 'OWASP Component Analysis; NIST SP 800-218 v1.1, PW.4; CISSP 2027 outline 8.4 (SCA)'
+
+  - id: x8-021
+    c: sca-open-source
+    kind: first
+    diff: 2
+    text: >-
+      Software composition analysis shows that a proprietary product, sold to customers as an installed application,
+      includes a library under a strong copyleft license. The release is scheduled for next week.
+    ask: 'What should the team do FIRST?'
+    o:
+      - 'Remove the library at once and rewrite the feature that depends on it'
+      - 'Ship on schedule, since the library has no known vulnerabilities'
+      - 'Ship on schedule, then publish the full product source code afterward'
+      - 'Have counsel review what the license requires before the release'
+    a: 3
+    why: >-
+      Strong copyleft licenses can require releasing source code when the software is distributed, so the
+      obligations must be understood before shipping. Ripping out the library may be unnecessary, and having no
+      known vulnerabilities says nothing about license compliance.
+    src: 'OWASP Component Analysis (license risk); CISSP 2027 outline 8.4 (open source)'
+
+  - id: x8-022
+    c: acquired-software
+    kind: best
+    diff: 2
+    text: >-
+      A company is choosing a commercial off-the-shelf HR system that will hold employee personal data. It will not
+      receive the source code.
+    ask: 'Which approach BEST gives assurance about the product''s security before purchase?'
+    o:
+      - 'Run a penetration test against the system after it goes live in production'
+      - 'Rely on the vendor''s marketing claims about its security features'
+      - 'Assess the vendor''s secure development practices and attestations'
+      - 'Ask the vendor for its source code and review it in-house'
+    a: 2
+    why: >-
+      For COTS, the buyer assesses the supplier before buying: its secure development practices, independent
+      evaluations or attestations, and contract terms. Testing only after go-live is too late, and COTS source code
+      is rarely available.
+    src: 'NIST SP 800-161 Rev. 1 (supplier assessment); NIST SP 800-218 v1.1 (supplier attestation); CISSP 2027 outline 8.4'
+
+  - id: x8-023
+    c: acquired-software
+    kind: best
+    diff: 2
+    text: >-
+      A SaaS provider that hosts a company's customer support platform suffers a breach that exposes the company's
+      customer records. The contract places operation of the platform with the provider.
+    ask: 'Which statement about accountability BEST reflects CISSP principles?'
+    o:
+      - 'The provider alone is accountable, as it ran the platform'
+      - 'The company remains accountable to its customers for their data'
+      - 'Accountability is split evenly under the shared responsibility model'
+      - 'No one is accountable if the provider met its contractual service levels'
+    a: 1
+    why: >-
+      An organization can outsource operations and responsibility for controls, but not accountability for its
+      customers' data. The shared responsibility model divides who operates which controls; it does not move that
+      accountability to the provider.
+    src: 'NIST SP 800-144 (public cloud: the organization remains accountable); ISC2 CISSP Official Study Guide ch. 20; CISSP 2027 outline 8.4'
+
+  - id: x8-024
+    c: acquired-software
+    kind: best
+    diff: 3
+    text: >-
+      A company is evaluating a managed security service provider and wants independent evidence that the
+      provider's security controls have operated effectively over the past year.
+    ask: 'Which report BEST provides that evidence?'
+    o: ['A SOC 2 Type II report', 'A SOC 2 Type I report', 'A SOC 1 Type II report', 'A SOC 3 report']
+    a: 0
+    why: >-
+      A SOC 2 Type II report tests the operating effectiveness of security controls over a period and gives the
+      detailed results. Type I covers design at a point in time, SOC 1 targets financial reporting controls, and
+      SOC 3 is a brief general-use summary without test details.
+    src: 'AICPA SOC 2 (Trust Services Criteria; Type 1 and Type 2 reports); CISSP 2027 outline 8.4 (managed services)'
+
+  # ---------------------------------------------------------------- 8.5 secure coding
+  - id: x8-025
+    c: secure-coding
+    kind: best
+    diff: 1
+    text: >-
+      A code review finds that a login form builds its database query by joining the user's input directly into an
+      SQL string.
+    ask: 'Which fix BEST prevents SQL injection here?'
+    o:
+      - 'Block inputs that contain quotes or SQL keywords'
+      - 'Put a web application firewall in front of the site'
+      - 'Rewrite the query to use parameterized statements'
+      - 'Encrypt the database that the query runs against'
+    a: 2
+    trap: 1
+    why: >-
+      Parameterized queries keep data separate from SQL code, so input can never change the query's structure.
+      Blocking keywords is an incomplete denylist that attackers bypass, and a WAF is an extra layer, not a fix in
+      the code.
+    src: 'OWASP SQL Injection Prevention Cheat Sheet; CWE-89; CISSP 2027 outline 8.5'
+
+  - id: x8-026
+    c: secure-coding
+    kind: best
+    diff: 2
+    text: >-
+      A forum application stores user comments and later displays them to other users. Testers find that a comment
+      containing script code runs in the browser of everyone who views it.
+    ask: 'Which control is the PRIMARY defense against this weakness?'
+    o:
+      - 'Context-aware output encoding when comments are displayed'
+      - 'Parameterized queries when comments are saved to the database'
+      - 'TLS encryption between the browser and the forum server'
+      - 'A filter that removes the word "script" from new comments'
+    a: 0
+    why: >-
+      This is stored cross-site scripting, and the primary defense is encoding output for the context where it is
+      rendered, so input displays as text. Parameterized queries stop SQL injection, not XSS, and keyword filters
+      are easily bypassed.
+    src: 'OWASP Cross Site Scripting Prevention Cheat Sheet; CWE-79; CISSP 2027 outline 8.5'
+
+  - id: x8-027
+    c: api-security
+    kind: best
+    diff: 2
+    text: >-
+      A tester logged in as one customer changes the invoice number in an API request, /api/invoices/10452, to 10453
+      and receives another customer's invoice.
+    ask: 'Which fix BEST addresses the root cause?'
+    o:
+      - 'Replace sequential invoice numbers with random identifiers'
+      - 'Apply rate limiting to the invoice endpoint for each client account'
+      - 'Require TLS 1.3 for all calls to the invoices API'
+      - 'Check on each request that the caller may access that invoice'
+    a: 3
+    why: >-
+      This is broken object level authorization, OWASP API1: the API never checks that the caller is allowed the
+      requested object. Random identifiers only make objects harder to guess; the missing authorization check
+      remains.
+    src: 'OWASP API Security Top 10 2023, API1 (broken object level authorization); CISSP 2027 outline 8.5'
+
+  - id: x8-028
+    c: secure-coding
+    kind: best
+    diff: 3
+    text: >-
+      A privileged program checks that a user may write to a file path, then opens that path a moment later to write
+      to it. An attacker swaps the file for a link to a system file between the check and the open.
+    ask: 'Which class of weakness BEST describes this flaw?'
+    o:
+      - 'A buffer overflow in the file-handling routine'
+      - 'A time-of-check to time-of-use (TOCTOU) flaw'
+      - 'A path traversal through crafted file names'
+      - 'An integer overflow in the permission check'
+    a: 1
+    why: >-
+      The check and the use are separate steps, and the attacker changes the resource between them: a TOCTOU race
+      condition (CWE-367). Path traversal would use crafted names such as ../ to reach other files, which is not
+      what happens here.
+    src: 'CWE-367 (time-of-check time-of-use race condition); CISSP 2027 outline 8.5 (source-code level weaknesses)'

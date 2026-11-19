@@ -1,0 +1,599 @@
+# Board-exam pool, Domain 2: Asset Security. Exam-only items (never in cases, drills or flashbacks).
+# Format and rules: docs/cissp/AUTHORING.md, "The board-exam pool". Ids are stable forever.
+# Log: docs/cissp/exam-pool-d1-d2-d8.md
+
+items:
+  # ---------------------------------------------------------------- 2.1 classify information and assets
+  - id: x2-001
+    c: data-classification
+    kind: best
+    diff: 1
+    text: >-
+      A regional bank is rolling out a new classification scheme. Department heads ask whether the security team,
+      the database administrators or someone else should decide the classification of the loan application data.
+    ask: 'Who holds PRIMARY responsibility for classifying the loan application data?'
+    o:
+      - 'The security team that runs the classification process'
+      - 'The database administrators who apply the access policy'
+      - 'The data owner accountable for the lending business'
+      - 'The employees who enter the applications each day'
+    a: 2
+    why: >-
+      The data owner, a senior business manager accountable for the data, decides its classification. The security
+      team runs the program and advises, and the database administrators are custodians who apply the protections
+      the classification requires.
+    src: 'ISC2 CISSP Official Study Guide ch. 5 (data roles, classification); ISO/IEC 27002:2022 control 5.12; CISSP 2027 outline 2.1'
+
+  - id: x2-002
+    c: data-classification
+    kind: first
+    diff: 2
+    text: >-
+      A marketing analyst has combined customer purchase histories with loyalty program details into a new dataset
+      on a shared drive. The dataset has no classification label, and several teams have asked for access to it.
+    ask: 'What should happen FIRST?'
+    o:
+      - 'Have the data owner classify the dataset under the classification scheme'
+      - 'Grant read access to all who ask, then restrict it if risk appears'
+      - 'Encrypt the dataset and move it to restricted storage per policy'
+      - 'Label it Public until someone shows that a higher level is needed'
+    a: 0
+    why: >-
+      Classification comes first, because the label drives who may access the data and how it is handled.
+      Encrypting and locking it away may not fit the data's real value, and granting broad access before
+      classifying risks exposure.
+    src: 'ISO/IEC 27002:2022 controls 5.12 and 5.13 (classification, labelling); CISSP 2027 outline 2.1'
+
+  - id: x2-003
+    c: asset-classification
+    kind: best
+    diff: 1
+    text: >-
+      A single virtual server hosts a company's public product catalog and also a database of confidential employee
+      payroll records.
+    ask: 'How should the server BEST be classified?'
+    o:
+      - 'Public, because most of its content is the public catalog'
+      - 'Internal, as a compromise between the two kinds of data'
+      - 'With two classifications, one for each kind of data'
+      - 'Confidential, matching the most sensitive data it holds'
+    a: 3
+    why: >-
+      An asset takes the classification of the most sensitive data it stores or processes (the high-water mark), so
+      the server is Confidential. A split or averaged classification would leave the payroll data under-protected.
+    src: 'FIPS 199 and FIPS 200 (high-water mark); ISC2 CISSP Official Study Guide ch. 5; CISSP 2027 outline 2.1'
+
+  - id: x2-004
+    c: data-classification
+    kind: best
+    diff: 2
+    text: >-
+      A defense contractor marks documents using the US government classification levels. A new design document
+      would, if disclosed without authorization, reasonably be expected to cause serious damage to national
+      security.
+    ask: 'Which classification level BEST fits this document?'
+    o: ['Confidential', 'Secret', 'Top Secret', 'Controlled Unclassified Information']
+    a: 1
+    why: >-
+      Executive Order 13526 defines Secret as information whose unauthorized disclosure could reasonably be expected
+      to cause serious damage to national security. Confidential is for damage, and Top Secret for exceptionally
+      grave damage.
+    src: 'Executive Order 13526 sec. 1.2; CISSP 2027 outline 2.1'
+
+  - id: x2-005
+    c: data-classification
+    kind: best
+    diff: 3
+    text: >-
+      A product's technical specifications were classified Confidential during development. The product has now
+      launched, and the same specifications appear in the public user manual. The internal documents are still
+      stored and handled as Confidential.
+    ask: 'Which action is BEST?'
+    o:
+      - 'Keep the Confidential label, since over-classifying is the lower-risk error'
+      - 'Have the security team reclassify the documents as Public right away'
+      - 'Have the data owner review and downgrade the classification as warranted'
+      - 'Destroy the internal copies, since the public manual now holds the content'
+    a: 2
+    why: >-
+      Classification should be reviewed as value and sensitivity change, and the data owner decides any change.
+      Over-classification wastes protection money and erodes respect for labels; the security team does not own
+      the decision.
+    src: 'ISC2 CISSP Official Study Guide ch. 5 (declassification); ISO/IEC 27002:2022 control 5.12; CISSP 2027 outline 2.1'
+
+  # ---------------------------------------------------------------- 2.2 handling requirements
+  - id: x2-006
+    c: handling-requirements
+    kind: best
+    diff: 2
+    text: >-
+      A law firm must move boxes of confidential paper case files between two of its offices in different cities.
+      The firm's handling standard covers the transport of confidential material.
+    ask: 'Which approach BEST meets typical handling requirements for this transport?'
+    o:
+      - 'Scan the files and email them as attachments, then shred the paper originals'
+      - 'Mark each box CONFIDENTIAL in large letters so the courier handles it with care'
+      - 'Send the boxes by ordinary mail in plain packaging to avoid drawing attention'
+      - 'Use sealed tamper-evident boxes with a bonded courier who tracks each handoff'
+    a: 3
+    why: >-
+      Confidential media in transit need protection against loss and tampering, with accountability: sealed
+      tamper-evident packaging, an approved courier and a record of custody. Large outer markings advertise the
+      contents' value to every handler.
+    src: 'ISO/IEC 27002:2022 controls 5.14 (information transfer) and 7.10 (storage media); CISSP 2027 outline 2.2'
+
+  - id: x2-007
+    c: handling-requirements
+    kind: best
+    diff: 1
+    text: >-
+      Sales staff carry laptops containing confidential customer contracts when they travel. Several of the laptops
+      are lost or stolen every year.
+    ask: 'Which control BEST protects the contracts if a laptop is lost?'
+    o:
+      - 'Encryption of each laptop''s entire disk'
+      - 'A strong operating system login password'
+      - 'A remote location-tracking agent'
+      - 'A cable lock for use in hotels'
+    a: 0
+    why: >-
+      Full-disk encryption keeps data at rest unreadable without the key, even if the drive is removed. A login
+      password does not protect the drive's contents, which can be read from another system; tracking and locks do
+      not protect the data itself.
+    src: 'NIST SP 800-111 (storage encryption for end user devices); CISSP 2027 outline 2.2'
+
+  - id: x2-008
+    c: media-destruction
+    kind: best
+    diff: 2
+    text: >-
+      A company is selling surplus solid-state drives that held confidential customer data. The drives will leave
+      the company's control and go to a refurbisher for resale.
+    ask: 'Which sanitization approach is BEST for these drives?'
+    o:
+      - 'Degauss each drive with a strong degausser before it is shipped'
+      - 'Purge each drive using its sanitize command or crypto erase'
+      - 'Overwrite each drive three times with random data using a disk utility'
+      - 'Delete the partitions and do a full reformat of each drive'
+    a: 1
+    trap: 2
+    why: >-
+      Media leaving organizational control with confidential data need purging, and for flash the reliable purge
+      methods are the device's sanitize commands or cryptographic erase, then verification. Degaussing does not work
+      on flash, and overwriting cannot reach remapped blocks.
+    src: 'NIST SP 800-88 Rev. 2 (clear, purge, destroy) and its FAQ; CISSP 2027 outline 2.2'
+
+  - id: x2-009
+    c: media-destruction
+    kind: best
+    diff: 3
+    text: >-
+      A company is leaving a public cloud provider. Its storage volumes held sensitive personal data, encrypted from
+      the start with customer-managed 256-bit keys. The provider will not hand over or destroy specific physical
+      disks for a single customer.
+    ask: 'Which sanitization approach is BEST?'
+    o:
+      - 'Cryptographic erase: destroy every copy of the keys, then record the action'
+      - 'Overwrite each volume with zeros, then delete the volumes from the account'
+      - 'Ask the provider for a certificate that the specific disks were shredded'
+      - 'Delete the volumes, since the provider wipes storage before reuse'
+    a: 0
+    trap: 1
+    why: >-
+      When the physical media cannot be reached and the data was encrypted from the start with strong keys,
+      cryptographic erase (destroying all copies of the keys) is the practical purge method. Overwriting a virtual
+      volume cannot reach every physical block the provider used.
+    src: 'NIST SP 800-88 Rev. 2 and FAQ (cryptographic erase preconditions, cloud storage); CISSP 2027 outline 2.2'
+
+  - id: x2-010
+    c: handling-requirements
+    kind: best
+    diff: 2
+    text: >-
+      Weekly backup tapes containing confidential patient billing data are collected by a vendor and stored in its
+      offsite vault. An administrator suggests that because the tapes are only copies, they can be handled at a
+      lower level.
+    ask: 'Which handling requirement is MOST appropriate for the tapes?'
+    o:
+      - 'Handle them as Internal, since backups are not in daily use'
+      - 'Handle them under the vendor''s vault procedures, which replace the company''s own'
+      - 'Handle them at the same classification as the data they contain'
+      - 'Handle them at whatever level the vendor sets in its storage contract'
+    a: 2
+    why: >-
+      Copies carry the classification of the data they hold, so backups need the same protection, such as
+      encryption and controlled transport. Being a copy, or rarely used, does not lower the impact if a tape is lost.
+    src: 'ISC2 CISSP Official Study Guide ch. 5 (handling, backup media); ISO/IEC 27002:2022 control 8.13 (information backup); CISSP 2027 outline 2.2'
+
+  # ---------------------------------------------------------------- 2.3 provision assets securely
+  - id: x2-011
+    c: asset-ownership-inventory
+    kind: first
+    diff: 1
+    text: >-
+      A newly appointed security director at a university finds that nobody can say how many servers, laptops and
+      cloud accounts the institution has, or who is responsible for each one.
+    ask: 'What should the director do FIRST?'
+    o:
+      - 'Deploy endpoint detection and response agents to every device that can be found'
+      - 'Build an inventory of assets that names who is accountable for each'
+      - 'Commission a penetration test of the external network'
+      - 'Buy a cloud access security broker to discover unsanctioned cloud accounts'
+    a: 1
+    trap: 0
+    why: >-
+      You cannot protect what you have not identified: an inventory with accountable owners is the basis for
+      classification, risk assessment and control choice. Deploying agents first misses assets nobody knows about
+      and leaves no one accountable.
+    src: 'ISO/IEC 27002:2022 control 5.9 (inventory of information and other associated assets); NIST CSF 2.0 ID.AM; CISSP 2027 outline 2.3'
+
+  - id: x2-012
+    c: asset-ownership-inventory
+    kind: best
+    diff: 2
+    text: >-
+      A file share holding sensitive merger documents has no identifiable business owner. IT administers the
+      server, backs it up and grants access whenever a department head emails a request.
+    ask: 'Which action BEST fixes the underlying problem?'
+    o:
+      - 'Make the IT team the owner, since it already administers the share'
+      - 'Restrict access to the share to the IT team until a decision is made'
+      - 'Move the documents to an encrypted share under a stricter access policy'
+      - 'Have senior leaders name a business owner accountable for the documents'
+    a: 3
+    why: >-
+      Every information asset needs an owner who is accountable for classifying it and approving access. IT is the
+      custodian: it operates the share but should not decide who may see merger documents. Encryption does not fix
+      the missing accountability.
+    src: 'ISO/IEC 27002:2022 control 5.9 (owners of assets); ISC2 CISSP Official Study Guide ch. 5; CISSP 2027 outline 2.3'
+
+  - id: x2-013
+    c: asset-ownership-inventory
+    kind: best
+    diff: 3
+    text: >-
+      An analyst requests read access to a sensitive customer dataset. Her line manager confirms she needs it for a
+      new project, and the database administrator could technically grant the access within minutes.
+    ask: 'Whose approval is MOST essential before the access is granted?'
+    o:
+      - 'The owner of the customer data'
+      - 'The analyst''s line manager'
+      - 'The database administrator'
+      - 'The security team''s access desk'
+    a: 0
+    why: >-
+      The data owner authorizes access to the data; the manager vouches for need to know, and the administrator, as
+      custodian, provisions what the owner approved. A manager's confirmation alone does not authorize access to
+      data the manager does not own.
+    src: 'ISC2 CISSP Official Study Guide ch. 5 (data owner) and ch. 13 (provisioning); CISSP 2027 outline 2.3'
+
+  # ---------------------------------------------------------------- 2.4 data lifecycle
+  - id: x2-014
+    c: data-roles
+    kind: best
+    diff: 1
+    text: >-
+      At a hospital, the business owner of patient records decides who may access them and how long they are kept.
+      A technical team runs the database, performs nightly backups and applies the access rules the owner sets.
+    ask: 'Which data role MOST accurately describes the technical team?'
+    o: ['Data owner', 'Data processor', 'Data custodian', 'Data subject']
+    a: 2
+    why: >-
+      A custodian holds and maintains data on behalf of the owner, carrying out backups and applying the controls
+      the owner decides. Processor is a GDPR term for a separate organization that processes personal data on a
+      controller's behalf.
+    src: 'ISC2 CISSP Official Study Guide ch. 5 (data roles); CISSP 2027 outline 2.4'
+
+  - id: x2-015
+    c: data-roles
+    kind: best
+    diff: 3
+    text: >-
+      An analytics vendor processes a European retailer's customer data under a GDPR processing contract. Without
+      the retailer's knowledge, the vendor starts using that data to train a model that it sells to other clients.
+    ask: 'Under the GDPR, which statement BEST describes the vendor''s position for that model training?'
+    o:
+      - 'It remains a processor, because the data originally came from the retailer'
+      - 'It is treated as a controller for that processing, because it set the purposes'
+      - 'It becomes a joint controller, sharing responsibility for the training with the retailer'
+      - 'It is a sub-processor, because the training serves the vendor''s other clients'
+    a: 1
+    why: >-
+      Article 28(10) says a processor that determines the purposes and means of processing in breach of the
+      regulation is treated as a controller for that processing. Joint control needs purposes decided together, and
+      the retailer never agreed to this use.
+    src: 'GDPR Art. 4(7), 4(8), 26 and 28(10); CISSP 2027 outline 2.4'
+
+  - id: x2-016
+    c: data-lifecycle
+    kind: best
+    diff: 1
+    text: >-
+      A growing insurer keeps data in on-premises databases, two SaaS platforms and a data lake, with no common rules
+      for how it is created, used, kept or disposed of. The CIO asks for a data management policy.
+    ask: 'What is the PRIMARY purpose of the data management policy?'
+    o:
+      - 'Rules and roles for data across its lifecycle wherever it is stored'
+      - 'The encryption algorithms and key lengths approved for each storage platform'
+      - 'Step-by-step instructions for restoring each database from backup'
+      - 'A list of the data analytics tools that employees are allowed to use'
+    a: 0
+    why: >-
+      A data management policy sets management's rules and assigns roles for data from collection or creation
+      through use, retention and destruction, in every location. Approved algorithms belong in standards, and restore
+      steps in procedures.
+    src: 'CISSP 2027 outline 2.4 (data management policy); ISC2 CISSP Official Study Guide ch. 5'
+
+  - id: x2-017
+    c: data-lifecycle
+    kind: best
+    diff: 2
+    text: >-
+      A fitness app team wants to collect users' precise location, contact lists and dates of birth at sign-up "in
+      case they are useful later." The app's only stated purpose is tracking workouts.
+    ask: 'Which principle should MOST guide what the app collects?'
+    o: ['Data portability', 'Accuracy', 'Storage limitation', 'Data minimization']
+    a: 3
+    why: >-
+      Data minimization (GDPR Art. 5(1)(c)) limits collection to what is adequate, relevant and necessary for the
+      stated purpose. Storage limitation governs how long data is kept, not what is collected.
+    src: 'GDPR Art. 5(1)(c) and 5(1)(e); CISSP 2027 outline 2.4 (data collection)'
+
+  - id: x2-018
+    c: data-remanence
+    kind: best
+    diff: 2
+    text: >-
+      An audit of returned leased laptops finds that an analyst could recover customer spreadsheets from several of
+      them. IT had prepared each laptop by deleting the user folders and emptying the recycle bin.
+    ask: 'Which issue does this finding MOST directly show?'
+    o: ['Data aggregation', 'Data remanence', 'Data inference', 'Data sovereignty']
+    a: 1
+    why: >-
+      Data remanence is residual data left on media after deletion, because deleting removes references rather
+      than the data itself. Sanitizing to the right level before media leave the organization prevents it.
+    src: 'NIST SP 800-88 Rev. 2; ISC2 CISSP Official Study Guide ch. 5 (data remanence); CISSP 2027 outline 2.4'
+
+  - id: x2-019
+    c: data-retention
+    kind: first
+    diff: 1
+    text: >-
+      A company's retention schedule says project email is deleted after three years. Legal counsel learns that a
+      former client is preparing a lawsuit over a project that ended four years ago, and some of that email still
+      exists.
+    ask: 'What should the company do FIRST about that email?'
+    o:
+      - 'Delete it on schedule, since the retention policy allows it'
+      - 'Archive it to offline storage to reduce the cost of keeping it'
+      - 'Place a legal hold that suspends deletion of the relevant email'
+      - 'Review it to see which messages could hurt the legal case'
+    a: 2
+    why: >-
+      Once litigation is reasonably anticipated, the duty to preserve relevant information overrides the normal
+      schedule, so a legal hold suspends deletion. Deleting it now could be spoliation of evidence, even though the
+      schedule allows it.
+    src: 'Federal Rules of Civil Procedure, Rule 37(e) (failure to preserve ESI); ISC2 CISSP Official Study Guide ch. 5; CISSP 2027 outline 2.4'
+
+  - id: x2-020
+    c: data-retention
+    kind: best
+    diff: 3
+    text: >-
+      A European online shop must keep invoices, which include customer names and addresses, for seven years under
+      national tax law. Its privacy team points out that the GDPR requires personal data to be kept no longer than
+      necessary.
+    ask: 'Which retention approach BEST satisfies both requirements?'
+    o:
+      - 'Delete invoices once the order is complete, because privacy law takes precedence'
+      - 'Keep all customer data for seven years, so every record follows one simple rule'
+      - 'Anonymize the invoices at once, so the tax rule stops applying'
+      - 'Keep invoices for the seven-year tax duty and destroy them afterward'
+    a: 3
+    why: >-
+      Keeping data to meet a legal obligation is lawful (Art. 6(1)(c)), and storage limitation is met by destroying
+      it once that obligation ends. Keeping all customer data for seven years goes beyond what is necessary for data
+      without such a duty.
+    src: 'GDPR Art. 5(1)(e) and 6(1)(c); CISSP 2027 outline 2.4 (retention)'
+
+  # ---------------------------------------------------------------- 2.5 asset management: EOL, EOS, retirement
+  - id: x2-021
+    c: eol-eos
+    kind: best
+    diff: 1
+    text: >-
+      A software vendor announces that its database product will reach end of support in 14 months, after which it
+      will release no further security patches. A company runs its order system on that product.
+    ask: 'Which action is BEST?'
+    o:
+      - 'Start a funded migration that finishes before support ends'
+      - 'Keep running the product and rely on the firewall after support ends'
+      - 'Wait until support ends, then assess the impact'
+      - 'Ask the vendor for a discount on the final version of the product'
+    a: 0
+    why: >-
+      After end of support no security fixes arrive, so new vulnerabilities stay open. Migration should be planned
+      and funded to finish before that date; relying on a firewall alone leaves application flaws exposed.
+    src: 'ISC2 CISSP Official Study Guide ch. 5 (EOL and EOS); NIST SP 800-40 Rev. 4; CISSP 2027 outline 2.5'
+
+  - id: x2-022
+    c: eol-eos
+    kind: best
+    diff: 2
+    text: >-
+      A hardware vendor announces that it stopped selling a firewall model this month, but will keep releasing
+      security updates for it for three more years. A company has 40 of these firewalls in service.
+    ask: 'Which statement BEST describes the company''s situation?'
+    o:
+      - 'The firewalls are past end of support and must go at once'
+      - 'The firewalls can be kept indefinitely, since they still work as designed'
+      - 'The model is at end of life, so replace it before support ends'
+      - 'The model is at end of support, so updates should be applied quickly'
+    a: 2
+    why: >-
+      End of life ends sales; end of support ends patches. With updates for three more years, the firewalls can stay
+      in service while replacement is planned to finish before support ends. Replacing them at once spends money
+      without reducing risk.
+    src: 'ISC2 CISSP Official Study Guide ch. 5 (EOL and EOS); CISSP 2027 outline 2.5'
+
+  - id: x2-023
+    c: eol-eos
+    kind: best
+    diff: 3
+    text: >-
+      A hospital's imaging scanner runs an operating system that is past end of support. The scanner maker says
+      changing the operating system would void the device's regulatory clearance, and a replacement will not be
+      funded for two years.
+    ask: 'Which approach is BEST until the scanner is replaced?'
+    o:
+      - 'Upgrade the operating system anyway, as unsupported software is riskier'
+      - 'Isolate the scanner behind compensating controls that its owner formally accepts'
+      - 'Keep it on the main clinical network, since device risk is the vendor''s responsibility'
+      - 'Take the scanner out of service until the replacement has been funded and installed'
+    a: 1
+    trap: 0
+    why: >-
+      When an unsupported system must stay, isolate it, add compensating controls and have the risk owner formally
+      accept the residual risk until replacement. Upgrading anyway voids the clearance, and taking the scanner out of
+      service harms patient care.
+    src: 'NIST SP 800-40 Rev. 4 (unsupported software, compensating controls); ISC2 CISSP Official Study Guide ch. 5; CISSP 2027 outline 2.5'
+
+  - id: x2-024
+    c: eol-eos
+    kind: first
+    diff: 2
+    text: >-
+      A file server holding ten years of contracts and HR records is being retired. The infrastructure team plans to
+      wipe its disks this Friday and send the hardware for recycling.
+    ask: 'What should happen FIRST?'
+    o:
+      - 'Wipe the disks with a purge method, then record each drive''s serial number'
+      - 'Remove the server from the asset inventory so audits stop listing it'
+      - 'Copy all of the data to a cloud bucket so nothing is lost in the move'
+      - 'Confirm which records must still be kept for retention or litigation'
+    a: 3
+    why: >-
+      Before retirement, data owners must confirm what must be kept under retention rules or legal holds and move it
+      to a suitable home. Sanitizing first could destroy records the organization must keep; copying everything
+      ignores retention and creates a new store to protect.
+    src: 'ISC2 CISSP Official Study Guide ch. 5 (asset retirement, retention); NIST SP 800-88 Rev. 2; CISSP 2027 outline 2.5'
+
+  # ---------------------------------------------------------------- 2.6 data security controls
+  - id: x2-025
+    c: data-states
+    kind: best
+    diff: 2
+    text: >-
+      A financial firm runs risk models on sensitive client data in a public cloud. The data is already encrypted in
+      storage and protected with TLS in transit, but the firm worries that the cloud host could read the data in
+      memory while the models run.
+    ask: 'Which control BEST addresses this remaining concern?'
+    o:
+      - 'Stronger TLS cipher suites between the firm and the cloud provider'
+      - 'Customer-managed keys for the encrypted storage volumes'
+      - 'Confidential computing in hardware-based trusted execution environments'
+      - 'Tokenization of client identifiers before they are written to storage'
+    a: 2
+    why: >-
+      The remaining exposure is data in use. Confidential computing processes data inside a hardware-based trusted
+      execution environment, isolated from the host. TLS protects data in transit and customer-managed keys protect
+      data at rest, both already covered.
+    src: 'Confidential Computing Consortium definition (computation in a hardware-based, attested TEE); CISSP 2027 outline 2.6 (data states)'
+
+  - id: x2-026
+    c: scoping-tailoring
+    kind: best
+    diff: 2
+    text: >-
+      An agency adopts a NIST SP 800-53 control baseline for a new system. Several controls in the baseline cover
+      wireless access, but the system has no wireless capability at all, so the team removes them from
+      consideration.
+    ask: 'In CISSP terms, which activity does removing those controls BEST describe?'
+    o: ['Scoping', 'Tailoring', 'Compensating', 'Risk avoidance']
+    a: 0
+    why: >-
+      In CISSP terms, scoping removes baseline controls that do not apply to the system; tailoring then adjusts the
+      remaining controls to fit. NIST counts scoping as one step within tailoring, but CISSP materials separate them.
+    src: 'NIST SP 800-53B (tailoring the baselines); ISC2 CISSP Official Study Guide ch. 5; CISSP 2027 outline 2.6'
+
+  - id: x2-027
+    c: scoping-tailoring
+    kind: best
+    diff: 3
+    text: >-
+      A company's security baseline requires account lockout after five failed logins. On its factory-floor control
+      terminals, lockout could stop operators from responding in an emergency, so the team replaces it there with
+      close monitoring and alerts on repeated failures.
+    ask: 'Which activity does this change BEST represent?'
+    o:
+      - 'Scoping out the control as not applicable'
+      - 'Accepting the risk without any further action'
+      - 'Rejecting the baseline as a whole for that site'
+      - 'Tailoring the baseline with a compensating control'
+    a: 3
+    why: >-
+      The requirement does apply to the terminals, so it is not scoped out; the baseline is tailored to the
+      operating environment, replacing lockout with a compensating control. Accepting the risk would mean adding
+      nothing, but monitoring was added.
+    src: 'NIST SP 800-53B (tailoring, compensating controls); NIST SP 800-82 Rev. 3; CISSP 2027 outline 2.6'
+
+  - id: x2-028
+    c: data-protection-tools
+    kind: best
+    diff: 1
+    text: >-
+      A payments company wants to stop employees from emailing files that contain card numbers to addresses outside
+      the company, and to log every attempt.
+    ask: 'Which technology BEST meets this need?'
+    o:
+      - 'Digital rights management'
+      - 'Data loss prevention'
+      - 'A cloud-native application protection platform'
+      - 'Email encryption'
+    a: 1
+    why: >-
+      DLP inspects content leaving the organization, such as email, recognizes patterns like card numbers, and
+      blocks and logs the transfer. DRM controls what recipients can do with a document after they receive it; it
+      does not inspect outbound email.
+    src: 'CISSP 2027 outline 2.6 (DLP, DRM); ISC2 CISSP Official Study Guide ch. 5'
+
+  - id: x2-029
+    c: data-protection-tools
+    kind: best
+    diff: 2
+    text: >-
+      Employees at a consulting firm use many unapproved SaaS file-sharing and note-taking apps. Security wants to
+      discover which cloud apps are in use, apply access and data policies to them, and see who uploads what.
+    ask: 'Which technology is BEST suited to this need?'
+    o:
+      - 'A cloud-native application protection platform'
+      - 'Digital rights management'
+      - 'A cloud access security broker'
+      - 'A host-based intrusion detection system'
+    a: 2
+    why: >-
+      A CASB sits between users and cloud services to discover shadow IT, enforce access and data policies, and show
+      cloud app use. A CNAPP protects cloud-native workloads the organization itself builds and runs, not its use of
+      third-party SaaS.
+    src: 'CISSP 2027 outline 2.6 (CASB, CNAPP); ISC2 CISSP Official Study Guide ch. 5'
+
+  - id: x2-030
+    c: data-protection-tools
+    kind: best
+    diff: 3
+    text: >-
+      A retailer runs containerized microservices on two public cloud platforms. Security wants one platform that
+      checks cloud configurations for errors, protects the running workloads, and reviews cloud identities and their
+      entitlements.
+    ask: 'Which technology BEST fits this need?'
+    o:
+      - 'A cloud-native application protection platform'
+      - 'A cloud access security broker'
+      - 'A security information and event management system'
+      - 'Digital rights management'
+    a: 0
+    why: >-
+      A CNAPP combines cloud security posture management, workload protection and entitlement management for
+      cloud-native applications in one platform. A CASB governs users' access to cloud services; it does not protect
+      the workloads the retailer runs.
+    src: 'CISSP 2027 outline 2.6 (CNAPP); industry definition of CNAPP (CSPM, CWPP and CIEM combined)'

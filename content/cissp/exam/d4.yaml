@@ -1,0 +1,639 @@
+# Board-exam pool, Domain 4 (Communication and Network Security). Items appear only in the board exam.
+# Format and rules: docs/cissp/AUTHORING.md, "The board-exam pool". Log: docs/cissp/exam-pool-d3-d4-d6.md
+items:
+  - id: x4-001
+    c: osi-model
+    kind: best
+    diff: 1
+    text: >-
+      A network device at a branch office forwards traffic between three subnets by reading each packet's destination
+      IP address and consulting its routing table.
+    ask: 'At which OSI layer does this device MOST directly operate?'
+    o:
+      - 'Data Link (Layer 2)'
+      - 'Network (Layer 3)'
+      - 'Transport (Layer 4)'
+      - 'Session (Layer 5)'
+    a: 1
+    why: >-
+      Routers forward packets by logical (IP) address, a Network layer function. Switches forward frames by MAC
+      address at the Data Link layer; the Transport layer handles ports and end-to-end delivery, not path selection
+      between subnets.
+    src: 'ISO/IEC 7498-1 (OSI reference model); ISC2 CISSP Official Study Guide (Sybex), ch. 11; CISSP 2027 outline 4.1'
+
+  - id: x4-002
+    c: osi-model
+    kind: best
+    diff: 2
+    text: >-
+      An analyst examining a packet capture from a local Ethernet segment wants to identify which physical network
+      interface sent a particular message, so she looks for the source MAC address.
+    ask: 'In which protocol data unit is that address MOST accurately found?'
+    o:
+      - 'The TCP segment header'
+      - 'The IP packet header'
+      - 'The application data payload'
+      - 'The Ethernet frame header'
+    a: 3
+    why: >-
+      MAC addresses are Data Link layer addresses, carried in the frame header. IP packet headers carry logical
+      source and destination addresses, and TCP segments carry ports. Each layer adds its own header during
+      encapsulation.
+    src: 'IEEE 802.3; ISO/IEC 7498-1; ISC2 CISSP Official Study Guide (Sybex), ch. 11 (encapsulation); CISSP 2027 outline 4.1'
+
+  - id: x4-003
+    c: ip-addressing
+    kind: best
+    diff: 2
+    text: >-
+      A firewall administrator is writing an edge rule to drop internet traffic whose source address falls in the
+      private IPv4 ranges reserved for internal networks.
+    ask: 'Which source address is MOST clearly inside a reserved private range?'
+    o:
+      - '172.32.10.5'
+      - '172.20.8.1'
+      - '192.169.4.20'
+      - '11.0.0.1'
+    a: 1
+    why: >-
+      RFC 1918 reserves 10.0.0.0/8, 172.16.0.0/12 (172.16 to 172.31) and 192.168.0.0/16. 172.20.8.1 falls inside
+      172.16.0.0/12. 172.32.10.5 is just outside that block, and 192.169 is not 192.168.
+    src: 'RFC 1918 (Address Allocation for Private Internets), sec. 3; CISSP 2027 outline 4.1 (IPv4)'
+
+  - id: x4-004
+    c: ip-addressing
+    kind: best
+    diff: 2
+    text: >-
+      A host's IPv6 configuration shows an address beginning with fe80::. The interface configured it automatically,
+      and the host uses it to exchange neighbor discovery messages.
+    ask: 'Which type of IPv6 address is this MOST accurately?'
+    o:
+      - 'Link-local unicast'
+      - 'Global unicast'
+      - 'Unique local unicast'
+      - 'Multicast'
+    a: 0
+    why: >-
+      RFC 4291 reserves fe80::/10 for link-local unicast addresses, valid only on a single link and configured on
+      every IPv6 interface. Unique local addresses (fc00::/7) are routable within a site; multicast addresses begin
+      with ff.
+    src: 'RFC 4291 (IPv6 Addressing Architecture), sec. 2.4 and 2.5.6; RFC 4193 (unique local addresses); CISSP 2027 outline 4.1 (IPv6)'
+
+  - id: x4-005
+    c: ip-addressing
+    kind: calc
+    diff: 2
+    text: >-
+      A network engineer assigns an IPv4 subnet with a /26 prefix to a server VLAN. The network address and the
+      broadcast address cannot be assigned to hosts.
+    ask: 'How many usable host addresses does the subnet provide?'
+    o: ['64', '62', '30', '126']
+    a: 1
+    why: >-
+      A /26 leaves 32 - 26 = 6 host bits: 2^6 = 64 addresses, minus the network and broadcast addresses = 62. 64
+      forgets to subtract them; 30 is a /27 and 126 a /25.
+    src: 'RFC 4632 (CIDR); RFC 950 (subnetting); CISSP 2027 outline 4.1 (IPv4)'
+
+  - id: x4-006
+    c: secure-protocols
+    kind: best
+    diff: 1
+    text: >-
+      A web server currently accepts SSL 3.0, TLS 1.0, TLS 1.2 and TLS 1.3. A compliance review flags every protocol
+      version on the server that the IETF has formally deprecated.
+    ask: 'Which change BEST resolves the finding?'
+    o:
+      - 'Disable TLS 1.3 because it is still too new'
+      - 'Disable SSL 3.0 only'
+      - 'Disable TLS 1.2 and TLS 1.3'
+      - 'Disable SSL 3.0 and TLS 1.0'
+    a: 3
+    why: >-
+      RFC 7568 deprecates SSL 3.0 and RFC 8996 deprecates TLS 1.0 and 1.1, so both of those versions must go.
+      Disabling only SSL 3.0 leaves deprecated TLS 1.0 in place. TLS 1.2 and 1.3 remain acceptable.
+    src: 'RFC 7568; RFC 8996; RFC 8446; CISSP 2027 outline 4.1 (secure protocols)'
+
+  - id: x4-007
+    c: secure-protocols
+    kind: best
+    diff: 3
+    text: >-
+      Two routers in a closed lab network, with no NAT between them, must authenticate each packet's origin and detect
+      any change to it, including the outer IP header fields that do not change in transit. Encryption is not
+      required.
+    ask: 'Which IPsec option BEST fits?'
+    o:
+      - 'ESP in tunnel mode'
+      - 'ESP in transport mode'
+      - 'Authentication Header (AH)'
+      - 'TLS 1.3 with mutual authentication'
+    a: 2
+    why: >-
+      AH provides integrity and data-origin authentication that covers the immutable fields of the outer IP header,
+      without encryption (RFC 4302). ESP can authenticate too, but its integrity check does not cover the outer IP
+      header. AH fails through NAT, which is absent here.
+    src: 'RFC 4302 (AH); RFC 4303 (ESP); RFC 4301; CISSP 2027 outline 4.1 (IPsec)'
+
+  - id: x4-008
+    c: secure-protocols
+    kind: best
+    diff: 2
+    text: >-
+      A law firm requires that client emails stay encrypted and digitally signed while stored in recipients'
+      mailboxes, not just while moving between mail servers. Recipients use many different mail providers.
+    ask: 'Which technology BEST meets this requirement?'
+    o:
+      - 'STARTTLS between mail servers'
+      - 'S/MIME with recipient certificates'
+      - 'TLS for the IMAP connection'
+      - 'IPsec between mail servers'
+    a: 1
+    why: >-
+      S/MIME encrypts and signs the message itself, so protection travels with it end to end, including at rest in
+      the mailbox. STARTTLS and TLS protect only each connection hop; the message is stored in the clear on each
+      server.
+    src: 'RFC 8551 (S/MIME 4.0); RFC 3207 (STARTTLS); CISSP 2027 outline 4.1'
+
+  - id: x4-009
+    c: converged-protocols
+    kind: best
+    diff: 2
+    text: >-
+      A data center team wants to carry Fibre Channel storage traffic directly over its 10-gigabit Ethernet switches,
+      without IP or TCP, to keep latency low inside a single facility.
+    ask: 'Which converged protocol BEST fits this design?'
+    o:
+      - 'Fibre Channel over Ethernet (FCoE)'
+      - 'Internet Small Computer Systems Interface (iSCSI)'
+      - 'Fibre Channel over IP (FCIP)'
+      - 'Multiprotocol Label Switching (MPLS)'
+    a: 0
+    why: >-
+      FCoE encapsulates Fibre Channel frames directly in Ethernet frames, at layer 2 with no IP, so it is not routable
+      and stays within the facility. iSCSI and FCIP both ride on TCP/IP, which the design wants to avoid.
+    src: 'INCITS FC-BB-5 (FCoE); RFC 7143 (iSCSI); RFC 3821 (FCIP); ISC2 CISSP Official Study Guide (Sybex), ch. 11; CISSP 2027 outline 4.1 (converged protocols)'
+
+  - id: x4-010
+    c: converged-protocols
+    kind: best
+    diff: 3
+    text: >-
+      A server architect proposes letting CPUs and accelerators in a rack share pooled memory through an interconnect
+      that keeps their caches coherent and reuses the PCI Express physical layer. The security team must study the
+      protocol before approving the design.
+    ask: 'Which converged protocol is the architect MOST likely proposing?'
+    o:
+      - 'NVMe over TCP (NVMe/TCP)'
+      - 'InfiniBand (IB)'
+      - 'Internet SCSI (iSCSI)'
+      - 'Compute Express Link'
+    a: 3
+    why: >-
+      CXL is a cache-coherent interconnect on the PCIe physical layer that supports memory pooling between processors
+      and devices; the 2027 outline lists it under converged protocols. InfiniBand is a separate fabric, and iSCSI and
+      NVMe/TCP carry storage over IP networks.
+    src: 'CXL Consortium, Compute Express Link specification overview; CISSP 2027 outline 4.1 (converged protocols, CXL)'
+
+  - id: x4-011
+    c: transport-performance
+    kind: best
+    diff: 1
+    text: >-
+      Users complain that voice calls over the company network sound choppy. Monitoring shows the average delay is
+      acceptable and no packets are lost, but the delay between successive packets varies widely.
+    ask: 'Which network metric is MOST clearly the problem?'
+    o:
+      - 'Bandwidth'
+      - 'Throughput'
+      - 'Latency'
+      - 'Jitter'
+    a: 3
+    why: >-
+      Jitter is the variation in packet delay, which disrupts real-time voice even when average latency is fine.
+      Latency is the delay itself, reported here as acceptable; bandwidth and throughput describe capacity and the
+      data rate actually delivered.
+    src: 'RFC 3393 (IP packet delay variation); CISSP 2027 outline 4.1 (performance metrics)'
+
+  - id: x4-012
+    c: transport-performance
+    kind: best
+    diff: 2
+    text: >-
+      A network architect separates router functions into planes. OSPF updates exchanged between routers build the
+      routing tables, customer packets are forwarded using those tables, and administrators log in over SSH.
+    ask: 'Which plane do the OSPF routing updates MOST accurately belong to?'
+    o:
+      - 'Control plane'
+      - 'Data plane'
+      - 'Management plane'
+      - 'Application plane'
+    a: 0
+    why: >-
+      The control plane runs routing protocols such as OSPF that decide paths and build tables. The data (forwarding)
+      plane moves customer packets using those tables, and the management plane carries administrative access such as
+      SSH.
+    src: 'RFC 7426 (SDN layers and architecture terminology); ISC2 CISSP Official Study Guide (Sybex), ch. 11; CISSP 2027 outline 4.1 (transport architecture)'
+
+  - id: x4-013
+    c: segmentation
+    kind: best
+    diff: 2
+    text: >-
+      After a breach, investigators find the attacker compromised one web server and then reached dozens of
+      application and database servers in the same data center subnet, because traffic between servers inside the
+      subnet was never filtered.
+    ask: 'Which control BEST limits this movement in the future?'
+    o:
+      - 'A bigger edge firewall'
+      - 'An IDS sensor on the internet uplink'
+      - 'Workload-level micro-segmentation rules'
+      - 'NAT for all servers'
+    a: 2
+    why: >-
+      Micro-segmentation enforces policy on east-west traffic between individual workloads, so one compromised server
+      cannot freely reach the others. Edge firewalls and uplink sensors see north-south traffic and never inspect
+      server-to-server flows inside the subnet.
+    src: 'NIST SP 800-207, sec. 3.1.2 (micro-segmentation); CISSP 2027 outline 4.1 (micro-segmentation)'
+
+  - id: x4-014
+    c: segmentation
+    kind: best
+    diff: 3
+    text: >-
+      A penetration tester connected to an access port on VLAN 1 sends frames carrying two 802.1Q tags and reaches a
+      host on the finance VLAN. The switch trunks use VLAN 1 as their native (untagged) VLAN.
+    ask: 'Which switch configuration change BEST stops this attack?'
+    o:
+      - 'Enable port security to limit MAC addresses per port'
+      - 'Set the trunks'' native VLAN to an unused VLAN'
+      - 'Enable DHCP snooping on all of the access ports'
+      - 'Move the finance VLAN to its own separate IP subnet'
+    a: 1
+    why: >-
+      Double tagging works when the attacker's access VLAN matches the trunk's native VLAN: the outer tag is stripped
+      and the inner tag carries the frame onward. An unused native VLAN stops it. Port security addresses MAC
+      flooding, a different attack.
+    src: 'IEEE 802.1Q (VLAN tagging, native VLAN); CISSP 2027 outline 4.1 (logical segmentation)'
+
+  - id: x4-015
+    c: wireless-cellular
+    kind: best
+    diff: 1
+    text: >-
+      A small accounting office is replacing its Wi-Fi. An audit showed that an attacker who captured the WPA2
+      handshake could guess the shared passphrase offline. The office still wants a single passphrase rather than
+      per-user accounts.
+    ask: 'Which option BEST addresses the audit finding?'
+    o:
+      - 'WPA3-Personal using SAE'
+      - 'WPA2-Personal with a hidden SSID'
+      - 'WEP with a 128-bit key'
+      - 'WPA2-Personal with MAC filtering'
+    a: 0
+    why: >-
+      WPA3-Personal replaces the pre-shared key handshake with Simultaneous Authentication of Equals (SAE), which
+      resists offline dictionary attacks and adds forward secrecy. Hiding the SSID or filtering MAC addresses leaves
+      the crackable WPA2 handshake unchanged.
+    src: 'Wi-Fi Alliance, WPA3 Specification (SAE); IEEE 802.11; CISSP 2027 outline 4.1 (wireless)'
+
+  - id: x4-016
+    c: wireless-cellular
+    kind: best
+    diff: 2
+    text: >-
+      A university wants each staff member to join the campus Wi-Fi with an individual identity, to revoke access when
+      someone leaves, and to use certificates on both the client and the authentication server.
+    ask: 'Which configuration BEST meets these goals?'
+    o:
+      - 'WPA3-Personal with a strong passphrase rotated each term'
+      - 'An open network with a captive portal login page'
+      - 'WPA3-Enterprise using 802.1X/EAP-TLS certificates'
+      - 'WPA2-Personal with MAC address allow lists'
+    a: 2
+    why: >-
+      Enterprise mode uses 802.1X with a RADIUS authentication server, giving each user an individual credential that
+      can be revoked; EAP-TLS uses certificates on both sides. A shared passphrase, even rotated, cannot identify or
+      remove one user.
+    src: 'IEEE 802.1X; RFC 5216 (EAP-TLS); Wi-Fi Alliance WPA3; CISSP 2027 outline 4.1 (wireless)'
+
+  - id: x4-017
+    c: wireless-cellular
+    kind: best
+    diff: 3
+    text: >-
+      Hospital staff report that their laptops sometimes connect to a strong access point broadcasting the hospital's
+      own network name. The access point turns out to be in a van in the parking lot, capturing sign-in credentials.
+    ask: 'Which attack does this MOST accurately describe?'
+    o:
+      - 'War driving'
+      - 'Bluesnarfing'
+      - 'An evil twin attack'
+      - 'A rogue access point'
+    a: 2
+    why: >-
+      An evil twin is an attacker's access point that impersonates a legitimate network name to lure clients and
+      capture traffic or credentials. A rogue access point is any unauthorized AP, often installed inside; the
+      impersonation makes evil twin the more precise answer.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 11 (wireless attacks); NIST SP 800-153 (WLAN security); CISSP 2027 outline 4.1 (wireless)'
+
+  - id: x4-018
+    c: sdn-cloud-networks
+    kind: best
+    diff: 2
+    text: >-
+      In a software-defined network, an orchestration application must ask the SDN controller to create a new isolated
+      segment for a tenant. The controller then programs the switches to build it.
+    ask: 'Which interface does the orchestration application MOST likely use to reach the controller?'
+    o:
+      - 'The southbound API'
+      - 'The switch console port'
+      - 'The data plane'
+      - 'The northbound API'
+    a: 3
+    why: >-
+      Applications and orchestrators talk to the SDN controller through northbound APIs; the controller uses
+      southbound interfaces such as OpenFlow to program switches. The data plane only forwards traffic.
+    src: 'RFC 7426 (SDN layers and architecture terminology); CISSP 2027 outline 4.1 (SDN)'
+
+  - id: x4-019
+    c: sdn-cloud-networks
+    kind: best
+    diff: 1
+    text: >-
+      An online retailer's global customers complain about slow image and video loading, and the company expects large
+      traffic spikes and possible volumetric DDoS attacks during a holiday sale.
+    ask: 'Which service BEST addresses these needs?'
+    o:
+      - 'A content delivery network'
+      - 'An SD-WAN overlay'
+      - 'A bigger web cluster'
+      - 'A site-to-site VPN'
+    a: 0
+    why: >-
+      A CDN caches content on edge servers close to users, cutting latency and spreading load across many locations,
+      which also helps absorb volumetric attacks. A bigger central cluster still serves everyone from one place, so
+      distant users stay slow.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 11 (CDN); CISSP 2027 outline 4.1 (CDN)'
+
+  - id: x4-020
+    c: sdn-cloud-networks
+    kind: best
+    diff: 2
+    text: >-
+      A company's cloud platform applies firewall rules, encryption settings and access policies automatically from
+      templates whenever a new workload is created, independent of any physical security appliance, and updates them
+      centrally when policy changes.
+    ask: 'Which concept does this MOST accurately describe?'
+    o:
+      - 'SD-WAN'
+      - 'Software-defined security'
+      - 'Network access control'
+      - 'Unified threat management'
+    a: 1
+    why: >-
+      Software-defined security decouples security controls from hardware and applies them as policy through software,
+      following workloads automatically. SD-WAN manages wide-area connectivity; UTM is a consolidated appliance, the
+      hardware model this replaces.
+    src: 'CISSP 2027 outline 4.1 (software-defined security)'
+
+  - id: x4-021
+    c: sdn-cloud-networks
+    kind: best
+    diff: 2
+    text: >-
+      A company runs web and database tiers in separate subnets of its virtual private cloud (VPC) with an IaaS
+      provider. It wants only the web tier to reach the database port, with all other traffic between the subnets
+      denied.
+    ask: 'Which approach BEST meets this requirement?'
+    o:
+      - 'Ask the provider to add a rule to its physical data center firewall'
+      - 'Place both tiers in one subnet so traffic stays local'
+      - 'Rely on the provider''s tenant isolation between customers'
+      - 'Restrictive VPC security groups plus subnet network ACLs'
+    a: 3
+    why: >-
+      In IaaS the customer configures its own virtual network controls: security groups and network ACLs restrict
+      traffic between subnets. Provider tenant isolation separates customers from each other, not one customer's
+      tiers, and the provider will not edit physical firewalls for one tenant.
+    src: 'NIST SP 800-145 (IaaS: customer control of select networking components); CISSP 2027 outline 4.1 (VPC)'
+
+  - id: x4-022
+    c: net-observability
+    kind: best
+    diff: 1
+    text: >-
+      An investigation shows that malware on a workstation reached its command-and-control server over unusual
+      high-numbered ports. The perimeter firewall allows all outbound connections and filters only inbound traffic.
+    ask: 'Which change BEST reduces this risk?'
+    o:
+      - 'Block all inbound connections arriving on high-numbered ports'
+      - 'Add a second inbound firewall from a different vendor in series'
+      - 'Default-deny egress that permits only needed services'
+      - 'Turn off logging of outbound sessions'
+    a: 2
+    why: >-
+      Egress filtering with default deny lets only approved outbound traffic leave, blocking command-and-control
+      channels and exfiltration on unexpected ports. The malware opened outbound sessions, so more inbound filtering,
+      however strong, would not have stopped it.
+    src: 'NIST SP 800-41 Rev. 1 (firewall policy, egress filtering); CISSP 2027 outline 4.1 (ingress and egress)'
+
+  - id: x4-023
+    c: net-observability
+    kind: best
+    diff: 2
+    text: >-
+      A network team wants to know which internal hosts talk to which external addresses, over which ports and how
+      much data moves, across the whole network for months. Full packet capture at that scale is too costly to store.
+    ask: 'Which data source BEST provides this visibility?'
+    o:
+      - 'SNMP polling of interface counters'
+      - 'Syslog messages from every switch'
+      - 'IPFIX or NetFlow flow records'
+      - 'Regular ping and traceroute checks'
+    a: 2
+    why: >-
+      Flow records summarize each conversation (addresses, ports, protocol, bytes, times) without payloads, so they
+      scale for long-term network observability. SNMP counters show how busy an interface is, not who talked to whom.
+    src: 'RFC 7011 (IPFIX); CISSP 2027 outline 4.1 (network observability)'
+
+  - id: x4-024
+    c: nac-endpoint
+    kind: best
+    diff: 1
+    text: >-
+      Contractors often plug their own laptops into conference room ports. The security team wants laptops with
+      missing patches or no endpoint protection placed in a restricted remediation network until they comply.
+    ask: 'Which control BEST meets this goal?'
+    o:
+      - 'Network access control using posture checks'
+      - 'MAC address filtering applied on every switch port'
+      - 'A captive web portal requiring an acceptable use click'
+      - 'Static VLAN assignment for conference room ports'
+    a: 0
+    why: >-
+      NAC with posture assessment checks device health, such as patches and endpoint protection, before granting
+      access and can quarantine noncompliant devices in a remediation VLAN. MAC filtering identifies a device but says
+      nothing about its health and is easy to spoof.
+    src: 'IEEE 802.1X; ISC2 CISSP Official Study Guide (Sybex), ch. 11 (NAC); CISSP 2027 outline 4.2 (NAC)'
+
+  - id: x4-025
+    c: nac-endpoint
+    kind: best
+    diff: 3
+    text: >-
+      A company's NAC system admits a compliant laptop to the network. An hour later the laptop begins scanning
+      internal hosts, and the NAC system moves it to a quarantine VLAN based on that behavior.
+    ask: 'Which NAC capability does this response MOST accurately show?'
+    o:
+      - 'Post-admission control'
+      - 'Pre-admission control'
+      - 'Agentless posture scanning'
+      - 'Captive portal authentication'
+    a: 0
+    why: >-
+      Post-admission NAC keeps evaluating a device after it joins and acts on behavior or policy violations.
+      Pre-admission control is tempting because posture was checked, but it decides only at connection time; here
+      the trigger came an hour later.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 11 (NAC pre-admission and post-admission); CISSP 2027 outline 4.2 (NAC)'
+
+  - id: x4-026
+    c: media-infrastructure
+    kind: best
+    diff: 2
+    text: >-
+      A new office has a single Cat 6 twisted-pair run of about 150 meters from the wiring closet to a far
+      workstation. That workstation sees frequent errors and retransmissions, while the shorter runs work fine.
+    ask: 'What is the MOST likely cause?'
+    o:
+      - 'Crosstalk from adjacent pairs'
+      - 'Exceeding the 100 m cable length limit'
+      - 'A duplex mismatch on the switch port'
+      - 'Interference from lighting'
+    a: 1
+    why: >-
+      Twisted-pair Ethernet segments are limited to 100 meters; beyond that, attenuation weakens the signal and errors
+      rise. Crosstalk and interference are real, but they would also affect the shorter runs in the same building.
+    src: 'IEEE 802.3 (twisted-pair segment length); ISC2 CISSP Official Study Guide (Sybex), ch. 11; CISSP 2027 outline 4.2 (transmission media)'
+
+  - id: x4-027
+    c: media-infrastructure
+    kind: best
+    diff: 1
+    text: >-
+      A factory must run copper network cable past welding stations and large motors that produce strong
+      electromagnetic interference. The runs are short, and fiber is not in the budget.
+    ask: 'Which cable type is the BEST choice?'
+    o:
+      - 'Unshielded twisted pair (UTP)'
+      - 'Plenum-rated UTP'
+      - 'Shielded twisted pair (STP)'
+      - 'Category 6 UTP'
+    a: 2
+    why: >-
+      Shielded twisted pair adds foil or braid shielding that resists electromagnetic interference, making it the
+      better copper choice near motors and welders. UTP has no shielding; plenum rating concerns fire safety and the
+      category rating mainly affects bandwidth.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 11 (cabling); CISSP 2027 outline 4.2 (transmission media)'
+
+  - id: x4-028
+    c: remote-access
+    kind: best
+    diff: 2
+    text: >-
+      Remote employees connect through a VPN that routes only corporate-bound traffic through the tunnel. Everything
+      else goes directly to the internet from the home network while the tunnel is up.
+    ask: 'Which risk does this setup MOST directly create?'
+    o:
+      - 'The tunnel will use weaker encryption than a full tunnel'
+      - 'Corporate traffic will be slower because of the extra hop'
+      - 'Users will lose access to cloud services during the session'
+      - 'An infected endpoint can become a bridge into the network'
+    a: 3
+    why: >-
+      Split tunneling lets the device talk to the internet and the corporate network at once, outside corporate
+      filtering, so malware or an attacker on the endpoint can pivot inward. It does not weaken the tunnel's
+      encryption.
+    src: 'NIST SP 800-46 Rev. 2 (telework and remote access security, split tunneling); CISSP 2027 outline 4.3 (remote access)'
+
+  - id: x4-029
+    c: remote-access
+    kind: best
+    diff: 2
+    text: >-
+      A firm hires contractors who use their own unmanaged laptops. They need one internal web application, and the
+      firm does not want company data stored on those devices or the internal network reachable from them.
+    ask: 'Which remote access method BEST fits?'
+    o:
+      - 'Virtual desktop or app portal access that keeps data in the data center'
+      - 'Full-tunnel VPN giving the laptops access to the internal network'
+      - 'Remote desktop directly to each contractor''s assigned office PC through the firewall'
+      - 'Emailing the application data to contractors on request'
+    a: 0
+    why: >-
+      Portal or virtual desktop access exposes only the application and keeps data on company systems, which suits
+      unmanaged devices. A full-tunnel VPN puts an untrusted laptop on the internal network, far beyond the single
+      application needed.
+    src: 'NIST SP 800-46 Rev. 2 (remote access methods: portals, remote desktop, tunneling); CISSP 2027 outline 4.3 (remote working)'
+
+  - id: x4-030
+    c: remote-access
+    kind: best
+    diff: 3
+    text: >-
+      A company wants a central AAA service for administrator logins to its routers and switches. It must authorize
+      each command separately, keep authentication, authorization and accounting as separate functions, and protect
+      the entire body of every AAA message.
+    ask: 'Which protocol BEST meets these requirements?'
+    o:
+      - 'RADIUS'
+      - 'TACACS+'
+      - 'LDAP'
+      - 'Kerberos'
+    a: 1
+    why: >-
+      TACACS+ separates AAA, supports per-command authorization and encrypts the whole message body (RFC 8907 calls
+      it obfuscation). RADIUS is tempting, but it combines authentication and authorization and hides only the
+      password.
+    src: 'RFC 8907 (TACACS+); RFC 2865 (RADIUS); ISC2 CISSP Official Study Guide (Sybex), ch. 13; CISSP 2027 outline 4.3 (remote access)'
+
+  - id: x4-031
+    c: collab-thirdparty
+    kind: best
+    diff: 1
+    text: >-
+      A company's VoIP phones send call audio as plain RTP across the corporate WAN, and an auditor shows that calls
+      can be reconstructed from a packet capture.
+    ask: 'Which protocol BEST protects the call audio?'
+    o:
+      - 'RTCP'
+      - 'SIP over UDP'
+      - 'SRTP'
+      - 'SDP'
+    a: 2
+    why: >-
+      SRTP adds encryption, message authentication and replay protection to RTP media streams. SIP is the signaling
+      protocol that sets up calls (protected separately, for example with TLS); RTCP carries control statistics, not
+      the audio.
+    src: 'RFC 3711 (SRTP); RFC 3261 (SIP); RFC 3550 (RTP and RTCP); CISSP 2027 outline 4.3 (voice and video)'
+
+  - id: x4-032
+    c: collab-thirdparty
+    kind: best
+    diff: 3
+    text: >-
+      An agency will connect its case system to a partner agency's system over a dedicated link. Leadership has
+      already agreed on the business purpose and each party's responsibilities. Engineers now need a document
+      specifying the technical security requirements, data flows and protections for the connection.
+    ask: 'Which document BEST serves this purpose?'
+    o:
+      - 'A memorandum of understanding (MOU)'
+      - 'A service level agreement (SLA)'
+      - 'A non-disclosure agreement (NDA)'
+      - 'An interconnection security agreement (ISA)'
+    a: 3
+    why: >-
+      Under NIST SP 800-47 Rev. 1, an ISA specifies the technical and security requirements for a system
+      interconnection. The MOU/A that usually accompanies it states purpose and responsibilities but no technical
+      details, and those are already agreed here. An SLA covers service levels, not connection security.
+    src: 'NIST SP 800-47 Rev. 1 (2021), Managing the Security of Information Exchanges, sec. 3.1.5.1 (ISA) and 3.1.5.2 (MOU/A); NIST SP 800-53 Rev. 5 CA-3; CISSP 2027 outline 4.3 (third-party connectivity)'

@@ -9,7 +9,9 @@ export const DOMAINS: Domain[] = C.domains;
 export const SCENES: Scene[] = CASES.flatMap((k) => k.scenes);
 export const conceptById = new Map(CONCEPTS.map((c) => [c.id, c]));
 export const caseById = new Map(CASES.map((k) => [k.id, k]));
-export const sceneById = new Map(SCENES.map((s) => [s.id, s]));
+/** Board-exam-only items: never served in cases, drills or flashbacks (scenesOf leaves them out). */
+export const POOL: Scene[] = C.pool ?? [];
+export const sceneById = new Map([...SCENES, ...POOL].map((s) => [s.id, s]));
 export const scenesOf = (cid: string): Scene[] => SCENES.filter((s) => s.c === cid);
 export const domainOf = (n: number): Domain => DOMAINS.find((d) => d.n === n)!;
 export const objOf = (s: Scene): string => conceptById.get(s.c)?.obj ?? '';

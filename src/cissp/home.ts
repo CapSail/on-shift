@@ -1,8 +1,8 @@
 // Home for the Ghost CISO: Shifty's standing, the big "next case" button and the mode tiles.
 import { RANKS, S, liveStreak, rankOf, save } from './state';
-import { C, CASES, CONCEPTS, caseById } from './content';
+import { C, CASES, CONCEPTS, POOL, caseById } from './content';
 import { dueConcepts, nextCase, readiness, weakest } from './srs';
-import { startCase, startDaily, startDrill, startExam, startFlashbacks } from './play';
+import { examServed, startCase, startDaily, startDrill, startExam, startFlashbacks } from './play';
 import { app, go, toast } from '../engine/ui';
 import { shiftyHtml } from '../engine/shifty-live';
 import { sh } from './lines';
@@ -64,12 +64,14 @@ ${!isStandalone() && (canInstall() || isIosSafari()) ? `<button class="next ghos
 }
 
 function examPick(): void {
+  const served = examServed();
+  const fresh = POOL.filter((s) => !served.has(s.id)).length;
   app.innerHTML = `<div class="scr cissp"><div class="bar"><button class="x" id="quit" aria-label="Back">✕</button><b>Board exam</b></div>
-<div class="intro"><p>Exam conditions: single scenes from every case, weighted like the 2027 outline, <b>no feedback until the end</b>. It adapts like the real CAT: right answers bring harder scenes, misses bring easier ones. The score is an estimate on a 0 to 1000 scale; the real pass line is 700.</p><p class="note">The real exam: ${esc(C.exam.items)} items in ${C.exam.hours} hours (about 72 to 108 seconds each).</p></div>
+<div class="intro"><p>Exam conditions: <b>questions you never see while studying</b>, weighted like the 2027 outline, <b>no feedback until the end</b>. It adapts like the real CAT: right answers bring harder questions, misses bring easier ones. The score is an estimate on a 0 to 1000 scale; the real pass line is 700.</p><p class="note">The real exam: ${esc(C.exam.items)} items in ${C.exam.hours} hours (about 72 to 108 seconds each).</p>${POOL.length ? `<p class="note" id="fresh"><b>${fresh} of ${POOL.length}</b> exam questions still unseen. When they run out, the ones you've met least come back first.</p>` : ''}</div>
 <button class="big" id="e25"><span class="px">QUICK · 25</span><small>About 20 minutes</small></button>
 <button class="big alt" id="e50"><span class="px">HALF · 50</span><small>About 45 minutes</small></button>
 <button class="big alt" id="e125"><span class="px">FULL · 125</span><small>A full sitting. Do this a few times before the real one.</small></button>
-${S.exams.length ? `<div class="sec">History</div><div class="sk">${S.exams.slice(-8).reverse().map((b) => `<div class="weak"><b>${b.score}/1000</b><span>${b.n} scenes · ${b.score >= 700 ? 'above the line' : 'not yet'}</span></div>`).join('')}</div>` : ''}
+${S.exams.length ? `<div class="sec">History</div><div class="sk">${S.exams.slice(-8).reverse().map((b) => `<div class="weak"><b>${b.score}/1000</b><span>${b.n} questions · ${b.score >= 700 ? 'above the line' : 'not yet'}</span></div>`).join('')}</div>` : ''}
 </div>`;
   $('#quit').onclick = () => history.back();
   $('#e25').onclick = () => go(() => startExam(25));

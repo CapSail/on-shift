@@ -64,6 +64,7 @@ export interface Content {
   objectives: Record<string, string>;
   concepts: Concept[];
   cases: Case[];
+  pool: Scene[];          // board-exam-only items (content/cissp/exam), never served in cases, drills or flashbacks
 }
 
 // ---- save data (localStorage key cissp.v1) ----

@@ -33,7 +33,7 @@ export function renderScene(host: HTMLElement, s: Scene, o: SceneOpts): void {
     ? `<div class="dom"><b>QUESTION</b> · ${KIND_LABEL[s.kind]}</div>`
     : `<div class="dom"><i class="dot" style="--c:${dom.color}"></i>D${dom.n} ${esc(dom.short)} · ${esc(con.obj)} · <b>${KIND_LABEL[s.kind]}</b> ${FLAG[o.mode] ?? ''}</div>`;
   const played = !!S.done[s.case] || o.mode === 'preview';
-  const where = o.mode === 'flash' || o.mode === 'drill' || o.mode === 'preview' ? `<div class="dateline">${played ? `from case: ${esc(caseById.get(s.case)?.title ?? '')}` : 'from a case still to come'}</div>` : '';
+  const where = o.mode === 'flash' || o.mode === 'drill' || o.mode === 'preview' ? `<div class="dateline">${!s.case ? 'board exam question' : played ? `from case: ${esc(caseById.get(s.case)?.title ?? '')}` : 'from a case still to come'}</div>` : '';
   // option order is shuffled at runtime; data-i keeps the authored index
   const order = (n: number) => shuffle(Array.from({ length: n }, (_, i) => i));
   let body = '';
@@ -170,10 +170,9 @@ function mapHtml(s: Scene): string {
 
 /** After layout: shrink each label (in half pixels, never below 9px) until it fits its box; if it still doesn't, let the box grow. */
 function fitNodes(root: HTMLElement): void {
-  let done = false;
+  // shrink-only, so running it again is safe: it re-checks whenever the layout may have moved under it
   const run = () => {
-    if (done || !root.isConnected) return;
-    done = true;
+    if (!root.isConnected) return;
     for (const n of $$('.node', root)) {
       const over = () => n.scrollHeight > n.clientHeight + 1 || n.scrollWidth > n.clientWidth + 1;
       let fs = parseFloat(getComputedStyle(n).fontSize);
@@ -181,9 +180,16 @@ function fitNodes(root: HTMLElement): void {
       if (over()) n.style.height = 'auto';
     }
   };
-  // after layout; the timer covers pages where animation frames are paused (a background tab)
+  // after layout; the timers cover pages where animation frames are paused (a background tab) and late layout
   requestAnimationFrame(run);
   setTimeout(run, 60);
+  setTimeout(run, 400);
+  document.fonts?.ready.then(run).catch(() => {});
+  const map = root.querySelector('.map');
+  if (map && typeof ResizeObserver !== 'undefined') {
+    const ro = new ResizeObserver(() => { if (!root.isConnected) ro.disconnect(); else run(); });
+    ro.observe(map);
+  }
 }
 
 /** The right answer as text (miss panels and the exam review). */

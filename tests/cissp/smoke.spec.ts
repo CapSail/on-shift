@@ -1,6 +1,6 @@
 /** Ghost CISO smoke tests: every mode plays end to end on a 390x844 phone viewport, with no console errors. */
 import { test, expect, type Page } from '@playwright/test';
-import { KEY, SCENES, content, playThrough, seed } from './helpers';
+import { KEY, POOL, SCENES, answer, content, playThrough, seed } from './helpers';
 
 const errors: string[] = [];
 test.beforeEach(async ({ page }) => {
@@ -176,4 +176,43 @@ test('round-2 fixes: the dateline is not a button, the exam shows no XP float, o
   await answer(page, true);
   await page.waitForTimeout(150);
   await expect(page.locator('.xpf')).toHaveCount(0);
+});
+
+test('board exam questions come only from the exam-only pool, a second sitting gets fresh ones, and study modes never show them', async ({ page }) => {
+  test.setTimeout(240_000);
+  await seed(page, { onb: true });
+  await page.goto('./');
+  const sitting = async () => {
+    await page.locator('#exam').click();
+    await page.locator('#e25').click();
+    const ids: string[] = [];
+    for (let guard = 0; guard < 3000 && !(await page.locator('.endscr').count()); guard++) {
+      const cid = page.locator('.scene:not(.answered) .cid');
+      if (!(await cid.count())) { await page.waitForTimeout(60); continue; }
+      const id = (await cid.textContent())!.trim();
+      ids.push(id);
+      await page.locator('.scene:not(.answered) .opt').first().click();
+    }
+    return ids;
+  };
+  const first = await sitting();
+  expect(first).toHaveLength(25);
+  expect(first.every((id) => POOL.some((s) => s.id === id)), first.join(',')).toBe(true);
+  await page.getByRole('button', { name: 'Home' }).click();
+  await page.locator('#exam').click();
+  await expect(page.locator('#fresh')).toContainText(`${POOL.length - 25} of ${POOL.length}`);
+  await page.locator('#quit').click();
+  const second = await sitting();
+  expect(second.filter((id) => first.includes(id)), 'no repeats while fresh items remain').toEqual([]);
+  // drilling the misses (and the flashbacks the exam made due) only ever serve case scenes
+  const drill = page.locator('#drillm');
+  if (await drill.count()) {
+    await drill.click();
+    for (let i = 0; i < 4 && !(await page.locator('.endscr').count()); i++) {
+      const id = (await page.locator('.scene .cid').last().textContent())!.trim();
+      expect(id.startsWith('x'), id).toBe(false);
+      await answer(page, true);
+      await page.locator('.dock button').click();
+    }
+  }
 });

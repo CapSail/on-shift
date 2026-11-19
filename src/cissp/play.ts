@@ -2,7 +2,7 @@
 // adaptive board exam. A case reads like a story: the dateline and opening, one decision per scene with the story
 // reacting, then the ending and the board's verdict.
 import type { Case, Scene } from './types';
-import { CASES, DOMAINS, SCENES, caseById, conceptById, domainOf, sceneById } from './content';
+import { CASES, DOMAINS, POOL, SCENES, caseById, conceptById, domainOf, sceneById } from './content';
 import { S, logEv, save, RANKS, rankOf } from './state';
 import { today, dailyNumber } from './time';
 import { cs, dueConcepts, grade, gradeOf, introduced, markSeen, nextCase, sceneFor } from './srs';
@@ -55,25 +55,40 @@ export function alloc(n: number): number[] {
   return out;
 }
 
+/** How many times each board-exam item has been served in past exams (from the log). */
+export function examServed(): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const e of S.log) if (e.mode === 'exam') m.set(e.id, (m.get(e.id) ?? 0) + 1);
+  return m;
+}
+
 /**
- * The adaptive board exam, like CAT in spirit: domain quotas follow the exam weights; the next scene's difficulty
- * goes up after a right answer and down after a miss. Scenes you have never been served come first.
+ * The adaptive board exam, like CAT in spirit: domain quotas follow the exam weights; the next item's difficulty
+ * goes up after a right answer and down after a miss. Items come from the exam-only pool (never seen while
+ * studying), least-served first; only if a domain's pool runs dry does it borrow case scenes.
  */
 export function examPicker(n: number): (lastOk: boolean | null) => Scene | null {
   const quota = alloc(n);
   const used = new Set<string>();
+  const served = examServed();
   let target = 2, given = 0;
   return (lastOk) => {
     if (given >= n) return null;
     if (lastOk !== null) target = Math.max(1, Math.min(3, target + (lastOk ? 1 : -1)));
     const doms = DOMAINS.map((d, i) => ({ d, left: quota[i] })).filter((x) => x.left > 0);
     const dom = doms.length ? doms[Math.floor(Math.random() * doms.length)].d : DOMAINS[0];
-    const pool = SCENES.filter((s) => s.d === dom.n && !used.has(s.id));
-    const unseen = (ss: Scene[]) => { const u = ss.filter((s) => !(S.cs[s.c]?.seen ?? []).includes(s.id)); return u.length ? u : ss; };
+    const fromPool = POOL.filter((s) => s.d === dom.n && !used.has(s.id));
+    const pool = fromPool.length ? fromPool : SCENES.filter((s) => s.d === dom.n && !used.has(s.id));
+    // least-served first: a fresh exam item beats one met in an earlier sitting; case scenes: unseen first
+    const unseen = (ss: Scene[]) => {
+      if (!ss.length) return ss;
+      if (!ss[0].case) { const min = Math.min(...ss.map((s) => served.get(s.id) ?? 0)); return ss.filter((s) => (served.get(s.id) ?? 0) === min); }
+      const u = ss.filter((s) => !(S.cs[s.c]?.seen ?? []).includes(s.id)); return u.length ? u : ss;
+    };
     let cand = unseen(pool.filter((s) => s.diff === target));
     if (!cand.length) cand = unseen(pool.filter((s) => Math.abs(s.diff - target) === 1));
     if (!cand.length) cand = unseen(pool);
-    if (!cand.length) cand = SCENES.filter((s) => !used.has(s.id));
+    if (!cand.length) cand = [...POOL, ...SCENES].filter((s) => !used.has(s.id));
     if (!cand.length) return null;
     const s = cand[Math.floor(Math.random() * cand.length)];
     used.add(s.id);

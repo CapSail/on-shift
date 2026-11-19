@@ -1,0 +1,560 @@
+# Board-exam pool, Domain 6 (Security Assessment and Testing). Items appear only in the board exam.
+# Format and rules: docs/cissp/AUTHORING.md, "The board-exam pool". Log: docs/cissp/exam-pool-d3-d4-d6.md
+items:
+  - id: x6-001
+    c: assessment-strategy
+    kind: best
+    diff: 2
+    text: >-
+      A company wants to learn how much damage a malicious insider with an ordinary employee account could do to its
+      internal systems. It is planning a security assessment on a limited budget.
+    ask: 'Which test design BEST fits this goal?'
+    o:
+      - 'An external black-box test launched from the internet with no credentials'
+      - 'A white-box review of all source code and architecture documents'
+      - 'An internal gray-box test starting from a standard user account'
+      - 'An automated vulnerability scan of the public website'
+    a: 2
+    why: >-
+      An internal test that starts with a normal user's access and partial knowledge (gray box) models an insider. An
+      external black-box test models an outsider, and a white-box code review answers a different question; neither
+      shows what an employee account can reach.
+    src: 'NIST SP 800-115 (internal and external testing); ISC2 CISSP Official Study Guide (Sybex), ch. 15 (knowledge levels); CISSP 2027 outline 6.1'
+
+  - id: x6-002
+    c: assessment-strategy
+    kind: first
+    diff: 2
+    text: >-
+      A retailer's security team wants to penetration test its customer-facing application, which runs entirely on a
+      third-party software as a service (SaaS) platform. The team has its own administrator accounts in the
+      application.
+    ask: 'What should the team do FIRST?'
+    o:
+      - 'Begin testing with its admin accounts, since it owns its tenant data'
+      - 'Check the provider''s terms and get its permission for the test'
+      - 'Run a full vulnerability scan against the provider''s infrastructure'
+      - 'Ask its internal auditors to review the test plan'
+    a: 1
+    trap: 0
+    why: >-
+      Location changes the strategy: in SaaS the provider owns the platform, so testing needs the provider's
+      authorization under its terms, or the team may breach the contract or the law. Owning tenant data does not
+      authorize attacking the provider's systems.
+    src: 'NIST SP 800-115 (assessment planning and authorization); CISSP 2027 outline 6.1 (location: cloud)'
+
+  - id: x6-003
+    c: assessment-strategy
+    kind: best
+    diff: 2
+    text: >-
+      A CISO must build a two-year security assessment program with a fixed budget covering 140 systems, from a public
+      payment portal to an internal cafeteria menu site.
+    ask: 'What should be the MAIN factor in how often and how deeply each system is tested?'
+    o:
+      - 'The age of each system'
+      - 'The impact if each system were compromised'
+      - 'Which systems the scanning tools support best'
+      - 'Equal coverage so every system is treated alike'
+    a: 1
+    why: >-
+      Assessment strategy follows risk: systems whose compromise would hurt most, like the payment portal, get more
+      frequent and deeper testing. Equal coverage sounds fair but spends the budget on low-impact systems and
+      underprotects the critical ones.
+    src: 'NIST SP 800-115 (security assessment planning); NIST SP 800-137 (assessment frequency based on risk); CISSP 2027 outline 6.1'
+
+  - id: x6-004
+    c: vuln-pentest
+    kind: best
+    diff: 1
+    text: >-
+      A vulnerability scan of an HR system lists 40 potential weaknesses. The HR director asks whether an attacker
+      could actually use them to reach payroll records.
+    ask: 'Which assessment BEST answers the director''s question?'
+    o:
+      - 'A second vulnerability scan with a different tool'
+      - 'A review of the system''s firewall logs'
+      - 'A compliance checklist audit of HR'
+      - 'An authorized penetration test'
+    a: 3
+    why: >-
+      A penetration test attempts to exploit weaknesses to show real impact, such as reaching payroll records. Another
+      scan only lists potential weaknesses again, possibly with false positives; it cannot show whether they are
+      exploitable.
+    src: 'NIST SP 800-115 (vulnerability scanning and penetration testing); CISSP 2027 outline 6.2'
+
+  - id: x6-005
+    c: vuln-pentest
+    kind: best
+    diff: 2
+    text: >-
+      A scanner reports a critical vulnerability in a Linux host's web server software, based on the version number in
+      its banner. The system owner says the distribution vendor backported the security fix without changing the
+      version string.
+    ask: 'What is the BEST next action?'
+    o:
+      - 'Verify the patch is installed before closing the finding'
+      - 'Close it now on the owner''s word'
+      - 'Escalate the host as critical and take it offline'
+      - 'Remove the host from future scans to avoid repeats'
+    a: 0
+    why: >-
+      Banner-based detection often produces false positives when vendors backport fixes. The finding should be
+      validated, for example with an authenticated check of the installed package, before it is closed. Accepting the
+      owner's word without evidence skips verification.
+    src: 'NIST SP 800-115 (validating scan results, false positives); CISSP 2027 outline 6.2 (vulnerability assessment)'
+
+  - id: x6-006
+    c: vuln-pentest
+    kind: first
+    diff: 3
+    text: >-
+      Midway through an authorized external penetration test, a tester notices that one IP address on the client's
+      scope list belongs to a shared hosting provider that also serves other customers. The rules of engagement name
+      the client's IT manager as the contact.
+    ask: 'What should the tester do FIRST?'
+    o:
+      - 'Continue, since the address is on the client''s written scope list'
+      - 'Test the address with only low-impact techniques'
+      - 'Finish the test and mention the address in the final report'
+      - 'Pause that address until the IT manager confirms scope'
+    a: 3
+    trap: 1
+    why: >-
+      Authorization must come from someone with authority over the target; the client cannot authorize testing a
+      provider's shared system. The tester should pause and resolve scope through the named contact. Being on the
+      scope list does not create authority the client never had.
+    src: 'NIST SP 800-115 (rules of engagement and authorization); CISSP 2027 outline 6.2 (penetration testing)'
+
+  - id: x6-007
+    c: code-testing
+    kind: best
+    diff: 1
+    text: >-
+      A development team wants to find security flaws such as hard-coded credentials and unsafe string handling by
+      analyzing source code during each build, before the application ever runs.
+    ask: 'Which testing approach BEST fits?'
+    o:
+      - 'Dynamic testing (DAST)'
+      - 'Static application security testing (SAST)'
+      - 'Synthetic transaction monitoring'
+      - 'Load testing in staging'
+    a: 1
+    why: >-
+      Static analysis examines source or compiled code without executing it, so it can run in every build and spot
+      issues like hard-coded secrets. DAST tests the running application from outside, so it cannot run before the
+      application executes.
+    src: 'NIST SP 800-218 (SSDF) PW.7 and PW.8; OWASP Web Security Testing Guide; CISSP 2027 outline 6.2 (code review and testing)'
+
+  - id: x6-008
+    c: code-testing
+    kind: best
+    diff: 3
+    text: >-
+      Testers of a medical device's network protocol build their inputs from a model of the protocol specification,
+      generating messages that are structurally valid but carry boundary values and malformed fields, rather than
+      randomly altering captured traffic.
+    ask: 'Which technique is this MOST accurately?'
+    o:
+      - 'Mutation fuzzing of captured messages'
+      - 'Static analysis'
+      - 'Generation-based fuzzing'
+      - 'Regression testing'
+    a: 2
+    why: >-
+      Generation-based (intelligent) fuzzing creates inputs from a model of the expected format, which reaches deeper
+      logic than random changes. Mutation (dumb) fuzzing alters real samples, such as captured traffic, without
+      understanding their structure; the testers explicitly did not do that.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (mutation and generational fuzzing); CISSP 2027 outline 6.2'
+
+  - id: x6-009
+    c: test-techniques
+    kind: best
+    diff: 1
+    text: >-
+      An airline wants to know within minutes if its booking checkout stops working at 3 a.m., when few real customers
+      are online. It wants scripted tests that complete a booking end to end every five minutes.
+    ask: 'Which monitoring technique BEST meets this need?'
+    o:
+      - 'Real user monitoring of live sessions'
+      - 'Synthetic transaction monitoring'
+      - 'Weekly review of web server logs'
+      - 'Load testing before each release'
+    a: 1
+    why: >-
+      Synthetic transactions are scripted actions run on a schedule, so they detect failures even without real users.
+      Real user monitoring is passive: at 3 a.m. there may be no traffic to reveal that checkout is broken.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (synthetic transactions, real user monitoring); CISSP 2027 outline 6.2'
+
+  - id: x6-010
+    c: test-techniques
+    kind: best
+    diff: 2
+    text: >-
+      While designing a password reset feature, a bank's security analyst writes scenarios describing how an attacker
+      might abuse it: guessing security answers, flooding reset emails and replaying old reset links. Testers then
+      check the feature against each scenario.
+    ask: 'Which testing technique does this MOST accurately describe?'
+    o:
+      - 'Misuse case testing'
+      - 'User acceptance testing'
+      - 'Interface testing'
+      - 'Use case testing'
+    a: 0
+    why: >-
+      Misuse (abuse) case testing models how attackers might misuse a feature and tests the system against those
+      scenarios. Use case testing checks intended behavior by legitimate users, the opposite viewpoint.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (misuse case testing); CISSP 2027 outline 6.2 (misuse case testing)'
+
+  - id: x6-011
+    c: test-techniques
+    kind: calc
+    diff: 2
+    text: >-
+      A test plan for an insurance claims portal lists 160 use cases. By the release date, testers have executed tests
+      that cover 120 of them.
+    ask: 'What is the test coverage?'
+    o: ['33%', '133%', '75%', '25%']
+    a: 2
+    why: >-
+      Coverage = use cases tested / total use cases x 100 = 120 / 160 x 100 = 75%. 25% is the untested share, 133%
+      inverts the ratio, and 33% compares untested to tested (40 / 120).
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (test coverage analysis); CISSP 2027 outline 6.2 (test coverage)'
+
+  - id: x6-012
+    c: attack-simulations
+    kind: best
+    diff: 1
+    text: >-
+      A SOC manager wants to know whether the team would detect a known ransomware group's techniques. A platform will
+      safely replay that group's documented tactics and techniques, mapped to MITRE ATT&CK, against production
+      endpoints.
+    ask: 'Which type of assessment is this MOST accurately?'
+    o:
+      - 'A vulnerability scan'
+      - 'A tabletop exercise'
+      - 'An attack simulation'
+      - 'A compliance audit'
+    a: 2
+    why: >-
+      Attack simulations emulate real adversary behavior to test whether defenses detect and respond. A tabletop
+      exercise only discusses a scenario, and a vulnerability scan lists weaknesses without emulating attacker
+      techniques.
+    src: 'CISSP 2027 outline 6.2 (attack simulations); MITRE ATT&CK; ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: x6-013
+    c: attack-simulations
+    kind: best
+    diff: 3
+    text: >-
+      A board member asks why the company pays for continuous attack simulations when it already commissions an
+      annual penetration test from an outside firm.
+    ask: 'Which answer BEST states the MAIN added value of the attack simulations?'
+    o:
+      - 'They keep validating detection and response against real attacker techniques'
+      - 'They uncover far more vulnerabilities in each run than a manual penetration test does'
+      - 'They remove the need for written authorization before testing'
+      - 'They provide the independent and objective assurance an external auditor gives'
+    a: 0
+    why: >-
+      Attack simulations repeatedly emulate known adversary techniques to confirm that controls detect and respond,
+      catching drift between annual tests. A penetration test seeks exploitable weaknesses at a point in time;
+      simulations are not meant to out-find it, and they still need authorization.
+    src: 'CISSP 2027 outline 6.2 (attack simulations); MITRE ATT&CK; ISC2 CISSP Official Study Guide (Sybex), ch. 15'
+
+  - id: x6-014
+    c: kpi-kri
+    kind: best
+    diff: 3
+    text: >-
+      A security manager is building a dashboard with separate sections for key performance indicators and key risk
+      indicators. The KRI section must give early warning that the organization's exposure to attack is rising.
+    ask: 'Which metric BEST serves as a key risk indicator?'
+    o:
+      - 'Percentage of patches deployed within the 30-day target'
+      - 'Internet-facing hosts still open to known exploited flaws'
+      - 'Average time for the help desk to close security tickets'
+      - 'Awareness training completions this quarter'
+    a: 1
+    why: >-
+      A KRI signals rising exposure: open, known-exploited flaws on internet-facing hosts directly track the chance of
+      compromise. Patch deployment rate is tempting, but it measures how well a process performs, which makes it a
+      KPI.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (key performance and risk indicators); NIST SP 800-55 Vol. 1 (measurement); CISSP 2027 outline 6.3'
+
+  - id: x6-015
+    c: kpi-kri
+    kind: best
+    diff: 1
+    text: >-
+      A company runs monthly simulated phishing campaigns as part of its awareness program. Leadership wants one
+      metric that shows whether employee behavior is improving.
+    ask: 'Which metric BEST shows this?'
+    o:
+      - 'Number of training videos published'
+      - 'Total awareness program budget spent'
+      - 'Rate at which staff report simulated phish'
+      - 'Number of phishing emails blocked by the gateway'
+    a: 2
+    why: >-
+      The reporting rate on simulated phishing measures behavior, the outcome awareness training aims to change.
+      Videos published and budget spent measure activity, not effect; gateway blocks measure a technical control, not
+      people.
+    src: 'NIST SP 800-50 Rev. 1 (measuring learning program effectiveness); CISSP 2027 outline 6.3 (training and awareness)'
+
+  - id: x6-016
+    c: process-data
+    kind: calc
+    diff: 1
+    text: >-
+      A quarterly account review at a hospital examines 2,400 active accounts. Reviewers find 96 that belong to people
+      who have left the organization.
+    ask: 'What percentage of the reviewed accounts belong to departed staff?'
+    o: ['4%', '2.4%', '9.6%', '25%']
+    a: 0
+    why: >-
+      96 / 2,400 = 0.04 = 4%. 9.6% divides by 1,000 instead of 2,400, 2.4% confuses the figures, and 25% is the
+      inverted ratio (2,400 / 96).
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (account management data); CISSP 2027 outline 6.3 (account management)'
+
+  - id: x6-017
+    c: process-data
+    kind: best
+    diff: 2
+    text: >-
+      A company's backup software reports 100% successful nightly backup jobs for the past twelve months. An auditor
+      asks how management knows the critical systems could actually be recovered.
+    ask: 'What is the MAIN weakness of relying on these job reports?'
+    o:
+      - 'The reports cover only twelve months of history'
+      - 'Backup logs can be edited by backup operators'
+      - 'Nightly backups are too infrequent for critical data'
+      - 'Job success does not prove data can be restored'
+    a: 3
+    why: >-
+      Backup verification needs test restores: a job can finish while the data is corrupt, incomplete or unusable.
+      Log tampering is a valid but secondary concern; the core gap is that no restore has been tested against
+      recovery needs.
+    src: 'NIST SP 800-34 Rev. 1 (backup and recovery testing); CISSP 2027 outline 6.3 (backup verification data)'
+
+  - id: x6-018
+    c: process-data
+    kind: best
+    diff: 3
+    text: >-
+      An awareness report shows 98% of employees completed annual security training. Over the same year, the click
+      rate on simulated phishing stayed at 18%, and incidents caused by user error rose.
+    ask: 'Which conclusion is BEST supported by this data?'
+    o:
+      - 'The program is effective, since completion is near 100%'
+      - 'Phishing simulations are unreliable and should be stopped'
+      - 'Completion measures participation, not behavior change'
+      - 'The 2% who did not complete caused the incidents'
+    a: 2
+    why: >-
+      Completion rates show participation, not effectiveness. Flat click rates and rising user-error incidents show
+      behavior has not changed, so the program needs redesign. Blaming the 2% is unsupported; nothing ties the
+      incidents to them.
+    src: 'NIST SP 800-50 Rev. 1 (learning program metrics and evaluation); CISSP 2027 outline 6.3 (training and awareness)'
+
+  - id: x6-019
+    c: process-data
+    kind: best
+    diff: 2
+    text: >-
+      During a quarterly access review, a department manager approves all 60 accounts on her list in four minutes,
+      including nine accounts with administrator rights that their roles do not need.
+    ask: 'What is the MAIN weakness this review data shows?'
+    o:
+      - 'The review should be monthly instead of quarterly'
+      - 'Reviewers are approving access without checking need'
+      - 'Departments should have no admin accounts'
+      - 'The list should have gone to the help desk instead'
+    a: 1
+    why: >-
+      An access review is only useful if reviewers validate each account against need; approving everything in
+      minutes is rubber-stamping and leaves excess privileges in place. Reviewing more often would only repeat the
+      same ineffective approval.
+    src: 'NIST SP 800-53 Rev. 5, AC-2 (account management, account reviews); CISSP 2027 outline 6.3 (account management, management review)'
+
+  - id: x6-020
+    c: remediation-exceptions
+    kind: best
+    diff: 2
+    text: >-
+      A scan finds a critical vulnerability on a legacy lab system that cannot be patched for six months because the
+      vendor no longer supports it. The lab director needs the system running until a replacement arrives.
+    ask: 'Which response is BEST?'
+    o:
+      - 'A time-limited exception signed by the owner, with compensating controls'
+      - 'An open-ended exception approved by the security team alone'
+      - 'Shut the system down at once until the replacement arrives'
+      - 'Leave the finding open and take no action, since a replacement is already on order'
+    a: 0
+    why: >-
+      When a fix is not possible, the risk owner (not the security team) accepts the residual risk through a
+      documented exception with compensating controls and an expiry date. An open-ended exception by security alone
+      lacks authority and a review point.
+    src: 'NIST SP 800-40 Rev. 4 (risk responses when patching is not possible); NIST SP 800-37 Rev. 2 (risk acceptance by the authorizing official); CISSP 2027 outline 6.4 (exception handling)'
+
+  - id: x6-021
+    c: remediation-exceptions
+    kind: best
+    diff: 1
+    text: >-
+      A penetration test report lists an SQL injection flaw in a customer portal. Two weeks later, the developer marks
+      the ticket "fixed" and the system owner asks to close the finding.
+    ask: 'What BEST confirms the finding is remediated?'
+    o:
+      - 'A successful retest of the flaw'
+      - 'The developer''s note in the ticket'
+      - 'The system owner''s written sign-off'
+      - 'A scheduled patch date in the change calendar'
+    a: 0
+    why: >-
+      Remediation is confirmed by verification: a retest shows the fix actually works. A ticket note or sign-off
+      records a claim, not evidence, and fixes for injection flaws are often incomplete.
+    src: 'NIST SP 800-115 (post-testing activities: mitigation and verification); CISSP 2027 outline 6.4 (remediation)'
+
+  - id: x6-022
+    c: responsible-disclosure
+    kind: best
+    diff: 1
+    text: >-
+      While testing a commercial VPN client the company uses, an internal security engineer discovers a vulnerability
+      that lets any local user gain administrator rights. No patch or public report exists.
+    ask: 'Which action BEST follows responsible disclosure?'
+    o:
+      - 'Publish the details and a workaround on the company blog'
+      - 'Post a proof of concept on a public forum to pressure the vendor'
+      - 'Keep it secret forever'
+      - 'Report it privately to the vendor and agree a timeline'
+    a: 3
+    why: >-
+      Responsible (coordinated) disclosure means telling the vendor privately, giving it time to fix, then disclosing
+      on an agreed schedule. Publishing first exposes every customer before a patch exists; permanent secrecy leaves
+      the flaw unfixed for everyone.
+    src: 'ISO/IEC 29147:2018 (vulnerability disclosure); CISSP 2027 outline 6.4 (responsible disclosure)'
+
+  - id: x6-023
+    c: responsible-disclosure
+    kind: best
+    diff: 3
+    text: >-
+      A security researcher reported a vulnerability in a small vendor's router firmware and agreed a 90-day
+      disclosure timeline. The 90 days have passed with no reply to repeated messages, and there is no sign of active
+      exploitation.
+    ask: 'What is the BEST next step for the researcher?'
+    o:
+      - 'Publish full technical details and working exploit code today'
+      - 'Escalate to a coordinator such as a national CERT'
+      - 'Never disclose, since the vendor has not agreed'
+      - 'Sell the details to a broker who will notify the vendor eventually'
+    a: 1
+    why: >-
+      When a vendor is unresponsive, coordinated disclosure brings in a coordinator (a CERT or CSIRT) to reach the
+      vendor and guide publication. Dropping exploit code at once is tempting after the deadline, but it raises risk
+      to users while a coordinated path is still open.
+    src: 'ISO/IEC 29147:2018 (roles, including coordinators); CERT/CC Guide to Coordinated Vulnerability Disclosure; CISSP 2027 outline 6.4 (responsible disclosure)'
+
+  - id: x6-024
+    c: audit-types
+    kind: best
+    diff: 1
+    text: >-
+      Six months before its first ISO/IEC 27001 certification audit, a company has its own audit staff check whether
+      the controls are in place and working, so gaps can be fixed in time.
+    ask: 'Which type of audit is this MOST accurately?'
+    o:
+      - 'Internal audit'
+      - 'External audit'
+      - 'Third-party audit'
+      - 'Regulatory examination'
+    a: 0
+    why: >-
+      An internal audit is performed by the organization's own staff, often to prepare for external review; ISO/IEC
+      27001 also requires internal audits at planned intervals. The certification audit itself will be done by an
+      outside certification body.
+    src: 'ISO/IEC 27001:2022, clause 9.2 (internal audit); ISC2 CISSP Official Study Guide (Sybex), ch. 15; CISSP 2027 outline 6.5 (internal audits)'
+
+  - id: x6-025
+    c: audit-types
+    kind: best
+    diff: 2
+    text: >-
+      A bank's board wants an objective opinion on the bank's cybersecurity controls for its annual report to
+      shareholders. The bank engages an independent audit firm, which reports its findings to the board's audit
+      committee.
+    ask: 'Which audit type does this BEST illustrate?'
+    o:
+      - 'Internal audit'
+      - 'Third-party audit'
+      - 'External audit'
+      - 'Self-assessment'
+    a: 2
+    why: >-
+      In CISSP terms an external audit is performed by an independent outside firm the organization engages, giving
+      more objectivity than its own staff. A third-party audit is done by or for another party, such as a customer or
+      regulator, not engaged by the bank for itself.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 15 (internal, external and third-party audits); CISSP 2027 outline 6.5'
+
+  - id: x6-026
+    c: soc-reports
+    kind: best
+    diff: 1
+    text: >-
+      A cloud payroll provider wants a report on its security controls that it can post publicly on its website for
+      prospective customers, without requiring a nondisclosure agreement.
+    ask: 'Which report BEST fits?'
+    o:
+      - 'SOC 1 Type II'
+      - 'SOC 2 Type II'
+      - 'SOC 1 Type I'
+      - 'SOC 3'
+    a: 3
+    why: >-
+      A SOC 3 report covers the Trust Services Criteria, such as security, and is a general-use report that can be
+      shared publicly. SOC 2 covers similar controls in detail but is restricted use, usually shared under NDA; SOC 1
+      addresses financial reporting controls.
+    src: 'AICPA SOC 2 and SOC 3 reports (Trust Services Criteria); ISC2 CISSP Official Study Guide (Sybex), ch. 15; CISSP 2027 outline 6.5'
+
+  - id: x6-027
+    c: soc-reports
+    kind: best
+    diff: 3
+    text: >-
+      A hospital reviews its claims processor's SOC 2 Type II report. The report lists several complementary user
+      entity controls (CUECs), such as promptly removing departed hospital staff from the processor's portal.
+    ask: 'What do these CUECs MOST accurately mean for the hospital?'
+    o:
+      - 'Exceptions the auditor found when testing the processor''s own controls'
+      - 'Controls the hospital must run for the report''s conclusions to hold'
+      - 'Controls run by the processor''s subservice organizations'
+      - 'Optional suggestions the hospital may safely ignore'
+    a: 1
+    why: >-
+      CUECs are controls the user entity (the customer) must implement for the service organization's controls to
+      meet their objectives. If the hospital does not perform them, the report's assurance does not fully hold.
+      Subservice organization controls are a separate category (CSOCs).
+    src: 'AICPA SOC 2 reporting guidance (complementary user entity controls); CISSP 2027 outline 6.5'
+
+  - id: x6-028
+    c: soc-reports
+    kind: best
+    diff: 2
+    text: >-
+      An insurer's auditors must gain assurance over controls protecting member data at a SaaS provider. The contract
+      does not permit customer audits of the provider's data centers, but the provider shares a current SOC 2 Type II
+      report.
+    ask: 'Which approach BEST provides that assurance?'
+    o:
+      - 'Send auditors to the data centers and demand entry anyway'
+      - 'Accept the provider''s security whitepaper as evidence'
+      - 'Treat the off-premises provider as out of scope'
+      - 'Review the SOC 2 Type II report and its user-entity controls'
+    a: 3
+    why: >-
+      When direct audit is not allowed, a SOC 2 Type II report gives independent evidence that the provider's controls
+      operated over a period; the customer must still confirm its own complementary controls. Off-premises location
+      changes the audit method, not the scope.
+    src: 'AICPA SOC 2 reports; ISC2 CISSP Official Study Guide (Sybex), ch. 15; CISSP 2027 outline 6.5 (location: cloud)'

@@ -1,0 +1,650 @@
+# Board-exam pool, Domain 3 (Security Architecture and Engineering). Items appear only in the board exam.
+# Format and rules: docs/cissp/AUTHORING.md, "The board-exam pool". Log: docs/cissp/exam-pool-d3-d4-d6.md
+items:
+  - id: x3-001
+    c: fail-secure-defaults
+    kind: best
+    diff: 1
+    text: >-
+      A software team is deciding how its file-transfer service should behave at startup if its configuration file
+      is missing or fails an integrity check. The service moves payroll files between the company and its bank.
+    ask: 'Which startup behavior BEST reflects secure design principles?'
+    o:
+      - 'Load a permissive built-in configuration so scheduled transfers are not delayed'
+      - 'Load the last cached configuration without verifying it, then alert the operators'
+      - 'Refuse to start and record the failure until a verified configuration exists'
+      - 'Start in a debug mode that shows full error details to connecting clients'
+    a: 2
+    why: >-
+      Fail-safe defaults: when the basis for a security decision is missing or untrusted, deny rather than allow.
+      Refusing to start keeps the service closed and logged. The cached file is tempting, but using it unverified
+      trusts data that may have been tampered with.
+    src: 'Saltzer and Schroeder, The Protection of Information in Computer Systems (1975), fail-safe defaults; NIST SP 800-160 Vol. 1 Rev. 1 (security design principles); CISSP 2027 outline 3.1'
+
+  - id: x3-002
+    c: two-person-integrity
+    kind: best
+    diff: 3
+    text: >-
+      An internal audit finds that one accounts-payable clerk has reconciled the same suspense account alone for
+      four years and has never taken more than two consecutive days of leave. Management suspects irregular entries
+      may already be hidden in the account.
+    ask: 'Which control would MOST directly help uncover fraud the clerk may already be concealing?'
+    o:
+      - 'Rotate the reconciliation duty to another trained employee on a regular schedule'
+      - 'Require a second clerk to approve each new journal entry before it posts'
+      - 'Split posting and reconciliation between two different clerks from now on'
+      - 'Have the clerk sign an annual attestation that the account balance is accurate'
+    a: 0
+    why: >-
+      Rotation of duties (like mandatory vacation) puts a new person on the task, who can discover concealed
+      irregularities: it is detective. Second approval and separation of duties are preventive; they stop future
+      fraud but do not expose what is already hidden.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 16 (job rotation, mandatory vacations); NIST SP 800-53 Rev. 5 AC-5; CISSP 2027 outline 3.1 (rotation of duties)'
+
+  - id: x3-003
+    c: two-person-integrity
+    kind: best
+    diff: 2
+    text: >-
+      A certificate authority keeps its offline root key backup in a vault. Opening the vault requires two named
+      officers to be physically present together, each entering a different code, and every opening is recorded on
+      camera.
+    ask: 'Which security principle does this control MOST directly implement?'
+    o:
+      - 'Separation of duties'
+      - 'Rotation of duties'
+      - 'Least privilege'
+      - 'Two-person integrity'
+    a: 3
+    why: >-
+      Two-person integrity requires two authorized people acting together on one sensitive action, so neither can
+      act alone. Separation of duties is different: it splits a process into parts done by different people, not
+      both present for the same act.
+    src: 'NIST SP 800-53 Rev. 5 AC-3(2) (dual authorization); ISC2 CISSP Official Study Guide (Sybex), ch. 16; CISSP 2027 outline 3.1 (two-person integrity)'
+
+  - id: x3-004
+    c: zero-trust
+    kind: best
+    diff: 3
+    text: >-
+      In a zero trust deployment modeled on NIST SP 800-207, the policy engine has just decided that a contractor may
+      reach a build server for this session. The decision must now be turned into an actual permitted connection.
+    ask: 'Which logical component has the MAIN responsibility for setting up this session''s communication path?'
+    o:
+      - 'The policy enforcement point'
+      - 'The CDM system'
+      - 'The policy administrator'
+      - 'The identity provider'
+    a: 2
+    why: >-
+      In SP 800-207 the policy engine decides; the policy administrator acts on that decision, establishing or
+      shutting down the communication path by commanding the PEP. The PEP is tempting, but it only enables,
+      monitors and terminates the connection as instructed.
+    src: 'NIST SP 800-207, sec. 3 (logical components of zero trust architecture); CISSP 2027 outline 3.1'
+
+  - id: x3-005
+    c: sase
+    kind: best
+    diff: 2
+    text: >-
+      A retailer has 300 small stores and a largely remote office staff. All store and remote traffic is backhauled
+      to one data center firewall, so cloud apps are slow. The company wants SD-WAN connectivity combined with
+      cloud-delivered secure web gateway, CASB, firewall and zero trust network access close to each user.
+    ask: 'Which architecture BEST meets this goal?'
+    o:
+      - 'A bigger central firewall cluster'
+      - 'A full mesh of site-to-site IPsec tunnels between stores'
+      - 'Network access control with 802.1X at each store switch'
+      - 'A Secure Access Service Edge (SASE) service'
+    a: 3
+    why: >-
+      SASE converges SD-WAN with cloud-delivered security services (SWG, CASB, FWaaS, ZTNA) enforced near users and
+      sites, ending the backhaul. A bigger central firewall keeps the bottleneck and does nothing for remote users
+      who are off the network.
+    src: 'NIST SP 800-215 (Guide to a Secure Enterprise Network Landscape), SASE; CISSP 2027 outline 3.1'
+
+  - id: x3-006
+    c: shared-responsibility
+    kind: best
+    diff: 1
+    text: >-
+      A logistics firm runs its order system on virtual machines rented from an infrastructure as a service (IaaS)
+      provider. An audit finds that the guest operating systems are missing a year of security patches.
+    ask: 'Who has the PRIMARY responsibility for patching those guest operating systems?'
+    o:
+      - 'The customer, which controls the operating systems it deploys'
+      - 'The cloud provider, because it owns the physical hosts'
+      - 'The provider and customer equally, unless the SLA says otherwise'
+      - 'The provider''s hypervisor team, since the VMs run on its hypervisor'
+    a: 0
+    why: >-
+      Under IaaS the consumer controls operating systems, storage and deployed applications; the provider manages the
+      underlying infrastructure (NIST SP 800-145). Owning the hardware or hypervisor does not make the provider
+      responsible for the customer's guest OS.
+    src: 'NIST SP 800-145 (IaaS definition); CISSP 2027 outline 3.1'
+
+  - id: x3-007
+    c: privacy-by-design
+    kind: best
+    diff: 2
+    text: >-
+      Two hospitals want a cloud analytics service to compute statistics across their combined patient data. Their
+      policy forbids the cloud provider from ever seeing the data in plaintext, including while the calculations run.
+    ask: 'Which privacy-enhancing technology BEST meets this requirement?'
+    o:
+      - 'Differential privacy on query results'
+      - 'Tokenization of patient IDs'
+      - 'Homomorphic encryption'
+      - 'TLS 1.3 for all transfers'
+    a: 2
+    why: >-
+      Homomorphic encryption allows computation on encrypted data, so the provider processes ciphertext and never
+      sees plaintext. Differential privacy protects individuals in published results, but the provider would still
+      compute on raw data. TLS protects data only in transit.
+    src: 'NIST Privacy-Enhancing Cryptography project (homomorphic encryption); ISC2 CISSP Official Study Guide (Sybex), privacy-enhancing technologies; CISSP 2027 outline 3.1 (PETs)'
+
+  - id: x3-008
+    c: bell-lapadula
+    kind: best
+    diff: 1
+    text: >-
+      In a government system enforcing Bell-LaPadula, an analyst cleared for Secret tries to open a Top Secret
+      report. The system refuses, even though the analyst's supervisor says the analyst needs it urgently.
+    ask: 'Which Bell-LaPadula rule MOST directly causes the refusal?'
+    o:
+      - 'Simple security property (no read up)'
+      - 'Star property (no write down)'
+      - 'Biba integrity axiom (no read down)'
+      - 'Discretionary security property'
+    a: 0
+    why: >-
+      The simple security property bars a subject from reading objects above its clearance (no read up). The star
+      property governs writing down, not reading. Urgent need does not override the mandatory rule; a proper
+      clearance or downgrade would be required.
+    src: 'Bell and LaPadula, Secure Computer System: Unified Exposition and Multics Interpretation (MITRE, 1976); ISC2 CISSP Official Study Guide (Sybex), ch. 8; CISSP 2027 outline 3.2'
+
+  - id: x3-009
+    c: biba
+    kind: best
+    diff: 2
+    text: >-
+      A plant's high-integrity batch-control process is governed by the Biba model. It attempts to read values from
+      a spreadsheet that operators edit freely and that is labeled low integrity. The read is blocked.
+    ask: 'Which Biba rule BEST explains the block?'
+    o:
+      - 'Simple integrity axiom (no read down)'
+      - 'Simple security property (no read up)'
+      - 'Star integrity axiom (no write up)'
+      - 'Invocation property (no calling higher subjects)'
+    a: 0
+    why: >-
+      Biba's simple integrity axiom stops a subject reading lower-integrity data, so untrusted input cannot
+      contaminate it (no read down). The star integrity axiom governs writing up. The simple security property is
+      Bell-LaPadula's confidentiality rule.
+    src: 'Biba, Integrity Considerations for Secure Computer Systems (MITRE, 1977); ISC2 CISSP Official Study Guide (Sybex), ch. 8; CISSP 2027 outline 3.2'
+
+  - id: x3-010
+    c: clark-wilson
+    kind: best
+    diff: 3
+    text: >-
+      An insurer's claims system lets adjusters change payment records only through certified application programs,
+      never by editing tables directly. Each program logs who ran it, a periodic procedure checks that records remain
+      consistent, and the person who approves a payout cannot also release it.
+    ask: 'Which security model does this design MOST closely follow?'
+    o:
+      - 'Biba'
+      - 'Bell-LaPadula'
+      - 'Brewer-Nash'
+      - 'Clark-Wilson'
+    a: 3
+    why: >-
+      Clark-Wilson enforces integrity through well-formed transactions (users reach constrained data only via
+      certified transformation procedures), integrity verification procedures and separation of duties. Biba also
+      protects integrity, but with integrity levels and read/write rules, not certified programs and access triples.
+    src: 'Clark and Wilson, A Comparison of Commercial and Military Computer Security Policies (IEEE S&P, 1987); ISC2 CISSP Official Study Guide (Sybex), ch. 8; CISSP 2027 outline 3.2'
+
+  - id: x3-011
+    c: brewer-nash
+    kind: best
+    diff: 1
+    text: >-
+      A consulting firm advises several competing airlines. After a consultant opens one airline's confidential
+      pricing files, the system automatically blocks that consultant from the other airlines' files but still allows
+      access to a hotel chain's files.
+    ask: 'Which security model does this behavior BEST illustrate?'
+    o:
+      - 'Bell-LaPadula'
+      - 'Brewer-Nash'
+      - 'Biba'
+      - 'Graham-Denning'
+    a: 1
+    why: >-
+      Brewer-Nash (the Chinese Wall) changes access dynamically: once a subject touches one company in a
+      conflict-of-interest class, its competitors are walled off while other classes stay open. Bell-LaPadula uses
+      fixed clearance levels, not access history.
+    src: 'Brewer and Nash, The Chinese Wall Security Policy (IEEE S&P, 1989); ISC2 CISSP Official Study Guide (Sybex), ch. 8; CISSP 2027 outline 3.2'
+
+  - id: x3-012
+    c: control-selection
+    kind: first
+    diff: 1
+    text: >-
+      A federal agency is following the NIST Risk Management Framework for a new case-management system. The team has
+      finished the preparation tasks and has just categorized the system as moderate impact.
+    ask: 'What should the team do FIRST now that categorization is complete?'
+    o:
+      - 'Implement the controls in the system design'
+      - 'Select a tailored baseline of security controls'
+      - 'Assess the controls for effectiveness'
+      - 'Obtain an authorization to operate'
+    a: 1
+    trap: 0
+    why: >-
+      RMF order: Prepare, Categorize, Select, Implement, Assess, Authorize, Monitor. The impact level drives the
+      baseline that is selected and tailored next. Implementing first, the tempting engineer move, builds controls that
+      were never chosen against the requirements.
+    src: 'NIST SP 800-37 Rev. 2 (RMF steps); NIST SP 800-53B (control baselines); CISSP 2027 outline 3.3'
+
+  - id: x3-013
+    c: control-selection
+    kind: best
+    diff: 2
+    text: >-
+      A payroll system's FIPS 199 security categorization is moderate for confidentiality, low for integrity and high
+      for availability. The team must now choose the NIST SP 800-53B control baseline for the system.
+    ask: 'Which baseline is MOST appropriate?'
+    o:
+      - 'Moderate, the average of the three impact levels'
+      - 'Low, since integrity is the weakest objective'
+      - 'Separate baselines for each security objective'
+      - 'High, the highest of the three impact levels'
+    a: 3
+    why: >-
+      FIPS 200 sets the system's impact level by the high-water mark: the highest impact among confidentiality,
+      integrity and availability, here high. Averaging to moderate underprotects availability; tailoring can then
+      adjust individual controls.
+    src: 'FIPS 199; FIPS 200 (high-water mark); NIST SP 800-53B; CISSP 2027 outline 3.3'
+
+  - id: x3-014
+    c: tpm-hsm
+    kind: best
+    diff: 1
+    text: >-
+      A payment processor must generate, store and use thousands of signing keys for its central transaction servers.
+      Keys must never leave tamper-resistant hardware, the hardware must be FIPS 140-3 validated, and it must handle
+      high transaction volumes.
+    ask: 'Which solution BEST meets these requirements?'
+    o:
+      - 'A hardware security module (HSM) cluster'
+      - 'The Trusted Platform Module in each server'
+      - 'An encrypted software keystore on each server'
+      - 'A smart card issued to each administrator'
+    a: 0
+    why: >-
+      An HSM is dedicated, tamper-resistant hardware for generating and using many keys at high volume, typically
+      FIPS 140-3 validated. A TPM protects keys for its own platform, such as boot measurements and disk keys, and is
+      not built for enterprise-scale signing.
+    src: 'FIPS 140-3; TCG TPM 2.0 Library Specification (ISO/IEC 11889); CISSP 2027 outline 3.4 (TPM, HSM)'
+
+  - id: x3-015
+    c: memory-protection
+    kind: best
+    diff: 2
+    text: >-
+      A security kernel design document states that no subject may reach any object except through the reference
+      monitor, and that no code path, cache or administrative shortcut may skip the check.
+    ask: 'Which reference monitor requirement is the MAIN focus of this statement?'
+    o:
+      - 'Tamperproof isolation'
+      - 'Verifiability'
+      - 'Least common mechanism'
+      - 'Complete mediation'
+    a: 3
+    why: >-
+      Complete mediation means the reference monitor is invoked on every access, with no bypass. Tamperproofing
+      protects the monitor itself from modification; verifiability means it is small enough to analyze and test.
+      Both are required too, but this statement is about always checking.
+    src: 'Anderson, Computer Security Technology Planning Study, ESD-TR-73-51 (1972); ISC2 CISSP Official Study Guide (Sybex), ch. 8; CISSP 2027 outline 3.4'
+
+  - id: x3-016
+    c: ot-ics
+    kind: best
+    diff: 2
+    text: >-
+      A water utility wants to find vulnerabilities in the PLCs and HMIs of a treatment plant that runs around the
+      clock. A consultant offers to run the same aggressive network vulnerability scans used on the corporate IT
+      network.
+    ask: 'Which approach is BEST?'
+    o:
+      - 'Run the aggressive scans at night, when water demand is lowest'
+      - 'Monitor passively and check firmware versions against vendor advisories'
+      - 'Skip assessment of OT devices, since they are isolated from the internet'
+      - 'Install the corporate endpoint agent on each PLC and HMI to report vulnerabilities'
+    a: 1
+    trap: 0
+    why: >-
+      NIST SP 800-82 warns that active scanning can disrupt OT devices; safety and availability come first. Passive
+      monitoring and inventory-based checks find exposure without touching the process; active tests belong in a lab
+      or a planned outage. Night scans still risk tripping a live plant.
+    src: 'NIST SP 800-82 Rev. 3 (OT security, vulnerability assessment cautions); CISSP 2027 outline 3.5'
+
+  - id: x3-017
+    c: cloud-containers
+    kind: best
+    diff: 2
+    text: >-
+      A startup builds its API on a function as a service (FaaS) platform. The provider runs and patches the servers,
+      operating systems and language runtimes. An internal review asks which security duty clearly stays with the
+      startup.
+    ask: 'Which duty BEST remains the startup''s responsibility?'
+    o:
+      - 'Patching the operating system and libraries under the runtime'
+      - 'Hardening the hypervisor that isolates tenant workloads'
+      - 'Its function code and each function''s permissions'
+      - 'Replacing failed disks in the provider''s data centers'
+    a: 2
+    why: >-
+      In serverless, the provider manages servers, OS and runtime; the customer still owns its code, configuration
+      and the identities and permissions its functions use. Over-privileged function roles are a classic serverless
+      risk. OS patching is the provider's job here.
+    src: 'NIST SP 800-145 (service models); ISC2 CISSP Official Study Guide (Sybex), ch. 9 (serverless); CISSP 2027 outline 3.5'
+
+  - id: x3-018
+    c: iot-autonomous
+    kind: best
+    diff: 3
+    text: >-
+      A company is deploying autonomous delivery vehicles on public roads. Engineers debate what a vehicle should do
+      when it loses its primary navigation sensors or its link to the fleet control center in the middle of a route.
+    ask: 'Which design behavior is BEST?'
+    o:
+      - 'Continue the route using the last known map and position until the link returns'
+      - 'Lock the cargo compartment and keep driving to the nearest depot'
+      - 'Reach a minimal risk condition, such as a controlled stop out of traffic'
+      - 'Switch to a backup cellular link and continue the route per the delivery plan'
+    a: 2
+    why: >-
+      For autonomous systems, safe failure means reaching a minimal risk condition when the system can no longer
+      operate safely (SAE J3016 term). Continuing on stale position data is the tempting availability answer, but it
+      puts people on the road at risk.
+    src: 'SAE J3016 (minimal risk condition); ISC2 CISSP Official Study Guide (Sybex), ch. 9 (embedded and autonomous systems); CISSP 2027 outline 3.5'
+
+  - id: x3-019
+    c: crypto-methods
+    kind: calc
+    diff: 1
+    text: >-
+      A research consortium of 12 laboratories wants every pair of labs to share a unique symmetric key, so that no
+      lab can read traffic between two others.
+    ask: 'How many symmetric keys are needed?'
+    o: ['66', '24', '132', '144']
+    a: 0
+    why: >-
+      n(n-1)/2 = 12 x 11 / 2 = 66. 132 forgets to halve (each key serves both ends of a pair), 24 is the asymmetric 2n
+      count, and 144 is n squared.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 6 (symmetric key count n(n-1)/2); CISSP 2027 outline 3.6'
+
+  - id: x3-020
+    c: pki-signatures
+    kind: best
+    diff: 3
+    text: >-
+      A trading platform authenticates messages between its order service and its settlement service with HMAC-SHA-256
+      and a shared secret key. A regulator now requires proof, verifiable by an outside party, of which service
+      originated each message.
+    ask: 'Which property do digital signatures add that is MOST relevant to the regulator?'
+    o:
+      - 'Message integrity'
+      - 'Non-repudiation of origin'
+      - 'Replay protection'
+      - 'Message confidentiality'
+    a: 1
+    why: >-
+      Only the signer holds the private key, so a third party can verify who signed: non-repudiation. With HMAC both
+      services share the key, so either could have produced the tag. HMAC already gives integrity, and neither
+      mechanism encrypts the message.
+    src: 'FIPS 186-5 (digital signatures); FIPS 198-1 (HMAC); CISSP 2027 outline 3.6'
+
+  - id: x3-021
+    c: key-management
+    kind: best
+    diff: 3
+    text: >-
+      A developer reuses one RSA key pair on a document service for signing outgoing documents, decrypting incoming
+      files and authenticating the service in TLS. Changing it is painful, so it has not been replaced in six years.
+    ask: 'Which key management problem is MOST fundamental in this design?'
+    o:
+      - 'The public key has been given to too many relying parties'
+      - 'RSA keys should never be used for TLS server authentication'
+      - 'One key is serving signing, decryption and authentication'
+      - 'The key pair should have been generated, stored and escrowed by the CA'
+    a: 2
+    why: >-
+      NIST SP 800-57 says a key should be used for only one purpose (for example signing or key transport, not
+      both), because reuse weakens assurances and one compromise breaks every use. Public keys are meant to be shared,
+      and CAs normally certify keys rather than generate them.
+    src: 'NIST SP 800-57 Part 1 Rev. 5, sec. 5 (key usage; cryptoperiods in sec. 5.3); CISSP 2027 outline 3.6 (key management)'
+
+  - id: x3-022
+    c: post-quantum
+    kind: best
+    diff: 2
+    text: >-
+      A bank is planning its post-quantum migration and must decide which cryptographic uses to move first, given the
+      risk that adversaries record encrypted traffic today to decrypt it later with a quantum computer.
+    ask: 'Which use is MOST urgent to migrate?'
+    o:
+      - 'AES-256 encryption of backup tapes stored in the data center vault'
+      - 'SHA-256 hashes used to check file integrity'
+      - 'One-time session tokens that expire within minutes'
+      - 'ECDH key exchange for data that must stay secret for decades'
+    a: 3
+    why: >-
+      Shor's algorithm breaks RSA, ECC and Diffie-Hellman key establishment, and harvest now, decrypt later makes
+      long-lived secrets urgent. Grover's algorithm only weakens symmetric ciphers and hashes, so AES-256 and SHA-256
+      stay adequate; short-lived tokens lose value quickly.
+    src: 'NIST IR 8547 (Transition to Post-Quantum Cryptography Standards, final, Oct. 2026); FIPS 203; CISSP 2027 outline 3.6 (post-quantum)'
+
+  - id: x3-023
+    c: cryptanalysis
+    kind: best
+    diff: 1
+    text: >-
+      Researchers recover the private key from a payment smart card by precisely measuring how its power consumption
+      changes while it performs many signing operations. They never break the algorithm mathematically.
+    ask: 'Which type of attack is this MOST accurately?'
+    o:
+      - 'Chosen-plaintext attack'
+      - 'Brute-force attack'
+      - 'Birthday attack'
+      - 'Side-channel attack'
+    a: 3
+    why: >-
+      Side-channel attacks exploit physical leakage from an implementation, such as power use, timing or
+      electromagnetic emissions (power analysis here). A chosen-plaintext attack analyzes chosen inputs and outputs
+      mathematically; it does not measure the device.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 7 (cryptographic attacks); CISSP 2027 outline 3.7 (side-channel)'
+
+  - id: x3-024
+    c: identity-attacks
+    kind: best
+    diff: 3
+    text: >-
+      Investigators confirm attackers took the KRBTGT account's password hash from a domain controller and have been
+      forging Kerberos ticket-granting tickets that grant domain admin rights. The attackers' footholds on hosts are
+      now believed to be removed.
+    ask: 'Which remediation step is MOST important to invalidate the forged tickets?'
+    o:
+      - 'Force an immediate password reset for every user and service account in the domain'
+      - 'Reset the KRBTGT password twice, letting replication finish between'
+      - 'Disable NTLM authentication across the domain'
+      - 'Reboot all domain controllers to clear cached Kerberos tickets'
+    a: 1
+    why: >-
+      Golden tickets are TGTs signed with the KRBTGT key, so they stay valid until that key changes; resetting it
+      twice clears both the current and previous keys. Resetting user passwords does not invalidate tickets signed by
+      the KRBTGT key.
+    src: 'MITRE ATT&CK T1558.001 (Golden Ticket), mitigations; CISSP 2027 outline 3.7 (Kerberos exploitation)'
+
+  - id: x3-025
+    c: ransomware-zero-day
+    kind: best
+    diff: 2
+    text: >-
+      After a ransomware attack at a law firm, investigators find the attackers deleted the snapshots and encrypted the
+      backup server before triggering encryption, because the backup server was joined to the same domain and used the
+      same admin accounts.
+    ask: 'Which backup design change BEST prevents a repeat?'
+    o:
+      - 'Keep immutable or offline copies outside the domain'
+      - 'Run backups every hour instead of once each night'
+      - 'Encrypt all backup files at rest with AES-256 keys'
+      - 'Replicate backups to a second same-domain server'
+    a: 0
+    why: >-
+      CISA's ransomware guidance calls for offline, encrypted, immutable backups because attackers target reachable
+      backups first. Encryption at rest protects confidentiality, not deletion; a second server in the same domain
+      falls to the same stolen admin accounts.
+    src: 'CISA #StopRansomware Guide (backups); CISSP 2027 outline 3.7 (ransomware)'
+
+  - id: x3-026
+    c: ai-threats
+    kind: best
+    diff: 2
+    text: >-
+      A company's spam filter is retrained every week on messages users report. Investigators find that an attacker
+      created many accounts that reported the attacker's own phishing messages as "not spam" for weeks before a
+      campaign that the filter then let through.
+    ask: 'Which attack on the AI system is this MOST accurately?'
+    o:
+      - 'Evasion attack'
+      - 'Data poisoning'
+      - 'Model inversion'
+      - 'Prompt injection'
+    a: 1
+    why: >-
+      Poisoning corrupts the training data so the model learns the attacker's goal; here mislabeled reports trained
+      the filter. Evasion is tempting because phishing got through, but evasion crafts inputs to fool an unchanged
+      model at inference time.
+    src: 'NIST AI 100-2 (Adversarial Machine Learning: A Taxonomy and Terminology of Attacks and Mitigations); CISSP 2027 outline 3.7 (AI threats)'
+
+  - id: x3-027
+    c: cpted-site
+    kind: best
+    diff: 1
+    text: >-
+      A clinic redesigns its grounds: shrubs are trimmed below one meter, the parking lot is well lit, and the
+      reception desk and staff break room now have windows facing the entrance and parking area.
+    ask: 'Which CPTED strategy do these changes MOST directly apply?'
+    o:
+      - 'Natural access control'
+      - 'Territorial reinforcement'
+      - 'Natural surveillance'
+      - 'Target hardening with locks'
+    a: 2
+    why: >-
+      Natural surveillance places features so legitimate users can easily see people and activity: low landscaping,
+      lighting, windows facing approach areas. Natural access control guides movement through entrances and paths;
+      these changes are about being seen, not routing people.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 10 (CPTED); CISSP 2027 outline 3.8'
+
+  - id: x3-028
+    c: cpted-site
+    kind: best
+    diff: 3
+    text: >-
+      A corporate campus borders a public park. Designers add a change of paving at the property line, low decorative
+      walls, branded planters and signs, so visitors clearly sense where public space ends and private space begins.
+      No gates, fences or locks are added.
+    ask: 'Which CPTED strategy is the MAIN one at work here?'
+    o:
+      - 'Organized (guard-based) surveillance'
+      - 'Natural surveillance'
+      - 'Territorial reinforcement'
+      - 'Natural access control'
+    a: 2
+    why: >-
+      Territorial reinforcement uses physical design such as paving, walls and signage to show ownership, so
+      legitimate users feel ownership and intruders feel out of place. Natural access control is tempting, but it
+      physically guides where people enter; nothing here channels movement.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 10 (CPTED); Crowe, Crime Prevention Through Environmental Design; CISSP 2027 outline 3.8'
+
+  - id: x3-029
+    c: fire-suppression
+    kind: best
+    diff: 1
+    text: >-
+      Smoke is coming from an energized electrical distribution panel in a small equipment room. Staff have been
+      evacuated, and a trained facilities technician is choosing a portable extinguisher.
+    ask: 'Which extinguishing agent is MOST appropriate?'
+    o:
+      - 'Pressurized water'
+      - 'Soda acid'
+      - 'Wet chemical (Class K)'
+      - 'Carbon dioxide (CO2)'
+    a: 3
+    why: >-
+      An energized electrical fire is Class C in the US scheme and needs a non-conductive agent such as CO2. Water and
+      soda acid conduct electricity and endanger the user. Wet chemical agents are for Class K cooking-oil fires.
+    src: 'NFPA 10 (fire classes, extinguisher selection); ISC2 CISSP Official Study Guide (Sybex), ch. 10; CISSP 2027 outline 3.9'
+
+  - id: x3-030
+    c: facility-controls
+    kind: best
+    diff: 2
+    text: >-
+      During a regional heatwave, utility voltage at a data center stays about 10 percent below normal for several
+      hours. Equipment keeps running, and the UPS logs show the low voltage persisting rather than a brief dip.
+    ask: 'Which power condition BEST describes this event?'
+    o:
+      - 'Brownout'
+      - 'Sag'
+      - 'Fault'
+      - 'Blackout'
+    a: 0
+    why: >-
+      A brownout is prolonged low voltage; a sag is momentary low voltage. A fault is a momentary loss of power and a
+      blackout a prolonged loss. Here the voltage is low but present, for hours.
+    src: 'ISC2 CISSP Official Study Guide (Sybex), ch. 10 (power issues); CISSP 2027 outline 3.9 (power)'
+
+  - id: x3-031
+    c: system-lifecycle
+    kind: best
+    diff: 1
+    text: >-
+      A city government is starting a project for a new permit-tracking system. The project manager plans to add
+      security once the system is built and tested, to avoid slowing early design work.
+    ask: 'When should security requirements BEST be defined?'
+    o:
+      - 'During testing, so they can be verified'
+      - 'At project start alongside functional requirements'
+      - 'Before go-live, during the authorization review'
+      - 'After deployment, from the first pentest'
+    a: 1
+    why: >-
+      Security requirements belong in the earliest phase, defined with stakeholder needs and functional requirements,
+      so the design can meet them. Adding them at test or go-live forces costly rework and leaves architectural
+      weaknesses that late controls cannot fix.
+    src: 'NIST SP 800-160 Vol. 1 Rev. 1 (stakeholder needs and requirements processes); ISO/IEC/IEEE 15288; CISSP 2027 outline 3.10'
+
+  - id: x3-032
+    c: system-lifecycle
+    kind: best
+    diff: 3
+    text: >-
+      A system received its authorization to operate two years ago. Since then it has added a public API, moved its
+      database to a cloud provider and gained thousands of new users. The next scheduled reassessment is a year away.
+    ask: 'Which approach BEST reflects continuous security review across the system lifecycle?'
+    o:
+      - 'Wait for the scheduled reassessment, since the authorization is still valid'
+      - 'Commission a full penetration test once a year and file the results'
+      - 'Re-run the original authorization package without changes to save time'
+      - 'Monitor controls ongoing and reassess when significant changes occur'
+    a: 3
+    why: >-
+      Continuous monitoring keeps security posture current after authorization, and significant changes like these
+      trigger reassessment. Waiting for the calendar date leaves major changes unassessed; an annual pentest is one
+      input, not ongoing review.
+    src: 'NIST SP 800-137 (ISCM); NIST SP 800-37 Rev. 2 (Monitor step, significant changes); CISSP 2027 outline 3.10 (continuous security review)'

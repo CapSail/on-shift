@@ -1,0 +1,603 @@
+# Board-exam pool, Domain 7 (Security Operations). Items appear only in the board exam.
+# See docs/cissp/AUTHORING.md, "The board-exam pool". Log: docs/cissp/exam-pool-d5-d7.md
+items:
+  - id: x7-001
+    c: order-of-volatility
+    kind: first
+    diff: 1
+    text: >-
+      Responders reach a compromised database server that is still running. They plan to collect evidence from its
+      memory, its local disk, the central log server that receives its logs, and last week's backup tapes.
+    ask: 'Which source should they collect FIRST?'
+    o: ['The local disk', 'The central log server', 'The running memory', 'Last week''s backup tapes']
+    a: 2
+    why: >-
+      Collect in order of volatility: memory is lost at shutdown and changes constantly, so it goes first. The
+      disk and the remote logs persist far longer, and archived tapes are the least volatile of all.
+    src: 'RFC 3227 sec. 2.1 (order of volatility)'
+
+  - id: x7-002
+    c: evidence-handling
+    kind: best
+    diff: 3
+    text: >-
+      A hard drive seized in an internal fraud case was kept in a locked cabinet, but the custody log shows a
+      two-day gap while it was moved between offices. The hash of the drive taken at seizure still matches a new
+      hash taken today.
+    ask: 'What is the MOST likely effect of the gap?'
+    o:
+      - 'It has no effect, because matching hashes prove continuous custody'
+      - 'Opposing counsel can challenge the evidence''s integrity and weight'
+      - 'The drive becomes hearsay and is usable only as background'
+      - 'The evidence must be excluded and the case abandoned'
+    a: 1
+    why: >-
+      A chain of custody must account for the evidence at every point; a gap gives the other side grounds to
+      challenge it, even if the hashes help rebut tampering. Matching hashes show the data is unchanged, not who
+      had the drive.
+    src: 'RFC 3227 sec. 4.1 (chain of custody); ISC2 CISSP OSG (9th ed.) ch. 19 (admissible evidence)'
+
+  - id: x7-003
+    c: soar-playbooks
+    kind: best
+    diff: 2
+    text: >-
+      A security operations center receives 300 user-reported phishing emails a day. For each one, analysts check
+      the sender, detonate attachments, search other mailboxes for copies and block the link, following the same
+      steps every time.
+    ask: 'Which tool would BEST reduce this workload?'
+    o:
+      - 'UEBA baselines for each mailbox user'
+      - 'A honeypot mailbox to collect more samples'
+      - 'A second SIEM dedicated to email logs'
+      - 'SOAR running a phishing response playbook'
+    a: 3
+    why: >-
+      SOAR automates repeatable, approved response steps across tools, which is exactly this routine. UEBA detects
+      unusual behavior; it does not carry out the triage and blocking steps analysts repeat.
+    src: 'CISSP 2027 outline 7.2 (SOAR); ISC2 CISSP OSG (9th ed.) ch. 17'
+
+  - id: x7-004
+    c: ueba-analytics
+    kind: best
+    diff: 1
+    text: >-
+      A finance employee's account, signed in with the correct password and MFA, starts downloading ten times its
+      usual volume from the document system at 3 a.m., from a country the user has never worked in. No
+      signature-based rule fires.
+    ask: 'Which capability is MOST likely to flag this activity?'
+    o: ['A signature-based network intrusion detection system', 'Full-disk encryption and screen locks on laptops', 'User and entity behavior analytics (UEBA)', 'A stateful firewall at the network perimeter']
+    a: 2
+    why: >-
+      UEBA baselines each user's normal behavior and alerts on large deviations, even when credentials are valid.
+      A signature IDS matches known attack patterns, and nothing here matches a signature.
+    src: 'CISSP 2027 outline 7.2 (UEBA); ISC2 CISSP OSG (9th ed.) ch. 17'
+
+  - id: x7-005
+    c: dlp-egress
+    kind: first
+    diff: 2
+    text: >-
+      A law firm has bought a data loss prevention tool because it fears staff email client files to personal
+      accounts. It has never labeled or inventoried which of its documents are confidential.
+    ask: 'What should the firm do FIRST so the DLP tool can work?'
+    o:
+      - 'Turn on blocking for all outbound email attachments'
+      - 'Classify the confidential client data it must recognize'
+      - 'Install DLP agents on every laptop and mobile phone'
+      - 'Encrypt all outbound email by default for every single user'
+    a: 1
+    trap: 0
+    why: >-
+      DLP can only enforce rules on data it can recognize, so the firm must first define and classify what is
+      sensitive. Blocking every attachment is the quick technical fix: it stops legitimate work and still does not
+      know what matters.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 5 (DLP and data classification); CISSP 2027 outline 7.2'
+
+  - id: x7-006
+    c: config-baselines
+    kind: best
+    diff: 1
+    text: >-
+      A company finds that its 500 web servers have drifted into dozens of different configurations after years of
+      manual changes by different administrators.
+    ask: 'Which approach BEST restores and keeps consistency?'
+    o:
+      - 'One baseline enforced on all servers by automated tooling'
+      - 'A checklist administrators follow for every change'
+      - 'Reimaging each server whenever users report a problem with it'
+      - 'A monthly vulnerability scan, fixing whatever findings it reports'
+    a: 0
+    why: >-
+      Configuration management starts from an approved baseline, applies it automatically and detects drift. A
+      checklist still relies on manual changes, which is how the drift happened.
+    src: 'NIST SP 800-128 (security-focused configuration management); NIST SP 800-53 Rev. 5 CM-2, CM-6'
+
+  - id: x7-007
+    c: config-baselines
+    kind: best
+    diff: 2
+    text: >-
+      An organization launches all of its cloud servers from a hardened image. A month later, a critical patch is
+      released for a library included in that image. About 200 running servers use it.
+    ask: 'Which approach BEST keeps the fleet consistent with its baseline?'
+    o:
+      - 'Patch each running server by hand, noting it on a wiki'
+      - 'Leave the image as is and patch each new server after launch'
+      - 'Remove the library from running servers only'
+      - 'Update the image through change control and redeploy from it'
+    a: 3
+    why: >-
+      The image is the baseline: update it through change control and rebuild from it, so every current and future
+      server matches. Patching by hand fixes today's servers but leaves the image vulnerable and the fleet
+      drifting.
+    src: 'NIST SP 800-128 (baseline configurations); NIST SP 800-53 Rev. 5 CM-2, CM-3'
+
+  - id: x7-008
+    c: least-privilege-sod
+    kind: best
+    diff: 3
+    text: >-
+      Internal audit suspects that one claims supervisor has run a fraud for years. The scheme stays hidden because
+      the supervisor personally handles every exception for a small set of accounts, and no one else ever touches
+      them.
+    ask: 'Which control is MOST likely to uncover the existing scheme?'
+    o:
+      - 'Need-to-know limits on those accounts'
+      - 'Two-person approval for each new exception from now on'
+      - 'Rotating those duties to another employee'
+      - 'Least privilege on the claims system for all supervisors'
+    a: 2
+    why: >-
+      Job rotation puts someone else in the role, who is likely to notice what the incumbent was hiding.
+      Two-person approval is a strong preventive control for future exceptions, but it does not make anyone look
+      at the past ones.
+    src: 'CISSP 2027 outline 7.4 (job rotation); ISC2 CISSP OSG (9th ed.) ch. 16'
+
+  - id: x7-009
+    c: privileged-account-monitoring
+    kind: best
+    diff: 1
+    text: >-
+      System administrators at an insurer use their domain administrator accounts for email and web browsing as
+      well as for server administration.
+    ask: 'Which change BEST reduces the risk?'
+    o:
+      - 'Separate admin accounts used only for administrative tasks'
+      - 'Twenty-character passwords on the administrators'' existing accounts'
+      - 'A company-wide block on all web browsing'
+      - 'A review of their account activity once a year'
+    a: 0
+    why: >-
+      Separating privileged accounts from daily accounts keeps a phishing email or malicious site from running
+      with domain admin rights. Longer passwords do nothing when the user's own session runs the malware.
+    src: 'NIST SP 800-53 Rev. 5 AC-6(2) (non-privileged access for nonsecurity functions); CISSP 2027 outline 7.4'
+
+  - id: x7-010
+    c: media-management
+    kind: best
+    diff: 2
+    text: >-
+      A hospital is retiring 200 laptops with self-encrypting drives that held patient data. The laptops will be
+      sold to a refurbisher, so the drives will leave the hospital's control.
+    ask: 'Which sanitization approach is MOST appropriate?'
+    o:
+      - 'Clear, by overwriting user-addressable storage once'
+      - 'Quick-format each drive and reinstall the operating system'
+      - 'Purge, for example by a verified cryptographic erase'
+      - 'Delete the patient files and empty the recycle bin'
+    a: 2
+    why: >-
+      Sensitive media leaving organizational control needs purge (or destroy); on a self-encrypting drive a
+      cryptographic erase purges by destroying the media key, then is verified. Clear protects only against simple,
+      non-laboratory recovery.
+    src: 'NIST SP 800-88 Rev. 2 (Sept. 2025) (clear, purge, destroy; decision flow for media leaving the organization; sec. 3.2.5 cryptographic erase prerequisites)'
+
+  - id: x7-011
+    c: data-states-protection
+    kind: best
+    diff: 1
+    text: >-
+      A company encrypts its database files on disk and uses TLS between its application and the database. An
+      analyst points out that sensitive fields are still exposed in server memory while queries are processed.
+    ask: 'Which data state BEST describes the remaining exposure?'
+    o: ['Data at rest', 'Data in use', 'Data in transit', 'Data in archive']
+    a: 1
+    why: >-
+      Data being processed in memory is data in use. Disk encryption protects data at rest and TLS protects data
+      in transit; neither covers data while the CPU is working on it.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 5 (data states); CISSP 2027 outline 7.5'
+
+  - id: x7-012
+    c: incident-steps
+    kind: first
+    diff: 1
+    text: >-
+      An analyst confirms that ransomware is encrypting files on two file servers right now and appears to be
+      spreading over the network.
+    ask: 'What should the response team do FIRST?'
+    o:
+      - 'Restore the files from last night''s backups'
+      - 'Notify every customer that data may be affected'
+      - 'Write the lessons-learned report for management'
+      - 'Isolate the two affected servers from the network'
+    a: 3
+    why: >-
+      With an active, spreading incident, the next step is mitigation: contain it by isolating affected systems.
+      Restoring now would put clean files back where the ransomware is still running.
+    src: 'CISSP 2027 outline 7.6 (response, mitigation); ISC2 CISSP OSG (9th ed.) ch. 17'
+
+  - id: x7-013
+    c: incident-steps
+    kind: best
+    diff: 2
+    text: >-
+      A company has contained a malware outbreak, restored the affected systems and returned to normal operations.
+      Analysts then confirm the malware got in through a VPN appliance that is still unpatched.
+    ask: 'Which incident management step BEST covers fixing this cause?'
+    o:
+      - 'Recovery: return systems to normal operation'
+      - 'Mitigation: limit the spread of the incident'
+      - 'Remediation: eliminate the root cause found'
+      - 'Reporting: tell stakeholders what happened'
+    a: 2
+    why: >-
+      In ISC2's steps, remediation addresses the root cause, here the unpatched appliance. Recovery returns systems
+      to normal, which the company has already done; it does not stop the same entry point being used again.
+    src: 'CISSP 2027 outline 7.6; ISC2 CISSP OSG (9th ed.) ch. 17 (incident management steps)'
+
+  - id: x7-014
+    c: allowlist-denylist
+    kind: best
+    diff: 2
+    text: >-
+      Self-service kiosks in a hospital lobby should run only a browser and a check-in app. Attackers keep loading
+      new malware variants from USB sticks that the antivirus signatures do not yet recognize.
+    ask: 'Which control BEST stops unknown programs from running?'
+    o:
+      - 'A denylist of malware hashes updated every hour'
+      - 'Antivirus signature updates every 15 minutes'
+      - 'A host IDS that alerts on newly started processes'
+      - 'Application allowlisting of the two kiosk programs'
+    a: 3
+    why: >-
+      An allowlist permits only known-good programs and blocks everything else, including malware nobody has seen
+      yet. A denylist, however often updated, blocks only what is already known to be bad.
+    src: 'NIST SP 800-167 (application whitelisting); CISSP 2027 outline 7.7'
+
+  - id: x7-015
+    c: third-party-sec-services
+    kind: best
+    diff: 3
+    text: >-
+      An online bank faces volumetric DDoS attacks of several hundred Gbps that saturate its two 10 Gbps internet
+      links. Its on-premises IPS identifies and drops the attack packets correctly, yet customers still cannot reach
+      the site.
+    ask: 'Which control BEST addresses this attack?'
+    o:
+      - 'A faster on-premises IPS with more capacity'
+      - 'Upstream filtering by a cloud scrubbing service'
+      - 'Rate limiting on the bank''s web servers'
+      - 'Moving the web servers into a DMZ'
+    a: 1
+    trap: 0
+    why: >-
+      The links fill before traffic reaches the bank, so filtering must happen upstream, where a scrubbing service
+      has the capacity to absorb it. A bigger on-premises IPS still sits behind the saturated links.
+    src: 'CISSP 2027 outline 7.7 (DDoS scrubbing); ISC2 CISSP OSG (9th ed.) ch. 17'
+
+  - id: x7-016
+    c: edr-xdr
+    kind: best
+    diff: 2
+    text: >-
+      A company has EDR on its laptops, a separate email security gateway and cloud workload logs, each with its own
+      console. Analysts struggle to link a phishing email to the endpoint process it launched and the cloud sign-in
+      that followed.
+    ask: 'Which capability BEST addresses this gap?'
+    o:
+      - 'XDR correlating telemetry from all three sources'
+      - 'EDR with longer local retention of endpoint telemetry'
+      - 'Next-generation antivirus with better malware signatures'
+      - 'A network IDS placed at the internet edge'
+    a: 0
+    why: >-
+      XDR extends detection and response across endpoints, email, cloud and network and correlates them into one
+      incident. Longer EDR retention still sees only the endpoint, not the email or the cloud sign-in.
+    src: 'CISSP 2027 outline 7.7 (EDR/XDR)'
+
+  - id: x7-017
+    c: patch-vuln-mgmt
+    kind: first
+    diff: 1
+    text: >-
+      A vendor releases a critical security patch for the database software a company runs. The company has
+      confirmed that 40 production servers run the affected version, and no exploitation has been reported yet.
+    ask: 'What should the company do FIRST?'
+    o:
+      - 'Apply the patch to all 40 servers tonight'
+      - 'Wait for the next quarterly maintenance window'
+      - 'Shut down the databases until the patch is installed'
+      - 'Test the patch on systems that mirror production'
+    a: 3
+    trap: 0
+    why: >-
+      Patch management tests patches before deployment so a fix does not break production; with no exploitation
+      yet, there is time to test. Patching everything tonight is the hands-on reflex that skips testing and change
+      control.
+    src: 'NIST SP 800-40 Rev. 4 (enterprise patch management); CISSP 2027 outline 7.8'
+
+  - id: x7-018
+    c: patch-vuln-mgmt
+    kind: first
+    diff: 3
+    text: >-
+      A scan finds two flaws. Flaw A has a CVSS base score of 9.8 on an isolated lab server with no sensitive data.
+      Flaw B scores 7.5, appears in the CISA catalog of Known Exploited Vulnerabilities and sits on an
+      internet-facing payment server.
+    ask: 'Which should the team remediate FIRST?'
+    o:
+      - 'Flaw A, because its CVSS base score is higher'
+      - 'Flaw B, as active exploitation outweighs the score'
+      - 'Both together, because both scores are above 7.0'
+      - 'Neither, until a full enterprise risk assessment is done'
+    a: 1
+    why: >-
+      Prioritize by risk, not base score alone: active exploitation, exposure and asset value make Flaw B the
+      bigger risk. A CVSS base score describes severity in general, not risk in this environment.
+    src: 'NIST SP 800-40 Rev. 4 (risk-based prioritization); CISA BOD 22-01 (Known Exploited Vulnerabilities)'
+
+  - id: x7-019
+    c: change-management
+    kind: first
+    diff: 1
+    text: >-
+      A network engineer wants to change a core router's routing configuration to fix a slow link between two
+      offices. No outage is in progress.
+    ask: 'What should happen FIRST?'
+    o:
+      - 'Submit a change request for impact review and approval'
+      - 'Make the change at night and tell the team afterward'
+      - 'Try the change on the live router with a rollback timer'
+      - 'Update the network diagram to show the new routes'
+    a: 0
+    trap: 1
+    why: >-
+      Change management requires a request, impact review and approval before implementation. Making the change
+      quietly at night is the engineer's shortcut that skips review and can cause an unplanned outage.
+    src: 'NIST SP 800-53 Rev. 5 CM-3 (configuration change control); CISSP 2027 outline 7.9'
+
+  - id: x7-020
+    c: change-management
+    kind: best
+    diff: 2
+    text: >-
+      During an active attack, the security operations center needs a firewall rule blocking an attacker's IP
+      range now. The change advisory board meets only on Thursdays.
+    ask: 'Which approach BEST follows change management?'
+    o:
+      - 'Wait for Thursday''s board meeting to approve the new rule'
+      - 'Make the change informally, since attacks are outside change control'
+      - 'Ask the firewall vendor to make it, so it is not an internal change'
+      - 'Apply it now as an emergency change, reviewed by the board later'
+    a: 3
+    why: >-
+      Mature change management has an emergency path: act now under defined authority, then record and review the
+      change afterward. Treating emergencies as outside change control leaves undocumented rules nobody reviews.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 16 (change management); NIST SP 800-53 Rev. 5 CM-3'
+
+  - id: x7-021
+    c: immutable-backups
+    kind: best
+    diff: 1
+    text: >-
+      Ransomware operators who gained domain administrator rights deleted all of a company's online backup copies
+      before encrypting its servers.
+    ask: 'Which control would BEST have preserved recoverable data?'
+    o:
+      - 'Backups taken more often to the same server'
+      - 'Longer retention periods on the existing backup share'
+      - 'Encrypting the backups with a key kept on the backup server'
+      - 'Immutable copies that no account can alter or delete'
+    a: 3
+    why: >-
+      Immutable or offline backups cannot be changed or deleted during their retention, even by a compromised
+      administrator. More frequent backups to the same reachable server are deleted just as easily.
+    src: 'CISSP 2027 outline 7.10 (immutable backups); NIST SP 800-34 Rev. 1 sec. 3.4.2 (backup and offsite storage)'
+
+  - id: x7-022
+    c: recovery-sites
+    kind: best
+    diff: 2
+    text: >-
+      A BIA sets a recovery time objective of three days for a claims system. A cold site vendor needs about two
+      weeks to deliver and install equipment. A warm site can be running from restored backups in about 36 hours.
+      Hot and mirrored sites are also offered.
+    ask: 'Which option is MOST cost-effective while still meeting the RTO?'
+    o:
+      - 'A cold site with only power, cooling and space'
+      - 'A mirrored site running in parallel'
+      - 'A hot site with replicated live data'
+      - 'A warm site loaded from recent backups'
+    a: 3
+    why: >-
+      Choose the cheapest site that meets the RTO. The warm site is ready in about 36 hours, inside three days. A
+      cold site is cheaper but takes two weeks; hot and mirrored sites meet the RTO at much higher cost.
+    src: 'NIST SP 800-34 Rev. 1 sec. 3.4.3 (alternate sites)'
+
+  - id: x7-023
+    c: dr-metrics
+    kind: calc
+    diff: 3
+    text: >-
+      An order system sends a full backup offsite nightly at 01:00. Transaction logs are also shipped offsite every four
+      hours, at 05:00, 09:00, 13:00, 17:00 and 21:00. At 16:30 a fire destroys the primary site, and recovery can
+      use only offsite data.
+    ask: 'How many hours of transactions are lost?'
+    o: ['3.5 hours', '4 hours', '15.5 hours', '0.5 hours']
+    a: 0
+    why: >-
+      The last data to reach offsite storage is the 13:00 log shipment, so 13:00 to 16:30 is lost: 3.5 hours. 15.5
+      hours ignores the log shipments; 4 hours is the interval, the worst case, not this case.
+    src: 'NIST SP 800-34 Rev. 1 sec. 3.2.1 (RPO); arithmetic'
+
+  - id: x7-024
+    c: dr-process
+    kind: best
+    diff: 3
+    text: >-
+      A company's primary data center has been repaired after a fire, and operations are ready to move back from
+      the alternate site, where all critical functions are running well.
+    ask: 'Which approach to the move back is BEST?'
+    o:
+      - 'Move the most critical functions first to restore service'
+      - 'Start with the least critical functions to test the site'
+      - 'Move everything at once over one weekend to save cost'
+      - 'Stay at the alternate site permanently from now on'
+    a: 1
+    why: >-
+      Move the least critical functions back first, so any remaining problems at the primary site hit low-impact
+      work while critical functions stay safe at the alternate site. Moving critical work first risks a second
+      outage of the most important functions.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 18 (restoration to the primary site)'
+
+  - id: x7-025
+    c: dr-test-types
+    kind: best
+    diff: 1
+    text: >-
+      A company wants its first test of a new disaster recovery plan to have no impact on operations. Key team
+      members will meet in a conference room and talk through how they would respond to a flood scenario.
+    ask: 'Which test type BEST matches this description?'
+    o: ['Tabletop exercise', 'Parallel test', 'Full interruption test', 'Functional exercise']
+    a: 0
+    why: >-
+      A tabletop (read-through) is discussion-based: people talk through a scenario and no systems are touched.
+      Functional exercises and parallel tests actually perform recovery tasks, and a full interruption test shuts
+      down production.
+    src: 'CISSP 2027 outline 7.12; NIST SP 800-34 Rev. 1 sec. 3.5.3 (tabletop exercises)'
+
+  - id: x7-026
+    c: dr-test-types
+    kind: best
+    diff: 3
+    text: >-
+      A bank must show that its hot site can process real transactions at full load. The board will not accept any
+      risk of interrupting production systems during the test.
+    ask: 'Which DR test BEST meets both conditions?'
+    o: ['Full interruption test', 'Simulation test', 'Parallel test', 'Walkthrough test']
+    a: 2
+    why: >-
+      A parallel test brings the alternate site up and processes real work while the primary keeps running. A full
+      interruption test proves more but shuts down production; a simulation rehearses responses without running
+      real workloads at full load.
+    src: 'CISSP 2027 outline 7.12; ISC2 CISSP OSG (9th ed.) ch. 18 (parallel tests)'
+
+  - id: x7-027
+    c: bc-exercises
+    kind: best
+    diff: 2
+    text: >-
+      A company has just approved its first business continuity plan. Most department managers have never read it,
+      and several have never taken part in any continuity exercise.
+    ask: 'Which exercise is the BEST place to start?'
+    o:
+      - 'A full-scale exercise relocating staff to the alternate site'
+      - 'A tabletop walking managers through a disruption scenario'
+      - 'A functional exercise running recovery tasks under time pressure'
+      - 'A full interruption test of the primary data center'
+    a: 1
+    why: >-
+      Exercise programs build up: discussion-based exercises such as tabletops come first, so participants learn
+      their roles before operations-based exercises test performance. A full-scale or functional exercise would
+      test people who do not yet know the plan.
+    src: 'FEMA HSEEP (2020), progressive exercise approach; NIST SP 800-84 (test, training and exercise programs)'
+
+  - id: x7-028
+    c: bc-exercises
+    kind: best
+    diff: 3
+    text: >-
+      A hospital's continuity team wants staff to actually perform their recovery tasks in real time to check they
+      can carry them out, but without deploying field resources or moving people to other sites.
+    ask: 'Which HSEEP exercise type BEST fits this aim?'
+    o: ['Tabletop exercise', 'Seminar', 'Functional exercise', 'Full-scale exercise']
+    a: 2
+    why: >-
+      A functional exercise is operations-based: participants perform their functions in real time in a realistic
+      but simulated setting, without deploying field resources. A full-scale exercise adds actual deployment of
+      people and resources, which the team wants to avoid.
+    src: 'FEMA HSEEP (2020), exercise types (discussion-based and operations-based)'
+
+  - id: x7-029
+    c: physical-external-internal
+    kind: best
+    diff: 1
+    text: >-
+      A data center sits next to a busy road, and its glass lobby faces the parking lot. Management wants to
+      prevent a vehicle from being driven into the lobby.
+    ask: 'Which control BEST meets this goal?'
+    o: ['A mantrap at the lobby door', 'Bollards in front of the entrance', 'CCTV covering the parking lot', 'Badge readers on all of the lobby doors']
+    a: 1
+    why: >-
+      Bollards are external barriers that physically stop vehicles. A mantrap controls people entering one at a
+      time, and CCTV only deters and records.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 10 (perimeter controls); CISSP 2027 outline 7.14'
+
+  - id: x7-030
+    c: physical-external-internal
+    kind: best
+    diff: 2
+    text: >-
+      Badge logs show 120 entries to a secure lab in one day, but the cameras show more than 200 people walking in.
+      Employees routinely hold the door open for colleagues behind them.
+    ask: 'Which control BEST stops this from continuing?'
+    o:
+      - 'An access control vestibule admitting one person for each badge'
+      - 'Annual training on the risks of tailgating for all lab staff'
+      - 'Longer retention of the lab entrance camera footage'
+      - 'A taller fence around the building''s outer perimeter'
+    a: 0
+    why: >-
+      An access control vestibule (mantrap) physically lets one authenticated person through at a time, which
+      stops tailgating. Training helps, but staff already hold the door knowingly; it does not enforce one person
+      per badge.
+    src: 'ISC2 CISSP OSG (9th ed.) ch. 10 (access control vestibules); CISSP 2027 outline 7.14'
+
+  - id: x7-031
+    c: personnel-safety
+    kind: best
+    diff: 2
+    text: >-
+      A bank wants staff who are forced at gunpoint to open the vault to be able to call for help without the
+      robber knowing.
+    ask: 'Which control BEST meets this need?'
+    o:
+      - 'Dual control on the vault door'
+      - 'A visible panic button by the vault'
+      - 'A duress code that triggers a silent alarm'
+      - 'A time-delay lock on the vault'
+    a: 2
+    why: >-
+      A duress code looks like normal entry but silently alerts security, so the robber does not know. A visible
+      panic button may be seen and provoke violence, and dual control does not summon help.
+    src: 'CISSP 2027 outline 7.15 (duress); ISC2 CISSP OSG (9th ed.) ch. 16'
+
+  - id: x7-032
+    c: personnel-safety
+    kind: best
+    diff: 2
+    text: >-
+      An engineer will travel to a country where border officials may inspect and copy the contents of laptops. She
+      normally carries a laptop holding years of design files.
+    ask: 'Which approach BEST protects the company''s data on this trip?'
+    o:
+      - 'A loaner laptop carrying only the data needed for the trip'
+      - 'Her usual laptop, encrypted, refusing to unlock it at the border'
+      - 'Her usual laptop, with the design files moved to a hidden folder'
+      - 'Shipping her usual laptop ahead to the hotel by courier'
+    a: 0
+    why: >-
+      Carrying only what the trip needs, on a clean loaner device, limits what can be inspected or copied. Refusing
+      to unlock an encrypted laptop can mean seizure or denied entry, and the full data set is still at risk.
+    src: 'CISSP 2027 outline 7.15 (travel); ISC2 CISSP OSG (9th ed.) ch. 16'

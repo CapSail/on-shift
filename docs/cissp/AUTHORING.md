@@ -52,3 +52,33 @@ All fictional. Real organizations may only be named as authorities (ISC2, NIST, 
 ## Check your work
 
 `node ./node_modules/tsx/dist/cli.mjs scripts/build-content-cissp.ts --check` must show **no errors for your domains** (errors about other domains are someone else's). Then read every scene once more as a skeptical CISSP instructor: is the keyed answer the one ISC2 would key? Is any distractor also defensible? If so, fix it.
+
+## The board-exam pool (content/cissp/exam/d<n>.yaml)
+
+Items that appear ONLY in the board exam (never in cases, drills or flashbacks), so a practice exam measures
+understanding, not memory of scenes already played. Format:
+
+```yaml
+items:
+  - id: x3-001          # x<domain>-NNN, stable forever
+    c: crypto-hybrid    # an existing concept id from this domain's dN.yaml
+    kind: best          # first | best | calc
+    diff: 2             # 1 easy, 2 medium, 3 hard (each domain needs at least 20% of each)
+    text: >-
+      A regional hospital ... (the situation, ≤ 90 words, stands alone)
+    ask: 'Which approach BEST ...?'
+    o: ['...', '...', '...', '...']
+    a: 2
+    trap: 1             # optional: the hands-on "engineer answer"
+    why: '... (≤ 50 words: why the key is right and the tempting one wrong)'
+    src: 'NIST SP 800-57 Pt 1 Rev. 5 sec. 5.3; CISSP 2027 outline 3.6'
+```
+
+Rules:
+- Real-exam style: neutral organizations ("a regional hospital", "a payments startup"). No Halvorsen, no Shifty, no
+  cast names, and no reused case wording (the validator rejects 8-word overlaps with case scenes).
+- One clearly best answer per the cited authority, from the manager or risk view where the question calls for it.
+  Distractors are plausible and wrong per the source. No "all/none of the above", no trick wording.
+- No answer-shape giveaways: run `node scripts/check-cues-cissp.mjs --pool` (every cue about 25% or lower).
+- Count per domain: D1 34, D2 30, D3 32, D4 32, D5 34, D6 28, D7 32, D8 28, and every 2027 objective needs at least
+  2 items.

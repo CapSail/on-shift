@@ -253,6 +253,7 @@ test('a full 125-scene board exam completes: no duplicates, a sane score, the do
   await expect(page.locator('.endscr')).toBeVisible();
   expect(ids.length).toBe(125);
   expect(new Set(ids).size).toBe(125);
+  expect(ids.filter((id) => !id.startsWith('x')), 'a full exam is drawn only from the exam-only pool').toEqual([]);
   const score = Number(await page.locator('.endscr .grade').textContent());
   expect(score).toBeGreaterThanOrEqual(0);
   expect(score).toBeLessThanOrEqual(1000);
